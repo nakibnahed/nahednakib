@@ -1,0 +1,20 @@
+.container {
+  height: 50px;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  z-index: 999;
+}
+
+@media (max-width: 480px) {
+  /* Reduce Title Sizes */
+  .container {
+    display: flex;
+    align-items: center;
+    flex-direction: column-reverse;
+    justify-content: space-between;
+    gap: 20px;
+    margin: 10px 0;
+  }
+}

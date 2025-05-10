@@ -1,0 +1,63 @@
+.banner {
+  background: #1a1a1a;
+  color: #fff;
+  padding: 30px 40px;
+  border-radius: 12px;
+  margin-bottom: 30px;
+}
+
+.bannerContent {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.banner h1 {
+  font-size: clamp(20px, 5vw, 32px);
+}
+
+.title {
+  margin-bottom: 15px;
+  text-align: center;
+}
+
+.title h1 {
+  font-size: 38px;
+  font-weight: 900;
+  background: linear-gradient(to bottom, #ee681a, rgb(54, 29, 17));
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 6px;
+  text-align: center;
+}
+
+.info {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.title p,
+.title p {
+  font-size: 16px;
+}
+
+.info svg {
+  margin-right: 8px;
+  vertical-align: middle;
+  color: #ee681a;
+}
+
+@media (max-width: 768px) {
+  .banner {
+    padding: 20px;
+  }
+  .info {
+    justify-content: start;
+    gap: 20px;
+  }
+}

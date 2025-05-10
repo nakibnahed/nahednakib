@@ -1,0 +1,90 @@
+/* ✅ Main Container (Grid or Flexbox) */
+.mainContainer {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  padding: 20px;
+  /* Additional styling as needed */
+}
+
+/* Styling for the icon */
+.icon {
+  position: absolute;
+  top: 15px;
+  right: 15px; /* Position in the top right corner */
+  width: 24px; /* Adjust width of the icon */
+  height: 24px; /* Adjust height of the icon */
+  opacity: 0.7; /* Make the icon semi-transparent */
+  fill: currentColor; /* Use the current text color for the icon */
+  color: #ddd;
+}
+
+.post {
+  position: relative; /* Ensure the post container has relative positioning */
+  width: 100%;
+  text-decoration: none;
+  color: inherit;
+}
+
+/* ✅ Content Styling */
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* ✅ Title Styling */
+.title {
+  font-size: 22px;
+  font-weight: bold;
+  /* margin-bottom: 10px; */
+}
+
+/* ✅ Date Styling */
+.date {
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 10px;
+}
+
+/* ✅ Description Styling */
+.description {
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+/* ✅ Read More Styling */
+.readMore {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  /* font-weight: bold; */
+  color: #ee681a;
+  cursor: pointer;
+}
+
+.readMore .arrow {
+  font-size: 18px;
+  transition: transform 0.3s ease;
+}
+
+.readMore:hover .arrow {
+  transform: translateX(5px); /* Add a smooth right arrow hover effect */
+}
+
+/* ✅ Responsive Design */
+@media (max-width: 1024px) {
+  .mainContainer {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 600px) {
+  .mainContainer {
+    grid-template-columns: 1fr;
+  }
+
+  .title {
+    font-size: 18px;
+  }
+}

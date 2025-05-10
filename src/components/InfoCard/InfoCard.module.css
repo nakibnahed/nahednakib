@@ -1,0 +1,47 @@
+.card {
+  background: #1a1a1a;
+  color: #fff;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+  transition: 0.2s ease-in-out;
+  /* cursor: pointer; */
+}
+
+.card:hover {
+  /* transform: scale(1.02); */
+  background: #1e1e1e;
+}
+
+.large {
+  grid-column: span 12;
+}
+
+.medium {
+  grid-column: span 6;
+}
+.semi {
+  grid-column: span 8;
+}
+
+.small {
+  grid-column: span 4;
+}
+
+.icon {
+  margin-bottom: 10px;
+  color: #ee681a; /* Your primary color */
+}
+
+.title {
+  margin-bottom: 10px;
+}
+
+@media (max-width: 768px) {
+  .large,
+  .medium,
+  .semi,
+  .small {
+    grid-column: span 12;
+  }
+}

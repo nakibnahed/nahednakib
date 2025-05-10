@@ -1,0 +1,36 @@
+/* components/SocialLinks/socialLinks.module.css */
+
+.container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  margin-top: 20px;
+}
+
+.icons {
+  display: flex;
+  gap: 15px;
+}
+
+.icon {
+  opacity: 0.6;
+  cursor: pointer;
+  transition: opacity 0.3s ease-in-out, transform 0.3s ease, color 0.3s ease;
+}
+
+.icon:hover {
+  opacity: 1;
+  transform: translateY(-5px);
+}
+
+/* Mobile responsiveness */
+@media (max-width: 480px) {
+  .container {
+    gap: 10px;
+  }
+  .icon {
+    width: 25px;
+    height: 25px;
+  }
+}

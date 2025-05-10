@@ -1,0 +1,69 @@
+.container {
+  max-width: 1000px;
+  margin: 0 auto;
+}
+.title {
+  margin: 15px auto;
+  color: aliceblue;
+}
+.imgContainer {
+  position: relative;
+  height: 300px;
+  margin: 25px 0;
+  border-radius: 16px;
+}
+.info {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  margin: 0 auto;
+  height: 100%;
+  width: 100%;
+  background-color: rgba(0, 0, 0, 0.455);
+  border-radius: 16px;
+}
+
+.image {
+  object-fit: cover;
+  border-radius: 16px;
+}
+
+.text {
+  font-size: 18px; /* Slightly increase font size for better readability */
+  line-height: 1.6; /* Increase line height for better readability */
+  text-align: justify; /* Keep text aligned for a cleaner look */
+  margin-bottom: 20px; /* Add some space after the text block */
+}
+
+.text p {
+  margin-bottom: 16px; /* Add space between paragraphs */
+}
+
+.text h1,
+.text h2,
+.text h3 {
+  margin-top: 30px; /* Add space before headings */
+  margin-bottom: 10px; /* Space below headings */
+  font-weight: bold; /* Make headings stand out */
+}
+
+.text ul,
+.text ol {
+  margin-left: 20px; /* Indent lists for better clarity */
+  margin-bottom: 16px; /* Space after lists */
+}
+
+.text li {
+  margin-bottom: 8px; /* Space between list items */
+}
+
+.text a {
+  color: #ee681a; /* Make links stand out */
+  text-decoration: underline; /* Underline links */
+}
+
+.text a:hover {
+  color: #d45f00; /* Hover effect for links */
+}

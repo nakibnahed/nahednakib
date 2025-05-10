@@ -1,0 +1,28 @@
+.container {
+  height: 100px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  z-index: 999;
+}
+
+.links {
+  display: flex;
+  gap: 15px;
+  align-items: center;
+}
+
+.link {
+  background: linear-gradient(to bottom, #ddd, #555);
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+@media (max-width: 480px) {
+  /* Reduce Title Sizes */
+  .container {
+    height: 75px;
+  }
+}

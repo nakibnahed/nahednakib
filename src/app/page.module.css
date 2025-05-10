@@ -1,0 +1,137 @@
+/* Main Container (Responsive Flexbox) */
+.container {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 100px;
+  padding: 20px;
+  max-width: 800px;
+  z-index: 99;
+  margin: 0 auto;
+  overflow: hidden; /* Prevent overflow issues */
+  text-align: center;
+}
+
+/* Column Layout */
+.col {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+}
+
+/* Title Styling */
+.title {
+  font-size: 54px;
+  font-weight: 900;
+  background: linear-gradient(to bottom, #ee681a, rgb(54, 29, 17));
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-align: center;
+}
+
+/* Description */
+.description {
+  font-size: 22px;
+  line-height: 2rem;
+  font-weight: 400;
+  text-align: center;
+  background: linear-gradient(to bottom, #ddd, #555);
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  max-width: 600px;
+}
+
+/* Button Styling */
+.button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 20px;
+  background: linear-gradient(to bottom, #ee681a, rgb(155, 64, 22));
+  border: none;
+  border-radius: 6px;
+  color: #222;
+  font-weight: 700;
+  cursor: pointer;
+  transition: 0.3s ease-in-out;
+  text-decoration: none;
+}
+
+/* Arrow Styling */
+.button .arrow {
+  font-size: 18px;
+  transition: transform 0.3s ease;
+}
+
+/* Hover Effect */
+.button:hover {
+  transform: scale(1.02);
+  background: linear-gradient(to bottom, #ee681a, #ee681a);
+}
+
+.button:hover .arrow {
+  transform: translateX(5px);
+}
+
+/* Responsive for Tablets */
+@media (max-width: 1024px) {
+  .container {
+    gap: 50px;
+    flex-direction: column-reverse;
+  }
+
+  .col {
+    align-items: center;
+  }
+
+  .description {
+    font-size: 20px;
+    line-height: 1.8rem;
+  }
+
+  .button {
+    padding: 12px;
+    font-size: 18px;
+  }
+}
+
+/* Responsive for Mobile */
+@media (max-width: 600px) {
+  .container {
+    flex-direction: column-reverse;
+    gap: 30px;
+  }
+
+  .title {
+    font-size: 32px;
+  }
+
+  .description {
+    font-size: 18px;
+    line-height: 1.6rem;
+  }
+
+  .button {
+    padding: 10px;
+    font-size: 16px;
+  }
+
+  .animatedBg {
+    background-size: 30px 30px;
+  }
+
+  .movingElement {
+    width: 80px;
+    height: 80px;
+  }
+}
+
+@media (max-width: 480px) {
+  /* Reduce Title Sizes */
+  .title {
+    font-size: 28px !important;
+  }
+}

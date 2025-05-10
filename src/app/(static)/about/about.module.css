@@ -1,0 +1,135 @@
+/* ✅ Main Container */
+.container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 50px;
+  padding: 50px 20px;
+  z-index: 999;
+}
+
+/* ✅ Column Layout */
+.col {
+  display: flex;
+  flex-direction: column;
+  align-items: start;
+  gap: 20px;
+}
+
+/* ✅ Text Column (Left Side) */
+.about_text {
+  text-align: left;
+  max-width: 500px;
+}
+
+/* ✅ Title Styling */
+.title {
+  font-size: 46px;
+  font-weight: 900;
+  background: linear-gradient(to bottom, #ee681a, rgb(54, 29, 17));
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-align: left;
+}
+
+/* ✅ Description */
+.description {
+  font-size: 20px;
+  line-height: 1.8rem;
+  text-align: justify;
+}
+
+/* ✅ Button */
+.button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 20px;
+  background: linear-gradient(to bottom, #ee681a, rgb(155, 64, 22));
+  border: none;
+  border-radius: 6px;
+  color: #222;
+  font-weight: 700;
+  cursor: pointer;
+  transition: 0.3s ease-in-out;
+  text-decoration: none;
+}
+
+.button .arrow {
+  font-size: 18px;
+  transition: transform 0.3s ease;
+}
+
+.button:hover {
+  transform: scale(1.02);
+  background: linear-gradient(to bottom, #ee681a, #ee681a);
+}
+
+.button:hover .arrow {
+  transform: translateX(5px);
+}
+
+/* ✅ Image Grid Section */
+.imageGrid {
+  /* display: grid;
+  grid-template-columns: repeat(1, 1fr);
+  gap: 15px; */
+  width: 500px;
+}
+
+.image {
+  width: 100%; /* ✅ Adjust image size */
+  height: 500px;
+  border-radius: 12px;
+  object-fit: cover;
+  cursor: pointer;
+  transition: transform 0.2s ease-in-out;
+}
+
+.image:hover {
+  transform: scale(1.01);
+}
+
+/* ✅ Lightbox (Full-Screen Image Preview) */
+/* ✅ Lightbox (Full-Screen Image Preview) */
+.lightbox {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.8); /* Dark overlay */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.fullImageWrapper {
+  position: relative;
+  max-width: 90%;
+  max-height: 90%;
+}
+
+.fullImage {
+  width: 100%;
+  border-radius: 12px;
+  object-fit: contain;
+}
+
+/* ✅ Responsive for Tablets */
+@media (max-width: 1024px) {
+  .container {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .about_text {
+    text-align: center;
+  }
+
+  .imageWrapper {
+    flex-direction: column;
+    align-items: center;
+  }
+}

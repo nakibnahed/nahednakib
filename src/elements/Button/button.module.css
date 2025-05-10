@@ -1,0 +1,9 @@
+.logout {
+  padding: 5px 10px;
+  cursor: pointer;
+  border: none;
+  border-radius: 6px;
+  background: linear-gradient(to bottom, #ee681a, rgb(155, 64, 22));
+
+  color: #222;
+}

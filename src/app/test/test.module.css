@@ -1,0 +1,57 @@
+.container {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  background-color: #121212; /* Dark theme */
+  color: white;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+}
+
+/* Background with transparent pattern */
+.animatedBg {
+  position: absolute;
+  /* top: 0;
+  left: 0; */
+  width: 100%;
+  height: 100%;
+  background-image: url("/images/pattern.svg"); /* Add a subtle transparent SVG pattern */
+  opacity: 0.3;
+  pointer-events: none;
+  transition: opacity 0.3s ease-in-out;
+}
+
+.container:hover .animatedBg {
+  opacity: 0.5; /* Slight glow effect on hover */
+}
+
+/* Floating element that follows the mouse */
+.movingElement {
+  position: absolute;
+  width: 120px;
+  height: 120px;
+  background: rgba(255, 255, 255, 0.1); /* Light semi-transparent glow */
+  border-radius: 50%;
+  transition: transform 0.3s ease-out;
+  filter: blur(10px);
+}
+
+/* Title and description */
+.title {
+  font-size: 46px;
+  font-weight: 900;
+  background: linear-gradient(to bottom, #ee681a, rgb(54, 29, 17));
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-align: center;
+  z-index: 999;
+}
+.description {
+  font-size: 20px;
+  text-align: center;
+  max-width: 600px;
+  line-height: 1.5;
+}
