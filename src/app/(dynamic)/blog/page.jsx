@@ -3,8 +3,8 @@ import Image from "next/image";
 import styles from "./page.module.css";
 import { Card } from "@/components/card/card";
 
-import { blogs } from "./data"; // Import blog data
-import EyeIcon from "/public/globe.svg"; // Import your eye.svg icon
+import { blogs } from "./data";
+import { Globe } from "lucide-react";
 
 export default function Blog() {
   return (
@@ -16,7 +16,7 @@ export default function Blog() {
               <div className={styles.content}>
                 {/* Eye Icon */}
                 <div className={styles.icon}>
-                  <Image src={EyeIcon} alt="eye icon" width={24} height={24} />
+                  <Globe size={24} strokeWidth={2} />
                 </div>
 
                 <h1 className={styles.title}>{blog.title}</h1>

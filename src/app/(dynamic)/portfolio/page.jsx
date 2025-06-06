@@ -3,7 +3,7 @@ import Image from "next/image";
 import styles from "./page.module.css";
 import { Card } from "@/components/card/card";
 import { portfolios } from "@/app/(dynamic)/portfolio/data";
-import EyeIcon from "/public/images/globe.svg";
+import { Globe } from "lucide-react";
 
 export default function Portfolio() {
   return (
@@ -20,12 +20,7 @@ export default function Portfolio() {
               <div className={styles.container}>
                 <div className={styles.content}>
                   <div className={styles.icon}>
-                    <Image
-                      src={EyeIcon}
-                      alt="eye icon"
-                      width={24}
-                      height={24}
-                    />
+                    <Globe size={24} strokeWidth={2} />
                   </div>
                   <h1 className={styles.title}>{portfolio.title}</h1>
                   <p className={styles.date}>{portfolio.date}</p>
