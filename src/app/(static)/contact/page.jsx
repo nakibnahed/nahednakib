@@ -7,9 +7,7 @@ export default function Contact() {
   return (
     <div className={styles.pageContainer}>
       <h1 className={styles.title}>Get in Touch</h1>
-      <p className={styles.description}>
-        Feel free to reach out to me through any of the social platforms below.
-      </p>
+      <p className={styles.description}>Feel free to reach out to me.</p>
 
       <div className={styles.contactCard}>
         <div className={styles.contactItem}>

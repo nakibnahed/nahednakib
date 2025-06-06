@@ -1,34 +1,40 @@
-// src/components/Banner/Banner.jsx
+import Link from "next/link";
 import styles from "./Banner.module.css";
-import { Mail, MapPin, Phone, Calendar, Flag } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 
-export default function Banner() {
+export default function Banner({ activeTab, setActiveTab }) {
   return (
     <div className={styles.banner}>
       <div className={styles.bannerContent}>
         <div className={styles.title}>
           <h1>Nahed Nakib</h1>
-          <p>Web Developer & Professional Runner</p>
+          <p>
+            Explore my skills and experience in web development and distance
+            running.
+          </p>
         </div>
-        <div className={styles.info}>
-          <p>
-            <Flag size={16} /> <strong>Nationality : </strong> Syrian
-          </p>
-          <p>
-            <Calendar size={16} /> <strong>Date of Birth : </strong> 06/04/1997
-          </p>
-          <p>
-            <Phone size={16} /> <strong>Phone Number : </strong> (+49) 176
-            63816827
-          </p>
-          <p>
-            <Mail size={16} /> <strong>Email Address : </strong>{" "}
-            nahednakibyos@gmail.com
-          </p>
-          <p>
-            <MapPin size={16} /> <strong>Address : </strong> ZUE Neuss,
-            Obertorweg 1, 41460 Neuss
-          </p>
+        <div className={styles.toggleButtons}>
+          <div className={styles.backButton}>
+            <Link href="/about" className={styles.tabButton}>
+              <ArrowLeft size={21} strokeWidth={3} />
+            </Link>
+          </div>
+          <button
+            className={`${styles.tabButton} ${
+              activeTab === "web" ? styles.active : ""
+            }`}
+            onClick={() => setActiveTab("web")}
+          >
+            Web Development
+          </button>
+          <button
+            className={`${styles.tabButton} ${
+              activeTab === "running" ? styles.active : ""
+            }`}
+            onClick={() => setActiveTab("running")}
+          >
+            Running
+          </button>
         </div>
       </div>
     </div>

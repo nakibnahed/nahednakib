@@ -7,7 +7,7 @@ export default function InfoCard({ title, size, Icon, details }) {
         <Icon size={24} strokeWidth={1.5} />
       </div>
       <h2 className={styles.title}>{title}</h2>
-      <p className={styles.details}>{details}</p>
+      <div className={styles.details}>{details}</div>
     </div>
   );
 }
