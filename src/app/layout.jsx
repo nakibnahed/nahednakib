@@ -2,8 +2,6 @@
 import "./globals.css";
 import Navbar from "@/components/Nav/Navbar";
 import Footer from "@/components/Footer/Footer";
-import { ThemeProvider } from "@/context/ThemeContext";
-
 import { metadata as siteMetadata } from "@/constants/metadata";
 
 export const metadata = {
@@ -23,14 +21,11 @@ export default function RootLayout({ children }) {
         <link rel="icon" href={siteMetadata.icons.icon} />
       </head>
       <body>
-        <ThemeProvider>
-          <div className="animatedBg"></div>
-          <div className="container">
-            <Navbar />
-            {children}
-            <Footer />
-          </div>
-        </ThemeProvider>
+        <div className="container">
+          <Navbar />
+          {children}
+          <Footer />
+        </div>
       </body>
     </html>
   );

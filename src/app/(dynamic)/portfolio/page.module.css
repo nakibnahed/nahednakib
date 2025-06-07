@@ -33,6 +33,19 @@
   color: #ddd;
 }
 
+.container {
+  border: 0.1px solid #1a1a1a;
+  background: #1a1a1a;
+  border-radius: 12px;
+  padding: 20px;
+  transition: 0.2s ease-in;
+  height: 100%;
+}
+.container:hover {
+  transform: scale(1.01);
+  background: #1e1e1e;
+}
+
 .post {
   position: relative; /* Ensure the post container has relative positioning */
   width: 100%;
