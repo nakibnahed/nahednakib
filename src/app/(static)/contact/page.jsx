@@ -22,7 +22,7 @@ export default function Contact() {
           </span>
         </div>
 
-        <div className={styles.social}>
+        <div className={styles.SocialIcons}>
           <SocialLinks />
         </div>
       </div>

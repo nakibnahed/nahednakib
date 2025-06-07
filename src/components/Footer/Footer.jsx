@@ -1,13 +1,15 @@
 // Footer.jsx
 import SocialLinks from "@/components/SocialLinks/SocialLinks"; // Import the SocialLinks component
-import styles from "./footer.module.css"; // Keep your existing footer styles
+import styles from "./footer.module.css";
 
 export default function Footer() {
   return (
     <div className={styles.container}>
-      <div>©2025 Nahed. All Right Reserved.</div>
+      <div>
+        <p>©2025 Nahed. All Right Reserved.</p>
+      </div>
       <div className={styles.social}>
-        <SocialLinks /> {/* Render the SocialLinks component */}
+        <SocialLinks />
       </div>
     </div>
   );

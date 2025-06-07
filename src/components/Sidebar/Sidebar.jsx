@@ -83,7 +83,7 @@ export default function Sidebar({ activeTab }) {
         <h3 className={styles.title}>
           <Globe size={20} className={styles.icon} /> Social Media
         </h3>
-        <div>
+        <div className={styles.SocialIcons}>
           <SocialLinks />
         </div>
       </div>

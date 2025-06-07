@@ -47,6 +47,10 @@
   -webkit-text-fill-color: transparent;
 }
 
+.SocialIcons {
+  margin-top: 20px;
+}
+
 @media (max-width: 768px) {
   .title {
     font-size: 38px;
