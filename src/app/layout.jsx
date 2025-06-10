@@ -1,4 +1,3 @@
-// app/layout.jsx
 import "./globals.css";
 import Navbar from "@/components/Nav/Navbar";
 import Footer from "@/components/Footer/Footer";
@@ -21,7 +20,7 @@ export const metadata = {
         url: siteMetadata.image,
         width: 1200,
         height: 630,
-        alt: "Nahed – Web Developer & Runner",
+        alt: "Nahed - Web Developer & Runner",
       },
     ],
   },

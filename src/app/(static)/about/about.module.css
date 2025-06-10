@@ -71,50 +71,13 @@
 
 /* ✅ Image Grid Section */
 .imageGrid {
-  /* display: grid;
-  grid-template-columns: repeat(1, 1fr);
-  gap: 15px; */
   width: 500px;
 }
 
 .image {
-  width: 100%; /* ✅ Adjust image size */
-  height: 500px;
+  width: 100%;
   border-radius: 12px;
   object-fit: cover;
-  cursor: pointer;
-  transition: transform 0.2s ease-in-out;
-}
-
-.image:hover {
-  transform: scale(1.01);
-}
-
-/* ✅ Lightbox (Full-Screen Image Preview) */
-/* ✅ Lightbox (Full-Screen Image Preview) */
-.lightbox {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.8); /* Dark overlay */
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
-}
-
-.fullImageWrapper {
-  position: relative;
-  max-width: 90%;
-  max-height: 90%;
-}
-
-.fullImage {
-  width: 100%;
-  border-radius: 12px;
-  object-fit: contain;
 }
 
 /* ✅ Responsive for Tablets */
@@ -128,8 +91,7 @@
     text-align: center;
   }
 
-  .imageWrapper {
-    flex-direction: column;
-    align-items: center;
+  .imageGrid {
+    width: auto;
   }
 }

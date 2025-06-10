@@ -1,19 +1,11 @@
-"use client"; // Needed for state & event handling
-import { useState } from "react";
+"use client";
 import styles from "./about.module.css";
-import { logoFont } from "@/lib/fonts/fonts.js"; // ✅ Correct import path
+import { logoFont } from "@/lib/fonts/fonts.js";
 import Link from "next/link";
 import Image from "next/image";
-// import BlogImage1 from "/public/images/foto3.jpg";
 import BlogImage2 from "/public/images/me.jpg";
-// import BlogImage3 from "/public/images/9.jpg";
-// import BlogImage4 from "/public/images/3.jpg";
-
-const images = [BlogImage2]; // ✅ Add more images later
 
 export default function About() {
-  const [selectedImage, setSelectedImage] = useState(null);
-
   return (
     <div className={styles.container}>
       {/* Left Column - Text Section */}
@@ -35,36 +27,19 @@ export default function About() {
         </Link>
       </div>
 
-      {/* Right Column - Image Grid Section */}
+      {/* Right Column - Single Responsive Image */}
       <div className={styles.col}>
         <div className={styles.imageGrid}>
-          {images.map((img, index) => (
-            <Image
-              key={index}
-              src={img}
-              alt={`Gallery image ${index + 1}`}
-              className={styles.image}
-              // ✅ Required height
-              onClick={() => setSelectedImage(img)} // ✅ Store full image object
-            />
-          ))}
+          <Image
+            src={BlogImage2}
+            alt="Nahed portrait"
+            className={styles.image}
+            width={800}
+            height={500}
+            priority
+          />
         </div>
       </div>
-
-      {/* Lightbox (Full-Screen Image Preview) */}
-      {selectedImage && (
-        <div className={styles.lightbox} onClick={() => setSelectedImage(null)}>
-          <div className={styles.fullImageWrapper}>
-            <Image
-              src={selectedImage} // ✅ Corrected: Now passing the full image object
-              alt="Full view"
-              width={500} // ✅ Fixed width
-              height={500} // ✅ Fixed height
-              className={styles.fullImage}
-            />
-          </div>
-        </div>
-      )}
     </div>
   );
 }
