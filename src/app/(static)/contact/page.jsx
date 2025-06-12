@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { supabase } from "@/services/supabaseClient";
-import SocialLinks from "@/components/SocialLinks/SocialLinks";
 
 import styles from "./contact.module.css";
 
@@ -98,10 +97,6 @@ export default function Contact() {
           {successMsg && <p className={styles.successMsg}>{successMsg}</p>}
           {errorMsg && <p className={styles.errorMsg}>{errorMsg}</p>}
         </form>
-
-        <div className={styles.SocialIcons}>
-          <SocialLinks />
-        </div>
       </div>
     </div>
   );
