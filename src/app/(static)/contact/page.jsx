@@ -51,7 +51,7 @@ export default function Contact() {
       <p className={styles.description}>Feel free to reach out to me.</p>
 
       <div className={styles.contactCard}>
-        <div className={styles.contactItem}>
+        {/* <div className={styles.contactItem}>
           <span>
             <strong>Phone:</strong> (+90) 534 681 0886
           </span>
@@ -61,7 +61,7 @@ export default function Contact() {
           <span>
             <strong>Email:</strong> nahednakibyos@gmail.com
           </span>
-        </div>
+        </div> */}
 
         {/* Contact Form */}
         <form onSubmit={handleSubmit} className={styles.contactForm}>
