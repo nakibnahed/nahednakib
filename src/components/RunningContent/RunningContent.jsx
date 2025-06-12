@@ -82,11 +82,11 @@ export default function RunningContent() {
         details={
           <>
             <p>
-              🥈 2nd place – Berlin 10K (2024)
+              🥈 2nd place –  10K (2024)
               <br />
-              🥉 3rd place – Hamburg 5K (2024)
+              🥉 3rd place –  5K (2024)
               <br />
-              🏅 Qualified – National 5K Finals
+              🥉 3rd place –  5K (2024)
             </p>
           </>
         }
