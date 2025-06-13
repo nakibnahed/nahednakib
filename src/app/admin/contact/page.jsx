@@ -1,6 +1,6 @@
 "use client";
 
-import styles from "./contact.module.css";
+import styles from "./ContactAdmin.module.css";
 import { useEffect, useState } from "react";
 import { supabase } from "@/services/supabaseClient";
 
