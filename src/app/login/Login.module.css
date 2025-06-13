@@ -1,0 +1,64 @@
+.container {
+  max-width: 400px;
+  margin: 100px auto;
+  padding: 20px;
+  background-color: #1a1a1a;
+  border-radius: 8px;
+  text-align: center;
+  color: white;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.input {
+  padding: 10px;
+  border-radius: 5px;
+  border: 1px solid #333;
+  background-color: #333;
+  color: white;
+  font-size: 16px;
+}
+
+/* Login.module.css */
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 20px;
+  background: linear-gradient(to bottom, #ee681a, rgb(155, 64, 22));
+  border: none;
+  border-radius: 6px;
+  color: #222;
+  font-weight: 700;
+  cursor: pointer;
+  transition: 0.3s ease-in-out;
+  font-size: 16px;
+  text-decoration: none;
+}
+
+.button:hover {
+  transform: scale(1.02);
+  background: linear-gradient(to bottom, #ee681a, #ee681a);
+}
+
+.button:disabled {
+  background-color: #888;
+  cursor: not-allowed;
+  transform: none;
+  color: #ccc;
+}
+
+.arrow {
+  font-size: 18px;
+  transition: transform 0.3s ease;
+}
+
+.button:hover .arrow {
+  transform: translateX(5px);
+}

@@ -1,0 +1,37 @@
+/* AdminHome.module.css */
+
+.containerDashboard {
+  padding: 2rem;
+  text-align: center;
+}
+
+.subtitle {
+  margin-top: 1rem;
+  font-size: 1.2rem;
+  color: #888;
+}
+
+.countsContainer {
+  margin-top: 2rem;
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  flex-wrap: wrap;
+}
+
+.countBox {
+  background: #1a1a1a;
+  padding: 1rem 2rem;
+  border-radius: 8px;
+  min-width: 100px;
+}
+
+.loading,
+.error {
+  padding: 2rem;
+  text-align: center;
+}
+
+.error {
+  color: red;
+}

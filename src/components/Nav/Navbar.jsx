@@ -1,7 +1,7 @@
 import Link from "next/link";
 import styles from "./Navbar.module.css";
 import { links } from "./data";
-import Button from "../../elements/Button/button";
+
 import Logo from "@/elements/Logo/Logo";
 import DarkMoodToggle from "../DarkMoodToggle/DarkMoodToggle";
 
@@ -16,8 +16,6 @@ export default function Navbar() {
             {link.title}
           </Link>
         ))}
-
-        {/* <Button /> */}
       </div>
     </div>
   );

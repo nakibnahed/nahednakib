@@ -1,0 +1,86 @@
+.mainContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 20px;
+}
+
+.pageTitle {
+  font-size: 32px;
+  font-family: "Unbounded", sans-serif !important;
+  background: linear-gradient(to bottom, #ee681a, rgb(76, 40, 23));
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-weight: 700;
+  margin-bottom: 30px;
+  margin-top: 20px;
+  text-align: center;
+}
+
+.newButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 20px;
+  background: linear-gradient(to bottom, #ee681a, rgb(155, 64, 22));
+  border: none;
+  border-radius: 6px;
+  color: #222;
+  font-weight: 700;
+  cursor: pointer;
+  transition: 0.3s ease-in-out;
+  font-size: 16px;
+  text-decoration: none;
+}
+
+.tableContainer {
+  overflow-x: auto;
+  border-radius: 6px;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table th,
+.table td {
+  padding: 10px;
+  border: 1px solid #333;
+  text-align: center;
+  background-color: #1a1a1a;
+  color: #fff;
+  vertical-align: middle;
+}
+
+.table th {
+  background-color: #222;
+  font-weight: bold;
+}
+
+.actionButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 20px;
+  background: linear-gradient(to bottom, #ee681a, rgb(155, 64, 22));
+  border: none;
+  border-radius: 6px;
+  color: #222;
+  font-weight: 700;
+  cursor: pointer;
+  transition: 0.3s ease-in-out;
+  font-size: 16px;
+  text-decoration: none;
+}
+
+.actionButton:hover {
+  opacity: 0.9;
+}
+
+/* Optional: style images inside the table */
+.table img {
+  border-radius: 4px;
+}
