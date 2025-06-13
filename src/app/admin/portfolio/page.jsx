@@ -47,15 +47,17 @@ export default function PortfolioListPage() {
                 <th>Date</th>
                 <th>Category</th>
                 <th>Image</th>
-                <th>Description</th>
-                <th>Content</th>
+                {/* <th>Description</th>
+                <th>Content</th> */}
                 <th>Actions</th>
               </tr>
             </thead>
             <tbody>
               {portfolios.map((portfolio) => (
                 <tr key={portfolio.id}>
-                  <td>{portfolio.title}</td>
+                  <td>
+                    <h4>{portfolio.title}</h4>
+                  </td>
                   <td>{portfolio.date}</td>
                   <td>{portfolio.category}</td>
                   <td>
@@ -73,14 +75,14 @@ export default function PortfolioListPage() {
                       "No image"
                     )}
                   </td>
-                  <td>{portfolio.description || "—"}</td>
+                  {/* <td>{portfolio.description || "—"}</td>
                   <td>
                     {portfolio.content
                       ? portfolio.content.length > 50
                         ? portfolio.content.substring(0, 50) + "..."
                         : portfolio.content
                       : "—"}
-                  </td>
+                  </td> */}
                   <td>
                     <Link href={`/admin/portfolio/${portfolio.id}/edit`}>
                       <button className={styles.actionButton}>Edit</button>
