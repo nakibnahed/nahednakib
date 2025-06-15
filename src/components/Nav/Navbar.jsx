@@ -62,7 +62,7 @@ export default function Navbar() {
             className={`${styles.link} ${styles.tooltip}`}
             onClick={() => setMenuOpen(false)}
           >
-            <User size={22} />
+            <User size={22} stroke-width="3" />
             <span className={styles.tooltipText}>Dashboard</span>
           </Link>
         )}
