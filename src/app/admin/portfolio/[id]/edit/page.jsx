@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
-import { supabase } from "@/services/supabaseClient"; // Correct path
+import { supabase } from "@/services/supabaseClient";
 import styles from "./EditPortfolio.module.css";
 
 export default function EditPortfolioPage() {
@@ -12,7 +12,6 @@ export default function EditPortfolioPage() {
   const [formData, setFormData] = useState({
     title: "",
     image: "",
-    date: "",
     category: "",
     description: "",
     content: "",
@@ -21,18 +20,27 @@ export default function EditPortfolioPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [errorMsg, setErrorMsg] = useState(null);
+  const [uploading, setUploading] = useState(false);
 
   useEffect(() => {
     async function fetchPortfolio() {
+      setErrorMsg(null);
       const { data, error } = await supabase
         .from("portfolios")
         .select("*")
         .eq("id", id)
         .single();
+
       if (error) {
         setErrorMsg(error.message);
       } else {
-        setFormData(data);
+        setFormData({
+          title: data.title,
+          image: data.image,
+          category: data.category,
+          description: data.description,
+          content: data.content,
+        });
       }
       setLoading(false);
     }
@@ -40,7 +48,41 @@ export default function EditPortfolioPage() {
   }, [id]);
 
   function handleChange(e) {
+    setErrorMsg(null);
     setFormData({ ...formData, [e.target.name]: e.target.value });
+  }
+
+  async function handleFileChange(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    setUploading(true);
+    setErrorMsg(null);
+
+    const fileExt = file.name.split(".").pop();
+    const fileName = `${Date.now()}.${fileExt}`;
+    const filePath = fileName;
+
+    const { error: uploadError } = await supabase.storage
+      .from("portfolio-images")
+      .upload(filePath, file, {
+        cacheControl: "3600",
+        upsert: false,
+        contentType: file.type, // important for fixing 400 error
+      });
+
+    if (uploadError) {
+      setErrorMsg(uploadError.message);
+      setUploading(false);
+      return;
+    }
+
+    const { data } = supabase.storage
+      .from("portfolio-images")
+      .getPublicUrl(filePath);
+
+    setFormData((prev) => ({ ...prev, image: data.publicUrl }));
+    setUploading(false);
   }
 
   async function handleSubmit(e) {
@@ -53,7 +95,6 @@ export default function EditPortfolioPage() {
       .update({
         title: formData.title,
         image: formData.image,
-        date: formData.date,
         category: formData.category,
         description: formData.description,
         content: formData.content,
@@ -89,24 +130,32 @@ export default function EditPortfolioPage() {
         </div>
 
         <div className={styles.formGroup}>
-          <label className={styles.label}>Image URL:</label>
-          <input
-            name="image"
-            value={formData.image}
-            onChange={handleChange}
-            className={styles.input}
-          />
+          <label className={styles.label}>Current Image:</label>
+          {formData.image ? (
+            <img
+              src={formData.image}
+              alt="Portfolio image"
+              style={{
+                maxWidth: "200px",
+                display: "block",
+                marginBottom: "10px",
+              }}
+            />
+          ) : (
+            <p>No image uploaded yet</p>
+          )}
         </div>
 
         <div className={styles.formGroup}>
-          <label className={styles.label}>Date:</label>
+          <label className={styles.label}>Upload New Image:</label>
           <input
-            name="date"
-            type="date"
-            value={formData.date}
-            onChange={handleChange}
+            type="file"
+            accept="image/*"
+            onChange={handleFileChange}
             className={styles.input}
+            disabled={uploading}
           />
+          {uploading && <p>Uploading image...</p>}
         </div>
 
         <div className={styles.formGroup}>
@@ -139,7 +188,11 @@ export default function EditPortfolioPage() {
           />
         </div>
 
-        <button type="submit" disabled={saving} className={styles.submitBtn}>
+        <button
+          type="submit"
+          disabled={saving || uploading}
+          className={styles.submitBtn}
+        >
           {saving ? "Saving..." : "Save Changes"}
         </button>
       </form>

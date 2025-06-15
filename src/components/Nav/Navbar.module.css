@@ -20,6 +20,50 @@
   font-weight: 600;
 }
 
+.link {
+  margin-left: 20px;
+  color: #ee681a;
+  transition: 0.3s;
+}
+
+.link:hover {
+  opacity: 0.8;
+}
+
+.tooltip {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Tooltip text style */
+.tooltipText {
+  visibility: hidden;
+  background: linear-gradient(to bottom, #ddd, #555);
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-align: center;
+  border-radius: 6px;
+  padding: 6px 10px;
+  position: absolute;
+  z-index: 1;
+  top: 125%; /* appear below the icon */
+  left: 50%;
+  transform: translateX(-50%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  font-size: 13px;
+  white-space: nowrap;
+  font-weight: 600;
+}
+
+/* Show tooltip on hover */
+.tooltip:hover .tooltipText {
+  visibility: visible;
+  opacity: 1;
+}
+
 @media (max-width: 480px) {
   /* Reduce Title Sizes */
   .container {

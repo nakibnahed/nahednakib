@@ -1,13 +1,17 @@
 "use client";
 
 import styles from "./PortfolioList.module.css";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import Link from "next/link";
 import { supabase } from "@/services/supabaseClient";
+import ConfirmModal from "@/components/Admin/WarmingPop/WarmingPop"; // adjust path if needed
 
 export default function PortfolioListPage() {
   const [portfolios, setPortfolios] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [portfolioToDelete, setPortfolioToDelete] = useState(null);
 
   useEffect(() => {
     fetchPortfolios();
@@ -22,22 +26,76 @@ export default function PortfolioListPage() {
 
     if (error) {
       console.error("Error fetching portfolios:", error);
+      setPortfolios([]);
     } else {
       setPortfolios(data);
     }
     setLoading(false);
   }
 
+  // Open modal when user clicks delete button
+  function openDeleteModal(portfolio) {
+    setPortfolioToDelete(portfolio);
+    setIsModalOpen(true);
+  }
+
+  function closeDeleteModal() {
+    setPortfolioToDelete(null);
+    setIsModalOpen(false);
+  }
+
+  async function handleConfirmDelete() {
+    if (!portfolioToDelete) return;
+
+    setLoading(true);
+    const { error } = await supabase
+      .from("portfolios")
+      .delete()
+      .eq("id", portfolioToDelete.id);
+
+    if (error) {
+      alert("Error deleting portfolio: " + error.message);
+    } else {
+      setPortfolios((prev) =>
+        prev.filter((p) => p.id !== portfolioToDelete.id)
+      );
+    }
+    setLoading(false);
+    closeDeleteModal();
+  }
+
+  const filteredPortfolios = useMemo(() => {
+    if (!searchTerm) return portfolios;
+    const lowerTerm = searchTerm.toLowerCase();
+    return portfolios.filter(
+      (p) =>
+        (p.title && p.title.toLowerCase().includes(lowerTerm)) ||
+        (p.category && p.category.toLowerCase().includes(lowerTerm)) ||
+        (p.date && p.date.toLowerCase().includes(lowerTerm))
+    );
+  }, [portfolios, searchTerm]);
+
   return (
     <div className={styles.mainContainer}>
-      <h1 className={styles.pageTitle}>Portfolios</h1>
+      <div className={styles.controlsRow}>
+        <Link href="/admin/portfolio/new" className={styles.newButton}>
+          Create New Portfolio
+        </Link>
 
-      <Link href="/admin/portfolio/new" className={styles.newButton}>
-        Create New Portfolio
-      </Link>
+        <input
+          type="text"
+          placeholder="Search by title, category or date..."
+          className={styles.searchInput}
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          autoComplete="off"
+        />
+      </div>
 
       {loading ? (
         <p>Loading...</p>
+      ) : filteredPortfolios.length === 0 ? (
+        <p>No portfolios found.</p>
       ) : (
         <div className={styles.tableContainer}>
           <table className={styles.table}>
@@ -47,20 +105,18 @@ export default function PortfolioListPage() {
                 <th>Date</th>
                 <th>Category</th>
                 <th>Image</th>
-                {/* <th>Description</th>
-                <th>Content</th> */}
                 <th>Actions</th>
               </tr>
             </thead>
             <tbody>
-              {portfolios.map((portfolio) => (
+              {filteredPortfolios.map((portfolio) => (
                 <tr key={portfolio.id}>
-                  <td>
+                  <td data-label="Title">
                     <h4>{portfolio.title}</h4>
                   </td>
-                  <td>{portfolio.date}</td>
-                  <td>{portfolio.category}</td>
-                  <td>
+                  <td data-label="Date">{portfolio.date}</td>
+                  <td data-label="Category">{portfolio.category}</td>
+                  <td data-label="Image">
                     {portfolio.image ? (
                       <img
                         src={portfolio.image}
@@ -75,18 +131,17 @@ export default function PortfolioListPage() {
                       "No image"
                     )}
                   </td>
-                  {/* <td>{portfolio.description || "—"}</td>
-                  <td>
-                    {portfolio.content
-                      ? portfolio.content.length > 50
-                        ? portfolio.content.substring(0, 50) + "..."
-                        : portfolio.content
-                      : "—"}
-                  </td> */}
-                  <td>
+                  <td data-label="Actions">
                     <Link href={`/admin/portfolio/${portfolio.id}/edit`}>
                       <button className={styles.actionButton}>Edit</button>
                     </Link>
+                    <button
+                      className={styles.deleteButton}
+                      onClick={() => openDeleteModal(portfolio)}
+                      type="button"
+                    >
+                      Delete
+                    </button>
                   </td>
                 </tr>
               ))}
@@ -94,6 +149,14 @@ export default function PortfolioListPage() {
           </table>
         </div>
       )}
+
+      {/* Confirm Modal Popup */}
+      <ConfirmModal
+        isOpen={isModalOpen}
+        message="Are you sure you want to delete this Portfolio?"
+        onCancel={closeDeleteModal}
+        onConfirm={handleConfirmDelete}
+      />
     </div>
   );
 }

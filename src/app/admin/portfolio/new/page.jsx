@@ -9,8 +9,7 @@ export default function NewPortfolioPage() {
   const router = useRouter();
   const [formData, setFormData] = useState({
     title: "",
-    image: "",
-    date: "",
+    imageFile: null, // store uploaded file here
     category: "",
     description: "",
     content: "",
@@ -23,16 +22,50 @@ export default function NewPortfolioPage() {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   }
 
+  function handleFileChange(e) {
+    setFormData({ ...formData, imageFile: e.target.files[0] || null });
+  }
+
   async function handleSubmit(e) {
     e.preventDefault();
     setLoading(true);
     setErrorMsg(null);
 
+    let imageUrl = "";
+
+    if (formData.imageFile) {
+      const fileExt = formData.imageFile.name.split(".").pop();
+      const fileName = `${Date.now()}.${fileExt}`;
+      const filePath = fileName;
+
+      const { error: uploadError } = await supabase.storage
+        .from("portfolio-images")
+        .upload(filePath, formData.imageFile, {
+          cacheControl: "3600",
+          upsert: false,
+          contentType: formData.imageFile.type, // important!
+        });
+
+      if (uploadError) {
+        setErrorMsg("Image upload failed: " + uploadError.message);
+        setLoading(false);
+        return;
+      }
+
+      const { data: publicData } = supabase.storage
+        .from("portfolio-images")
+        .getPublicUrl(filePath);
+
+      imageUrl = publicData.publicUrl;
+    }
+
+    const createdDate = new Date().toLocaleString();
+
     const { error } = await supabase.from("portfolios").insert([
       {
         title: formData.title,
-        image: formData.image,
-        date: formData.date,
+        image: imageUrl,
+        date: createdDate,
         category: formData.category,
         description: formData.description,
         content: formData.content,
@@ -66,22 +99,11 @@ export default function NewPortfolioPage() {
         </div>
 
         <div className={styles.formGroup}>
-          <label className={styles.label}>Image URL:</label>
+          <label className={styles.label}>Image Upload:</label>
           <input
-            name="image"
-            value={formData.image}
-            onChange={handleChange}
-            className={styles.input}
-          />
-        </div>
-
-        <div className={styles.formGroup}>
-          <label className={styles.label}>Date:</label>
-          <input
-            name="date"
-            type="date"
-            value={formData.date}
-            onChange={handleChange}
+            type="file"
+            accept="image/*"
+            onChange={handleFileChange}
             className={styles.input}
           />
         </div>

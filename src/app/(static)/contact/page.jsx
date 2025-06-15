@@ -1,8 +1,6 @@
-"use client"; // since we'll use hooks
+"use client";
 
 import { useState } from "react";
-import { supabase } from "@/services/supabaseClient";
-
 import styles from "./contact.module.css";
 
 export default function Contact() {
@@ -25,23 +23,28 @@ export default function Contact() {
     setSuccessMsg("");
     setErrorMsg("");
 
-    // Insert data into Supabase
-    const { data, error } = await supabase.from("contact_messages").insert([
-      {
-        name: formData.name,
-        email: formData.email,
-        message: formData.message,
-      },
-    ]);
+    try {
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
 
-    setLoading(false);
+      const data = await res.json();
 
-    if (error) {
+      if (!res.ok) {
+        setErrorMsg(data.error || "Failed to send message");
+      } else {
+        setSuccessMsg(data.message);
+        setFormData({ name: "", email: "", message: "" });
+      }
+    } catch (error) {
       setErrorMsg("Failed to send message. Please try again.");
       console.error(error);
-    } else {
-      setSuccessMsg("Message sent successfully!");
-      setFormData({ name: "", email: "", message: "" });
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -51,19 +54,6 @@ export default function Contact() {
       <p className={styles.description}>Feel free to reach out to me.</p>
 
       <div className={styles.contactCard}>
-        {/* <div className={styles.contactItem}>
-          <span>
-            <strong>Phone:</strong> (+90) 534 681 0886
-          </span>
-        </div>
-
-        <div className={styles.contactItem}>
-          <span>
-            <strong>Email:</strong> nahednakibyos@gmail.com
-          </span>
-        </div> */}
-
-        {/* Contact Form */}
         <form onSubmit={handleSubmit} className={styles.contactForm}>
           <input
             type="text"

@@ -1,0 +1,27 @@
+.container {
+  text-align: center;
+}
+
+.grid {
+  margin-top: 2rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 15px;
+  justify-items: center;
+}
+
+.card {
+  background: #1a1a1a;
+  padding: 1.5rem;
+  border-radius: 12px;
+  width: 100%;
+  max-width: 250px;
+}
+
+.title {
+  margin-bottom: 10px;
+}
+.counts {
+  font-weight: bold;
+  background-color: #ee681a;
+}

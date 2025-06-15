@@ -1,9 +1,17 @@
+import { supabase } from "@/services/supabaseClient";
 import Link from "next/link";
 import styles from "./page.module.css";
-import { portfolios } from "@/app/(dynamic)/portfolio/data";
 import { Globe } from "lucide-react";
 
-export default function Portfolio() {
+export default async function Portfolio() {
+  const { data: portfolios, error } = await supabase
+    .from("portfolios")
+    .select("*");
+
+  if (error) {
+    return <p>Failed to load portfolios</p>;
+  }
+
   return (
     <div>
       <h1 className={styles.pageTitle}>Crafted with Code & Passion</h1>

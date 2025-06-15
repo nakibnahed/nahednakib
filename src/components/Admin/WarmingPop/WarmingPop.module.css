@@ -1,0 +1,62 @@
+/* WarmingPop.module.css */
+
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.5); /* original overlay */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+.modal {
+  background: #1a1a1a; /* keep white background as before */
+  padding: 1.5rem 2rem;
+  border-radius: 8px;
+  max-width: 320px;
+  width: 90%;
+  /* Removed box-shadow */
+  text-align: center;
+}
+
+.message {
+  font-size: 1.1rem;
+  margin-bottom: 1.5rem;
+  color: #333;
+}
+
+.buttons {
+  display: flex;
+  justify-content: space-around;
+}
+
+.cancelBtn {
+  background-color: #ccc;
+  border: none;
+  padding: 0.5rem 1.2rem;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.cancelBtn:hover {
+  background-color: #bbb;
+}
+
+.confirmBtn {
+  background-color: #e53e3e; /* Red */
+  color: white;
+  border: none;
+  padding: 0.5rem 1.2rem;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.confirmBtn:hover {
+  background-color: #c53030;
+}
