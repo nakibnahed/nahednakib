@@ -46,7 +46,7 @@
 }
 
 .button:hover {
-  background: linear-gradient(to bottom, #ee681a, #ee681a);
+  opacity: 0.9;
 }
 
 .button:disabled {

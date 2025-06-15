@@ -1,26 +1,15 @@
 "use client";
-import { useEffect, useState } from "react";
-import dynamic from "next/dynamic";
+import { useState, useEffect } from "react";
+import dynamic from "next/dynamic"; // ✅ you can delete this if not used anymore
 import styles from "./page.module.css";
 import { logoFont } from "../lib/fonts/fonts.js";
 import Link from "next/link";
 
-const MouseEffect = dynamic(
-  () => import("@/components/MouseEffect/MouseEffect"),
-  { ssr: false }
-);
-
 export default function Home() {
-  const [isClient, setIsClient] = useState(false);
-
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
-
   return (
     <div className={styles.container}>
-      {/* ✅ Background Effect (Only on Client) */}
-      {isClient && <MouseEffect />}
+      {/* ✅ Background directly here */}
+      <div className={styles.animatedBg}></div>
 
       {/* ✅ Main Content */}
       <div className={`${styles.col} ${styles.hero_text}`}>

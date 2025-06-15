@@ -12,6 +12,22 @@
   overflow: hidden; /* Prevent overflow issues */
   text-align: center;
 }
+.animatedBg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-image: url("/images/pattern.svg");
+  opacity: 0.3;
+  pointer-events: none;
+  z-index: -1;
+  transition: opacity 0.3s ease-in-out;
+  /* background-image: url("/images/parabolic.svg");
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center; */
+}
 
 /* Column Layout */
 .col {
@@ -68,8 +84,7 @@
 
 /* Hover Effect */
 .button:hover {
-  transform: scale(1.02);
-  background: linear-gradient(to bottom, #ee681a, #ee681a);
+  opacity: 0.9;
 }
 
 .button:hover .arrow {
@@ -119,9 +134,9 @@
     font-size: 16px;
   }
 
-  .animatedBg {
+  /* .animatedBg {
     background-size: 30px 30px;
-  }
+  } */
 
   .movingElement {
     width: 80px;
