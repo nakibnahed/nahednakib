@@ -6,9 +6,7 @@
   width: 200px;
   background: #1a1a1a;
   padding: 20px;
-  color: white;
-  height: 100vh;
-  max-height: 600px;
+  min-height: 600px;
   border-radius: 12px;
 }
 
@@ -21,20 +19,18 @@
 
 .menuItem {
   margin: 15px 0;
-  color: white;
   text-decoration: none;
   cursor: pointer;
   transition: color 0.3s;
 }
 
 .menuItem:hover {
-  color: #f39c12;
+  opacity: 0.9;
 }
 
 .active {
+  font-weight: bold;
   background: linear-gradient(to bottom, #ee681a, rgb(76, 40, 23));
-  -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
-  font-weight: bold;
 }

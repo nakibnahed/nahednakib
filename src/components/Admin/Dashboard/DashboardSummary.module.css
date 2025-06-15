@@ -2,26 +2,48 @@
   text-align: center;
 }
 
+.containerTitle {
+  background: linear-gradient(to bottom, #ee681a, rgb(76, 40, 23));
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
 .grid {
   margin-top: 2rem;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 15px;
+  grid-template-columns: repeat(2, 1fr);
+  grid-row-gap: 15px;
   justify-items: center;
+  flex-wrap: wrap;
 }
 
 .card {
-  background: #1a1a1a;
+  border: 0.1px solid #1e1e1e;
+  background: #1e1e1e;
   padding: 1.5rem;
   border-radius: 12px;
-  width: 100%;
-  max-width: 250px;
+  width: 95%;
 }
 
 .title {
   margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  justify-content: center;
 }
+
 .counts {
   font-weight: bold;
-  background-color: #ee681a;
+  font-size: 1.5rem;
+}
+
+.icon {
+  color: #ee681a;
+}
+
+@media (max-width: 768px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
 }

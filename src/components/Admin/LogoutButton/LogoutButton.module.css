@@ -1,17 +1,19 @@
 .button {
+  padding: 10px 20px;
   background: linear-gradient(to bottom, #ee681a, rgb(155, 64, 22));
-  color: #222 !important; /* visible solid color */
-  -webkit-background-clip: initial !important;
-  -webkit-text-fill-color: initial !important;
+  color: #222;
+  text-decoration: none;
   border: none;
   border-radius: 6px;
-  padding: 10px 20px;
-  font-weight: bold;
+  font-size: 14px;
+  font-weight: 700;
   cursor: pointer;
-  transition: background 0.3s ease-in-out;
+  -webkit-text-fill-color: #222;
 }
 
 .button:hover {
-  transform: scale(1.02);
-  background: linear-gradient(to bottom, #ee681a, #ee681a);
+  opacity: 0.9;
+}
+.buttonText {
+  color: #222;
 }

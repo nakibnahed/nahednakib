@@ -7,10 +7,11 @@ import Logo from "@/elements/Logo/Logo";
 import DarkMoodToggle from "../DarkMoodToggle/DarkMoodToggle";
 import { useEffect, useState } from "react";
 import { supabase } from "@/services/supabaseClient";
-import { Settings } from "lucide-react"; // Using lucide-react icon
+import { User, Menu, X } from "lucide-react"; // Add menu icons
 
 export default function Navbar() {
   const [user, setUser] = useState(null);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
     const getSession = async () => {
@@ -31,20 +32,37 @@ export default function Navbar() {
     return () => listener?.subscription?.unsubscribe();
   }, []);
 
+  const toggleMenu = () => {
+    setMenuOpen(!menuOpen);
+  };
+
   return (
     <div className={styles.container}>
       <Logo />
-      <div className={styles.links}>
-        {/* <DarkMoodToggle /> */}
+
+      <div className={styles.menuIcon} onClick={toggleMenu}>
+        {menuOpen ? <X size={26} /> : <Menu size={26} />}
+      </div>
+
+      <div className={`${styles.links} ${menuOpen ? styles.linksOpen : ""}`}>
         {links.map((link) => (
-          <Link key={link.id} href={link.url} className={styles.link}>
+          <Link
+            key={link.id}
+            href={link.url}
+            className={styles.link}
+            onClick={() => setMenuOpen(false)}
+          >
             {link.title}
           </Link>
         ))}
 
         {user && (
-          <Link href="/admin/" className={`${styles.link} ${styles.tooltip}`}>
-            <Settings size={22} />
+          <Link
+            href="/admin/"
+            className={`${styles.link} ${styles.tooltip}`}
+            onClick={() => setMenuOpen(false)}
+          >
+            <User size={22} />
             <span className={styles.tooltipText}>Dashboard</span>
           </Link>
         )}

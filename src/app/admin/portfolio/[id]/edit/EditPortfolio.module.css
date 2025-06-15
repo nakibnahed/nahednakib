@@ -1,7 +1,6 @@
 .pageContainer {
   max-width: 800px;
   margin: 0 auto;
-  padding: 20px;
 }
 
 .pageTitle {
@@ -11,8 +10,6 @@
   background-clip: text;
   -webkit-text-fill-color: transparent;
   font-weight: 700;
-  margin-bottom: 30px;
-  margin-top: 20px;
   text-align: center;
 }
 
