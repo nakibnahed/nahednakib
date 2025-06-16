@@ -1,9 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { supabase } from "@/services/supabaseClient";
 import styles from "./DashboardSummary.module.css";
-import { Users, Mail, Briefcase, BookOpen } from "lucide-react"; // Import icons
+import { Users, Mail, Briefcase, BookOpen } from "lucide-react";
 
 export default function DashboardSummary() {
   const [counts, setCounts] = useState({
@@ -12,6 +13,8 @@ export default function DashboardSummary() {
     portfolios: 0,
     blogs: 0,
   });
+
+  const router = useRouter();
 
   useEffect(() => {
     async function fetchCounts() {
@@ -35,25 +38,34 @@ export default function DashboardSummary() {
     <div className={styles.container}>
       <h1 className={styles.containerTitle}>Admin Dashboard</h1>
       <div className={styles.grid}>
-        <div className={styles.card}>
+        <div className={styles.card} onClick={() => router.push("/admin")}>
           <h3 className={styles.title}>
             <Users size={20} className={styles.icon} /> Users
           </h3>
           <p className={styles.counts}>{counts.users}</p>
         </div>
-        <div className={styles.card}>
+        <div
+          className={styles.card}
+          onClick={() => router.push("/admin/contact")}
+        >
           <h3 className={styles.title}>
             <Mail size={20} className={styles.icon} /> Messages
           </h3>
           <p className={styles.counts}>{counts.messages}</p>
         </div>
-        <div className={styles.card}>
+        <div
+          className={styles.card}
+          onClick={() => router.push("/admin/portfolio")}
+        >
           <h3 className={styles.title}>
             <Briefcase size={20} className={styles.icon} /> Portfolios
           </h3>
           <p className={styles.counts}>{counts.portfolios}</p>
         </div>
-        <div className={styles.card}>
+        <div
+          className={styles.card}
+          onClick={() => router.push("/admin/blogs")}
+        >
           <h3 className={styles.title}>
             <BookOpen size={20} className={styles.icon} /> Blogs
           </h3>

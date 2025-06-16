@@ -78,16 +78,24 @@
     display: block;
   }
 
+  .menuIcon {
+    display: block;
+  }
+
   .links {
     flex-direction: column;
     gap: 20px;
     background-color: #1a1a1a;
     position: absolute;
-    top: 10vh;
-    width: 100%;
+    top: 10vh; /* Keep near the top */
+    left: 50%; /* Center horizontally */
+    width: 90%;
     padding: 40px 0;
     display: none;
     border-radius: 12px;
+    transform: translateX(-50%); /* Only horizontal centering */
+    align-items: center; /* Center links horizontally */
+    justify-content: flex-start; /* Keep links at the top */
   }
 
   .linksOpen {
