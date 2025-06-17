@@ -17,7 +17,6 @@ body {
   margin: 0;
   background-color: var(--background-main);
   color: var(--text-light);
-  transition: background 0.3s, color 0.3s;
 }
 
 /* Default: gradient text */

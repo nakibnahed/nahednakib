@@ -55,7 +55,6 @@
   --button-border-color: transparent;
 }
 
-/* Vercel-inspired, modern light mode */
 .light {
   --background-main: #fff;
   --background-dark: #f6f8fa;
