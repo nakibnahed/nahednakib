@@ -22,7 +22,7 @@ export default async function Portfolio() {
             href={`/portfolio/${portfolio.id}`}
             className={styles.post}
           >
-            <div className={styles.container}>
+            <div className={styles.card}>
               <div className={styles.content}>
                 <div className={styles.icon}>
                   <Globe size={24} strokeWidth={2} />

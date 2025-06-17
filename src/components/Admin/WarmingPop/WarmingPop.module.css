@@ -1,12 +1,10 @@
-/* WarmingPop.module.css */
-
 .overlay {
   position: fixed;
   top: 0;
   left: 0;
   width: 100vw;
   height: 100vh;
-  background-color: rgba(0, 0, 0, 0.5); /* original overlay */
+  background-color: rgba(0, 0, 0, 0.5);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -14,19 +12,19 @@
 }
 
 .modal {
-  background: #1a1a1a; /* keep white background as before */
+  background: var(--card-bg);
   padding: 1.5rem 2rem;
   border-radius: 8px;
   max-width: 320px;
   width: 90%;
-  /* Removed box-shadow */
   text-align: center;
+  color: var(--card-text);
 }
 
 .message {
   font-size: 1.1rem;
   margin-bottom: 1.5rem;
-  color: #333;
+  color: var(--card-text);
 }
 
 .buttons {
@@ -35,28 +33,27 @@
 }
 
 .cancelBtn {
-  background-color: #ccc;
+  background-color: var(--button-bg-no-activ, #ccc);
+  color: var(--button-text-no-activ, #222);
   border: none;
   padding: 0.5rem 1.2rem;
   border-radius: 4px;
   cursor: pointer;
-  transition: background-color 0.2s ease;
 }
 
 .cancelBtn:hover {
-  background-color: #bbb;
+  opacity: 0.9;
 }
 
 .confirmBtn {
-  background-color: #e53e3e; /* Red */
-  color: white;
+  background: #e53e3e;
+  color: #fff;
   border: none;
   padding: 0.5rem 1.2rem;
   border-radius: 4px;
   cursor: pointer;
-  transition: background-color 0.2s ease;
 }
 
 .confirmBtn:hover {
-  background-color: #c53030;
+  background: #c53030;
 }

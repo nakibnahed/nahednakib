@@ -4,10 +4,12 @@
 
 .sidebar {
   width: 200px;
-  background: #1a1a1a;
+  background: var(--card-bg);
   padding: 20px;
   min-height: 600px;
   border-radius: 12px;
+  color: var(--card-text);
+  border: 1px solid var(--card-border);
 }
 
 .menu {
@@ -21,7 +23,7 @@
   margin: 15px 0;
   text-decoration: none;
   cursor: pointer;
-  transition: color 0.3s;
+  /* No transition */
 }
 
 .menuItem:hover {
@@ -30,7 +32,8 @@
 
 .active {
   font-weight: bold;
-  background: linear-gradient(to bottom, #ee681a, rgb(76, 40, 23));
+  background: var(--gradient-typography-primary);
   background-clip: text;
+  -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }

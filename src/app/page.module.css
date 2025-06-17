@@ -18,15 +18,15 @@
   left: 0;
   width: 100vw;
   height: 100vh;
-  background-image: url("/images/pattern.svg");
+  /* background-image: url("/images/pattern.svg"); */
   opacity: 0.3;
   pointer-events: none;
   z-index: -1;
   transition: opacity 0.3s ease-in-out;
-  /* background-image: url("/images/parabolic.svg");
+  background-image: var(--home-bg-image);
   background-repeat: no-repeat;
   background-size: cover;
-  background-position: center; */
+  background-position: center;
 }
 
 /* Column Layout */
@@ -46,6 +46,7 @@
   background-clip: text;
   -webkit-text-fill-color: transparent;
   text-align: center;
+  font-family: var(--font-heading) !important;
 }
 
 /* Description */
@@ -58,6 +59,7 @@
   background-clip: text;
   -webkit-text-fill-color: transparent;
   max-width: 600px;
+  font-family: var(--font-main) !important;
 }
 
 /* Button Styling */
@@ -66,13 +68,12 @@
   align-items: center;
   gap: 8px;
   padding: 12px 20px;
-  background: linear-gradient(to bottom, #ee681a, rgb(155, 64, 22));
+  background: var(--button-bg);
   border: none;
   border-radius: 6px;
-  color: #222;
+  color: var(--button-text);
   font-weight: 700;
   cursor: pointer;
-  transition: 0.3s ease-in-out;
   text-decoration: none;
 }
 

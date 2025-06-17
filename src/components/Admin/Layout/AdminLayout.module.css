@@ -7,7 +7,9 @@
 
 .content {
   flex: 1;
-  background: #1a1a1a;
+  background: var(--card-bg);
+  color: var(--card-text);
+
   border-radius: 12px;
   padding: 30px;
   min-height: 600px;

@@ -1,30 +1,26 @@
+@import "./variables.css";
 @import url("https://fonts.googleapis.com/css2?family=Unbounded:wght@200;300;400;500;600;700;900&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@100;200;300;400;500;600;700;800;900&display=swap");
-
-:root {
-  --primary-color: #ee681a; /* You can change this to your preferred color */
-  --background-dark: #1a1a1a;
-  --text-light: #ffffff;
-  --text-muted: #aaaaaa;
-}
 
 * {
   box-sizing: border-box;
   padding: 0;
   margin: 0;
-  font-family: "Montserrat", sans-serif !important; /* ✅ Set Unbounded as default */
+  font-family: var(--font-main);
 }
 
 html,
 body {
   max-width: 100vw;
   overflow-x: hidden;
-  position: relative; /* Ensure full background effect */
+  position: relative;
   margin: 0;
-  background-color: #121212; /* Dark theme */
+  background-color: var(--background-main);
+  color: var(--text-light);
+  transition: background 0.3s, color 0.3s;
 }
 
-/* ✅ Typography Gradient Effect */
+/* Default: gradient text */
 p,
 h1,
 h2,
@@ -34,9 +30,25 @@ h5,
 ul,
 li,
 strong {
-  background: linear-gradient(to bottom, #ddd, #555);
+  background: var(--gradient-typography-secondery);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
+}
+
+/* Light mode: solid text color */
+.light p,
+.light h1,
+.light h2,
+.light h3,
+.light h4,
+.light h5,
+.light ul,
+.light li,
+.light strong {
+  background: none !important;
+  -webkit-background-clip: unset !important;
+  -webkit-text-fill-color: var(--text-light) !important;
+  color: var(--text-light) !important;
 }
 
 h1,
@@ -44,68 +56,50 @@ h2,
 h3,
 h4,
 h5,
-h6,
-.logo {
-  font-family: "Unbounded", sans-serif !important; /* ✅ Set Unbounded for Titles and Logos */
+h6 {
+  font-family: var(--font-heading) !important;
 }
 
-/* ✅ Links */
 a {
   color: inherit;
   text-decoration: none;
 }
 
-/* ✅ Container */
 .container {
-  max-width: 1200px;
+  max-width: var(--container-max-width);
   min-height: 100vh;
   margin: 0 auto;
-  padding: 10px 40px;
+  padding: var(--container-padding);
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   z-index: 99;
 }
 
-/* ✅ Theme Switch */
-.theme {
-  transition: 0.5s all ease-in-out;
-}
-
 .light {
-  background-color: #fff;
-  color: #121212;
+  background-color: var(--background-main);
+  color: var(--text-light);
 }
 
 .dark {
-  background-color: #121212;
-  color: #bbb;
+  background-color: var(--background-main);
+  color: var(--text-light);
 }
 
-/* ✅ Mobile Styling */
 @media (max-width: 480px) {
-  /* Reduce Title Sizes */
   h1 {
     font-size: 1.5rem !important;
   }
-
-  /* Adjust Container Padding */
   .container {
-    padding: 1rem !important;
+    padding: var(--container-padding-mobile) !important;
   }
-
-  /* Ensure 1 Card Per Row */
   .mainContainer {
     grid-template-columns: 1fr;
   }
-
-  /* Reduce Button Size */
   .button {
     padding: 10px 15px;
     font-size: 0.9rem;
   }
-
-  /* Adjust Navbar & Footer Padding */
   .navbar,
   .footer {
     padding: 10px !important;

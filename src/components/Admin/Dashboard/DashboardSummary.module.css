@@ -3,8 +3,9 @@
 }
 
 .containerTitle {
-  background: linear-gradient(to bottom, #ee681a, rgb(76, 40, 23));
+  background: var(--heading-gradient);
   background-clip: text;
+  -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
@@ -18,12 +19,14 @@
 }
 
 .card {
-  border: 0.1px solid #1e1e1e;
-  background: #1e1e1e;
+  border: 1px solid var(--card-border);
+  background: var(--card-bg);
   padding: 1.5rem;
   border-radius: 12px;
   width: 95%;
   cursor: pointer;
+  color: var(--card-text);
+  /* No transition */
 }
 
 .title {
@@ -37,10 +40,11 @@
 .counts {
   font-weight: bold;
   font-size: 1.5rem;
+  color: var(--primary-color);
 }
 
 .icon {
-  color: #ee681a;
+  color: var(--primary-color);
 }
 
 @media (max-width: 768px) {

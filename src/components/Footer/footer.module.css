@@ -1,5 +1,6 @@
 .container {
   height: 50px;
+  min-height: 50px;
   font-size: 14px;
   display: flex;
   align-items: center;

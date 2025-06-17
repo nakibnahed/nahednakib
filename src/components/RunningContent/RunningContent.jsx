@@ -53,9 +53,7 @@ export default function RunningContent() {
         details={
           <>
             <p> 🏃‍♂️ 5K: 16:45 (3:21/km)</p>
-
             <p> 🏃‍♂️ 10K: 35:10 (3:31/km)</p>
-
             <p> 🏃‍♂️ Half-Marathon: 1:20:00 (3:47/km)</p>
           </>
         }
@@ -82,11 +80,11 @@ export default function RunningContent() {
         details={
           <>
             <p>
-              🥈 2nd place –  10K (2024)
+              🥈 2nd place – 10K (2024)
               <br />
-              🥉 3rd place –  5K (2024)
+              🥉 3rd place – 5K (2024)
               <br />
-              🥉 3rd place –  5K (2024)
+              🥉 3rd place – 5K (2024)
             </p>
           </>
         }

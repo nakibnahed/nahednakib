@@ -1,5 +1,4 @@
 .banner {
-  /* background: #1a1a1a; */
   color: #fff;
   padding: 10px 0px;
   border-radius: 12px;
@@ -7,10 +6,6 @@
 }
 
 .bannerContent {
-  /* display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-wrap: wrap; */
   margin: auto;
   gap: 20px;
   text-align: center;
@@ -67,23 +62,18 @@
   align-items: center;
   gap: 8px;
   padding: 12px 20px;
-  border: none;
+  border: 0.1px solid var(--button-border-color);
   border-radius: 6px;
-  color: #a2a2a2;
-  background: #222;
+  color: var(--button-text-no-activ);
+  background: var(--button-bg-no-activ);
   font-weight: 700;
   cursor: pointer;
-  transition: background 0.3s ease-in-out;
   text-decoration: none;
 }
 
-.tabButton:hover {
-  transform: scale(1.02);
-}
-
 .active {
-  background: linear-gradient(to bottom, #ee681a, rgb(155, 64, 22));
-  color: #222;
+  background: var(--button-bg);
+  color: var(--button-text);
 }
 
 @media (max-width: 768px) {

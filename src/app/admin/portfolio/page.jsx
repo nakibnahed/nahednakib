@@ -33,7 +33,6 @@ export default function PortfolioListPage() {
     setLoading(false);
   }
 
-  // Open modal when user clicks delete button
   function openDeleteModal(portfolio) {
     setPortfolioToDelete(portfolio);
     setIsModalOpen(true);
@@ -121,6 +120,8 @@ export default function PortfolioListPage() {
                       <img
                         src={portfolio.image}
                         alt={portfolio.title}
+                        width={100}
+                        height={60}
                         style={{
                           maxWidth: "100px",
                           maxHeight: "60px",

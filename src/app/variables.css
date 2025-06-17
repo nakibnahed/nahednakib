@@ -1,0 +1,93 @@
+:root {
+  --primary-color: #ee681a;
+  --background-dark: #1a1a1a;
+  --background-main: #121212;
+  --text-light: #ffffff;
+  --text-muted: #aaaaaa;
+
+  --font-main: "Montserrat", sans-serif;
+  --font-heading: "Unbounded", sans-serif;
+
+  --home-bg-image: url("/images/parabolic.svg");
+
+  --logo-gradient: linear-gradient(to bottom, #ee681a, rgb(76, 40, 23));
+
+  --container-max-width: 1200px;
+  --container-padding: 10px 40px;
+  --container-padding-mobile: 1rem;
+
+  --transition-theme: 0.5s all ease-in-out;
+
+  --gradient-typography-primary: linear-gradient(
+    to bottom,
+    #ee681a,
+    rgb(54, 29, 17)
+  );
+  --gradient-typography-secondery: linear-gradient(to bottom, #ddd, #555);
+
+  /* Card variables (dark mode defaults) */
+  --card-bg: #1a1a1a;
+  --card-bg-hover: #1e1e1e;
+  --card-text: #f3f4f6;
+  --card-border: #232329;
+  --card-border-radius: 24px;
+  --card-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+
+  /* Headings */
+  --heading-color: #f3f4f6;
+  --heading-gradient: linear-gradient(to bottom, #fff, #bbb);
+
+  /* Other */
+  --navbar-bg: #18181b;
+  --footer-bg: #18181b;
+
+  --button-bg: linear-gradient(to bottom, #ee681a, rgb(155, 64, 22));
+  --button-bg-no-activ: #222;
+  --button-bg-hover: #ff8c42;
+  --button-text: #222;
+  --button-text-no-activ: #a2a2a2;
+  --button-radius: 0.75rem;
+  --button-shadow: 0 2px 8px rgba(238, 104, 26, 0.08);
+  --button-border-color: transparent;
+}
+
+/* Vercel-inspired, modern light mode */
+.light {
+  --background-main: #fff;
+  --background-dark: #f6f8fa;
+  --text-light: #11181c;
+  --text-muted: #6b7280;
+
+  --gradient-typography-primary: linear-gradient(to bottom, #11181c, #11181c);
+  --gradient-typography-secondery: linear-gradient(to bottom, #11181c, #11181c);
+
+  --home-bg-image: url("/images/parabolic-light.svg");
+
+  --logo-gradient: linear-gradient(90deg, #11181c 0%, #11181c 100%);
+
+  /* Card */
+  --card-bg: #fff;
+  --card-bg-hover: #f6f8fa;
+  --card-text: #11181c;
+  --card-border: #e5e7eb;
+  --card-border-radius: 24px;
+  --card-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+
+  /* Headings */
+  --heading-color: #11181c;
+  --heading-gradient: linear-gradient(to bottom, #11181c, #11181c);
+
+  /* Navbar/Footer */
+  --navbar-bg: #fff;
+  --footer-bg: #fff;
+
+  /* Button */
+  --button-bg: #11181c;
+  --button-bg-no-activ: transparent;
+  --button-bg-hover: #23272f;
+  --button-text: #fff;
+  --button-text-no-activ: #11181c;
+  --button-radius: 0.75rem;
+  --button-shadow: 0 2px 8px rgba(99, 102, 241, 0.08);
+  --button-border-color: #11181c;
+}

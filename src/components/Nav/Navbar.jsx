@@ -7,7 +7,7 @@ import Logo from "@/elements/Logo/Logo";
 import DarkMoodToggle from "../DarkMoodToggle/DarkMoodToggle";
 import { useEffect, useState } from "react";
 import { supabase } from "@/services/supabaseClient";
-import { User, Menu, X } from "lucide-react"; // Add menu icons
+import { User, Menu, X } from "lucide-react";
 
 export default function Navbar() {
   const [user, setUser] = useState(null);
@@ -56,7 +56,8 @@ export default function Navbar() {
           </Link>
         ))}
 
-        {user && (
+        {/* Always render a placeholder for the dashboard icon */}
+        {user ? (
           <Link
             href="/admin/"
             className={`${styles.link} ${styles.tooltip}`}
@@ -65,7 +66,21 @@ export default function Navbar() {
             <User size={22} strokeWidth="3" />
             <span className={styles.tooltipText}>Dashboard</span>
           </Link>
+        ) : (
+          // Placeholder: same width/height as the icon/link
+          <span
+            style={{
+              display: "inline-block",
+              width: 38, // width of icon/link
+              height: 22, // height of icon
+              marginLeft: "20px",
+            }}
+            aria-hidden="true"
+          />
         )}
+
+        {/* Dark/Light mode toggle at the end of the links */}
+        <DarkMoodToggle />
       </div>
     </div>
   );

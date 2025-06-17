@@ -1,21 +1,52 @@
-.container {
-  border: 2px solid #ee681a;
-  border-radius: 30px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 2px;
-  position: relative;
-}
-.icon {
-  font-size: 18px;
-  margin: 0 4px;
-}
-.switcher {
-  width: 25px;
-  aspect-ratio: 1/1;
-  position: absolute;
-  background-color: #ee681a;
+.toggleCircle {
+  width: 44px;
+  height: 44px;
+  border: none;
   border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   cursor: pointer;
+  transition: none; /* No transition */
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+  outline: none;
+  position: relative;
+  background: var(--background-dark, #18181b);
+}
+
+.toggleCircle.light {
+  background: transparent;
+  box-shadow: 0 2px 12px rgba(255, 224, 102, 0.15);
+}
+
+.toggleCircle.dark {
+  background: transparent;
+  box-shadow: 0 2px 12px rgba(24, 24, 27, 0.15);
+}
+
+.iconWrap {
+  position: relative;
+  width: 26px;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sun,
+.moon {
+  position: absolute;
+  width: 26px;
+  height: 26px;
+  transition: none; /* No transition */
+}
+
+.sun {
+  color: #fbbf24;
+  filter: drop-shadow(0 0 2px #fffbe6);
+}
+
+.moon {
+  color: #a1a1aa;
+  filter: drop-shadow(0 0 2px #c7d2fe);
 }

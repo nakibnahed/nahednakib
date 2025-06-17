@@ -45,23 +45,18 @@
   align-items: center;
   gap: 8px;
   padding: 12px 20px;
-  background: linear-gradient(to bottom, #ee681a, rgb(155, 64, 22));
+  background: var(--button-bg);
   border: none;
   border-radius: 6px;
-  color: #222;
+  color: var(--button-text);
   font-weight: 700;
   cursor: pointer;
-  transition: 0.3s ease-in-out;
   text-decoration: none;
 }
 
 .button .arrow {
   font-size: 18px;
   transition: transform 0.3s ease;
-}
-
-.button:hover {
-  opacity: 0.9;
 }
 
 .button:hover .arrow {

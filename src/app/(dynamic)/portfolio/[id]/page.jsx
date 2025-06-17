@@ -9,7 +9,7 @@ import Link from "next/link";
 import styles from "./page.module.css";
 
 export default function Post(props) {
-  const { id } = use(props.params); // ✅ unwrapped correctly now
+  const { id } = use(props.params);
 
   const router = useRouter();
 
@@ -38,59 +38,56 @@ export default function Post(props) {
     fetchPortfolio();
   }, [id, router]);
 
-  if (loading) return <p>Loading portfolio...</p>;
   if (errorMsg) return <p>Error: {errorMsg}</p>;
-  if (!portfolio) return null;
+  if (!portfolio && !loading) return null;
 
   return (
     <div className={styles.container}>
-      <header className={styles.header}>
-        <div
-          className={styles.imgContainer}
-          style={{ position: "relative", width: "100%", height: "300px" }}
-        >
-          {portfolio.image ? (
-            <Image
-              className={styles.image}
-              src={portfolio.image}
-              alt={portfolio.title}
-              layout="fill"
-              objectFit="cover"
-              priority
-            />
+      <header>
+        <div className={styles.imgContainer}>
+          {loading ? (
+            <div className={styles.skeleton}>
+              <div className={styles.skeletonBar} />
+            </div>
           ) : (
-            <Image
-              className={styles.image}
-              src="/images/portfolio.jpg" // default image from public folder
-              alt="Default portfolio image"
-              layout="fill"
-              objectFit="cover"
-              priority
-            />
+            <>
+              <Image
+                className={styles.image}
+                src={portfolio.image || "/images/portfolio.jpg"}
+                alt={portfolio.title}
+                fill
+                priority
+                sizes="100vw"
+                style={{ objectFit: "cover" }}
+              />
+              <div className={styles.info}>
+                <h1 className={styles.title}>{portfolio.title}</h1>
+                <nav className={styles.breadcrumb}>
+                  <Link href="/" className={styles.link}>
+                    Home
+                  </Link>
+                  <span className={styles.separator}> / </span>
+                  <Link href="/portfolio" className={styles.link}>
+                    Portfolio
+                  </Link>
+                  <span className={styles.separator}> / </span>
+                  <span className={styles.current}>{portfolio.category}</span>
+                </nav>
+              </div>
+            </>
           )}
-
-          <div className={styles.info}>
-            <h1 className={styles.title}>{portfolio.title}</h1>
-            <nav className={styles.breadcrumb}>
-              <Link href="/" className={styles.link}>
-                Home
-              </Link>
-              <span className={styles.separator}> / </span>
-              <Link href="/portfolio" className={styles.link}>
-                Portfolio
-              </Link>
-              <span className={styles.separator}> / </span>
-              <span className={styles.current}>{portfolio.category}</span>
-            </nav>
-          </div>
         </div>
       </header>
 
       <div className={styles.content}>
-        <div
-          className={styles.text}
-          dangerouslySetInnerHTML={{ __html: portfolio.content }}
-        />
+        {loading ? (
+          <div className={styles.skeletonContent} />
+        ) : (
+          <div
+            className={styles.text}
+            dangerouslySetInnerHTML={{ __html: portfolio.content }}
+          />
+        )}
       </div>
     </div>
   );

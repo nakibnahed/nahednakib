@@ -2,6 +2,7 @@ import "./globals.css";
 import Navbar from "@/components/Nav/Navbar";
 import Footer from "@/components/Footer/Footer";
 import { metadata as siteMetadata } from "@/constants/metadata";
+import { ThemeProvider } from "@/context/ThemeContext";
 
 export const metadata = {
   title: siteMetadata.title,
@@ -36,11 +37,13 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body>
-        <div className="container">
-          <Navbar />
-          {children}
-          <Footer />
-        </div>
+        <ThemeProvider>
+          <div className="container">
+            <Navbar />
+            {children}
+            <Footer />
+          </div>
+        </ThemeProvider>
       </body>
     </html>
   );
