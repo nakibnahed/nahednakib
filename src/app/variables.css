@@ -25,6 +25,10 @@
   );
   --gradient-typography-secondery: linear-gradient(to bottom, #ddd, #555);
 
+  --navbar-bg: #18181b;
+  --navbar-link: linear-gradient(to bottom, #ddd, #555);
+  --navbar-tooltip-bg: linear-gradient(to bottom, #ddd, #555);
+
   /* Card variables (dark mode defaults) */
   --card-bg: #1a1a1a;
   --card-bg-hover: #1e1e1e;
@@ -64,6 +68,10 @@
   --home-bg-image: url("/images/parabolic-light.svg");
 
   --logo-gradient: linear-gradient(90deg, #11181c 0%, #11181c 100%);
+
+  --navbar-bg: #fff;
+  --navbar-link: linear-gradient(to bottom, #ee681a, #11181c);
+  --navbar-tooltip-bg: linear-gradient(to bottom, #ee681a, #11181c);
 
   /* Card */
   --card-bg: #fff;

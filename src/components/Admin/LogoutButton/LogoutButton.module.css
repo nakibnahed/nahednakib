@@ -8,7 +8,6 @@
   font-size: 14px;
   font-weight: 700;
   cursor: pointer;
-  -webkit-text-fill-color: unset;
 }
 
 .button:hover {
@@ -16,5 +15,4 @@
 }
 .buttonText {
   color: var(--button-text);
-  -webkit-text-fill-color: unset;
 }

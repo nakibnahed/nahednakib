@@ -72,13 +72,30 @@
   opacity: 1;
 }
 
+.closeMenu {
+  position: absolute;
+  top: 24px;
+  right: 24px;
+  background: none;
+  border: none;
+  font-size: 2rem;
+  color: var(--text-light, #fff);
+  z-index: 10001;
+  cursor: pointer;
+  display: block;
+}
+
+@media (min-width: 769px) {
+  .closeMenu {
+    display: none;
+  }
+}
+
 /* FULL RESPONSIVE PART */
 
-@media (max-width: 768px) {
-  .menuIcon {
-    display: block;
-  }
+/* ...existing styles... */
 
+@media (max-width: 768px) {
   .menuIcon {
     display: block;
   }
@@ -86,17 +103,19 @@
   .links {
     flex-direction: column;
     gap: 20px;
-    background-color: #1a1a1a;
-    position: absolute;
-    top: 10vh; /* Keep near the top */
-    left: 50%; /* Center horizontally */
-    width: 90%;
-    padding: 40px 0;
+    background: var(--navbar-bg);
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    padding: 80px 0 0 0;
     display: none;
-    border-radius: 12px;
-    transform: translateX(-50%); /* Only horizontal centering */
-    align-items: center; /* Center links horizontally */
-    justify-content: flex-start; /* Keep links at the top */
+    border-radius: 0;
+    align-items: center;
+    justify-content: flex-start;
+    z-index: 9999;
+    transition: background 0.2s;
   }
 
   .linksOpen {
@@ -106,6 +125,16 @@
   .link {
     margin: 0;
     font-size: 20px;
+    background: var(--navbar-link);
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: unset;
+  }
+
+  .tooltipText {
+    background: var(--navbar-tooltip-bg);
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
   }
 }
 

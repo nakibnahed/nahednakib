@@ -45,6 +45,18 @@ export default function Navbar() {
       </div>
 
       <div className={`${styles.links} ${menuOpen ? styles.linksOpen : ""}`}>
+        {/* Close icon for mobile menu */}
+        {menuOpen && (
+          <button
+            className={styles.closeMenu}
+            onClick={() => setMenuOpen(false)}
+            aria-label="Close menu"
+            type="button"
+          >
+            <X size={32} />
+          </button>
+        )}
+
         {links.map((link) => (
           <Link
             key={link.id}
@@ -71,15 +83,14 @@ export default function Navbar() {
           <span
             style={{
               display: "inline-block",
-              width: 38, // width of icon/link
-              height: 22, // height of icon
+              width: 38,
+              height: 22,
               marginLeft: "20px",
             }}
             aria-hidden="true"
           />
         )}
 
-        {/* Dark/Light mode toggle at the end of the links */}
         <DarkMoodToggle />
       </div>
     </div>
