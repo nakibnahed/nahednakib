@@ -4,6 +4,7 @@
   --background-main: #121212;
   --text-light: #ffffff;
   --text-muted: #aaaaaa;
+  --text-dark: #aaaaaa;
 
   --font-main: "Montserrat", sans-serif;
   --font-heading: "Unbounded", sans-serif;
@@ -60,11 +61,12 @@
   --background-dark: #f6f8fa;
   --text-light: #11181c;
   --text-muted: #6b7280;
+  --text-dark: #11181c;
 
   --gradient-typography-primary: linear-gradient(to bottom, #11181c, #11181c);
   --gradient-typography-secondery: linear-gradient(to bottom, #11181c, #11181c);
 
-  --home-bg-image: url("/images/parabolic-light.svg");
+  --home-bg-image: none;
 
   --logo-gradient: linear-gradient(90deg, #11181c 0%, #11181c 100%);
 

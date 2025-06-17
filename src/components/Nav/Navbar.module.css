@@ -31,7 +31,6 @@
   -webkit-text-fill-color: transparent;
   font-size: 18px;
   font-weight: 600;
-  transition: 0.3s;
 }
 
 .link:hover {
@@ -44,12 +43,12 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  color: #ee681a;
+  color: var(--text-dark);
 }
 
 .tooltipText {
   visibility: hidden;
-  background: linear-gradient(to bottom, #ddd, #555);
+  background: var(--gradient-typography-secondery);
   background-clip: text;
   -webkit-text-fill-color: transparent;
   text-align: center;
@@ -79,7 +78,7 @@
   background: none;
   border: none;
   font-size: 2rem;
-  color: var(--text-light, #fff);
+  color: var(--text-light);
   z-index: 10001;
   cursor: pointer;
   display: block;

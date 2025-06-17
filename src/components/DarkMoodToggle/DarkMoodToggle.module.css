@@ -11,7 +11,7 @@
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
   outline: none;
   position: relative;
-  background: var(--background-dark, #18181b);
+  background: var(--background-dark);
 }
 
 .toggleCircle.light {
@@ -42,11 +42,12 @@
 }
 
 .sun {
-  color: #fbbf24;
+  color: var(--text-dark);
+
   filter: drop-shadow(0 0 2px #fffbe6);
 }
 
 .moon {
-  color: #a1a1aa;
+  color: var(--text-dark);
   filter: drop-shadow(0 0 2px #c7d2fe);
 }

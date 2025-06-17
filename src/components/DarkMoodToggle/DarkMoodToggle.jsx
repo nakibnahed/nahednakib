@@ -18,7 +18,7 @@ export default function DarkMoodToggle() {
       type="button"
     >
       <span className={styles.iconWrap}>
-        <Sun
+        <Moon
           className={styles.sun}
           style={{
             opacity: mode === "light" ? 1 : 0,
@@ -28,7 +28,7 @@ export default function DarkMoodToggle() {
                 : "rotate(-90deg) scale(0.5)",
           }}
         />
-        <Moon
+        <Sun
           className={styles.moon}
           style={{
             opacity: mode === "dark" ? 1 : 0,
