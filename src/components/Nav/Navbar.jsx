@@ -2,12 +2,23 @@
 
 import Link from "next/link";
 import styles from "./Navbar.module.css";
-import { links } from "./data";
 import Logo from "@/elements/Logo/Logo";
 import DarkMoodToggle from "../DarkMoodToggle/DarkMoodToggle";
 import { useEffect, useState } from "react";
 import { supabase } from "@/services/supabaseClient";
-import { User, Menu, X } from "lucide-react";
+import { User, Menu, X, Info, Briefcase, Mail } from "lucide-react";
+
+// Example links data with icons
+const navLinks = [
+  { id: 1, url: "/about", title: "About", icon: <Info size={20} /> },
+  {
+    id: 2,
+    url: "/portfolio",
+    title: "Portfolio",
+    icon: <Briefcase size={20} />,
+  },
+  { id: 3, url: "/contact", title: "Contact", icon: <Mail size={20} /> },
+];
 
 export default function Navbar() {
   const [user, setUser] = useState(null);
@@ -32,66 +43,97 @@ export default function Navbar() {
     return () => listener?.subscription?.unsubscribe();
   }, []);
 
-  const toggleMenu = () => {
-    setMenuOpen(!menuOpen);
-  };
+  const toggleMenu = () => setMenuOpen((open) => !open);
 
   return (
     <div className={styles.container}>
       <Logo />
 
-      <div className={styles.menuIcon} onClick={toggleMenu}>
-        {menuOpen ? <X size={26} /> : <Menu size={26} />}
-      </div>
-
-      <div className={`${styles.links} ${menuOpen ? styles.linksOpen : ""}`}>
-        {/* Close icon for mobile menu */}
-        {menuOpen && (
-          <button
-            className={styles.closeMenu}
-            onClick={() => setMenuOpen(false)}
-            aria-label="Close menu"
-            type="button"
-          >
-            <X size={32} />
-          </button>
-        )}
-
-        {links.map((link) => (
-          <Link
-            key={link.id}
-            href={link.url}
-            className={styles.link}
-            onClick={() => setMenuOpen(false)}
-          >
+      {/* Desktop right links */}
+      <div className={styles.desktopRight}>
+        {navLinks.map((link) => (
+          <Link key={link.id} href={link.url} className={styles.link}>
             {link.title}
           </Link>
         ))}
-
-        {/* Always render a placeholder for the dashboard icon */}
-        {user ? (
+        {/* Dashboard icon only */}
+        {user && (
           <Link
             href="/admin/"
-            className={`${styles.link} ${styles.tooltip}`}
+            className={styles.dashboardIconOnly}
+            aria-label="Dashboard"
+          >
+            <User size={26} strokeWidth={3} />
+          </Link>
+        )}
+        <DarkMoodToggle />
+      </div>
+
+      {/* Mobile right: dashboard icon + burger */}
+      <div className={styles.mobileRight}>
+        {user && (
+          <Link
+            href="/admin/"
+            className={styles.userMobileIcon}
+            aria-label="Dashboard"
+          >
+            <User size={26} strokeWidth={3} />
+          </Link>
+        )}
+        <button
+          className={styles.menuIcon}
+          onClick={toggleMenu}
+          aria-label="Open menu"
+          type="button"
+        >
+          {menuOpen ? (
+            <X size={26} strokeWidth={3} />
+          ) : (
+            <Menu size={26} strokeWidth={3} />
+          )}
+        </button>
+      </div>
+
+      {/* Mobile menu */}
+      <div
+        className={`${styles.mobileMenu} ${
+          menuOpen ? styles.mobileMenuOpen : ""
+        }`}
+      >
+        <button
+          className={styles.closeMenu}
+          onClick={() => setMenuOpen(false)}
+          aria-label="Close menu"
+          type="button"
+        >
+          <X size={32} />
+        </button>
+        {navLinks.map((link) => (
+          <Link
+            key={link.id}
+            href={link.url}
+            className={styles.mobileMenuLink}
             onClick={() => setMenuOpen(false)}
           >
-            <User size={22} strokeWidth="3" />
-            <span className={styles.tooltipText}>Dashboard</span>
+            <span className={styles.mobileMenuIcon}>{link.icon}</span>
+            <span>{link.title}</span>
           </Link>
-        ) : (
-          // Placeholder: same width/height as the icon/link
-          <span
-            style={{
-              display: "inline-block",
-              width: 38,
-              height: 22,
-              marginLeft: "20px",
-            }}
-            aria-hidden="true"
-          />
+        ))}
+        {user && (
+          <Link
+            href="/admin/"
+            className={styles.mobileMenuLink}
+            onClick={() => setMenuOpen(false)}
+          >
+            <span className={styles.mobileMenuIcon}>
+              <User size={20} strokeWidth={3} />
+            </span>
+            <span>Dashboard</span>
+          </Link>
         )}
-
-        <DarkMoodToggle />
+        <div className={styles.mobileMenuDarkToggle}>
+          <DarkMoodToggle />
+        </div>
       </div>
     </div>
   );
