@@ -51,6 +51,7 @@
 @media (max-width: 768px) {
   .container {
     padding: 0 10px;
+    border-bottom: 1px solid var(--card-border);
   }
   .mobileRight {
     display: flex;
