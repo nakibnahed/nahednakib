@@ -3,8 +3,7 @@
 }
 
 .containerTitle {
-  background: var(--heading-gradient);
-  background-clip: text;
+  background: var(--gradient-typography-secondery);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }

@@ -155,9 +155,10 @@
     display: none;
   }
   .table tr {
-    margin-bottom: 1rem;
+    margin-bottom: 2rem;
     display: block;
-    border-bottom: 2px solid var(--card-border);
+    border-bottom: 2px solid #292929;
+    border-radius: 26px;
   }
   .table td {
     display: flex;
@@ -189,5 +190,13 @@
   .deleteButton {
     padding: 8px 14px;
     font-size: 14px;
+    margin: 10px;
+  }
+  .controlsRow .searchInput {
+    font-size: 15px;
+    padding: 8px 12px;
+    margin-bottom: 12px;
+    max-width: 100%;
+    max-height: 40px;
   }
 }
