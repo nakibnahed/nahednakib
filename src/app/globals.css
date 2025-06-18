@@ -33,7 +33,7 @@ strong {
 }
 
 li {
-  color: var(--text-light);
+  color: var(--text-dark);
 }
 
 /* Light mode: solid text color */
