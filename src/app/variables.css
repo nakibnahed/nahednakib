@@ -41,6 +41,11 @@
   /* Headings */
   --heading-color: #f3f4f6;
   --heading-gradient: linear-gradient(to bottom, #fff, #bbb);
+  --gradient-typography-post-banner-title: linear-gradient(
+    to bottom,
+    #ddd,
+    #555
+  );
 
   /* Other */
   --navbar-bg: #18181b;
@@ -85,6 +90,12 @@
   /* Headings */
   --heading-color: #11181c;
   --heading-gradient: linear-gradient(to bottom, #11181c, #11181c);
+
+  --gradient-typography-post-banner-title: linear-gradient(
+    to bottom,
+    #ddd,
+    #555
+  );
 
   /* Navbar/Footer */
   --navbar-bg: #fff;

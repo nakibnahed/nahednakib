@@ -28,6 +28,7 @@ h4,
 h5,
 strong {
   background: var(--gradient-typography-secondery);
+  background-clip: text;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
@@ -46,8 +47,8 @@ li {
 .light strong {
   background: none !important;
   -webkit-background-clip: unset !important;
-  -webkit-text-fill-color: var(--text-light) !important;
-  color: var(--text-light) !important;
+  -webkit-text-fill-color: var(--text-dark) !important;
+  color: var(--text-dark) !important;
 }
 
 h1,

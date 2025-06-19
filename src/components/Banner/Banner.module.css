@@ -23,7 +23,7 @@
 .title h1 {
   font-size: 38px;
   font-weight: 900;
-  background: linear-gradient(to bottom, #ee681a, rgb(54, 29, 17));
+  background: var(--gradient-typography-primary);
   background-clip: text;
   -webkit-text-fill-color: transparent;
   margin-bottom: 6px;

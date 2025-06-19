@@ -3,6 +3,10 @@
 import { use } from "react";
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
+
+import { FaHeart, FaThumbsUp } from "react-icons/fa";
+import { FiShare2 } from "react-icons/fi";
+
 import { supabase } from "@/services/supabaseClient";
 import Image from "next/image";
 import Link from "next/link";
@@ -43,42 +47,87 @@ export default function Post(props) {
 
   return (
     <div className={styles.container}>
-      <header>
-        <div className={styles.imgContainer}>
+      <div className={styles.header}>
+        <div className={styles.imageCard}>
           {loading ? (
             <div className={styles.skeleton}>
               <div className={styles.skeletonBar} />
             </div>
           ) : (
-            <>
-              <Image
-                className={styles.image}
-                src={portfolio.image || "/images/portfolio.jpg"}
-                alt={portfolio.title}
-                fill
-                priority
-                sizes="100vw"
-                style={{ objectFit: "cover" }}
+            <Image
+              className={styles.image}
+              src={portfolio.image || "/images/portfolio.jpg"}
+              alt={portfolio.title}
+              fill
+              sizes="220px"
+              priority
+              style={{ objectFit: "cover" }}
+            />
+          )}
+        </div>
+        <div className={styles.headerInfo}>
+          <h1 className={styles.title}>
+            {loading ? (
+              <div
+                className={styles.skeletonBar}
+                style={{ height: 28, width: "70%", background: "#292929" }}
               />
-              <div className={styles.info}>
-                <h1 className={styles.title}>{portfolio.title}</h1>
-                <nav className={styles.breadcrumb}>
-                  <Link href="/" className={styles.link}>
-                    Home
-                  </Link>
-                  <span className={styles.separator}> / </span>
-                  <Link href="/portfolio" className={styles.link}>
-                    Portfolio
-                  </Link>
-                  <span className={styles.separator}> / </span>
-                  <span className={styles.current}>{portfolio.category}</span>
-                </nav>
+            ) : (
+              portfolio.title
+            )}
+          </h1>
+          {!loading && portfolio.created_at && (
+            <span className={styles.publishDate}>
+              {new Date(portfolio.created_at).toLocaleDateString(undefined, {
+                year: "numeric",
+                month: "short",
+                day: "numeric",
+              })}
+            </span>
+          )}
+          {!loading && (
+            <>
+              <span className={styles.category}>{portfolio.category}</span>
+              <nav className={styles.breadcrumb}>
+                <Link href="/" className={styles.link}>
+                  Home
+                </Link>
+                <span className={styles.separator}>/</span>
+                <Link href="/portfolio" className={styles.link}>
+                  Portfolio
+                </Link>
+                <span className={styles.separator}>/</span>
+                <span className={styles.current}>{portfolio.category}</span>
+              </nav>
+              <div className={styles.iconRow}>
+                <button className={styles.iconBtn} title="Like">
+                  <FaThumbsUp />
+                </button>
+                <button className={styles.iconBtn} title="Favorite">
+                  <FaHeart />
+                </button>
+                <button
+                  className={styles.iconBtn}
+                  title="Share"
+                  onClick={() => {
+                    if (navigator.share) {
+                      navigator.share({
+                        title: portfolio?.title,
+                        url: window.location.href,
+                      });
+                    } else {
+                      navigator.clipboard.writeText(window.location.href);
+                      alert("Link copied!");
+                    }
+                  }}
+                >
+                  <FiShare2 />
+                </button>
               </div>
             </>
           )}
         </div>
-      </header>
-
+      </div>
       <div className={styles.content}>
         {loading ? (
           <div className={styles.skeletonContent} />
