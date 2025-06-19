@@ -1,11 +1,12 @@
 .container {
-  height: 100px;
+  height: 68px;
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 0 20px;
   z-index: 9999;
   position: relative;
+  border-bottom: 1px solid var(--card-border);
 }
 
 /* Desktop right section */
@@ -51,7 +52,7 @@
 @media (max-width: 768px) {
   .container {
     padding: 0 10px;
-    border-bottom: 1px solid var(--card-border);
+    height: 54px;
   }
   .mobileRight {
     display: flex;
@@ -148,11 +149,5 @@
     z-index: 10001;
     cursor: pointer;
     display: block;
-  }
-}
-
-@media (max-width: 480px) {
-  .container {
-    height: 75px;
   }
 }
