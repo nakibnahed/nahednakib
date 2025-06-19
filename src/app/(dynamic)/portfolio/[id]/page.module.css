@@ -4,8 +4,8 @@
   padding: 24px;
   background: transparent;
   border-radius: 26px;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.25);
+  /* border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.25); */
   /* box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.25),
     inset 0 1px 8px 0 rgba(255, 255, 255, 0.05); */
   backdrop-filter: blur(16px) saturate(160%);
@@ -128,7 +128,7 @@
 .content {
   font-size: 1.08rem;
   line-height: 1.7;
-  padding: 0 20px;
+  padding: 0;
   word-break: break-word;
 }
 
@@ -219,7 +219,6 @@
   .header {
     flex-direction: column;
     gap: 18px;
-    padding: 10px;
   }
   .imageCard {
     width: 100%;
