@@ -18,7 +18,6 @@
 .header {
   display: flex;
   align-items: flex-start;
-  align-items: center;
   gap: 30px;
   flex-wrap: wrap;
 }
