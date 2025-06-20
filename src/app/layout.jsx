@@ -38,8 +38,8 @@ export default function RootLayout({ children }) {
     <html lang="en">
       <body>
         <ThemeProvider>
-          <div className="container">
-            <Navbar />
+          <Navbar />
+          <div className="mainContainer">
             {children}
             <Footer />
           </div>

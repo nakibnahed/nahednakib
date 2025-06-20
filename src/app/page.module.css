@@ -1,6 +1,7 @@
 /* Main Container (Responsive Flexbox) */
 .container {
   position: relative;
+  flex: 1;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -8,6 +9,7 @@
   padding: 20px;
   max-width: 800px;
   z-index: 99;
+  width: 100%;
   margin: 0 auto;
   overflow: hidden; /* Prevent overflow issues */
   text-align: center;

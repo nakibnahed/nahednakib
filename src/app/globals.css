@@ -65,17 +65,16 @@ a {
   text-decoration: none;
 }
 
-.container {
+.mainContainer {
   max-width: var(--container-max-width);
   min-height: 100vh;
   margin: 0 auto;
   padding: var(--container-padding);
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
   z-index: 99;
+  margin-top: 70px;
 }
-
 .light {
   background-color: var(--background-main);
   color: var(--text-light);
@@ -90,11 +89,9 @@ a {
   h1 {
     font-size: 1.5rem !important;
   }
-  .container {
-    padding: var(--container-padding-mobile) !important;
-  }
   .mainContainer {
-    grid-template-columns: 1fr;
+    padding: var(--container-padding-mobile) !important;
+    margin-top: 54px;
   }
   .button {
     padding: 10px 15px;
