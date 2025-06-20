@@ -67,7 +67,7 @@ a {
 
 .mainContainer {
   max-width: var(--container-max-width);
-  min-height: 100vh;
+  min-height: calc(100vh - 70px);
   margin: 0 auto;
   padding: var(--container-padding);
   display: flex;
@@ -91,6 +91,7 @@ a {
   }
   .mainContainer {
     padding: var(--container-padding-mobile) !important;
+    min-height: calc(100vh - 54px);
     margin-top: 54px;
   }
   .button {
