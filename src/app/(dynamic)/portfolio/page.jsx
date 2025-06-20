@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { supabase } from "@/services/supabaseClient";
 import Link from "next/link";
 import styles from "./page.module.css";
