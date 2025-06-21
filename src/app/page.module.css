@@ -145,11 +145,8 @@
   .button {
     padding: 10px;
     font-size: 16px;
+    font-weight: 600;
   }
-
-  /* .animatedBg {
-    background-size: 30px 30px;
-  } */
 
   .movingElement {
     width: 80px;

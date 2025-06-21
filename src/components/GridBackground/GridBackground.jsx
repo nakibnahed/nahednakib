@@ -2,9 +2,7 @@ import React from "react";
 import styles from "./gridBackground.module.css";
 
 export default function GridBackground() {
-  // Horizontal lines Y positions
   const hLines = [120, 220, 320, 420, 520];
-  // Vertical lines X positions
   const vLines = [200, 400, 600, 800];
 
   return (
@@ -18,9 +16,9 @@ export default function GridBackground() {
       focusable="false"
     >
       <defs>
-        {/* Horizontal fade */}
+        {/* Horizontal fades */}
         <linearGradient
-          id="fadeH"
+          id="fadeH1"
           x1="0"
           y1="0"
           x2="1000"
@@ -32,13 +30,39 @@ export default function GridBackground() {
           <stop offset="0.9" stopColor="#fff" stopOpacity="0.12" />
           <stop offset="1" stopColor="transparent" />
         </linearGradient>
-        {/* Vertical fade */}
         <linearGradient
-          id="fadeV"
+          id="fadeH2"
+          x1="1000"
+          y1="0"
+          x2="0"
+          y2="0"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop stopColor="transparent" />
+          <stop offset="0.1" stopColor="#fff" stopOpacity="0.12" />
+          <stop offset="0.9" stopColor="#fff" stopOpacity="0.12" />
+          <stop offset="1" stopColor="transparent" />
+        </linearGradient>
+        {/* Vertical fades */}
+        <linearGradient
+          id="fadeV1"
           x1="0"
           y1="0"
           x2="0"
           y2="600"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop stopColor="transparent" />
+          <stop offset="0.1" stopColor="#fff" stopOpacity="0.12" />
+          <stop offset="0.9" stopColor="#fff" stopOpacity="0.12" />
+          <stop offset="1" stopColor="transparent" />
+        </linearGradient>
+        <linearGradient
+          id="fadeV2"
+          x1="0"
+          y1="600"
+          x2="0"
+          y2="0"
           gradientUnits="userSpaceOnUse"
         >
           <stop stopColor="transparent" />
@@ -55,7 +79,7 @@ export default function GridBackground() {
           y1={y}
           x2="1000"
           y2={y}
-          stroke="url(#fadeH)"
+          stroke={`url(#fadeH${i % 2 === 0 ? 1 : 2})`}
           strokeWidth="2"
           className={styles.animatedLine}
           style={{
@@ -71,7 +95,7 @@ export default function GridBackground() {
           y1="0"
           x2={x}
           y2="600"
-          stroke="url(#fadeV)"
+          stroke={`url(#fadeV${i % 2 === 0 ? 1 : 2})`}
           strokeWidth="2"
           className={styles.animatedLineV}
           style={{
