@@ -1,12 +1,6 @@
 /* ✅ Main Container (Grid or Flexbox) */
 .mainContainer {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 20px;
   padding: 20px;
-  z-index: 999;
-  flex: 1;
-  /* Additional styling as needed */
 }
 
 .pageTitle {
@@ -16,7 +10,16 @@
   -webkit-text-fill-color: transparent;
   font-weight: 700;
   margin: 20px auto;
+  margin-bottom: 30px;
   text-align: center;
+}
+
+.gridContainer {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  z-index: 999;
+  flex: 1;
 }
 
 /* Post Link */
@@ -114,19 +117,20 @@
 
 /* ✅ Responsive Design */
 @media (max-width: 1024px) {
-  .mainContainer {
+  .gridContainer {
     grid-template-columns: repeat(2, 1fr);
   }
 }
 
 @media (max-width: 600px) {
-  .mainContainer {
+  .gridContainer {
     grid-template-columns: 1fr;
   }
 
   .pageTitle {
     font-size: 20px !important;
     margin: 10px auto;
+    margin-bottom: 20px;
   }
 
   .card {

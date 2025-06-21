@@ -25,7 +25,7 @@ export default function Banner({ activeTab, setActiveTab }) {
             }`}
             onClick={() => setActiveTab("web")}
           >
-            Web Development
+            Programing
           </button>
           <button
             className={`${styles.tabButton} ${

@@ -1,8 +1,5 @@
 .banner {
-  color: #fff;
-  padding: 10px 0px;
-  border-radius: 12px;
-  margin-bottom: 10px;
+  margin-bottom: 20px;
 }
 
 .bannerContent {
@@ -82,7 +79,7 @@
 
 @media (max-width: 768px) {
   .banner {
-    padding: 20px;
+    /* padding: 20px; */
   }
   .info {
     justify-content: start;
