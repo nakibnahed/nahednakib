@@ -51,3 +51,8 @@
   color: var(--text-dark);
   filter: drop-shadow(0 0 2px #c7d2fe);
 }
+@media (max-width: 768px) {
+  .toggleCircle {
+    width: auto;
+  }
+}

@@ -108,31 +108,34 @@ export default function Navbar() {
         >
           <X size={32} />
         </button>
-        {navLinks.map((link) => (
-          <Link
-            key={link.id}
-            href={link.url}
-            className={styles.mobileMenuLink}
-            onClick={() => setMenuOpen(false)}
-          >
-            <span className={styles.mobileMenuIcon}>{link.icon}</span>
-            <span>{link.title}</span>
-          </Link>
-        ))}
-        {user && (
-          <Link
-            href="/admin/"
-            className={styles.mobileMenuLink}
-            onClick={() => setMenuOpen(false)}
-          >
-            <span className={styles.mobileMenuIcon}>
-              <User size={20} strokeWidth={3} />
-            </span>
-            <span>Dashboard</span>
-          </Link>
-        )}
+        <div className={styles.MenuLinks}>
+          {navLinks.map((link) => (
+            <Link
+              key={link.id}
+              href={link.url}
+              className={styles.mobileMenuLink}
+              onClick={() => setMenuOpen(false)}
+            >
+              <span className={styles.mobileMenuIcon}>{link.icon}</span>
+              <span>{link.title}</span>
+            </Link>
+          ))}
+          {user && (
+            <Link
+              href="/admin/"
+              className={styles.mobileMenuLink}
+              onClick={() => setMenuOpen(false)}
+            >
+              <span className={styles.mobileMenuIcon}>
+                <User size={20} strokeWidth={3} />
+              </span>
+              <span>Dashboard</span>
+            </Link>
+          )}
+        </div>
         <div className={styles.mobileMenuDarkToggle}>
           <DarkMoodToggle />
+          <span className={styles.mobileMenuLink}></span>
         </div>
       </div>
     </div>
