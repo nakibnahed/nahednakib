@@ -11,24 +11,20 @@
   z-index: 99;
   width: 100%;
   margin: 0 auto;
-  overflow: hidden; /* Prevent overflow issues */
+  overflow: hidden;
   text-align: center;
 }
 .animatedBg {
-  position: fixed;
+  position: absolute;
   top: 0;
   left: 0;
-  width: 100vw;
-  height: 100vh;
-  /* background-image: url("/images/pattern.svg"); */
-  opacity: 0.3;
+  width: 100%;
+  height: 100%;
+  opacity: 1;
   pointer-events: none;
+  margin: auto;
   z-index: -1;
   transition: opacity 0.3s ease-in-out;
-  background-image: var(--home-bg-image);
-  /* background-repeat: no-repeat;
-  background-size: cover;
-  background-position: center; */
 }
 
 /* Column Layout */

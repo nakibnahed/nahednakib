@@ -1,0 +1,60 @@
+.gridBackground {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  user-select: none;
+  z-index: 0;
+}
+
+/* Horizontal lines */
+.animatedLine {
+  opacity: 0.5;
+  animation: lineFade 3.5s ease-in-out infinite alternate,
+    lineMove 8s ease-in-out infinite alternate;
+}
+
+@keyframes lineFade {
+  0% {
+    opacity: 0.2;
+  }
+  100% {
+    opacity: 0.7;
+  }
+}
+
+@keyframes lineMove {
+  0% {
+    transform: translateY(0);
+  }
+  100% {
+    transform: translateY(20px);
+  }
+}
+
+/* Vertical lines */
+.animatedLineV {
+  opacity: 0.5;
+  animation: lineFadeV 3.5s ease-in-out infinite alternate,
+    lineMoveV 8s ease-in-out infinite alternate;
+}
+
+@keyframes lineFadeV {
+  0% {
+    opacity: 0.2;
+  }
+  100% {
+    opacity: 0.7;
+  }
+}
+
+@keyframes lineMoveV {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(20px);
+  }
+}
