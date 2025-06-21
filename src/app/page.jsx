@@ -12,21 +12,25 @@ export default function Home() {
       <div className={styles.animatedBg}>
         <GridBackground />
       </div>
-      <div className={`${styles.col} ${styles.hero_text}`}>
-        <h1 className={`${styles.title} ${logoFont.className}`}>
-          Welcome to Nahed
-        </h1>
-        <p className={`${styles.description} ${logoFont.className}`}>
+      <div className={styles.col}>
+        <h1 className={styles.title}>Welcome to Nahed</h1>
+        <p className={styles.description}>
           We create high-quality, scalable, and innovative websites to help
           businesses thrive in the digital world.
         </p>
-        <Link
-          href="/portfolio"
-          className={`${styles.button} ${logoFont.className}`}
-        >
-          <span>Explore More</span>
-          <span className={styles.arrow}>→</span>
-        </Link>
+        <div className={styles.heroButtons}>
+          <Link href="/portfolio" className={styles.button}>
+            <span>Explore More</span>
+            <span className={styles.arrow}>→</span>
+          </Link>
+          <Link
+            href="/about"
+            className={`${styles.button} ${styles.aboutButton}`}
+          >
+            <span>About</span>
+            <span className={styles.arrow}>→</span>
+          </Link>
+        </div>
       </div>
     </div>
   );

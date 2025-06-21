@@ -15,8 +15,7 @@
   background-clip: text;
   -webkit-text-fill-color: transparent;
   font-weight: 700;
-  margin-bottom: 30px;
-  margin-top: 20px;
+  margin: 20px auto;
   text-align: center;
 }
 
@@ -30,25 +29,36 @@
 }
 
 .card {
-  border: 1px solid var(--card-border);
-  background: var(--card-bg);
-  color: var(--card-text);
-  border-radius: 12px;
-  padding: 22px;
-  height: 100%;
+  background: color-mix(
+    in srgb,
+    var(--background-main, #121212) 80%,
+    transparent 15%
+  );
+  border: 1px solid var(--card-border, rgba(255, 255, 255, 0.14));
+  color: var(--card-text, #fff);
   border-radius: 24px;
-}
-.card:hover {
-  transform: scale(1.01);
-  opacity: 0.9;
+  padding: 22px;
+  min-height: 250px;
+  height: 100%;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
-}
+  backdrop-filter: blur(16px) saturate(160%);
+  -webkit-backdrop-filter: blur(16px) saturate(160%);
+  opacity: 0.98;
 
-/* ✅ Content Styling */
-.content {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  justify-content: space-between;
+  position: relative;
+}
+
+.card:hover {
+  opacity: 1;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.16);
+  background: color-mix(
+    in srgb,
+    var(--background-main, #121212) 90%,
+    transparent 10%
+  );
 }
 
 /* Styling for the icon */

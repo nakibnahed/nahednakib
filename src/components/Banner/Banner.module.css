@@ -62,13 +62,17 @@
   align-items: center;
   gap: 8px;
   padding: 12px 20px;
-  border: 0.1px solid var(--button-border-color);
+  /* border: 0.1px solid var(--button-border-color); */
   border-radius: 6px;
-  color: var(--button-text-no-activ);
-  background: var(--button-bg-no-activ);
+  /* color: var(--button-text-no-activ); */
+  /* background: var(--button-bg-no-activ); */
   font-weight: 700;
   cursor: pointer;
   text-decoration: none;
+
+  background: rgba(18, 18, 18, 0.82);
+  border: 1px solid var(--card-border);
+  color: var(--text-muted);
 }
 
 .active {

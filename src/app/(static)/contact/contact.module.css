@@ -29,19 +29,27 @@
 
 .contactCard {
   margin-top: 30px;
-  background: var(--card-bg);
   padding: 30px;
-  border: 2px solid var(--card-border);
-  border-radius: var(--card-border-radius);
   display: flex;
   flex-direction: column;
   gap: 20px;
   max-width: 500px;
   width: 100%;
   align-items: center;
-  box-shadow: var(--card-shadow);
-  color: var(--card-text);
   transition: none;
+
+  border-radius: var(--card-border-radius);
+  background: color-mix(
+    in srgb,
+    var(--background-main, #121212) 80%,
+    transparent 15%
+  );
+  border: 1px solid var(--card-border, rgba(255, 255, 255, 0.14));
+  color: var(--card-text, #fff);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  backdrop-filter: blur(16px) saturate(160%);
+  -webkit-backdrop-filter: blur(16px) saturate(160%);
+  opacity: 0.98;
 }
 
 .contactItem {
@@ -62,7 +70,11 @@
 
 .input,
 .textarea {
-  background: var(--background-dark);
+  background: color-mix(
+    in srgb,
+    var(--background-main, #121212) 80%,
+    transparent 15%
+  );
   border: 1px solid var(--card-border);
   border-radius: 8px;
   padding: 10px 15px;

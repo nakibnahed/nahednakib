@@ -25,17 +25,17 @@ export default async function Portfolio() {
             className={styles.post}
           >
             <div className={styles.card}>
-              <div className={styles.content}>
+              <div>
                 <div className={styles.icon}>
                   <Globe size={24} strokeWidth={2} />
                 </div>
                 <h1 className={styles.title}>{portfolio.title}</h1>
                 <p className={styles.date}>{portfolio.date}</p>
                 <p className={styles.description}>{portfolio.description}</p>
-                <div className={styles.readMore}>
-                  <span>Read More</span>
-                  <span className={styles.arrow}>→</span>
-                </div>
+              </div>
+              <div className={styles.readMore}>
+                <span>Read More</span>
+                <span className={styles.arrow}>→</span>
               </div>
             </div>
           </Link>
