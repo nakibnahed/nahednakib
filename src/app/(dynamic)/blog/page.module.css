@@ -1,4 +1,3 @@
-/* ✅ Main Container (Grid or Flexbox) */
 .container {
   padding: 20px;
 }
@@ -6,6 +5,7 @@
 .pageTitle {
   font-size: 32px;
   background: var(--gradient-typography-primary);
+  -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
   font-weight: 700;
@@ -22,7 +22,6 @@
   flex: 1;
 }
 
-/* Post Link */
 .post {
   position: relative;
   width: 100%;
@@ -47,7 +46,6 @@
   backdrop-filter: blur(16px) saturate(160%);
   -webkit-backdrop-filter: blur(16px) saturate(160%);
   opacity: 0.98;
-
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -56,31 +54,23 @@
 
 .card:hover {
   opacity: 1;
-  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.16);
-  background: color-mix(
-    in srgb,
-    var(--background-main, #121212) 90%,
-    transparent 10%
-  );
 }
 
-/* Styling for the icon */
-.icon {
-  position: absolute;
-  top: 15px;
-  right: 15px; /* Position in the top right corner */
-  width: 24px; /* Adjust width of the icon */
-  height: 24px; /* Adjust height of the icon */
-  opacity: 0.7; /* Make the icon semi-transparent */
-  fill: currentColor; /* Use the current text color for the icon */
-  color: #ddd;
-}
-
-/* ✅ Title Styling */
-.title {
+.cardTitle {
   font-size: 18px;
   font-weight: bold;
   margin-bottom: 10px;
+}
+
+.icon {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  width: 24px;
+  height: 24px;
+  opacity: 0.7;
+  fill: currentColor;
+  color: #ddd;
 }
 
 /* ✅ Date Styling */
@@ -113,32 +103,4 @@
 
 .readMore:hover .arrow {
   transform: translateX(5px); /* Add a smooth right arrow hover effect */
-}
-
-/* ✅ Responsive Design */
-@media (max-width: 1024px) {
-  .gridContainer {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
-@media (max-width: 600px) {
-  .gridContainer {
-    grid-template-columns: 1fr;
-  }
-
-  .pageTitle {
-    font-size: 18px !important;
-    margin: 0 auto;
-    margin-bottom: 20px;
-  }
-
-  .card {
-    min-height: 200px;
-  }
-
-  .title {
-    font-size: 20px !important;
-    margin-right: 20px;
-  }
 }

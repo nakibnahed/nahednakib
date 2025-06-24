@@ -15,31 +15,33 @@ export default async function Portfolio() {
   }
 
   return (
-    <div className={styles.mainContainer}>
-      <h1 className={styles.pageTitle}>Crafted with Code & Passion</h1>
-      <div className={styles.gridContainer}>
-        {portfolios.map((portfolio) => (
-          <Link
-            key={portfolio.id}
-            href={`/portfolio/${portfolio.id}`}
-            className={styles.post}
-          >
-            <div className={styles.card}>
-              <div>
-                <div className={styles.icon}>
-                  <Globe size={24} strokeWidth={2} />
+    <div className="pageMainContainer">
+      <div className={styles.container}>
+        <h1 className={styles.pageTitle}>Crafted with Code & Passion</h1>
+        <div className={styles.gridContainer}>
+          {portfolios.map((portfolio) => (
+            <Link
+              key={portfolio.id}
+              href={`/portfolio/${portfolio.id}`}
+              className={styles.post}
+            >
+              <div className={styles.card}>
+                <div>
+                  <div className={styles.icon}>
+                    <Globe size={24} strokeWidth={2} />
+                  </div>
+                  <h1 className={styles.title}>{portfolio.title}</h1>
+                  <p className={styles.date}>{portfolio.date}</p>
+                  <p className={styles.description}>{portfolio.description}</p>
                 </div>
-                <h1 className={styles.title}>{portfolio.title}</h1>
-                <p className={styles.date}>{portfolio.date}</p>
-                <p className={styles.description}>{portfolio.description}</p>
+                <div className={styles.readMore}>
+                  <span>Read More</span>
+                  <span className={styles.arrow}>→</span>
+                </div>
               </div>
-              <div className={styles.readMore}>
-                <span>Read More</span>
-                <span className={styles.arrow}>→</span>
-              </div>
-            </div>
-          </Link>
-        ))}
+            </Link>
+          ))}
+        </div>
       </div>
     </div>
   );

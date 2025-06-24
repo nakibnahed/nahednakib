@@ -49,7 +49,7 @@ export default function Contact() {
   }
 
   return (
-    <div className={styles.pageContainer}>
+    <div className="pageMainContainer">
       <h1 className={styles.title}>Get in Touch</h1>
       <p className={styles.description}>Feel free to reach out to me.</p>
 

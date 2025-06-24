@@ -67,14 +67,24 @@ a {
 
 .mainContainer {
   max-width: var(--container-max-width);
-  min-height: calc(100vh - 70px);
+  min-height: 100vh;
   margin: 0 auto;
   padding: var(--container-padding);
+  padding-top: 70px;
   display: flex;
   flex-direction: column;
   z-index: 99;
-  margin-top: 70px;
 }
+
+.pageMainContainer {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
+
 .light {
   background-color: var(--background-main);
   color: var(--text-light);
@@ -85,14 +95,47 @@ a {
   color: var(--text-light);
 }
 
+.progressBarWrapper {
+  position: fixed;
+  top: 70px; /* height of your navbar */
+  left: 0;
+  width: 100vw;
+  height: 4px;
+  z-index: 2000;
+  pointer-events: none;
+  background: transparent;
+}
+
+.progressBar {
+  height: 100%;
+  width: 0;
+  background: linear-gradient(90deg, var(--primary-color, #ee681a), #ee681a);
+  animation: progressBarAnim 1.2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+@keyframes progressBarAnim {
+  0% {
+    width: 0;
+    opacity: 1;
+  }
+  80% {
+    width: 100vw;
+    opacity: 1;
+  }
+  100% {
+    width: 100vw;
+    opacity: 0;
+  }
+}
+
 @media (max-width: 480px) {
   h1 {
     font-size: 1.5rem !important;
   }
   .mainContainer {
     padding: var(--container-padding-mobile) !important;
-    min-height: calc(100vh - 54px);
-    margin-top: 54px;
+    min-height: 100vh;
+    padding-top: 54px !important;
   }
   .button {
     padding: 10px 15px;
