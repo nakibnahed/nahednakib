@@ -135,7 +135,17 @@ a {
   .mainContainer {
     padding: var(--container-padding-mobile) !important;
     min-height: 100vh;
-    padding-top: 54px !important;
+    padding-top: 64px !important;
+  }
+  .progressBarWrapper {
+    position: fixed;
+    top: 64px; /* height of your mobile navbar */
+    left: 0;
+    width: 100vw;
+    height: 4px;
+    z-index: 2000;
+    pointer-events: none;
+    background: transparent;
   }
   .button {
     padding: 10px 15px;

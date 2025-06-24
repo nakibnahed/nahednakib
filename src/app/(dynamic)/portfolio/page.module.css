@@ -123,6 +123,9 @@
 }
 
 @media (max-width: 600px) {
+  .container {
+    padding-top: 30px;
+  }
   .gridContainer {
     grid-template-columns: 1fr;
   }
