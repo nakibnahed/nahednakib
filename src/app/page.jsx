@@ -13,7 +13,7 @@ export default function Home() {
         <GridBackground />
       </div>
       <div className={styles.col}>
-        <h1 className={styles.title}>Nahed Development</h1>
+        <h1 className={styles.title}>Welcome to Nahed</h1>
         <p className={styles.description}>
           We create high-quality, scalable, and innovative websites to help
           businesses thrive in the digital world.
