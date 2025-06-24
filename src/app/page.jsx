@@ -13,7 +13,7 @@ export default function Home() {
         <GridBackground />
       </div>
       <div className={styles.col}>
-        <h1 className={styles.title}>Welcome to Nahed</h1>
+        <h1 className={styles.title}>Nahed Development</h1>
         <p className={styles.description}>
           We create high-quality, scalable, and innovative websites to help
           businesses thrive in the digital world.
@@ -23,6 +23,13 @@ export default function Home() {
             <span>Explore More</span>
             <span className={styles.arrow}>→</span>
           </Link>
+          {/* <Link
+            href="/about"
+            className={`${styles.button} ${styles.aboutButton}`}
+          >
+            <span>About</span>
+            <span className={styles.arrow}>→</span>
+          </Link> */}
         </div>
       </div>
     </div>
