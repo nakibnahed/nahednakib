@@ -37,10 +37,10 @@ export default function Sidebar({ activeTab }) {
             listStyleType: "none",
           }}
         >
-          <li>🌐 Arabic — Native</li>
-          <li>🌐 English — B2 (70%)</li>
-          <li>🌐 Turkish — C1 (85%)</li>
-          <li>🌐 German — (5%)</li>
+          <li>Arabic — Native</li>
+          <li>English — B2 (70%)</li>
+          <li>Turkish — C1 (85%)</li>
+          <li>German — (5%)</li>
         </ul>
       </div>
 

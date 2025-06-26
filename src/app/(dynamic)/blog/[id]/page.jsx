@@ -1,44 +1,23 @@
+import { supabase } from "@/services/supabaseClient";
 import Image from "next/image";
 import Link from "next/link";
-import styles from "../page.module.css";
-import { notFound } from "next/navigation";
+import styles from "./page.module.css";
+import IconRow from "./IconRow";
 
-// Use the same mock data array as in the list page
-const posts = [
-  {
-    id: "post-1",
-    title: "Blog Post 1",
-    date: "12/05/2024",
-    description: "This is the description for Blog Post 1.",
-    category: "General",
-    image: "/images/blog.jpg",
-    content: "<p>This is the content for Blog Post 1.</p>",
-  },
-  {
-    id: "post-2",
-    title: "Blog Post 2",
-    date: "13/05/2024",
-    description: "This is the description for Blog Post 2.",
-    category: "Updates",
-    image: "/images/blog.jpg",
-    content: "<p>This is the content for Blog Post 2.</p>",
-  },
-  {
-    id: "post-3",
-    title: "Blog Post 3",
-    date: "14/05/2024",
-    description: "This is the description for Blog Post 3.",
-    category: "News",
-    image: "/images/blog.jpg",
-    content: "<p>This is the content for Blog Post 3.</p>",
-  },
-];
+export default async function Post({ params }) {
+  // Await params if it's a Promise (Next.js 14+)
+  const actualParams = await params;
+  const { id } = actualParams;
 
-export default function BlogPost({ params }) {
-  const { id } = params;
-  const post = posts.find((p) => p.id === id);
+  // Fetch from 'blogs' table instead of 'portfolios'
+  const { data: blog, error } = await supabase
+    .from("blogs")
+    .select("*")
+    .eq("id", id)
+    .single();
 
-  if (!post) return notFound();
+  if (error) return <p>Error: {error.message}</p>;
+  if (!blog) return <p>Not found</p>;
 
   return (
     <div className={styles.container}>
@@ -46,8 +25,8 @@ export default function BlogPost({ params }) {
         <div className={styles.imageCard}>
           <Image
             className={styles.image}
-            src={post.image}
-            alt={post.title}
+            src={blog.image || "/images/blog.jpg"} // Change fallback if you want
+            alt={blog.title}
             fill
             sizes="220px"
             priority
@@ -55,9 +34,17 @@ export default function BlogPost({ params }) {
           />
         </div>
         <div className={styles.headerInfo}>
-          <h1 className={styles.title}>{post.title}</h1>
-          <span className={styles.publishDate}>{post.date}</span>
-          <span className={styles.category}>{post.category}</span>
+          <h1 className={styles.title}>{blog.title}</h1>
+          {blog.created_at && (
+            <span className={styles.publishDate}>
+              {new Date(blog.created_at).toLocaleDateString(undefined, {
+                year: "numeric",
+                month: "short",
+                day: "numeric",
+              })}
+            </span>
+          )}
+          <span className={styles.category}>{blog.category}</span>
           <nav className={styles.breadcrumb}>
             <Link href="/" className={styles.link}>
               Home
@@ -67,14 +54,15 @@ export default function BlogPost({ params }) {
               Blog
             </Link>
             <span className={styles.separator}>/</span>
-            <span className={styles.current}>{post.category}</span>
+            <span className={styles.current}>{blog.category}</span>
           </nav>
+          <IconRow title={blog.title} />
         </div>
       </div>
       <div className={styles.content}>
         <div
           className={styles.text}
-          dangerouslySetInnerHTML={{ __html: post.content }}
+          dangerouslySetInnerHTML={{ __html: blog.content }}
         />
       </div>
     </div>

@@ -1,47 +1,26 @@
+export const dynamic = "force-dynamic";
+
+import { supabase } from "@/services/supabaseClient";
 import Link from "next/link";
 import styles from "./page.module.css";
 import { Globe } from "lucide-react";
 
-const posts = [
-  {
-    id: "post-1",
-    title: "Blog Post 1",
-    date: "12/05/2024",
-    description: "This is the description for Blog Post 1.",
-    category: "General",
-    image: "/images/blog.jpg",
-    content: "<p>This is the content for Blog Post 1.</p>",
-  },
-  {
-    id: "post-2",
-    title: "Blog Post 2",
-    date: "13/05/2024",
-    description: "This is the description for Blog Post 2.",
-    category: "Updates",
-    image: "/images/blog.jpg",
-    content: "<p>This is the content for Blog Post 2.</p>",
-  },
-  {
-    id: "post-3",
-    title: "Blog Post 3",
-    date: "14/05/2024",
-    description: "This is the description for Blog Post 3.",
-    category: "News",
-    image: "/images/blog.jpg",
-    content: "<p>This is the content for Blog Post 3.</p>",
-  },
-];
+export default async function Blog() {
+  const { data: blogs, error } = await supabase.from("blogs").select("*");
 
-export default function Blog() {
+  if (error) {
+    return <p>Failed to load blogs</p>;
+  }
+
   return (
     <div className="pageMainContainer">
       <div className={styles.container}>
-        <h1 className={styles.pageTitle}>Blog</h1>
+        <h1 className={styles.pageTitle}>Blogs Page</h1>
         <div className={styles.gridContainer}>
-          {posts.map((post) => (
+          {blogs.map((blog) => (
             <Link
-              key={post.id}
-              href={`/blog/${post.id}`}
+              key={blog.id}
+              href={`/blog/${blog.id}`}
               className={styles.post}
             >
               <div className={styles.card}>
@@ -49,9 +28,9 @@ export default function Blog() {
                   <div className={styles.icon}>
                     <Globe size={24} strokeWidth={2} />
                   </div>
-                  <h1 className={styles.cardTitle}>{post.title}</h1>
-                  <p className={styles.date}>{post.date}</p>
-                  <p className={styles.description}>{post.description}</p>
+                  <h1 className={styles.title}>{blog.title}</h1>
+                  <p className={styles.date}>{blog.date}</p>
+                  <p className={styles.description}>{blog.description}</p>
                 </div>
                 <div className={styles.readMore}>
                   <span>Read More</span>
