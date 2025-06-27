@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+
 import { SiStrava } from "react-icons/si";
 import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
 import InfoCard from "../InfoCard/InfoCard";
@@ -101,7 +102,10 @@ export default function RunningContent() {
               </div>
             </div>
           ) : (
-            <p>No public activity found.</p>
+            <div style={{ padding: "1.5rem 0", textAlign: "center" }}>
+              <span className={styles.loader} />
+              <div className={styles.loadingText}>Loading activities…</div>
+            </div>
           )
         }
       />

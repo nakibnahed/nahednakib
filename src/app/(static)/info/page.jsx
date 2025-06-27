@@ -11,7 +11,7 @@ import Image from "next/image";
 import BlogImage2 from "/public/images/me.jpg";
 
 export default function InfoPage() {
-  const [activeTab, setActiveTab] = useState("web");
+  const [activeTab, setActiveTab] = useState("running");
   return (
     <div className={styles.infoContainer}>
       <Banner setActiveTab={setActiveTab} activeTab={activeTab} />
