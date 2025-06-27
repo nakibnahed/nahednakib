@@ -17,7 +17,7 @@ export default async function Portfolio() {
   return (
     <div className="pageMainContainer">
       <div className={styles.container}>
-        <h1 className={styles.pageTitle}>Crafted with Code & Passion</h1>
+        <h1 className={styles.pageTitle}>Crafted with Passion</h1>
         <div className={styles.gridContainer}>
           {portfolios.map((portfolio) => (
             <Link

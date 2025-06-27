@@ -4,7 +4,7 @@
 }
 
 .pageTitle {
-  font-size: 32px;
+  font-size: var(--page-title);
   background: var(--gradient-typography-primary);
   background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -131,7 +131,6 @@
   }
 
   .pageTitle {
-    font-size: 18px !important;
     margin: 0 auto;
     margin-bottom: 20px;
   }

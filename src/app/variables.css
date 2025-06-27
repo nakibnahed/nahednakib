@@ -47,6 +47,8 @@
     #555
   );
 
+  --page-title: 2.4rem;
+
   /* Other */
   --navbar-bg: #18181b;
   --footer-bg: #18181b;
@@ -110,4 +112,10 @@
   --button-radius: 0.75rem;
   --button-shadow: 0 2px 8px rgba(99, 102, 241, 0.08);
   --button-border-color: #11181c;
+}
+
+@media (max-width: 600px) {
+  :root {
+    --page-title: 1.5rem;
+  }
 }

@@ -25,7 +25,7 @@
 
 /* ✅ Title Styling */
 .title {
-  font-size: 46px;
+  font-size: var(--page-title);
   font-weight: 900;
   background: var(--gradient-typography-primary);
   background-clip: text;
