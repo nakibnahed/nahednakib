@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useSearchParams } from "next/navigation";
 import styles from "./Login.module.css";
 
 export default function LoginPage() {
@@ -8,6 +9,9 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
   const [loading, setLoading] = useState(false);
+
+  const searchParams = useSearchParams();
+  const confirmed = searchParams.get("confirmed");
 
   function setCookie(name, value, days) {
     let expires = "";
@@ -47,6 +51,11 @@ export default function LoginPage() {
     <div className="pageMainContainer">
       <div className={styles.container}>
         <h1 className={styles.title}>Login</h1>
+        {confirmed && (
+          <p style={{ color: "green", marginBottom: 16 }}>
+            Email confirmed successfully! You can login now.
+          </p>
+        )}
         <form onSubmit={handleSubmit} className={styles.form}>
           <input
             type="email"
