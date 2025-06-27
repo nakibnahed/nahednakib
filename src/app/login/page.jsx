@@ -24,7 +24,6 @@ export default function LoginPage() {
     setErrorMsg("");
     setLoading(true);
 
-    // Import supabase client inside or at top of file
     const { supabase } = await import("@/services/supabaseClient");
 
     const { data, error } = await supabase.auth.signInWithPassword({
@@ -36,50 +35,51 @@ export default function LoginPage() {
       setErrorMsg(error.message);
       setLoading(false);
     } else {
-      // Set the access and refresh tokens as cookies so server middleware/layout can read them
-      setCookie("sb-access-token", data.session.access_token, 1); // 1 day expiry
-      setCookie("sb-refresh-token", data.session.refresh_token, 7); // 7 day expiry
+      setCookie("sb-access-token", data.session.access_token, 1);
+      setCookie("sb-refresh-token", data.session.refresh_token, 7);
 
-      // Redirect to admin page after login
-      window.location.href = "/admin";
+      // Redirect to user profile page after login
+      window.location.href = "/users/profile";
     }
   }
 
   return (
-    <div className={styles.container}>
-      <h1 className={styles.title}>Admin Login</h1>
-      <form onSubmit={handleSubmit} className={styles.form}>
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-          className={styles.input}
-          disabled={loading}
-        />
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-          className={styles.input}
-          disabled={loading}
-        />
-        {errorMsg && <p className={styles.error}>{errorMsg}</p>}
+    <div className="pageMainContainer">
+      <div className={styles.container}>
+        <h1 className={styles.title}>Login</h1>
+        <form onSubmit={handleSubmit} className={styles.form}>
+          <input
+            type="email"
+            placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+            className={styles.input}
+            disabled={loading}
+          />
+          <input
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+            className={styles.input}
+            disabled={loading}
+          />
+          {errorMsg && <p className={styles.error}>{errorMsg}</p>}
 
-        <button type="submit" className={styles.button} disabled={loading}>
-          {loading ? (
-            "Logging in..."
-          ) : (
-            <>
-              <span>Login</span>
-              <span className={styles.arrow}>→</span>
-            </>
-          )}
-        </button>
-      </form>
+          <button type="submit" className={styles.button} disabled={loading}>
+            {loading ? (
+              "Logging in..."
+            ) : (
+              <>
+                <span>Login</span>
+                <span className={styles.arrow}>→</span>
+              </>
+            )}
+          </button>
+        </form>
+      </div>
     </div>
   );
 }
