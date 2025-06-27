@@ -1,29 +1,22 @@
 import { useEffect, useState } from "react";
 import { SiStrava } from "react-icons/si";
+import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
 import InfoCard from "../InfoCard/InfoCard";
 import styles from "./RunningContent.module.css";
-import {
-  Medal,
-  MapPin,
-  Calendar,
-  HeartPulse,
-  Trophy,
-  Flag,
-} from "lucide-react";
+import { Medal, Calendar, HeartPulse, Trophy, Flag } from "lucide-react";
 
 export default function RunningContent() {
-  const [activity, setActivity] = useState(null);
+  const [activities, setActivities] = useState([]);
+  const [current, setCurrent] = useState(0);
 
   useEffect(() => {
     fetch("/api/strava?per_page=20")
       .then((res) => res.json())
       .then((data) => {
-        const activities = Array.isArray(data) ? data : [data];
-        // Find the first non-private activity
-        const publicActivity = activities.find((a) => !a.private);
-        setActivity(publicActivity || null);
-      })
-      .catch(() => setActivity(null));
+        const arr = Array.isArray(data) ? data : [data];
+        const publicActivities = arr.filter((a) => !a.private).slice(0, 3);
+        setActivities(publicActivities);
+      });
   }, []);
 
   function formatTime(seconds) {
@@ -40,7 +33,6 @@ export default function RunningContent() {
 
   function formatPace(avgSpeed) {
     if (!avgSpeed) return "N/A";
-    // avgSpeed is in m/s, so pace (min/km) = 16.6667 / avgSpeed
     const pace = 1000 / avgSpeed / 60; // minutes per km
     const min = Math.floor(pace);
     const sec = Math.round((pace - min) * 60);
@@ -50,37 +42,66 @@ export default function RunningContent() {
   return (
     <div className={styles.container}>
       <InfoCard
-        title="Last Activity"
+        title="Last Activities"
         size="medium"
         Icon={SiStrava}
         details={
-          activity ? (
-            <>
-              <p>
-                <strong>{activity.name}</strong>
-              </p>
-
-              <p>Distance: {(activity.distance / 1000).toFixed(2)} km</p>
-
-              <p>Time: {formatTime(activity.moving_time)}</p>
-
-              <p>Avg Pace: {formatPace(activity.average_speed)}</p>
-
-              <p>
-                Date:{" "}
-                {new Date(activity.start_date).toLocaleTimeString([], {
-                  hour: "2-digit",
-                  minute: "2-digit",
-                })}{" "}
-                {new Date(activity.start_date).toLocaleDateString()}
-              </p>
-            </>
+          activities.length ? (
+            <div>
+              {/* Activity Content */}
+              <div>
+                <p>
+                  <strong>{activities[current].name}</strong>
+                </p>
+                <p>
+                  Distance: {(activities[current].distance / 1000).toFixed(2)}{" "}
+                  km
+                </p>
+                <p>Time: {formatTime(activities[current].moving_time)}</p>
+                <p>Avg Pace: {formatPace(activities[current].average_speed)}</p>
+                <p>
+                  Date:{" "}
+                  {new Date(activities[current].start_date).toLocaleTimeString(
+                    [],
+                    {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    }
+                  )}{" "}
+                  {new Date(
+                    activities[current].start_date
+                  ).toLocaleDateString()}
+                </p>
+              </div>
+              {/* Carousel Arrows */}
+              <div className={styles.carouselArrows}>
+                <button
+                  onClick={() =>
+                    setCurrent(
+                      (current - 1 + activities.length) % activities.length
+                    )
+                  }
+                  disabled={activities.length < 2}
+                  className={styles.carouselButton}
+                  aria-label="Previous activity"
+                >
+                  <FiChevronLeft size={24} />
+                </button>
+                <span className={styles.carouselCounter}>
+                  {current + 1} / {activities.length}
+                </span>
+                <button
+                  onClick={() => setCurrent((current + 1) % activities.length)}
+                  disabled={activities.length < 2}
+                  className={styles.carouselButton}
+                  aria-label="Next activity"
+                >
+                  <FiChevronRight size={24} />
+                </button>
+              </div>
+            </div>
           ) : (
-            <p>
-              {activity === null
-                ? "Loading latest activity..."
-                : "No public activity found."}
-            </p>
+            <p>No public activity found.</p>
           )
         }
       />
@@ -115,7 +136,6 @@ export default function RunningContent() {
           </>
         }
       />
-
       <InfoCard
         title="Personal Bests"
         size="medium"
@@ -137,6 +157,22 @@ export default function RunningContent() {
             <p> ✅ Break 16:30 in 5K (Fall 2025)</p>
             <p> ✅ Sub-33 10K (Late 2025)</p>
             <p>✅ Marathon goal: 2h 30m (2026)</p>
+          </>
+        }
+      />
+      <InfoCard
+        title="Achievements"
+        size="medium"
+        Icon={Flag}
+        details={
+          <>
+            <p>
+              🥈 2nd place – 10K (2024)
+              <br />
+              🥉 3rd place – 5K (2024)
+              <br />
+              🥉 3rd place – 5K (2024)
+            </p>
           </>
         }
       />

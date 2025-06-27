@@ -34,5 +34,12 @@ export async function GET(request) {
     return new Response(JSON.stringify([]), { status: 200 });
   }
 
-  return new Response(JSON.stringify(activities), { status: 200 });
+  // Add caching headers for faster response
+  return new Response(JSON.stringify(activities), {
+    status: 200,
+    headers: {
+      "Cache-Control": "s-maxage=600, stale-while-revalidate=60",
+      "Content-Type": "application/json",
+    },
+  });
 }

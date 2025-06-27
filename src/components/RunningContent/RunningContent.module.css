@@ -4,6 +4,38 @@
   gap: 20px;
 }
 
+.carouselArrows {
+  position: absolute;
+  top: 0;
+  right: 0;
+  margin: 20px;
+  display: flex;
+  align-items: center;
+  z-index: 2;
+}
+
+.carouselButton {
+  background: transparent;
+  border: none;
+  color: var(--text-dark);
+  font-size: 22px;
+  cursor: pointer;
+  opacity: 1;
+  transition: opacity 0.2s;
+}
+
+.carouselButton:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.carouselCounter {
+  margin: 0 8px;
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--text-dark);
+}
+
 @media (max-width: 768px) {
   .container {
     grid-template-columns: 1fr;
