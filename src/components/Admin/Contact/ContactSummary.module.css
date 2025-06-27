@@ -17,7 +17,7 @@
 .tableContainer {
   overflow-x: auto;
   border-radius: 6px;
-  background: var(--card-bg);
+  background-color: var(--background-main);
 }
 
 .table {
@@ -30,13 +30,15 @@
   padding: 10px;
   border: 1px solid var(--card-border);
   text-align: left;
-  background-color: var(--card-bg);
+  background-color: var(--background-main);
+
   color: var(--card-text);
   vertical-align: middle;
 }
 
 .table th {
-  background-color: var(--background-dark);
+  background-color: var(--background-main);
+
   font-weight: bold;
 }
 
@@ -52,7 +54,8 @@
   padding: 10px;
   border-radius: 6px;
   border: 1px solid var(--card-border);
-  background-color: var(--background-dark);
+  background-color: var(--background-main);
+
   color: var(--text-light);
   font-size: 16px;
   font-family: var(--font-heading), sans-serif;
@@ -66,6 +69,7 @@
 
 .searchInput:focus {
   border-color: var(--primary-color);
-  background-color: var(--card-bg);
+  background-color: var(--background-main);
+
   color: var(--text-light);
 }

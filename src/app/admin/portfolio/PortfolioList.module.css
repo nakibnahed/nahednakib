@@ -51,7 +51,7 @@
   padding: 10px 14px;
   border-radius: 6px;
   border: 1px solid var(--card-border);
-  background-color: var(--background-dark);
+  background-color: var(--background-main);
   color: var(--text-light);
   font-size: 16px;
   font-family: var(--font-heading), sans-serif;
@@ -110,7 +110,7 @@
 .tableContainer {
   overflow-x: auto;
   border-radius: 6px;
-  background: var(--card-bg);
+  background-color: var(--background-main);
 }
 
 /* Table styles */
@@ -125,13 +125,15 @@
   padding: 10px;
   border: 1px solid var(--card-border);
   text-align: center;
-  background-color: var(--card-bg);
+  background-color: var(--background-main);
+
   color: var(--card-text);
   vertical-align: middle;
 }
 
 .table th {
-  background-color: var(--background-dark);
+  background-color: var(--background-main);
+
   font-weight: bold;
 }
 
@@ -141,7 +143,8 @@
   max-width: 100px;
   max-height: 60px;
   object-fit: cover;
-  background: var(--background-dark);
+  background-color: var(--background-main);
+
   border: 1px solid var(--card-border);
 }
 
@@ -168,7 +171,8 @@
     border-bottom: 1px solid var(--card-border);
     position: relative;
     font-size: 14px;
-    background: var(--card-bg);
+    background-color: var(--background-main);
+
     color: var(--card-text);
   }
   .table td:last-child {

@@ -1,7 +1,8 @@
 .infoContainer {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 20px;
+  padding: 48px 20px;
+
   font-family: Arial, sans-serif;
 }
 
@@ -19,6 +20,9 @@
 
 /* Responsive Design */
 @media (max-width: 1024px) {
+  .infoContainer {
+    padding: 24px 20px;
+  }
   .mainContent {
     grid-template-columns: 1fr;
   }

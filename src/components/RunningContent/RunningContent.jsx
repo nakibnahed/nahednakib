@@ -164,22 +164,6 @@ export default function RunningContent() {
           </>
         }
       />
-      <InfoCard
-        title="Achievements"
-        size="medium"
-        Icon={Flag}
-        details={
-          <>
-            <p>
-              🥈 2nd place – 10K (2024)
-              <br />
-              🥉 3rd place – 5K (2024)
-              <br />
-              🥉 3rd place – 5K (2024)
-            </p>
-          </>
-        }
-      />
     </div>
   );
 }
