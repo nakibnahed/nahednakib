@@ -4,8 +4,11 @@ import styles from "../../login/Login.module.css";
 
 export default function ProfileDashboard() {
   const [profile, setProfile] = useState(null);
-  const [name, setName] = useState("");
+  const [username, setUsername] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
   const [avatarUrl, setAvatarUrl] = useState("");
+  const [bio, setBio] = useState("");
   const [email, setEmail] = useState("");
   const [likedPosts, setLikedPosts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -30,20 +33,37 @@ export default function ProfileDashboard() {
       // Fetch profile from 'profiles' table
       let { data: profileData } = await supabase
         .from("profiles")
-        .select("name, avatar_url")
+        .select("username, first_name, last_name, avatar_url, bio")
         .eq("id", user.id)
         .single();
 
       if (!profileData) {
-        await supabase
-          .from("profiles")
-          .insert([{ id: user.id, email: user.email }]);
-        profileData = { name: "", avatar_url: "" };
+        await supabase.from("profiles").insert([
+          {
+            id: user.id,
+            email: user.email,
+            username: "",
+            first_name: "",
+            last_name: "",
+            avatar_url: "",
+            bio: "",
+          },
+        ]);
+        profileData = {
+          username: "",
+          first_name: "",
+          last_name: "",
+          avatar_url: "",
+          bio: "",
+        };
       }
 
       setProfile(profileData);
-      setName(profileData.name || "");
+      setUsername(profileData.username || "");
+      setFirstName(profileData.first_name || "");
+      setLastName(profileData.last_name || "");
       setAvatarUrl(profileData.avatar_url || "");
+      setBio(profileData.bio || "");
 
       // Fetch liked posts
       const { data: likes } = await supabase
@@ -65,7 +85,13 @@ export default function ProfileDashboard() {
     const { supabase } = await import("@/services/supabaseClient");
     const { error } = await supabase
       .from("profiles")
-      .update({ name, avatar_url: avatarUrl })
+      .update({
+        username,
+        first_name: firstName,
+        last_name: lastName,
+        avatar_url: avatarUrl,
+        bio,
+      })
       .eq("email", email);
     if (error) setMessage("Error saving profile.");
     else setMessage("Profile updated!");
@@ -221,14 +247,47 @@ export default function ProfileDashboard() {
               className={styles.form}
               style={{ maxWidth: 400 }}
             >
-              <label style={{ color: "#ccc", textAlign: "left" }}>Name</label>
+              <label style={{ color: "#ccc", textAlign: "left" }}>
+                Username
+              </label>
               <input
                 className={styles.input}
                 type="text"
-                placeholder="Your name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
+                placeholder="Username"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
                 disabled={saving}
+              />
+              <label style={{ color: "#ccc", textAlign: "left" }}>
+                First Name
+              </label>
+              <input
+                className={styles.input}
+                type="text"
+                placeholder="First Name"
+                value={firstName}
+                onChange={(e) => setFirstName(e.target.value)}
+                disabled={saving}
+              />
+              <label style={{ color: "#ccc", textAlign: "left" }}>
+                Last Name
+              </label>
+              <input
+                className={styles.input}
+                type="text"
+                placeholder="Last Name"
+                value={lastName}
+                onChange={(e) => setLastName(e.target.value)}
+                disabled={saving}
+              />
+              <label style={{ color: "#ccc", textAlign: "left" }}>Bio</label>
+              <textarea
+                className={styles.input}
+                placeholder="Short bio"
+                value={bio}
+                onChange={(e) => setBio(e.target.value)}
+                disabled={saving}
+                rows={3}
               />
               <label style={{ color: "#ccc", textAlign: "left" }}>Email</label>
               <input

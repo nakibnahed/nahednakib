@@ -4,7 +4,6 @@ import styles from "../login/Login.module.css";
 
 export default function RegisterPage() {
   const [email, setEmail] = useState("");
-  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
   const [loading, setLoading] = useState(false);
@@ -16,20 +15,7 @@ export default function RegisterPage() {
 
     const { supabase } = await import("@/services/supabaseClient");
 
-    // Check if username is unique
-    let { data: existingUser } = await supabase
-      .from("profiles")
-      .select("id")
-      .eq("username", username)
-      .single();
-
-    if (existingUser) {
-      setErrorMsg("Username is already taken.");
-      setLoading(false);
-      return;
-    }
-
-    // Register user
+    // Register user (no username)
     const { data, error } = await supabase.auth.signUp({ email, password });
 
     if (error) {
@@ -38,16 +24,7 @@ export default function RegisterPage() {
       return;
     }
 
-    // Insert profile row
-    if (data.user) {
-      await supabase.from("profiles").insert([
-        {
-          id: data.user.id,
-          email,
-          username,
-        },
-      ]);
-    }
+    // No profile insert here; handle it after login/profile page
 
     window.location.href = "/login";
     setLoading(false);
@@ -57,15 +34,6 @@ export default function RegisterPage() {
     <div className={styles.container}>
       <h1 className={styles.title}>Register</h1>
       <form onSubmit={handleSubmit} className={styles.form}>
-        <input
-          type="text"
-          placeholder="Username"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
-          required
-          className={styles.input}
-          disabled={loading}
-        />
         <input
           type="email"
           placeholder="Email"
