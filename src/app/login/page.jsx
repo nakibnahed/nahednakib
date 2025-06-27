@@ -88,6 +88,14 @@ export default function LoginPage() {
             )}
           </button>
         </form>
+        <div className={styles.links}>
+          <a href="/register" className={styles.link}>
+            Register now
+          </a>
+          <a href="/forgot-password" className={styles.link}>
+            Forgot password?
+          </a>
+        </div>
       </div>
     </div>
   );
