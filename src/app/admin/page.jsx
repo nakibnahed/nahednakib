@@ -4,16 +4,21 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
 export default async function AdminHomePage() {
-  const cookieStore = await cookies(); // <-- await here!
+  const cookieStore = cookies();
+
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
     {
       cookies: {
-        get: (key) => cookieStore.get(key)?.value,
-        set: (key, value, options) => cookieStore.set(key, value, options),
-        remove: (key, options) =>
-          cookieStore.set(key, "", { ...options, maxAge: -1 }),
+        getAll: () =>
+          cookieStore.getAll().map((c) => ({
+            name: c.name,
+            value: c.value,
+          })),
+        setAll: () => {
+          // No-op: can't set cookies in a server component
+        },
       },
     }
   );
