@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import AdminLayout from "@/components/Admin/Layout/AdminLayout";
 
 export default async function Layout({ children }) {
-  const cookieStore = cookies();
+  const cookieStore = await cookies(); // <-- Await here!
 
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL,
