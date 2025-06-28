@@ -14,16 +14,6 @@ export default function LoginPage() {
   const confirmed = searchParams.get("confirmed");
   const router = useRouter();
 
-  function setCookie(name, value, days) {
-    let expires = "";
-    if (days) {
-      const date = new Date();
-      date.setTime(date.getTime() + days * 24 * 60 * 60 * 1000);
-      expires = "; expires=" + date.toUTCString();
-    }
-    document.cookie = name + "=" + (value || "") + expires + "; path=/";
-  }
-
   async function handleSubmit(e) {
     e.preventDefault();
     setErrorMsg("");
@@ -39,23 +29,22 @@ export default function LoginPage() {
     if (error) {
       setErrorMsg(error.message);
       setLoading(false);
-    } else {
-      setCookie("sb-access-token", data.session.access_token, 1);
-      setCookie("sb-refresh-token", data.session.refresh_token, 7);
-
-      // Fetch user role from profiles table
-      const { data: profile } = await supabase
-        .from("profiles")
-        .select("role")
-        .eq("id", data.user.id)
-        .single();
-
-      if (profile?.role === "admin") {
-        router.push("/admin/");
-      } else {
-        router.push("/users/profile");
-      }
+      return;
     }
+
+    // Fetch user role from profiles table
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("role")
+      .eq("id", data.user.id)
+      .single();
+
+    if (profile?.role === "admin") {
+      router.push("/admin/");
+    } else {
+      router.push("/users/profile");
+    }
+    setLoading(false);
   }
 
   return (
