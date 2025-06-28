@@ -15,16 +15,19 @@ export default function RegisterPage() {
 
     const { supabase } = await import("@/services/supabaseClient");
 
-    // Register user (no username)
-    const { data, error } = await supabase.auth.signUp({ email, password });
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        emailRedirectTo: "https://nahednakib.vercel.app/login?confirmed=1",
+      },
+    });
 
     if (error) {
       setErrorMsg(error.message);
       setLoading(false);
       return;
     }
-
-    // No profile insert here; handle it after login/profile page
 
     window.location.href = "/login";
     setLoading(false);

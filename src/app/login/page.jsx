@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import styles from "./Login.module.css";
 
 export default function LoginPage() {
@@ -12,6 +12,7 @@ export default function LoginPage() {
 
   const searchParams = useSearchParams();
   const confirmed = searchParams.get("confirmed");
+  const router = useRouter();
 
   function setCookie(name, value, days) {
     let expires = "";
@@ -42,8 +43,18 @@ export default function LoginPage() {
       setCookie("sb-access-token", data.session.access_token, 1);
       setCookie("sb-refresh-token", data.session.refresh_token, 7);
 
-      // Redirect to user profile page after login
-      window.location.href = "/users/profile";
+      // Fetch user role from profiles table
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("role")
+        .eq("id", data.user.id)
+        .single();
+
+      if (profile?.role === "admin") {
+        router.push("/admin/");
+      } else {
+        router.push("/users/profile");
+      }
     }
   }
 

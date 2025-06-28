@@ -7,6 +7,7 @@ import DarkMoodToggle from "../DarkMoodToggle/DarkMoodToggle";
 import { useEffect, useState } from "react";
 import { supabase } from "@/services/supabaseClient";
 import { User, Menu, X, Bell } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 const navLinks = [
   { id: 1, url: "/about", title: "About" },
@@ -17,7 +18,9 @@ const navLinks = [
 
 export default function Navbar() {
   const [user, setUser] = useState(null);
+  const [userRole, setUserRole] = useState(null);
   const [menuOpen, setMenuOpen] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
     const getSession = async () => {
@@ -25,6 +28,18 @@ export default function Navbar() {
         data: { session },
       } = await supabase.auth.getSession();
       setUser(session?.user ?? null);
+
+      // Fetch user role if logged in
+      if (session?.user) {
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("role")
+          .eq("id", session.user.id)
+          .single();
+        setUserRole(profile?.role || "user");
+      } else {
+        setUserRole(null);
+      }
     };
 
     getSession();
@@ -32,6 +47,18 @@ export default function Navbar() {
     const { data: listener } = supabase.auth.onAuthStateChange(
       (_event, session) => {
         setUser(session?.user ?? null);
+        if (session?.user) {
+          supabase
+            .from("profiles")
+            .select("role")
+            .eq("id", session.user.id)
+            .single()
+            .then(({ data: profile }) => {
+              setUserRole(profile?.role || "user");
+            });
+        } else {
+          setUserRole(null);
+        }
       }
     );
 
@@ -39,6 +66,20 @@ export default function Navbar() {
   }, []);
 
   const toggleMenu = () => setMenuOpen((open) => !open);
+
+  // Handle user icon click
+  const handleUserIconClick = async (e) => {
+    e.preventDefault();
+    if (!user) {
+      router.push("/login");
+      return;
+    }
+    if (userRole === "admin") {
+      router.push("/admin/");
+    } else {
+      router.push("/users/profile");
+    }
+  };
 
   return (
     <div className={styles.navbarFixedBg}>
@@ -65,38 +106,34 @@ export default function Navbar() {
           >
             <Bell size={24} strokeWidth={2.2} />
           </button>
-          {user && (
-            <Link
-              href="/admin/"
-              className={styles.dashboardIconOnly}
-              aria-label="Dashboard"
-            >
-              <User size={26} strokeWidth={3} />
-            </Link>
-          )}
+          <button
+            className={styles.dashboardIconOnly}
+            aria-label="User"
+            onClick={handleUserIconClick}
+            type="button"
+          >
+            <User size={26} strokeWidth={3} />
+          </button>
           <DarkMoodToggle />
         </div>
 
         {/* Mobile right: notification, user icon, burger */}
         <div className={styles.mobileRight}>
-          {user && (
-            <>
-              <button
-                type="button"
-                aria-label="Notifications"
-                className={styles.notificationBtn}
-              >
-                <Bell size={24} strokeWidth={2.2} />
-              </button>
-              <Link
-                href="/admin/"
-                className={styles.userMobileIcon}
-                aria-label="Dashboard"
-              >
-                <User size={26} strokeWidth={3} />
-              </Link>
-            </>
-          )}
+          <button
+            type="button"
+            aria-label="Notifications"
+            className={styles.notificationBtn}
+          >
+            <Bell size={24} strokeWidth={2.2} />
+          </button>
+          <button
+            className={styles.userMobileIcon}
+            aria-label="User"
+            onClick={handleUserIconClick}
+            type="button"
+          >
+            <User size={26} strokeWidth={3} />
+          </button>
           <button
             className={styles.menuIcon}
             onClick={toggleMenu}
@@ -136,15 +173,16 @@ export default function Navbar() {
                 {link.title}
               </Link>
             ))}
-            {user && (
-              <Link
-                href="/admin/"
-                className={styles.mobileMenuLink}
-                onClick={() => setMenuOpen(false)}
-              >
-                <span>Dashboard</span>
-              </Link>
-            )}
+            <button
+              className={styles.mobileMenuLink}
+              onClick={(e) => {
+                handleUserIconClick(e);
+                setMenuOpen(false);
+              }}
+              type="button"
+            >
+              <span>User</span>
+            </button>
           </div>
           <div className={styles.mobileMenuDarkToggle}>
             <DarkMoodToggle />

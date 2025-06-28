@@ -3,8 +3,6 @@ import { useEffect, useState, useRef } from "react";
 import styles from "../../login/Login.module.css";
 
 export default function ProfileDashboard() {
-  const [profile, setProfile] = useState(null);
-  const [username, setUsername] = useState("");
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [avatarUrl, setAvatarUrl] = useState("");
@@ -33,7 +31,7 @@ export default function ProfileDashboard() {
       // Fetch profile from 'profiles' table
       let { data: profileData } = await supabase
         .from("profiles")
-        .select("username, first_name, last_name, avatar_url, bio")
+        .select("first_name, last_name, avatar_url, bio")
         .eq("id", user.id)
         .single();
 
@@ -42,7 +40,6 @@ export default function ProfileDashboard() {
           {
             id: user.id,
             email: user.email,
-            username: "",
             first_name: "",
             last_name: "",
             avatar_url: "",
@@ -50,7 +47,6 @@ export default function ProfileDashboard() {
           },
         ]);
         profileData = {
-          username: "",
           first_name: "",
           last_name: "",
           avatar_url: "",
@@ -58,8 +54,6 @@ export default function ProfileDashboard() {
         };
       }
 
-      setProfile(profileData);
-      setUsername(profileData.username || "");
       setFirstName(profileData.first_name || "");
       setLastName(profileData.last_name || "");
       setAvatarUrl(profileData.avatar_url || "");
@@ -86,7 +80,6 @@ export default function ProfileDashboard() {
     const { error } = await supabase
       .from("profiles")
       .update({
-        username,
         first_name: firstName,
         last_name: lastName,
         avatar_url: avatarUrl,
@@ -118,6 +111,37 @@ export default function ProfileDashboard() {
     setAvatarUrl(data.publicUrl);
     setMessage("Avatar updated!");
     setAvatarUploading(false);
+  }
+
+  // --- Delete Account Logic ---
+  async function handleDeleteAccount() {
+    if (
+      !window.confirm(
+        "Are you sure you want to delete your account? This cannot be undone."
+      )
+    )
+      return;
+    setSaving(true);
+    const { supabase } = await import("@/services/supabaseClient");
+
+    // Delete from profiles table
+    await supabase.from("profiles").delete().eq("email", email);
+
+    // Note: Deleting from auth.users requires admin privileges (service role key).
+    // For security, this should be done via a serverless function or backend API.
+    setMessage(
+      "Profile deleted. Please contact support to fully remove your account."
+    );
+    setTimeout(() => {
+      window.location.href = "/";
+    }, 2000);
+  }
+
+  // --- Log Out Logic ---
+  async function handleLogout() {
+    const { supabase } = await import("@/services/supabaseClient");
+    await supabase.auth.signOut();
+    window.location.href = "/login";
   }
 
   if (loading)
@@ -224,6 +248,13 @@ export default function ProfileDashboard() {
             Liked Posts
           </button>
         </div>
+        <button
+          type="button"
+          className={styles.logoutButton}
+          onClick={handleLogout}
+        >
+          Log Out
+        </button>
       </aside>
 
       {/* Main Content */}
@@ -247,17 +278,6 @@ export default function ProfileDashboard() {
               className={styles.form}
               style={{ maxWidth: 400 }}
             >
-              <label style={{ color: "#ccc", textAlign: "left" }}>
-                Username
-              </label>
-              <input
-                className={styles.input}
-                type="text"
-                placeholder="Username"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                disabled={saving}
-              />
               <label style={{ color: "#ccc", textAlign: "left" }}>
                 First Name
               </label>
@@ -301,6 +321,15 @@ export default function ProfileDashboard() {
                 {saving ? "Saving..." : "Save Changes"}
               </button>
             </form>
+            <button
+              type="button"
+              className={styles.button}
+              style={{ background: "#c00", marginTop: 24 }}
+              onClick={handleDeleteAccount}
+              disabled={saving}
+            >
+              Delete Account
+            </button>
             {message && (
               <p style={{ color: "#ee681a", marginTop: 8 }}>{message}</p>
             )}
