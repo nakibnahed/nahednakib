@@ -67,14 +67,25 @@ export default function Navbar() {
 
   const toggleMenu = () => setMenuOpen((open) => !open);
 
-  // Handle user icon click
+  // Improved: Always fetch latest session and role on icon click
   const handleUserIconClick = async (e) => {
     e.preventDefault();
-    if (!user) {
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
+
+    if (!session?.user) {
       router.push("/login");
       return;
     }
-    if (userRole === "admin") {
+
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("role")
+      .eq("id", session.user.id)
+      .single();
+
+    if (profile?.role === "admin") {
       router.push("/admin/");
     } else {
       router.push("/users/profile");
@@ -175,8 +186,8 @@ export default function Navbar() {
             ))}
             <button
               className={styles.mobileMenuLink}
-              onClick={(e) => {
-                handleUserIconClick(e);
+              onClick={async (e) => {
+                await handleUserIconClick(e);
                 setMenuOpen(false);
               }}
               type="button"
