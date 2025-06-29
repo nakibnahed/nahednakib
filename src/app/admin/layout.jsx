@@ -1,27 +1,11 @@
-import { createServerClient } from "@supabase/ssr";
+import { createServerComponentClient } from "@supabase/auth-helpers-nextjs";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import AdminLayout from "@/components/Admin/Layout/AdminLayout";
 
 export default async function Layout({ children }) {
-  const cookieStore = await cookies(); // <-- Await here!
-
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
-    {
-      cookies: {
-        getAll: () =>
-          cookieStore.getAll().map((c) => ({
-            name: c.name,
-            value: c.value,
-          })),
-        setAll: () => {
-          // No-op: can't set cookies in a server component
-        },
-      },
-    }
-  );
+  const cookieStore = await cookies();
+  const supabase = createServerComponentClient({ cookies: cookieStore });
 
   const {
     data: { session },
