@@ -1,148 +1,152 @@
 "use client";
 import { useEffect, useState, useRef } from "react";
-import styles from "../../login/Login.module.css";
+import { supabase } from "@/services/supabaseClient";
+import styles from "./Profile.module.css";
 
 export default function ProfileDashboard() {
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
-  const [avatarUrl, setAvatarUrl] = useState("");
-  const [bio, setBio] = useState("");
-  const [email, setEmail] = useState("");
-  const [likedPosts, setLikedPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [avatarUploading, setAvatarUploading] = useState(false);
-  const [message, setMessage] = useState("");
   const [activeTab, setActiveTab] = useState("profile");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [bio, setBio] = useState("");
+  const [email, setEmail] = useState("");
+  const [avatarUrl, setAvatarUrl] = useState("");
+  const [likedPosts, setLikedPosts] = useState([]);
+  const [message, setMessage] = useState("");
   const fileInputRef = useRef();
 
   useEffect(() => {
-    async function fetchProfile() {
-      const { supabase } = await import("@/services/supabaseClient");
+    async function loadData() {
+      setLoading(true);
+      // Get current user
       const {
         data: { user },
+        error: userError,
       } = await supabase.auth.getUser();
-      if (!user) {
-        window.location.href = "/login";
+      if (userError || !user) {
+        setMessage("Not logged in");
+        setLoading(false);
         return;
       }
       setEmail(user.email);
 
-      // Fetch profile from 'profiles' table
-      let { data: profileData } = await supabase
+      // Fetch profile
+      const { data: profile, error: profileError } = await supabase
         .from("profiles")
-        .select("first_name, last_name, avatar_url, bio")
+        .select("*")
         .eq("id", user.id)
         .single();
 
-      if (!profileData) {
-        await supabase.from("profiles").insert([
-          {
-            id: user.id,
-            email: user.email,
-            first_name: "",
-            last_name: "",
-            avatar_url: "",
-            bio: "",
-          },
-        ]);
-        profileData = {
-          first_name: "",
-          last_name: "",
-          avatar_url: "",
-          bio: "",
-        };
+      if (profileError) {
+        setMessage("Could not load profile");
+      } else if (profile) {
+        setFirstName(profile.first_name || "");
+        setLastName(profile.last_name || "");
+        setBio(profile.bio || "");
+        setAvatarUrl(profile.avatar_url || "");
       }
 
-      setFirstName(profileData.first_name || "");
-      setLastName(profileData.last_name || "");
-      setAvatarUrl(profileData.avatar_url || "");
-      setBio(profileData.bio || "");
-
       // Fetch liked posts
-      const { data: likes } = await supabase
+      const { data: likes, error: likesError } = await supabase
         .from("likes")
         .select("post_id, posts(title)")
-        .eq("user_id", user.id)
-        .order("created_at", { ascending: false });
+        .eq("user_id", user.id);
 
-      setLikedPosts(likes || []);
+      if (!likesError && likes) {
+        setLikedPosts(likes);
+      }
+
       setLoading(false);
     }
-    fetchProfile();
+    loadData();
   }, []);
 
-  async function handleSave(e) {
+  const handleSave = async (e) => {
     e.preventDefault();
     setSaving(true);
     setMessage("");
-    const { supabase } = await import("@/services/supabaseClient");
+    // Get current user
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user) {
+      setMessage("Not logged in");
+      setSaving(false);
+      return;
+    }
+    // Update profile
     const { error } = await supabase
       .from("profiles")
       .update({
         first_name: firstName,
         last_name: lastName,
-        avatar_url: avatarUrl,
         bio,
       })
-      .eq("email", email);
-    if (error) setMessage("Error saving profile.");
-    else setMessage("Profile updated!");
-    setSaving(false);
-  }
+      .eq("id", user.id);
 
-  async function handleAvatarChange(e) {
+    if (error) {
+      setMessage("Failed to update profile");
+    } else {
+      setMessage("Profile updated!");
+    }
+    setSaving(false);
+  };
+
+  const handleDeleteAccount = async () => {
+    setSaving(true);
+    setMessage("Account deletion is not implemented in this demo.");
+    setSaving(false);
+  };
+
+  const handleAvatarChange = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
     setAvatarUploading(true);
     setMessage("");
-    const { supabase } = await import("@/services/supabaseClient");
-    const fileExt = file.name.split(".").pop();
-    const filePath = `${email}/avatar.${fileExt}`;
-    let { error: uploadError } = await supabase.storage
-      .from("avatars")
-      .upload(filePath, file, { upsert: true });
-    if (uploadError) {
-      setMessage("Avatar upload failed.");
+    // Get current user
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user) {
+      setMessage("Not logged in");
       setAvatarUploading(false);
       return;
     }
-    const { data } = supabase.storage.from("avatars").getPublicUrl(filePath);
-    setAvatarUrl(data.publicUrl);
-    setMessage("Avatar updated!");
-    setAvatarUploading(false);
-  }
+    // Upload avatar to storage
+    const fileExt = file.name.split(".").pop();
+    const filePath = `avatars/${user.id}.${fileExt}`;
+    const { error: uploadError } = await supabase.storage
+      .from("avatars")
+      .upload(filePath, file, { upsert: true });
 
-  // --- Delete Account Logic ---
-  async function handleDeleteAccount() {
-    if (
-      !window.confirm(
-        "Are you sure you want to delete your account? This cannot be undone."
-      )
-    )
+    if (uploadError) {
+      setMessage("Failed to upload avatar");
+      setAvatarUploading(false);
       return;
-    setSaving(true);
-    const { supabase } = await import("@/services/supabaseClient");
+    }
 
-    // Delete from profiles table
-    await supabase.from("profiles").delete().eq("email", email);
+    // Get public URL
+    const {
+      data: { publicUrl },
+    } = supabase.storage.from("avatars").getPublicUrl(filePath);
 
-    // Note: Deleting from auth.users requires admin privileges (service role key).
-    // For security, this should be done via a serverless function or backend API.
-    setMessage(
-      "Profile deleted. Please contact support to fully remove your account."
-    );
-    setTimeout(() => {
-      window.location.href = "/";
-    }, 2000);
-  }
+    // Update profile with avatar URL
+    await supabase
+      .from("profiles")
+      .update({ avatar_url: publicUrl })
+      .eq("id", user.id);
 
-  // --- Log Out Logic ---
-  async function handleLogout() {
-    const { supabase } = await import("@/services/supabaseClient");
+    setAvatarUrl(publicUrl);
+    setAvatarUploading(false);
+    setMessage("Avatar updated!");
+  };
+
+  const handleLogout = async () => {
     await supabase.auth.signOut();
-    window.location.href = "/login";
-  }
+    window.location.href = "/"; // Redirect to home or login page after logout
+  };
 
   if (loading)
     return (
@@ -152,53 +156,17 @@ export default function ProfileDashboard() {
     );
 
   return (
-    <div
-      style={{
-        display: "flex",
-        minHeight: "80vh",
-        background: "var(--background-main, #181818)",
-      }}
-    >
+    <div className={styles.container}>
       {/* Sidebar */}
-      <aside
-        style={{
-          width: 220,
-          background: "#222",
-          color: "#fff",
-          padding: "32px 16px",
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          borderTopLeftRadius: 16,
-          borderBottomLeftRadius: 16,
-          boxShadow: "2px 0 8px rgba(0,0,0,0.08)",
-        }}
-      >
+      <aside className={styles.sidebar}>
         <img
           src={avatarUrl || "/default-avatar.png"}
           alt="Avatar"
-          style={{
-            width: 80,
-            height: 80,
-            borderRadius: "50%",
-            objectFit: "cover",
-            border: "2px solid #ee681a",
-            background: "#222",
-            marginBottom: 16,
-          }}
+          className={styles.avatar}
         />
         <button
           type="button"
-          style={{
-            background: "#ee681a",
-            border: "none",
-            borderRadius: 6,
-            color: "#fff",
-            fontWeight: "bold",
-            padding: "6px 12px",
-            marginBottom: 24,
-            cursor: "pointer",
-          }}
+          className={styles.avatarButton}
           onClick={() => fileInputRef.current.click()}
           disabled={avatarUploading}
           title="Change avatar"
@@ -213,71 +181,43 @@ export default function ProfileDashboard() {
           onChange={handleAvatarChange}
           disabled={avatarUploading}
         />
-        <div style={{ width: "100%" }}>
-          <button
+        <h3 style={{ margin: "16px 0 0 0" }}>User Panel</h3>
+        <ul className={styles.menu}>
+          <li
+            className={`${styles.menuItem} ${
+              activeTab === "profile" ? styles.active : ""
+            }`}
             onClick={() => setActiveTab("profile")}
-            style={{
-              width: "100%",
-              background: activeTab === "profile" ? "#ee681a" : "transparent",
-              color: activeTab === "profile" ? "#222" : "#fff",
-              border: "none",
-              borderRadius: 6,
-              padding: "10px 0",
-              marginBottom: 8,
-              fontWeight: 600,
-              cursor: "pointer",
-              transition: "background 0.2s",
-            }}
           >
             Profile
-          </button>
-          <button
+          </li>
+          <li
+            className={`${styles.menuItem} ${
+              activeTab === "likes" ? styles.active : ""
+            }`}
             onClick={() => setActiveTab("likes")}
-            style={{
-              width: "100%",
-              background: activeTab === "likes" ? "#ee681a" : "transparent",
-              color: activeTab === "likes" ? "#222" : "#fff",
-              border: "none",
-              borderRadius: 6,
-              padding: "10px 0",
-              fontWeight: 600,
-              cursor: "pointer",
-              transition: "background 0.2s",
-            }}
           >
             Liked Posts
-          </button>
-        </div>
+          </li>
+        </ul>
         <button
           type="button"
-          className={styles.logoutButton}
+          className={styles.menuItem}
           onClick={handleLogout}
+          style={{ marginTop: 32 }}
         >
-          Log Out
+          Logout
         </button>
       </aside>
 
       {/* Main Content */}
-      <main
-        style={{
-          flex: 1,
-          padding: "40px 32px",
-          background: "var(--background-main, #181818)",
-          borderTopRightRadius: 16,
-          borderBottomRightRadius: 16,
-          minHeight: "80vh",
-        }}
-      >
+      <main className={styles.main}>
         {activeTab === "profile" && (
           <section>
             <h1 style={{ fontSize: 28, marginBottom: 24, color: "#fff" }}>
               Profile
             </h1>
-            <form
-              onSubmit={handleSave}
-              className={styles.form}
-              style={{ maxWidth: 400 }}
-            >
+            <form onSubmit={handleSave} className={styles.form}>
               <label style={{ color: "#ccc", textAlign: "left" }}>
                 First Name
               </label>
@@ -323,16 +263,13 @@ export default function ProfileDashboard() {
             </form>
             <button
               type="button"
-              className={styles.button}
-              style={{ background: "#c00", marginTop: 24 }}
+              className={`${styles.button} ${styles.deleteButton}`}
               onClick={handleDeleteAccount}
               disabled={saving}
             >
               Delete Account
             </button>
-            {message && (
-              <p style={{ color: "#ee681a", marginTop: 8 }}>{message}</p>
-            )}
+            {message && <p className={styles.message}>{message}</p>}
           </section>
         )}
 
@@ -344,25 +281,12 @@ export default function ProfileDashboard() {
             {likedPosts.length === 0 && (
               <p style={{ color: "#aaa" }}>You haven't liked any posts yet.</p>
             )}
-            <ul style={{ padding: 0, listStyle: "none" }}>
+            <ul className={styles.likedList}>
               {likedPosts.map((like, i) => (
-                <li
-                  key={i}
-                  style={{
-                    marginBottom: 12,
-                    background: "#232323",
-                    borderRadius: 6,
-                    padding: "12px 16px",
-                  }}
-                >
+                <li key={i} className={styles.likedItem}>
                   <a
                     href={`/blog/${like.post_id}`}
-                    style={{
-                      color: "#ee681a",
-                      textDecoration: "none",
-                      fontWeight: 500,
-                      fontSize: 18,
-                    }}
+                    className={styles.likedLink}
                   >
                     {like.posts?.title || "Untitled Post"}
                   </a>

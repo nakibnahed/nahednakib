@@ -4,8 +4,9 @@ import { redirect } from "next/navigation";
 import AdminLayout from "@/components/Admin/Layout/AdminLayout";
 
 export default async function Layout({ children }) {
-  const cookieStore = await cookies();
-  const supabase = createServerComponentClient({ cookies: cookieStore });
+  // Await the cookies function
+  const cookieStore = cookies();
+  const supabase = createServerComponentClient({ cookies: () => cookieStore });
 
   const {
     data: { session },

@@ -4,8 +4,9 @@ import { redirect } from "next/navigation";
 import DashboardSummary from "@/components/Admin/Dashboard/DashboardSummary";
 
 export default async function AdminHomePage() {
-  const cookieStore = await cookies(); // استدعِ الدالة هنا
-  const supabase = createServerComponentClient({ cookies: cookieStore });
+  // Await the cookies function
+  const cookieStore = cookies();
+  const supabase = createServerComponentClient({ cookies: () => cookieStore });
 
   const {
     data: { session },

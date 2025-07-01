@@ -1,0 +1,160 @@
+.container {
+  display: flex;
+  flex: 1 1;
+  gap: 30px;
+  padding: 48px 20px;
+}
+
+.sidebar {
+  width: 200px;
+  padding: 20px;
+  min-height: 600px;
+
+  border-radius: var(--card-border-radius);
+  background: color-mix(
+    in srgb,
+    var(--background-main, #121212) 80%,
+    transparent 15%
+  );
+  border: 1px solid var(--card-border, rgba(255, 255, 255, 0.14));
+  color: var(--card-text, #fff);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  backdrop-filter: blur(16px) saturate(160%);
+  -webkit-backdrop-filter: blur(16px) saturate(160%);
+  opacity: 0.98;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--primary-color, #ee681a);
+  background: #222;
+  margin-bottom: 16px;
+}
+
+.menu {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  margin-top: 30px;
+  width: 100%;
+}
+
+.menuItem {
+  margin: 15px 0;
+  text-decoration: none;
+  cursor: pointer;
+  color: var(--text-dark, #fff);
+  font-weight: 500;
+  padding: 8px 12px;
+  border-radius: 6px;
+  transition: background 0.2s;
+}
+
+.menuItem:hover {
+  opacity: 0.9;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.active {
+  font-weight: bold;
+  background: var(--gradient-typography-primary);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.avatarButton {
+  background: var(--primary-color, #ee681a);
+  border: none;
+  border-radius: 6px;
+  color: #fff;
+  font-weight: bold;
+  padding: 6px 12px;
+  margin-bottom: 24px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.main {
+  flex: 1;
+  padding: 30px;
+  min-height: 600px;
+
+  border-radius: var(--card-border-radius);
+  background: color-mix(
+    in srgb,
+    var(--background-main, #121212) 80%,
+    transparent 15%
+  );
+  border: 1px solid var(--card-border, rgba(255, 255, 255, 0.14));
+  color: var(--card-text, #fff);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  backdrop-filter: blur(16px) saturate(160%);
+  -webkit-backdrop-filter: blur(16px) saturate(160%);
+  opacity: 0.98;
+}
+
+.form {
+  max-width: 400px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.input {
+  padding: 10px;
+  border-radius: 6px;
+  border: 1px solid var(--card-border, #333);
+  background: #232323;
+  color: #fff;
+  font-size: 16px;
+  outline: none;
+  margin-bottom: 8px;
+}
+
+.button {
+  background: var(--primary-color, #ee681a);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 10px 0;
+  font-weight: bold;
+  cursor: pointer;
+  margin-top: 12px;
+  transition: background 0.2s;
+}
+
+.deleteButton {
+  background: #c00;
+  margin-top: 24px;
+}
+
+.message {
+  color: var(--primary-color, #ee681a);
+  margin-top: 8px;
+}
+
+.likedList {
+  padding: 0;
+  list-style: none;
+}
+
+.likedItem {
+  margin-bottom: 12px;
+  background: #232323;
+  border-radius: 6px;
+  padding: 12px 16px;
+}
+
+.likedLink {
+  color: var(--primary-color, #ee681a);
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 18px;
+}
