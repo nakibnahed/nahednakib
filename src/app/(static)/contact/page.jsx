@@ -208,8 +208,8 @@ export default function ContactTabsPage() {
             }`}
             style={{ display: activeTab === "newsletter" ? "flex" : "none" }}
           >
-            <h1 className={styles.title}>Subscribe to Newsletter</h1>
-            <p className={styles.description}>Get updates in your inbox.</p>
+            <h1 className={styles.title}>Subscribe Now</h1>
+            <p className={styles.description}>Subscribe to Newsletter</p>
             <input
               type="email"
               name="newsletterEmail"
