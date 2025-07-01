@@ -1,5 +1,13 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 48px 20px;
+}
+
 .title {
-  font-size: 46px;
+  font-size: 24px;
+  text-align: center;
   font-weight: 900;
   background: var(--gradient-typography-primary);
   background-clip: text;
@@ -8,14 +16,65 @@
 }
 
 .description {
-  font-size: 20px;
+  font-size: 18px;
   line-height: 1.8rem;
-  margin-top: 10px;
+  text-align: center;
   color: var(--text-light);
 }
 
 .icon {
   font-size: 18px;
+}
+/* Add to contact.module.css */
+
+.tabNav {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 24px;
+  border-bottom: 1px solid #222;
+  gap: 8px;
+}
+
+.tabButton {
+  background: none;
+  border: none;
+  padding: 12px 24px;
+  font-size: 16px;
+  cursor: pointer;
+  color: #888;
+  border-bottom: 2px solid transparent;
+  transition: color 0.2s, border-bottom 0.2s;
+}
+
+.tabButtonActive {
+  color: var(--text-dark);
+  border-bottom: 2px solid #ee681a;
+  font-weight: bold;
+}
+
+.tabContentWrapper {
+  position: relative;
+  width: 100%;
+  min-height: 380px; /* adjust as needed for your forms */
+}
+
+.tabContent {
+  opacity: 0;
+  transform: translateY(10px);
+  pointer-events: none;
+  position: absolute;
+  width: 100%;
+  transition: opacity 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+    transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 0;
+}
+
+.tabContentActive {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+  position: relative;
+  z-index: 1;
 }
 
 .contactCard {
@@ -52,7 +111,6 @@
 }
 
 .contactForm {
-  margin-top: 30px;
   display: flex;
   flex-direction: column;
   gap: 15px;
@@ -118,15 +176,9 @@
 }
 
 @media (max-width: 768px) {
-  .pageContainer {
+  .container {
+    padding: 20px 10px;
     margin-bottom: 20px;
-  }
-  .title {
-    font-size: 38px;
-  }
-
-  .description {
-    font-size: 18px;
   }
 
   .contactCard {
