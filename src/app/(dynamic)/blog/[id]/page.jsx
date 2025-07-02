@@ -2,7 +2,8 @@ import { supabase } from "@/services/supabaseClient";
 import Image from "next/image";
 import Link from "next/link";
 import styles from "./page.module.css";
-import IconRow from "./IconRow";
+import ActionBar from "@/components/ActionBar/ActionBar";
+import EngagementSection from "@/components/EngagementSection/EngagementSection";
 
 export default async function Post({ params }) {
   // Await params if it's a Promise (Next.js 14+)
@@ -21,16 +22,16 @@ export default async function Post({ params }) {
 
   return (
     <div className={styles.container}>
-      <div className={styles.header}>
+      {/* Header Section */}
+      <header className={styles.header}>
         <div className={styles.imageCard}>
           <Image
-            className={styles.image}
-            src={blog.image || "/images/blog.jpg"} // Change fallback if you want
+            src={blog.image || "/images/portfolio.jpg"}
             alt={blog.title}
             fill
-            sizes="220px"
             priority
             style={{ objectFit: "cover" }}
+            className={styles.image}
           />
         </div>
         <div className={styles.headerInfo}>
@@ -56,15 +57,30 @@ export default async function Post({ params }) {
             <span className={styles.separator}>/</span>
             <span className={styles.current}>{blog.category}</span>
           </nav>
-          <IconRow title={blog.title} />
+          <ActionBar
+            title={blog.title}
+            contentType="blog"
+            contentId={blog.id}
+          />
         </div>
-      </div>
-      <div className={styles.content}>
+      </header>
+
+      {/* Main Content */}
+      <main className={styles.content}>
         <div
-          className={styles.text}
+          className={styles.prose}
           dangerouslySetInnerHTML={{ __html: blog.content }}
         />
-      </div>
+      </main>
+
+      {/* Engagement Section */}
+      <section id="comments-section" className={styles.engagementWrapper}>
+        <EngagementSection
+          contentType="blog"
+          contentId={blog.id}
+          title={blog.title}
+        />
+      </section>
     </div>
   );
 }

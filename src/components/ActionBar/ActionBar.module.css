@@ -1,0 +1,93 @@
+.actionBar {
+  display: flex;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  align-items: flex-start;
+  justify-content: flex-start;
+}
+
+.actionBtn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 6px;
+  background: transparent;
+  border: none;
+  border-radius: 3px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 13px;
+  font-weight: 300;
+  white-space: nowrap;
+}
+
+.actionBtn:hover {
+  background: var(--card-background-hover);
+  color: var(--primary-color);
+  transform: translateY(-1px);
+}
+
+.actionBtn.active {
+  background: var(--primary-color);
+  color: white;
+}
+
+.actionBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Action Bar in Hero Layout */
+.actionBarWrapper .actionBar {
+  justify-content: center;
+  gap: 1rem;
+  margin: 0;
+  padding: 0.75rem 1.5rem;
+  background: var(--card-background);
+  border-radius: 3rem;
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--border-subtle);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.actionBarWrapper .actionBtn {
+  background: transparent;
+  border: none;
+  padding: 0.5rem 0.75rem;
+  border-radius: 1.5rem;
+  transition: all 0.2s ease;
+  font-size: 0.875rem;
+  font-weight: 400;
+  color: var(--text-secondary);
+  min-width: auto;
+}
+
+.actionBarWrapper .actionBtn:hover {
+  background: var(--primary-color);
+  color: white;
+  transform: translateY(-1px);
+}
+
+.actionBarWrapper .actionBtn.active {
+  background: var(--primary-color);
+  color: white;
+}
+
+@media (max-width: 768px) {
+  .actionBar {
+    gap: 4px;
+  }
+
+  .actionBtn {
+    padding: 2px 4px;
+    font-size: 12px;
+    gap: 3px;
+  }
+
+  .actionBtn span {
+    display: none;
+  }
+}

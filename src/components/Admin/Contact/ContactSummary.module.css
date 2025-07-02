@@ -2,50 +2,350 @@
   display: flex;
   flex-direction: column;
   gap: 15px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 2rem;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
 }
 
 .pageTitle {
-  font-size: 32px;
-  font-family: var(--font-heading), sans-serif !important;
-  background: var(--heading-gradient);
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
+  font-size: 2rem;
   font-weight: 700;
+  margin-bottom: 0.5rem;
+  color: var(--text-light);
+  font-family: var(--font-heading), sans-serif;
+}
+
+.subtitle {
+  color: var(--text-muted);
+  font-size: 1rem;
+}
+
+.stats {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.stat {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  background: var(--card-bg);
+  padding: 1rem 1.5rem;
+  border-radius: 8px;
+  border: 1px solid var(--card-border);
+  min-width: 120px;
+}
+
+.stat svg {
+  color: var(--primary-color);
+}
+
+.statNumber {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-light);
+  line-height: 1;
+}
+
+.statLabel {
+  font-size: 0.875rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.controlsRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+
+.filters {
+  display: flex;
+  gap: 1rem;
+  flex: 1;
+  flex-wrap: wrap;
+}
+
+.formSelector {
+  padding: 10px 14px;
+  border-radius: 6px;
+  border: 1px solid var(--card-border);
+  background-color: var(--background-main);
+  color: var(--text-light);
+  font-size: 16px;
+  font-family: var(--font-heading), sans-serif;
+  cursor: pointer;
+  min-width: 160px;
+}
+
+.formSelector:focus {
+  border-color: var(--primary-color);
+  outline: none;
+}
+
+.searchInput {
+  flex: 1;
+  min-width: 200px;
+  max-width: 400px;
+  padding: 10px 14px;
+  border-radius: 6px;
+  border: 1px solid var(--card-border);
+  background-color: var(--background-main);
+  color: var(--text-light);
+  font-size: 16px;
+  font-family: var(--font-heading), sans-serif;
+  outline-offset: 2px;
+  transition: border-color 0.2s ease;
+}
+
+.searchInput::placeholder {
+  color: var(--text-muted);
+}
+
+.searchInput:focus {
+  border-color: var(--primary-color);
+  background-color: var(--card-bg);
+}
+
+.exportBtn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 10px 20px;
+  background: var(--primary-color);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.exportBtn:hover {
+  background: var(--primary-hover);
+  transform: translateY(-1px);
+}
+
+.loading {
   text-align: center;
+  padding: 3rem;
+  font-size: 1.1rem;
+  color: var(--text-muted);
+}
+
+.noData {
+  text-align: center;
+  padding: 3rem;
+  color: var(--text-light);
+}
+
+.noData svg {
+  margin-bottom: 1rem;
+  opacity: 0.5;
 }
 
 .tableContainer {
   overflow-x: auto;
-  border-radius: 6px;
+  border-radius: 12px;
   background-color: var(--background-main);
+  border: 1px solid var(--card-border);
 }
 
 .table {
   width: 100%;
   border-collapse: collapse;
+  min-width: 600px;
+  border-radius: 12px;
+  overflow: hidden;
 }
 
 .table th,
 .table td {
   padding: 10px;
   border: 1px solid var(--card-border);
-  text-align: left;
+  text-align: center;
   background-color: var(--background-main);
-
   color: var(--card-text);
   vertical-align: middle;
 }
 
+/* First row header corners */
+.table thead tr:first-child th:first-child {
+  border-top-left-radius: 12px;
+}
+
+.table thead tr:first-child th:last-child {
+  border-top-right-radius: 12px;
+}
+
+/* Last row body corners */
+.table tbody tr:last-child td:first-child {
+  border-bottom-left-radius: 12px;
+}
+
+.table tbody tr:last-child td:last-child {
+  border-bottom-right-radius: 12px;
+}
+
 .table th {
   background-color: var(--background-main);
-
   font-weight: bold;
+  font-family: var(--font-heading), sans-serif;
+}
+
+.table tbody tr:hover {
+  background: var(--hover-bg);
+}
+
+.emailInfo {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.emailCell {
+  font-weight: 500;
+  text-align: left;
+}
+
+.statusBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.statusBadge.active {
+  background: #f0fdf4;
+  color: #16a34a;
+}
+
+.statusBadge.inactive {
+  background: #fef2f2;
+  color: #dc2626;
 }
 
 .error {
   color: #ff6b6b;
   text-align: center;
   margin-top: 20px;
+}
+
+/* Dark mode adjustments */
+@media (prefers-color-scheme: dark) {
+  .statusBadge.active {
+    background: rgba(22, 163, 74, 0.2);
+    color: #86efac;
+  }
+
+  .statusBadge.inactive {
+    background: rgba(220, 38, 38, 0.2);
+    color: #fca5a5;
+  }
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .mainContainer {
+    padding: 1rem;
+  }
+
+  .header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .stats {
+    justify-content: center;
+  }
+
+  .stat {
+    min-width: 100px;
+  }
+
+  .controlsRow {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .filters {
+    flex-direction: column;
+  }
+
+  .formSelector,
+  .searchInput {
+    width: 100%;
+    max-width: none;
+    margin-bottom: 10px;
+    font-size: 15px;
+    padding: 8px 12px;
+    max-height: 40px;
+  }
+
+  .exportBtn {
+    justify-content: center;
+  }
+
+  .table {
+    border: 0;
+    min-width: unset;
+  }
+
+  .table thead {
+    display: none;
+  }
+
+  .table tr {
+    margin-bottom: 2rem;
+    display: block;
+    border-bottom: 2px solid #292929;
+    border-radius: 26px;
+  }
+
+  .table td {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 10px;
+    border: 0;
+    border-bottom: 1px solid var(--card-border);
+    position: relative;
+    font-size: 14px;
+    background-color: var(--background-main);
+    color: var(--card-text);
+  }
+
+  .table td:last-child {
+    border-bottom: 0;
+  }
+
+  .table td::before {
+    content: attr(data-label);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    text-align: left;
+    flex-basis: 50%;
+  }
 }
 
 .searchInput {
