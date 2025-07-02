@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import styles from "./UserManagement.module.css";
 import { Edit, Trash2, User, Shield, Eye } from "lucide-react";
 
@@ -9,6 +9,24 @@ export default function UserManagement() {
   const [loading, setLoading] = useState(true);
   const [editingUser, setEditingUser] = useState(null);
   const [newRole, setNewRole] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
+
+  useEffect(() => {
+    fetchUsers();
+  }, []);
+
+  // Filter users based on search term
+  const filteredUsers = useMemo(() => {
+    if (!searchTerm) return users;
+    const lowerTerm = searchTerm.toLowerCase();
+    return users.filter(
+      (user) =>
+        (user.email && user.email.toLowerCase().includes(lowerTerm)) ||
+        (user.role && user.role.toLowerCase().includes(lowerTerm)) ||
+        (user.id && user.id.toLowerCase().includes(lowerTerm)) ||
+        (user.created_at && user.created_at.toLowerCase().includes(lowerTerm))
+    );
+  }, [users, searchTerm]);
 
   useEffect(() => {
     fetchUsers();
@@ -108,7 +126,17 @@ export default function UserManagement() {
     <div className={styles.container}>
       <div className={styles.header}>
         <h1 className={styles.title}>User Management</h1>
-        <p className={styles.subtitle}>Manage all users and their roles</p>
+      </div>
+
+      <div className={styles.controlsRow}>
+        <input
+          type="text"
+          placeholder="Search by email, role, ID or date..."
+          className={styles.searchInput}
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          autoComplete="off"
+        />
       </div>
 
       <div className={styles.tableContainer}>
@@ -123,16 +151,18 @@ export default function UserManagement() {
             </tr>
           </thead>
           <tbody>
-            {users.map((user) => (
+            {filteredUsers.map((user) => (
               <tr key={user.id}>
-                <td className={styles.idCell}>{user.id.substring(0, 8)}...</td>
-                <td className={styles.emailCell}>
+                <td className={styles.idCell} data-label="ID">
+                  {user.id.substring(0, 8)}...
+                </td>
+                <td className={styles.emailCell} data-label="Email">
                   <div className={styles.userInfo}>
                     <User size={16} />
                     {user.email || "No email"}
                   </div>
                 </td>
-                <td className={styles.roleCell}>
+                <td className={styles.roleCell} data-label="Role">
                   {editingUser === user.id ? (
                     <select
                       value={newRole}
@@ -151,12 +181,12 @@ export default function UserManagement() {
                     </span>
                   )}
                 </td>
-                <td className={styles.dateCell}>
+                <td className={styles.dateCell} data-label="Created">
                   {user.created_at
                     ? new Date(user.created_at).toLocaleDateString()
                     : "N/A"}
                 </td>
-                <td className={styles.actionsCell}>
+                <td className={styles.actionsCell} data-label="Actions">
                   {editingUser === user.id ? (
                     <div className={styles.editActions}>
                       <button
@@ -196,12 +226,17 @@ export default function UserManagement() {
           </tbody>
         </table>
 
-        {users.length === 0 && (
+        {filteredUsers.length === 0 && users.length > 0 ? (
+          <div className={styles.noUsers}>
+            <User size={48} />
+            <p>No users found matching "{searchTerm}"</p>
+          </div>
+        ) : filteredUsers.length === 0 ? (
           <div className={styles.noUsers}>
             <User size={48} />
             <p>No users found</p>
           </div>
-        )}
+        ) : null}
       </div>
     </div>
   );

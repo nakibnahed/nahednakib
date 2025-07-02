@@ -3,7 +3,14 @@
 import { useRouter, usePathname } from "next/navigation";
 import LogoutButton from "@/components/Admin/LogoutButton/LogoutButton";
 import styles from "./Sidebar.module.css";
-import { LayoutDashboard, Briefcase, BookOpen, Mail } from "lucide-react";
+import {
+  LayoutDashboard,
+  Briefcase,
+  BookOpen,
+  Mail,
+  Users,
+  MessageCircle,
+} from "lucide-react";
 
 export default function Sidebar() {
   const router = useRouter();
@@ -11,13 +18,20 @@ export default function Sidebar() {
 
   const navItems = [
     { label: "Dashboard", path: "/admin", icon: <LayoutDashboard size={18} /> },
+    { label: "Users", path: "/admin/users", icon: <Users size={18} /> },
     {
       label: "Portfolios",
       path: "/admin/portfolio",
       icon: <Briefcase size={18} />,
     },
     { label: "Blogs", path: "/admin/blogs", icon: <BookOpen size={18} /> },
-    { label: "Contact", path: "/admin/contact", icon: <Mail size={18} /> },
+    { label: "Forms", path: "/admin/contact", icon: <Mail size={18} /> },
+    {
+      label: "Comments",
+      path: "/admin/comments",
+      icon: <MessageCircle size={18} />,
+      // TODO: Create comments management page next
+    },
   ];
 
   return (

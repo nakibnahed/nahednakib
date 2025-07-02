@@ -5,6 +5,7 @@ import { useEffect, useState, useMemo } from "react";
 import Link from "next/link";
 import { supabase } from "@/services/supabaseClient";
 import ConfirmModal from "@/components/Admin/WarmingPop/WarmingPop"; // adjust path if needed
+import { Edit, Trash2 } from "lucide-react";
 
 export default function PortfolioListPage() {
   const [portfolios, setPortfolios] = useState([]);
@@ -133,16 +134,24 @@ export default function PortfolioListPage() {
                     )}
                   </td>
                   <td data-label="Actions">
-                    <Link href={`/admin/portfolio/${portfolio.id}/edit`}>
-                      <button className={styles.actionButton}>Edit</button>
-                    </Link>
-                    <button
-                      className={styles.deleteButton}
-                      onClick={() => openDeleteModal(portfolio)}
-                      type="button"
-                    >
-                      Delete
-                    </button>
+                    <div className={styles.actions}>
+                      <Link href={`/admin/portfolio/${portfolio.id}/edit`}>
+                        <button
+                          className={styles.actionButton}
+                          title="Edit portfolio"
+                        >
+                          <Edit size={16} />
+                        </button>
+                      </Link>
+                      <button
+                        className={styles.deleteButton}
+                        onClick={() => openDeleteModal(portfolio)}
+                        type="button"
+                        title="Delete portfolio"
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}
