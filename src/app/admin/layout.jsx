@@ -1,30 +1,10 @@
-import { createServerComponentClient } from "@supabase/auth-helpers-nextjs";
-import { cookies } from "next/headers";
-import { redirect } from "next/navigation";
 import AdminLayout from "@/components/Admin/Layout/AdminLayout";
+import AdminAuthCheck from "@/components/Admin/AdminAuthCheck/AdminAuthCheck";
 
-export default async function Layout({ children }) {
-  // Await the cookies function
-  const cookieStore = cookies();
-  const supabase = createServerComponentClient({ cookies: () => cookieStore });
-
-  const {
-    data: { session },
-  } = await supabase.auth.getSession();
-
-  if (!session?.user) {
-    redirect("/login");
-  }
-
-  const { data: profile, error } = await supabase
-    .from("profiles")
-    .select("role")
-    .eq("id", session.user.id)
-    .single();
-
-  if (error || !profile || profile.role !== "admin") {
-    redirect("/users/profile");
-  }
-
-  return <AdminLayout>{children}</AdminLayout>;
+export default function Layout({ children }) {
+  return (
+    <AdminAuthCheck>
+      <AdminLayout>{children}</AdminLayout>
+    </AdminAuthCheck>
+  );
 }

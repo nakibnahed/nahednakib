@@ -18,7 +18,7 @@ export default function DashboardSummary() {
 
   useEffect(() => {
     async function fetchCounts() {
-      const tables = ["users", "contact_messages", "portfolios", "blogs"];
+      const tables = ["profiles", "contact_messages", "portfolios", "blogs"];
       const results = await Promise.all(
         tables.map((table) =>
           supabase.from(table).select("*", { count: "exact", head: true })
@@ -38,7 +38,10 @@ export default function DashboardSummary() {
     <div className={styles.container}>
       <h1 className={styles.containerTitle}>Admin Dashboard</h1>
       <div className={styles.grid}>
-        <div className={styles.card} onClick={() => router.push("/admin")}>
+        <div
+          className={styles.card}
+          onClick={() => router.push("/admin/users")}
+        >
           <h3 className={styles.title}>
             <Users size={20} className={styles.icon} /> Users
           </h3>

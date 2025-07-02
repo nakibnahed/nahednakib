@@ -1,0 +1,208 @@
+"use client";
+
+import { useState, useEffect } from "react";
+import styles from "./UserManagement.module.css";
+import { Edit, Trash2, User, Shield, Eye } from "lucide-react";
+
+export default function UserManagement() {
+  const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [editingUser, setEditingUser] = useState(null);
+  const [newRole, setNewRole] = useState("");
+
+  useEffect(() => {
+    fetchUsers();
+  }, []);
+
+  const fetchUsers = async () => {
+    try {
+      const response = await fetch("/api/admin/users");
+      const data = await response.json();
+
+      if (response.ok) {
+        setUsers(data.users);
+      } else {
+        console.error("Error fetching users:", data.error);
+      }
+    } catch (error) {
+      console.error("Error:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDeleteUser = async (userId) => {
+    if (
+      !confirm(
+        "Are you sure you want to delete this user? This action cannot be undone."
+      )
+    ) {
+      return;
+    }
+
+    try {
+      const response = await fetch("/api/admin/users", {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ userId }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setUsers(users.filter((user) => user.id !== userId));
+        alert("User deleted successfully");
+      } else {
+        alert(`Error: ${data.error}`);
+      }
+    } catch (error) {
+      console.error("Error:", error);
+      alert("Failed to delete user");
+    }
+  };
+
+  const handleUpdateRole = async (userId, role) => {
+    try {
+      const response = await fetch("/api/admin/users", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ userId, role }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setUsers(
+          users.map((user) => (user.id === userId ? { ...user, role } : user))
+        );
+        setEditingUser(null);
+        alert("User role updated successfully");
+      } else {
+        alert(`Error: ${data.error}`);
+      }
+    } catch (error) {
+      console.error("Error:", error);
+      alert("Failed to update user role");
+    }
+  };
+
+  const startEditing = (user) => {
+    setEditingUser(user.id);
+    setNewRole(user.role);
+  };
+
+  const cancelEditing = () => {
+    setEditingUser(null);
+    setNewRole("");
+  };
+
+  if (loading) {
+    return <div className={styles.loading}>Loading users...</div>;
+  }
+
+  return (
+    <div className={styles.container}>
+      <div className={styles.header}>
+        <h1 className={styles.title}>User Management</h1>
+        <p className={styles.subtitle}>Manage all users and their roles</p>
+      </div>
+
+      <div className={styles.tableContainer}>
+        <table className={styles.table}>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Email</th>
+              <th>Role</th>
+              <th>Created</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {users.map((user) => (
+              <tr key={user.id}>
+                <td className={styles.idCell}>{user.id.substring(0, 8)}...</td>
+                <td className={styles.emailCell}>
+                  <div className={styles.userInfo}>
+                    <User size={16} />
+                    {user.email || "No email"}
+                  </div>
+                </td>
+                <td className={styles.roleCell}>
+                  {editingUser === user.id ? (
+                    <select
+                      value={newRole}
+                      onChange={(e) => setNewRole(e.target.value)}
+                      className={styles.roleSelect}
+                    >
+                      <option value="user">User</option>
+                      <option value="admin">Admin</option>
+                    </select>
+                  ) : (
+                    <span
+                      className={`${styles.roleBadge} ${styles[user.role]}`}
+                    >
+                      {user.role === "admin" && <Shield size={12} />}
+                      {user.role}
+                    </span>
+                  )}
+                </td>
+                <td className={styles.dateCell}>
+                  {user.created_at
+                    ? new Date(user.created_at).toLocaleDateString()
+                    : "N/A"}
+                </td>
+                <td className={styles.actionsCell}>
+                  {editingUser === user.id ? (
+                    <div className={styles.editActions}>
+                      <button
+                        onClick={() => handleUpdateRole(user.id, newRole)}
+                        className={styles.saveBtn}
+                      >
+                        Save
+                      </button>
+                      <button
+                        onClick={cancelEditing}
+                        className={styles.cancelBtn}
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  ) : (
+                    <div className={styles.actions}>
+                      <button
+                        onClick={() => startEditing(user)}
+                        className={styles.editBtn}
+                        title="Edit role"
+                      >
+                        <Edit size={16} />
+                      </button>
+                      <button
+                        onClick={() => handleDeleteUser(user.id)}
+                        className={styles.deleteBtn}
+                        title="Delete user"
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    </div>
+                  )}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+
+        {users.length === 0 && (
+          <div className={styles.noUsers}>
+            <User size={48} />
+            <p>No users found</p>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
