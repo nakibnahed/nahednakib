@@ -10,6 +10,7 @@ import {
   Mail,
   Users,
   MessageCircle,
+  Send,
 } from "lucide-react";
 
 export default function Sidebar() {
@@ -26,6 +27,11 @@ export default function Sidebar() {
     },
     { label: "Blogs", path: "/admin/blogs", icon: <BookOpen size={18} /> },
     { label: "Forms", path: "/admin/contact", icon: <Mail size={18} /> },
+    {
+      label: "Newsletter",
+      path: "/admin/newsletter",
+      icon: <Send size={18} />,
+    },
     {
       label: "Comments",
       path: "/admin/comments",
