@@ -417,3 +417,21 @@
   margin-bottom: 20px;
   border: 1px solid rgba(34, 197, 94, 0.3);
 }
+
+.readOnlyField {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.03);
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 1rem;
+  cursor: not-allowed;
+}
+
+.fieldNote {
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 0.85rem;
+  margin-top: 4px;
+  display: block;
+}

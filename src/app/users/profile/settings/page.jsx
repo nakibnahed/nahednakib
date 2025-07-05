@@ -13,8 +13,6 @@ export default function SettingsPage() {
   const [formData, setFormData] = useState({
     first_name: "",
     last_name: "",
-    full_name: "",
-    bio: "",
     avatar_url: "",
   });
   const [error, setError] = useState(null);
@@ -54,8 +52,6 @@ export default function SettingsPage() {
           setFormData({
             first_name: profile?.first_name || "",
             last_name: profile?.last_name || "",
-            full_name: profile?.full_name || "",
-            bio: profile?.bio || "",
             avatar_url: profile?.avatar_url || "",
           });
         }
@@ -148,6 +144,14 @@ export default function SettingsPage() {
         <div className={styles.settingsForm}>
           <form onSubmit={handleSubmit}>
             <div className={styles.formGroup}>
+              <label>Email</label>
+              <div className={styles.readOnlyField}>
+                {user?.email || "No email available"}
+              </div>
+              <small className={styles.fieldNote}>Email cannot be changed here</small>
+            </div>
+
+            <div className={styles.formGroup}>
               <label htmlFor="first_name">First Name</label>
               <input
                 type="text"
@@ -168,30 +172,6 @@ export default function SettingsPage() {
                 value={formData.last_name}
                 onChange={handleInputChange}
                 className={styles.formInput}
-              />
-            </div>
-
-            <div className={styles.formGroup}>
-              <label htmlFor="full_name">Full Name</label>
-              <input
-                type="text"
-                id="full_name"
-                name="full_name"
-                value={formData.full_name}
-                onChange={handleInputChange}
-                className={styles.formInput}
-              />
-            </div>
-
-            <div className={styles.formGroup}>
-              <label htmlFor="bio">Bio</label>
-              <textarea
-                id="bio"
-                name="bio"
-                value={formData.bio}
-                onChange={handleInputChange}
-                className={styles.formTextarea}
-                rows="4"
               />
             </div>
 
