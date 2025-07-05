@@ -5,8 +5,8 @@ import styles from "./Navbar.module.css";
 import Logo from "@/elements/Logo/Logo";
 import DarkMoodToggle from "../DarkMoodToggle/DarkMoodToggle";
 import { useEffect, useState } from "react";
-import { supabase } from "@/services/supabaseClient";
-import { User, Menu, X, Bell } from "lucide-react";
+import { createClient } from "@/lib/supabase/client";
+import { User, Menu, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 const navLinks = [
@@ -20,42 +20,68 @@ export default function Navbar() {
   const [user, setUser] = useState(null);
   const [userRole, setUserRole] = useState(null);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const router = useRouter();
 
   useEffect(() => {
     const getSession = async () => {
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
-      setUser(session?.user ?? null);
+      try {
+        setLoading(true);
+        setError(null);
 
-      // Fetch user role if logged in
-      if (session?.user) {
-        const { data: profile } = await supabase
-          .from("profiles")
-          .select("role")
-          .eq("id", session.user.id)
-          .single();
-        setUserRole(profile?.role || "user");
-      } else {
+        const supabase = createClient();
+        const {
+          data: { session },
+          error,
+        } = await supabase.auth.getSession();
+
+        if (error) {
+          console.error("Session error:", error);
+          setError(error.message);
+          setUser(null);
+          setUserRole(null);
+        } else {
+          setUser(session?.user || null);
+
+          // Simple admin check
+          if (session?.user) {
+            const adminEmails = [
+              "admin@example.com",
+              "nahednakibyos@gmail.com",
+            ];
+            if (adminEmails.includes(session.user.email)) {
+              setUserRole("admin");
+            } else {
+              setUserRole("user");
+            }
+          } else {
+            setUserRole(null);
+          }
+        }
+      } catch (error) {
+        console.error("Session initialization error:", error);
+        setError(error.message);
+        setUser(null);
         setUserRole(null);
+      } finally {
+        setLoading(false);
       }
     };
 
     getSession();
 
+    const supabase = createClient();
     const { data: listener } = supabase.auth.onAuthStateChange(
-      (_event, session) => {
+      async (_event, session) => {
         setUser(session?.user ?? null);
         if (session?.user) {
-          supabase
-            .from("profiles")
-            .select("role")
-            .eq("id", session.user.id)
-            .single()
-            .then(({ data: profile }) => {
-              setUserRole(profile?.role || "user");
-            });
+          const adminEmails = ["admin@example.com", "nahednakibyos@gmail.com"];
+          if (adminEmails.includes(session.user.email)) {
+            setUserRole("admin");
+          } else {
+            setUserRole("user");
+          }
         } else {
           setUserRole(null);
         }
@@ -67,25 +93,17 @@ export default function Navbar() {
 
   const toggleMenu = () => setMenuOpen((open) => !open);
 
-  // Improved: Always fetch latest session and role on icon click
+  // Simple user icon click handler
   const handleUserIconClick = async (e) => {
     e.preventDefault();
-    const {
-      data: { session },
-    } = await supabase.auth.getSession();
 
-    if (!session?.user) {
+    if (!user) {
       router.push("/login");
       return;
     }
 
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("role")
-      .eq("id", session.user.id)
-      .single();
-
-    if (profile?.role === "admin") {
+    // Navigate based on role
+    if (userRole === "admin") {
       router.push("/admin/");
     } else {
       router.push("/users/profile");
@@ -108,15 +126,8 @@ export default function Navbar() {
           </div>
         </nav>
 
-        {/* Right section: Dark mode, Notification, User */}
+        {/* Right section: Dark mode, User */}
         <div className={styles.rightSection}>
-          <button
-            type="button"
-            aria-label="Notifications"
-            className={styles.notificationBtn}
-          >
-            <Bell size={24} strokeWidth={2.2} />
-          </button>
           <button
             className={styles.dashboardIconOnly}
             aria-label="User"
@@ -128,15 +139,8 @@ export default function Navbar() {
           <DarkMoodToggle />
         </div>
 
-        {/* Mobile right: notification, user icon, burger */}
+        {/* Mobile right: user icon, burger */}
         <div className={styles.mobileRight}>
-          <button
-            type="button"
-            aria-label="Notifications"
-            className={styles.notificationBtn}
-          >
-            <Bell size={24} strokeWidth={2.2} />
-          </button>
           <button
             className={styles.userMobileIcon}
             aria-label="User"

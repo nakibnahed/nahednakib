@@ -14,14 +14,21 @@ export async function createClient() {
   return createServerClient(supabaseUrl, supabaseAnonKey, {
     cookies: {
       getAll() {
-        return cookieStore.getAll();
+        const allCookies = cookieStore.getAll();
+        console.log(
+          "🍪 Server cookies:",
+          allCookies.map((c) => c.name)
+        );
+        return allCookies;
       },
       setAll(cookiesToSet) {
         try {
-          cookiesToSet.forEach(({ name, value, options }) =>
-            cookieStore.set(name, value, options)
-          );
-        } catch {
+          cookiesToSet.forEach(({ name, value, options }) => {
+            console.log("🍪 Setting cookie:", name);
+            cookieStore.set(name, value, options);
+          });
+        } catch (error) {
+          console.log("🍪 Error setting cookies:", error.message);
           // The `setAll` method was called from a Server Component.
           // This can be ignored if you have middleware refreshing
           // user sessions.

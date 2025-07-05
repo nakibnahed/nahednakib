@@ -11,6 +11,7 @@ import {
   Users,
   MessageCircle,
   Send,
+  Bell,
 } from "lucide-react";
 
 export default function Sidebar() {
@@ -36,7 +37,6 @@ export default function Sidebar() {
       label: "Comments",
       path: "/admin/comments",
       icon: <MessageCircle size={18} />,
-      // TODO: Create comments management page next
     },
   ];
 

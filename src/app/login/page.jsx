@@ -33,14 +33,9 @@ export default function LoginPage() {
       return;
     }
 
-    // Fetch user role from profiles table
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("role")
-      .eq("id", data.user.id)
-      .single();
-
-    if (profile?.role === "admin") {
+    // Simple admin check
+    const adminEmails = ["admin@example.com", "nahednakibyos@gmail.com"];
+    if (adminEmails.includes(data.user.email)) {
       router.push("/admin/");
     } else {
       router.push("/users/profile");

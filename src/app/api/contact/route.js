@@ -22,7 +22,7 @@ export async function POST(req) {
       });
     }
 
-    // Send notification & welcome emails
+    // Send welcome email
     await sendContactEmail({ name, email, message });
 
     return new Response(

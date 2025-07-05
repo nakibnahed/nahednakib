@@ -49,13 +49,21 @@ export async function POST(request) {
         updated_at,
         parent_id,
         user_id,
-        profiles!inner(email)
+        profiles!user_id(email, full_name)
       `
       )
       .single();
 
     if (error) {
-      return NextResponse.json({ error: error.message }, { status: 500 });
+      console.error("Database error during comment creation:", error);
+      return NextResponse.json(
+        {
+          error: error.message,
+          details: error.details,
+          hint: error.hint,
+        },
+        { status: 500 }
+      );
     }
 
     return NextResponse.json({
@@ -105,7 +113,7 @@ export async function GET(request) {
         updated_at,
         parent_id,
         user_id,
-        profiles!inner(email)
+        profiles!user_id(email, full_name)
       `,
         { count: "exact" }
       )
@@ -117,7 +125,15 @@ export async function GET(request) {
       .range(from, to);
 
     if (error) {
-      return NextResponse.json({ error: error.message }, { status: 500 });
+      console.error("Database error during comment fetch:", error);
+      return NextResponse.json(
+        {
+          error: error.message,
+          details: error.details,
+          hint: error.hint,
+        },
+        { status: 500 }
+      );
     }
 
     // Get replies for each comment
@@ -133,7 +149,7 @@ export async function GET(request) {
             updated_at,
             parent_id,
             user_id,
-            profiles!inner(email)
+            profiles!user_id(email, full_name)
           `
           )
           .eq("parent_id", comment.id)

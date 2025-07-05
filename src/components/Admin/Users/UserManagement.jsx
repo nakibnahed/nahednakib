@@ -34,7 +34,9 @@ export default function UserManagement() {
 
   const fetchUsers = async () => {
     try {
-      const response = await fetch("/api/admin/users");
+      const response = await fetch("/api/admin/users", {
+        credentials: "include", // This ensures cookies are sent
+      });
       const data = await response.json();
 
       if (response.ok) {

@@ -44,13 +44,20 @@ export default function DashboardSummary() {
       // For comments, we'll get the actual count from the user_comments table
       let commentsCount = 0;
       try {
-        const { count } = await supabase
+        const { count, error } = await supabase
           .from("user_comments")
           .select("*", { count: "exact", head: true })
           .eq("is_approved", true);
-        commentsCount = count || 0;
+
+        if (error) {
+          console.log("user_comments table not found, using default count");
+          commentsCount = 0;
+        } else {
+          commentsCount = count || 0;
+        }
       } catch (error) {
         // If table doesn't exist yet, keep it at 0
+        console.log("user_comments table not available:", error.message);
         commentsCount = 0;
       }
 

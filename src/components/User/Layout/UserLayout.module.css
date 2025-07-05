@@ -1,0 +1,37 @@
+.container {
+  display: flex;
+  flex: 1;
+  gap: 30px;
+  padding: 48px 20px;
+}
+
+.content {
+  flex: 1;
+  padding: 30px;
+  min-height: 600px;
+
+  border-radius: var(--card-border-radius);
+  background: color-mix(
+    in srgb,
+    var(--background-main, #121212) 80%,
+    transparent 15%
+  );
+  border: 1px solid var(--card-border, rgba(255, 255, 255, 0.14));
+  color: var(--card-text, #fff);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  backdrop-filter: blur(16px) saturate(160%);
+  -webkit-backdrop-filter: blur(16px) saturate(160%);
+  opacity: 0.98;
+}
+
+@media (max-width: 768px) {
+  .container {
+    flex-direction: column;
+    gap: 16px;
+    padding: 24px 20px;
+  }
+  .content {
+    padding: 14px;
+    min-height: 400px;
+  }
+}
