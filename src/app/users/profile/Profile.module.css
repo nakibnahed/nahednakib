@@ -158,3 +158,262 @@
   font-weight: 500;
   font-size: 18px;
 }
+
+/* Profile Content Styles */
+.profileContent {
+  flex: 1;
+  padding: 20px;
+}
+
+.contentHeader {
+  margin-bottom: 30px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.contentHeader h1 {
+  color: var(--primary-color, #ee681a);
+  font-size: 2rem;
+  margin-bottom: 8px;
+}
+
+.contentHeader p {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 1.1rem;
+}
+
+.emptyState {
+  text-align: center;
+  padding: 60px 20px;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.contentList {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* Comment Item Styles */
+.commentItem {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 20px;
+  transition: all 0.3s ease;
+}
+
+.commentItem:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.commentHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 15px;
+}
+
+.postInfo h3 {
+  color: var(--primary-color, #ee681a);
+  margin-bottom: 5px;
+  font-size: 1.1rem;
+}
+
+.commentDate {
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 0.9rem;
+}
+
+.commentContent {
+  margin-bottom: 15px;
+}
+
+.commentContent p {
+  color: rgba(255, 255, 255, 0.8);
+  line-height: 1.6;
+}
+
+.commentFooter {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.deleteButton {
+  background: #ff4444;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.deleteButton:hover {
+  background: #cc0000;
+}
+
+.viewPostLink {
+  color: var(--primary-color, #ee681a);
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.3s ease;
+}
+
+.viewPostLink:hover {
+  color: #ff8c42;
+}
+
+/* Like/Favorite Item Styles */
+.likeItem,
+.favoriteItem {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 20px;
+  transition: all 0.3s ease;
+}
+
+.likeItem:hover,
+.favoriteItem:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.likeHeader,
+.favoriteHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 15px;
+}
+
+.likeDate,
+.favoriteDate {
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 0.9rem;
+}
+
+.likeContent,
+.favoriteContent {
+  margin-bottom: 15px;
+}
+
+.likeContent p,
+.favoriteContent p {
+  color: rgba(255, 255, 255, 0.8);
+  line-height: 1.6;
+}
+
+.likeFooter,
+.favoriteFooter {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.postType {
+  background: rgba(238, 104, 26, 0.2);
+  color: var(--primary-color, #ee681a);
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.unlikeButton,
+.removeButton {
+  background: #666;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.unlikeButton:hover,
+.removeButton:hover {
+  background: #555;
+}
+
+/* Settings Form Styles */
+.settingsForm {
+  max-width: 600px;
+}
+
+.formGroup {
+  margin-bottom: 25px;
+}
+
+.formGroup label {
+  display: block;
+  margin-bottom: 8px;
+  color: rgba(255, 255, 255, 0.9);
+  font-weight: 500;
+}
+
+.formInput,
+.formTextarea {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.05);
+  color: white;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+}
+
+.formInput:focus,
+.formTextarea:focus {
+  outline: none;
+  border-color: var(--primary-color, #ee681a);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.formTextarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+.saveButton {
+  background: var(--primary-color, #ee681a);
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 500;
+  transition: background 0.3s ease;
+}
+
+.saveButton:hover {
+  background: #ff8c42;
+}
+
+.saveButton:disabled {
+  background: #666;
+  cursor: not-allowed;
+}
+
+.error {
+  background: rgba(255, 68, 68, 0.1);
+  color: #ff4444;
+  padding: 12px;
+  border-radius: 6px;
+  margin-bottom: 20px;
+  border: 1px solid rgba(255, 68, 68, 0.3);
+}
+
+.success {
+  background: rgba(34, 197, 94, 0.1);
+  color: #22c55e;
+  padding: 12px;
+  border-radius: 6px;
+  margin-bottom: 20px;
+  border: 1px solid rgba(34, 197, 94, 0.3);
+}

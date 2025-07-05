@@ -5,13 +5,11 @@ import { supabase } from "@/services/supabaseClient";
 import styles from "./UserSidebar.module.css";
 import {
   User,
-  Heart,
   MessageCircle,
-  Edit,
+  Heart,
   Star,
-  LogOut,
   Settings,
-  Activity,
+  LogOut,
 } from "lucide-react";
 
 export default function UserSidebar({ user, profileData }) {
@@ -38,16 +36,6 @@ export default function UserSidebar({ user, profileData }) {
       label: "Favorites",
       path: "/users/profile/favorites",
       icon: <Star size={18} />,
-    },
-    {
-      label: "Edit Profile",
-      path: "/users/profile/edit",
-      icon: <Edit size={18} />,
-    },
-    {
-      label: "Activity",
-      path: "/users/profile/activity",
-      icon: <Activity size={18} />,
     },
     {
       label: "Settings",
