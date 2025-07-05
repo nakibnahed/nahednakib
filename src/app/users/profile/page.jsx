@@ -4,7 +4,6 @@ import { useRouter } from "next/navigation";
 import { supabase } from "@/services/supabaseClient";
 import UserLayout from "@/components/User/Layout/UserLayout";
 import UserDashboard from "@/components/User/Dashboard/UserDashboard";
-import AuthGuard from "@/components/AuthGuard";
 
 export default function ProfilePage() {
   const [loading, setLoading] = useState(true);
@@ -118,10 +117,8 @@ export default function ProfilePage() {
   }
 
   return (
-    <AuthGuard>
-      <UserLayout user={user} profileData={profileData}>
-        <UserDashboard user={user} profileData={profileData} />
-      </UserLayout>
-    </AuthGuard>
+    <UserLayout user={user} profileData={profileData}>
+      <UserDashboard user={user} profileData={profileData} />
+    </UserLayout>
   );
 }
