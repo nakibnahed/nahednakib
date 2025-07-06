@@ -1,18 +1,37 @@
 .button {
-  padding: 10px 20px;
-  background: var(--button-bg);
-  color: var(--button-text);
-  text-decoration: none;
-  border: none;
-  border-radius: 6px;
-  font-size: 14px;
-  font-weight: 700;
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--text-dark);
+  font-weight: 500;
   cursor: pointer;
+  transition: color 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
 }
 
 .button:hover {
-  opacity: 0.9;
+  /* Only change text color to primary color */
+  color: var(--primary-color, #ee681a);
+  background: transparent;
+  transform: none;
+  border-color: transparent;
 }
+
 .buttonText {
-  color: var(--button-text);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+  .button {
+    padding: 8px 10px;
+    font-size: 14px;
+  }
 }

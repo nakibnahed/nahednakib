@@ -2,11 +2,24 @@
   text-align: center;
 }
 
-.containerTitle {
+.header {
+  margin-bottom: 30px;
+}
+
+.title {
+  font-size: 32px;
+  font-weight: 700;
+  margin-bottom: 8px;
   background: var(--gradient-typography-secondery);
   background-clip: text;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
+}
+
+.subtitle {
+  color: var(--text-secondary, #aaa);
+  font-size: 16px;
+  margin: 0;
 }
 
 .grid {
@@ -21,10 +34,8 @@
 
 .card {
   padding: 1.5rem;
-
   width: 95%;
   cursor: pointer;
-
   border-radius: var(--card-border-radius);
   background: color-mix(
     in srgb,
@@ -37,24 +48,119 @@
   backdrop-filter: blur(16px) saturate(160%);
   -webkit-backdrop-filter: blur(16px) saturate(160%);
   opacity: 0.98;
+  transition: all 0.3s ease;
 }
 
-.title {
+.card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+  border-color: var(--primary-color, #ee681a);
+}
+
+.cardTitle {
   margin-bottom: 10px;
   display: flex;
   align-items: center;
   gap: 8px;
   justify-content: center;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text-primary, #fff);
 }
 
-.counts {
+.cardCount {
   font-weight: bold;
   font-size: 1.5rem;
   color: var(--primary-color);
 }
 
-.icon {
+.cardIcon {
   color: var(--primary-color);
+}
+
+.cardDescription {
+  font-size: 14px;
+  color: var(--text-secondary, #aaa);
+  margin: 8px 0 0 0;
+  line-height: 1.4;
+}
+
+.recentActivity {
+  margin-top: 40px;
+}
+
+.recentActivity h2 {
+  font-size: 24px;
+  font-weight: 600;
+  margin-bottom: 20px;
+  color: var(--text-primary, #fff);
+}
+
+.activityCard {
+  padding: 20px;
+  border-radius: var(--card-border-radius);
+  background: color-mix(
+    in srgb,
+    var(--background-main, #121212) 85%,
+    transparent 15%
+  );
+  border: 1px solid var(--card-border, rgba(255, 255, 255, 0.14));
+  color: var(--text-secondary, #aaa);
+}
+
+.activityList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.activityItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.03);
+  transition: background 0.2s ease;
+}
+
+.activityItem:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.activityIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  color: white;
+  flex-shrink: 0;
+}
+
+.activityContent {
+  flex: 1;
+}
+
+.activityText {
+  margin: 0 0 4px 0;
+  color: var(--text-primary, #fff);
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.activityDate {
+  color: var(--text-secondary, #aaa);
+  font-size: 12px;
+}
+
+.loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  color: var(--text-secondary, #aaa);
 }
 
 @media (max-width: 1024px) {
@@ -66,5 +172,13 @@
 @media (max-width: 768px) {
   .grid {
     grid-template-columns: 1fr;
+  }
+
+  .card {
+    padding: 20px;
+  }
+
+  .title {
+    font-size: 24px;
   }
 }

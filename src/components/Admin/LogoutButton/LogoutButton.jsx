@@ -3,6 +3,7 @@
 import styles from "./LogoutButton.module.css"; // We'll create this
 import { useRouter } from "next/navigation";
 import { supabase } from "@/services/supabaseClient";
+import { LogOut } from "lucide-react";
 
 export default function LogoutButton() {
   const router = useRouter();
@@ -14,7 +15,10 @@ export default function LogoutButton() {
 
   return (
     <button onClick={handleLogout} className={styles.button}>
-      <span className={styles.buttonText}>Logout</span>
+      <span className={styles.buttonText}>
+        <LogOut size={18} />
+        Logout
+      </span>
     </button>
   );
 }

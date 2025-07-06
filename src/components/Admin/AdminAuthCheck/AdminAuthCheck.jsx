@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { createClient } from "@/lib/supabase/client";
+import { supabase } from "@/services/supabaseClient";
 
 export default function AdminAuthCheck({ children }) {
   const [loading, setLoading] = useState(true);
@@ -10,10 +10,12 @@ export default function AdminAuthCheck({ children }) {
 
   useEffect(() => {
     const checkAuth = async () => {
-      const supabase = createClient();
       try {
-        const { data: { session }, error } = await supabase.auth.getSession();
-        
+        const {
+          data: { session },
+          error,
+        } = await supabase.auth.getSession();
+
         if (error || !session?.user) {
           router.push("/login");
           return;
