@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/services/supabaseClient";
+import ConfirmationModal from "@/components/ConfirmationModal/ConfirmationModal";
 import styles from "./Comments.module.css";
 import {
   MessageCircle,
@@ -17,6 +18,8 @@ export default function CommentsPage() {
   const [comments, setComments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState({ total: 0, approved: 0, pending: 0 });
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [commentToDelete, setCommentToDelete] = useState(null);
   const router = useRouter();
 
   useEffect(() => {
@@ -75,48 +78,79 @@ export default function CommentsPage() {
 
   const handleApprove = async (commentId) => {
     try {
-      const { error } = await supabase
-        .from("user_comments")
-        .update({ is_approved: true })
-        .eq("id", commentId);
+      const response = await fetch(`/api/engagement/comments?id=${commentId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ is_approved: true }),
+      });
 
-      if (error) throw error;
+      if (!response.ok) {
+        throw new Error("Failed to approve comment");
+      }
+
       await fetchComments();
       await fetchStats();
     } catch (error) {
       console.error("Error approving comment:", error);
+      alert("Failed to approve comment. Please try again.");
     }
   };
 
   const handleReject = async (commentId) => {
     try {
-      const { error } = await supabase
-        .from("user_comments")
-        .update({ is_approved: false })
-        .eq("id", commentId);
+      const response = await fetch(`/api/engagement/comments?id=${commentId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ is_approved: false }),
+      });
 
-      if (error) throw error;
+      if (!response.ok) {
+        throw new Error("Failed to reject comment");
+      }
+
       await fetchComments();
       await fetchStats();
     } catch (error) {
       console.error("Error rejecting comment:", error);
+      alert("Failed to reject comment. Please try again.");
     }
   };
 
-  const handleDelete = async (commentId) => {
-    if (!confirm("Are you sure you want to delete this comment?")) return;
+  const confirmDelete = (commentId) => {
+    setCommentToDelete(commentId);
+    setShowDeleteConfirm(true);
+  };
+
+  const handleDelete = async () => {
+    if (!commentToDelete) return;
 
     try {
-      const { error } = await supabase
-        .from("user_comments")
-        .delete()
-        .eq("id", commentId);
+      console.log("Attempting to delete comment:", commentToDelete);
 
-      if (error) throw error;
+      const response = await fetch(
+        `/api/engagement/comments?id=${commentToDelete}`,
+        {
+          method: "DELETE",
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+
+      const data = await response.json();
+      console.log("Delete response:", { status: response.status, data });
+
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to delete comment");
+      }
+
+      console.log("Comment deleted successfully");
       await fetchComments();
       await fetchStats();
     } catch (error) {
       console.error("Error deleting comment:", error);
+      alert(`Failed to delete comment: ${error.message}`);
+    } finally {
+      setShowDeleteConfirm(false);
+      setCommentToDelete(null);
     }
   };
 
@@ -224,7 +258,7 @@ export default function CommentsPage() {
                   )}
 
                   <button
-                    onClick={() => handleDelete(comment.id)}
+                    onClick={() => confirmDelete(comment.id)}
                     className={styles.deleteBtn}
                   >
                     <Trash2 size={16} />
@@ -236,6 +270,18 @@ export default function CommentsPage() {
           </div>
         )}
       </div>
+
+      {/* Delete Confirmation Modal */}
+      <ConfirmationModal
+        isOpen={showDeleteConfirm}
+        onClose={() => setShowDeleteConfirm(false)}
+        onConfirm={handleDelete}
+        title="Delete Comment"
+        message="Are you sure you want to delete this comment? This action cannot be undone."
+        confirmText="Delete"
+        cancelText="Cancel"
+        type="danger"
+      />
     </div>
   );
 }

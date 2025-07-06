@@ -3,12 +3,15 @@
 import { useState, useEffect, useMemo } from "react";
 import styles from "./NewsletterManagement.module.css";
 import { Mail, Trash2, Download, UserX, Users } from "lucide-react";
+import ConfirmationModal from "@/components/ConfirmationModal/ConfirmationModal";
 
 export default function NewsletterManagement() {
   const [subscribers, setSubscribers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState("all"); // all, subscribed, unsubscribed
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [subscriberToDelete, setSubscriberToDelete] = useState(null);
 
   useEffect(() => {
     fetchSubscribers();
@@ -56,14 +59,13 @@ export default function NewsletterManagement() {
     }
   };
 
-  const handleDeleteSubscriber = async (subscriberId) => {
-    if (
-      !confirm(
-        "Are you sure you want to delete this subscriber? This action cannot be undone."
-      )
-    ) {
-      return;
-    }
+  const confirmDeleteSubscriber = (subscriberId) => {
+    setSubscriberToDelete(subscriberId);
+    setShowDeleteConfirm(true);
+  };
+
+  const handleDeleteSubscriber = async () => {
+    if (!subscriberToDelete) return;
 
     try {
       const response = await fetch("/api/newsletter", {
@@ -71,13 +73,15 @@ export default function NewsletterManagement() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ subscriberId }),
+        body: JSON.stringify({ subscriberId: subscriberToDelete }),
       });
 
       const data = await response.json();
 
       if (response.ok) {
-        setSubscribers(subscribers.filter((sub) => sub.id !== subscriberId));
+        setSubscribers(
+          subscribers.filter((sub) => sub.id !== subscriberToDelete)
+        );
         alert("Subscriber deleted successfully");
       } else {
         alert(`Error: ${data.error}`);
@@ -85,6 +89,9 @@ export default function NewsletterManagement() {
     } catch (error) {
       console.error("Error:", error);
       alert("Failed to delete subscriber");
+    } finally {
+      setShowDeleteConfirm(false);
+      setSubscriberToDelete(null);
     }
   };
 
@@ -220,7 +227,7 @@ export default function NewsletterManagement() {
                 <td className={styles.actionsCell} data-label="Actions">
                   <div className={styles.actions}>
                     <button
-                      onClick={() => handleDeleteSubscriber(subscriber.id)}
+                      onClick={() => confirmDeleteSubscriber(subscriber.id)}
                       className={styles.deleteBtn}
                       title="Delete subscriber"
                     >
@@ -245,6 +252,18 @@ export default function NewsletterManagement() {
           </div>
         ) : null}
       </div>
+
+      {/* Delete Confirmation Modal */}
+      <ConfirmationModal
+        isOpen={showDeleteConfirm}
+        onClose={() => setShowDeleteConfirm(false)}
+        onConfirm={handleDeleteSubscriber}
+        title="Delete Subscriber"
+        message="Are you sure you want to delete this subscriber? This action cannot be undone."
+        confirmText="Delete"
+        cancelText="Cancel"
+        type="danger"
+      />
     </div>
   );
 }

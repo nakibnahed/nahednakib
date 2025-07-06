@@ -112,16 +112,24 @@ export function useEngagement(contentType, contentId) {
     }
   }, [loading, fetchEngagementData]);
 
-  // Like/Unlike function
+  // Optimistic like/unlike function
   const toggleLike = async () => {
     if (!user) {
       window.location.href = "/login";
       return;
     }
 
+    // Optimistic update - update UI immediately
+    const currentLiked = engagement.likes.userLiked;
+    const currentCount = engagement.likes.count;
+
     setEngagement((prev) => ({
       ...prev,
-      likes: { ...prev.likes, loading: true },
+      likes: {
+        count: currentLiked ? currentCount - 1 : currentCount + 1,
+        userLiked: !currentLiked,
+        loading: true,
+      },
     }));
 
     try {
@@ -134,36 +142,51 @@ export function useEngagement(contentType, contentId) {
       const data = await response.json();
 
       if (!response.ok) {
+        // Revert optimistic update on error
+        setEngagement((prev) => ({
+          ...prev,
+          likes: {
+            count: currentCount,
+            userLiked: currentLiked,
+            loading: false,
+          },
+        }));
         throw new Error(data.error);
       }
 
+      // Confirm the optimistic update
       setEngagement((prev) => ({
         ...prev,
         likes: {
-          count: prev.likes.count + (data.liked ? 1 : -1),
+          count: prev.likes.count,
           userLiked: data.liked,
           loading: false,
         },
       }));
     } catch (error) {
       console.error("Error toggling like:", error);
-      setEngagement((prev) => ({
-        ...prev,
-        likes: { ...prev.likes, loading: false },
-      }));
+      // Error already handled above
     }
   };
 
-  // Favorite/Unfavorite function
+  // Optimistic favorite/unfavorite function
   const toggleFavorite = async () => {
     if (!user) {
       window.location.href = "/login";
       return;
     }
 
+    // Optimistic update - update UI immediately
+    const currentFavorited = engagement.favorites.userFavorited;
+    const currentCount = engagement.favorites.count;
+
     setEngagement((prev) => ({
       ...prev,
-      favorites: { ...prev.favorites, loading: true },
+      favorites: {
+        count: currentFavorited ? currentCount - 1 : currentCount + 1,
+        userFavorited: !currentFavorited,
+        loading: true,
+      },
     }));
 
     try {
@@ -176,23 +199,30 @@ export function useEngagement(contentType, contentId) {
       const data = await response.json();
 
       if (!response.ok) {
+        // Revert optimistic update on error
+        setEngagement((prev) => ({
+          ...prev,
+          favorites: {
+            count: currentCount,
+            userFavorited: currentFavorited,
+            loading: false,
+          },
+        }));
         throw new Error(data.error);
       }
 
+      // Confirm the optimistic update
       setEngagement((prev) => ({
         ...prev,
         favorites: {
-          count: prev.favorites.count + (data.favorited ? 1 : -1),
+          count: prev.favorites.count,
           userFavorited: data.favorited,
           loading: false,
         },
       }));
     } catch (error) {
       console.error("Error toggling favorite:", error);
-      setEngagement((prev) => ({
-        ...prev,
-        favorites: { ...prev.favorites, loading: false },
-      }));
+      // Error already handled above
     }
   };
 
@@ -267,6 +297,72 @@ export function useEngagement(contentType, contentId) {
     }
   };
 
+  // Delete comment function
+  const deleteComment = async (commentId) => {
+    try {
+      const response = await fetch(`/api/engagement/comments?id=${commentId}`, {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to delete comment");
+      }
+
+      // Remove comment from UI
+      setEngagement((prev) => {
+        // Check if it's a main comment
+        const mainCommentIndex = prev.comments.items.findIndex(
+          (comment) => comment.id === commentId
+        );
+
+        if (mainCommentIndex !== -1) {
+          // It's a main comment
+          const newItems = prev.comments.items.filter(
+            (comment) => comment.id !== commentId
+          );
+          return {
+            ...prev,
+            comments: {
+              ...prev.comments,
+              items: newItems,
+              count: prev.comments.count - 1,
+            },
+          };
+        } else {
+          // It's a reply, find and remove it from the replies
+          const newItems = prev.comments.items.map((comment) => {
+            if (comment.replies) {
+              const newReplies = comment.replies.filter(
+                (reply) => reply.id !== commentId
+              );
+              return {
+                ...comment,
+                replies: newReplies,
+              };
+            }
+            return comment;
+          });
+
+          return {
+            ...prev,
+            comments: {
+              ...prev.comments,
+              items: newItems,
+              count: prev.comments.count - 1,
+            },
+          };
+        }
+      });
+
+      return true;
+    } catch (error) {
+      console.error("Error deleting comment:", error);
+      throw error;
+    }
+  };
+
   return {
     user,
     loading,
@@ -276,6 +372,7 @@ export function useEngagement(contentType, contentId) {
       toggleFavorite,
       addComment,
       loadMoreComments,
+      deleteComment,
       refreshData: fetchEngagementData,
     },
   };

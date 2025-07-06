@@ -53,7 +53,7 @@
 .card:hover {
   transform: translateY(-2px);
   box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-  border-color: var(--card-color, var(--primary-color));
+  border-color: var(--primary-color, #ee681a);
 }
 
 .cardIcon {
@@ -63,7 +63,7 @@
   width: 60px;
   height: 60px;
   border-radius: 12px;
-  background: var(--card-color, var(--primary-color));
+  background: var(--primary-color, #ee681a);
   color: white;
   flex-shrink: 0;
 }
@@ -83,7 +83,7 @@
   font-size: 24px;
   font-weight: 700;
   margin: 0 0 5px 0;
-  color: var(--card-color, var(--primary-color));
+  color: var(--primary-color, #ee681a);
 }
 
 .cardDescription {
@@ -114,7 +114,54 @@
   );
   border: 1px solid var(--card-border, rgba(255, 255, 255, 0.14));
   color: var(--text-secondary, #aaa);
-  text-align: center;
+}
+
+.activityList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.activityItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.03);
+  transition: background 0.2s ease;
+}
+
+.activityItem:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.activityIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  background: var(--primary-color, #ee681a);
+  color: white;
+  flex-shrink: 0;
+}
+
+.activityContent {
+  flex: 1;
+}
+
+.activityText {
+  margin: 0 0 4px 0;
+  color: var(--text-primary, #fff);
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.activityDate {
+  color: var(--text-secondary, #aaa);
+  font-size: 12px;
 }
 
 .loading {

@@ -1,15 +1,18 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   FaHeart,
   FaThumbsUp,
   FaComment,
   FaRegHeart,
   FaRegThumbsUp,
+  FaTrash,
+  FaEdit,
 } from "react-icons/fa";
 import { FiShare2, FiSend, FiLoader } from "react-icons/fi";
 import { useEngagement } from "@/hooks/useEngagement";
+import ConfirmationModal from "@/components/ConfirmationModal/ConfirmationModal";
 import styles from "./EngagementSection.module.css";
 
 export default function EngagementSection({ contentType, contentId, title }) {
@@ -21,6 +24,31 @@ export default function EngagementSection({ contentType, contentId, title }) {
   const [newComment, setNewComment] = useState("");
   const [replyTo, setReplyTo] = useState(null);
   const [replyText, setReplyText] = useState("");
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [deletingComment, setDeletingComment] = useState(null);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [commentToDelete, setCommentToDelete] = useState(null);
+  const [editingComment, setEditingComment] = useState(null);
+  const [editText, setEditText] = useState("");
+
+  // Check if user is admin
+  useEffect(() => {
+    const checkAdminStatus = async () => {
+      if (!user) return;
+
+      try {
+        const response = await fetch("/api/test-session");
+        const data = await response.json();
+        if (data.user?.role === "admin") {
+          setIsAdmin(true);
+        }
+      } catch (error) {
+        console.error("Error checking admin status:", error);
+      }
+    };
+
+    checkAdminStatus();
+  }, [user]);
 
   const handleShare = () => {
     if (typeof window !== "undefined" && navigator.share) {
@@ -66,26 +94,105 @@ export default function EngagementSection({ contentType, contentId, title }) {
     }
   };
 
+  const confirmDeleteComment = (commentId) => {
+    setCommentToDelete(commentId);
+    setShowDeleteConfirm(true);
+  };
+
+  const handleDeleteComment = async () => {
+    if (!commentToDelete) return;
+
+    setDeletingComment(commentToDelete);
+    setShowDeleteConfirm(false);
+
+    try {
+      await actions.deleteComment(commentToDelete);
+
+      // Show success toast
+      const toast = document.createElement("div");
+      toast.className = styles.toast;
+      toast.textContent = "Comment deleted successfully!";
+      toast.style.background = "#10b981";
+      document.body.appendChild(toast);
+      setTimeout(() => {
+        document.body.removeChild(toast);
+      }, 3000);
+    } catch (error) {
+      console.error("Error deleting comment:", error);
+      alert("Failed to delete comment. Please try again.");
+    } finally {
+      setDeletingComment(null);
+      setCommentToDelete(null);
+    }
+  };
+
+  const startEditing = (comment) => {
+    setEditingComment(comment.id);
+    setEditText(comment.comment);
+  };
+
+  const cancelEditing = () => {
+    setEditingComment(null);
+    setEditText("");
+  };
+
+  const handleEditComment = async (commentId) => {
+    if (!editText.trim()) return;
+
+    try {
+      // For now, we'll delete and recreate the comment
+      // In a real app, you'd have an update endpoint
+      await actions.deleteComment(commentId);
+      await actions.addComment(editText);
+
+      setEditingComment(null);
+      setEditText("");
+
+      // Show success toast
+      const toast = document.createElement("div");
+      toast.className = styles.toast;
+      toast.textContent = "Comment updated successfully!";
+      toast.style.background = "#10b981";
+      document.body.appendChild(toast);
+      setTimeout(() => {
+        document.body.removeChild(toast);
+      }, 3000);
+    } catch (error) {
+      console.error("Error updating comment:", error);
+      alert("Failed to update comment. Please try again.");
+    }
+  };
+
+  const canEditComment = (comment) => {
+    return user && (isAdmin || comment.user_id === user.id);
+  };
+
+  const canDeleteComment = (comment) => {
+    return user && (isAdmin || comment.user_id === user.id);
+  };
+
   const formatDate = (dateString) => {
     const date = new Date(dateString);
     const now = new Date();
-    const diffInMinutes = Math.floor((now - date) / (1000 * 60));
+    const diffInHours = (now - date) / (1000 * 60 * 60);
 
-    if (diffInMinutes < 1) return "Just now";
-    if (diffInMinutes < 60) return `${diffInMinutes}m ago`;
-    if (diffInMinutes < 1440) return `${Math.floor(diffInMinutes / 60)}h ago`;
-    if (diffInMinutes < 43200)
-      return `${Math.floor(diffInMinutes / 1440)}d ago`;
-
-    return date.toLocaleDateString();
+    if (diffInHours < 1) {
+      return "Just now";
+    } else if (diffInHours < 24) {
+      return `${Math.floor(diffInHours)}h ago`;
+    } else if (diffInHours < 168) {
+      return `${Math.floor(diffInHours / 24)}d ago`;
+    } else {
+      return date.toLocaleDateString();
+    }
   };
 
   if (loading) {
     return (
       <div className={styles.container}>
         <div className={styles.loadingBar}>
-          <FiLoader className={styles.spinner} />
-          Loading engagement data...
+          <FiLoader className={styles.spinner} size={20} />
+          <span>Loading engagement...</span>
         </div>
       </div>
     );
@@ -102,11 +209,16 @@ export default function EngagementSection({ contentType, contentId, title }) {
           onClick={actions.toggleLike}
           disabled={engagement.likes.loading}
           title={engagement.likes.userLiked ? "Unlike" : "Like"}
+          style={{
+            color: engagement.likes.userLiked
+              ? "var(--primary-color)"
+              : "inherit",
+          }}
         >
           {engagement.likes.loading ? (
             <FiLoader className={styles.spinner} size={18} />
           ) : engagement.likes.userLiked ? (
-            <FaThumbsUp size={18} />
+            <FaThumbsUp size={18} style={{ fill: "var(--primary-color)" }} />
           ) : (
             <FaRegThumbsUp size={18} />
           )}
@@ -124,11 +236,16 @@ export default function EngagementSection({ contentType, contentId, title }) {
               ? "Remove from favorites"
               : "Add to favorites"
           }
+          style={{
+            color: engagement.favorites.userFavorited
+              ? "var(--primary-color)"
+              : "inherit",
+          }}
         >
           {engagement.favorites.loading ? (
             <FiLoader className={styles.spinner} size={18} />
           ) : engagement.favorites.userFavorited ? (
-            <FaHeart size={18} />
+            <FaHeart size={18} style={{ fill: "var(--primary-color)" }} />
           ) : (
             <FaRegHeart size={18} />
           )}
@@ -193,14 +310,72 @@ export default function EngagementSection({ contentType, contentId, title }) {
             {engagement.comments.items.map((comment) => (
               <div key={comment.id} className={styles.comment}>
                 <div className={styles.commentHeader}>
-                  <span className={styles.commentAuthor}>
-                    {comment.profiles?.email?.split("@")[0] || "Anonymous"}
-                  </span>
-                  <span className={styles.commentDate}>
-                    {formatDate(comment.created_at)}
-                  </span>
+                  <div className={styles.commentInfo}>
+                    <span className={styles.commentAuthor}>
+                      {comment.profiles?.email?.split("@")[0] || "Anonymous"}
+                    </span>
+                    <span className={styles.commentDate}>
+                      {formatDate(comment.created_at)}
+                    </span>
+                  </div>
+                  {/* Action Buttons for Main Comment */}
+                  {(canEditComment(comment) || canDeleteComment(comment)) && (
+                    <div className={styles.commentActions}>
+                      {canEditComment(comment) &&
+                        editingComment !== comment.id && (
+                          <button
+                            onClick={() => startEditing(comment)}
+                            className={styles.editBtn}
+                            title="Edit comment"
+                          >
+                            <FaEdit size={14} />
+                          </button>
+                        )}
+                      {canDeleteComment(comment) && (
+                        <button
+                          onClick={() => confirmDeleteComment(comment.id)}
+                          className={styles.deleteBtn}
+                          title="Delete comment"
+                          disabled={deletingComment === comment.id}
+                        >
+                          {deletingComment === comment.id ? (
+                            <FiLoader className={styles.spinner} size={14} />
+                          ) : (
+                            <FaTrash size={14} />
+                          )}
+                        </button>
+                      )}
+                    </div>
+                  )}
                 </div>
-                <p className={styles.commentText}>{comment.comment}</p>
+
+                {editingComment === comment.id ? (
+                  <div className={styles.editForm}>
+                    <textarea
+                      value={editText}
+                      onChange={(e) => setEditText(e.target.value)}
+                      className={styles.commentInput}
+                      rows="3"
+                    />
+                    <div className={styles.editActions}>
+                      <button
+                        onClick={() => handleEditComment(comment.id)}
+                        disabled={!editText.trim()}
+                        className={styles.saveBtn}
+                      >
+                        Save
+                      </button>
+                      <button
+                        onClick={cancelEditing}
+                        className={styles.cancelBtn}
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <p className={styles.commentText}>{comment.comment}</p>
+                )}
 
                 {/* Reply Button */}
                 {user && (
@@ -247,15 +422,77 @@ export default function EngagementSection({ contentType, contentId, title }) {
                     {comment.replies.map((reply) => (
                       <div key={reply.id} className={styles.reply}>
                         <div className={styles.commentHeader}>
-                          <span className={styles.commentAuthor}>
-                            {reply.profiles?.email?.split("@")[0] ||
-                              "Anonymous"}
-                          </span>
-                          <span className={styles.commentDate}>
-                            {formatDate(reply.created_at)}
-                          </span>
+                          <div className={styles.commentInfo}>
+                            <span className={styles.commentAuthor}>
+                              {reply.profiles?.email?.split("@")[0] ||
+                                "Anonymous"}
+                            </span>
+                            <span className={styles.commentDate}>
+                              {formatDate(reply.created_at)}
+                            </span>
+                          </div>
+                          {/* Action Buttons for Reply */}
+                          {(canEditComment(reply) ||
+                            canDeleteComment(reply)) && (
+                            <div className={styles.commentActions}>
+                              {canEditComment(reply) &&
+                                editingComment !== reply.id && (
+                                  <button
+                                    onClick={() => startEditing(reply)}
+                                    className={styles.editBtn}
+                                    title="Edit reply"
+                                  >
+                                    <FaEdit size={12} />
+                                  </button>
+                                )}
+                              {canDeleteComment(reply) && (
+                                <button
+                                  onClick={() => confirmDeleteComment(reply.id)}
+                                  className={styles.deleteBtn}
+                                  title="Delete reply"
+                                  disabled={deletingComment === reply.id}
+                                >
+                                  {deletingComment === reply.id ? (
+                                    <FiLoader
+                                      className={styles.spinner}
+                                      size={12}
+                                    />
+                                  ) : (
+                                    <FaTrash size={12} />
+                                  )}
+                                </button>
+                              )}
+                            </div>
+                          )}
                         </div>
-                        <p className={styles.commentText}>{reply.comment}</p>
+
+                        {editingComment === reply.id ? (
+                          <div className={styles.editForm}>
+                            <textarea
+                              value={editText}
+                              onChange={(e) => setEditText(e.target.value)}
+                              className={styles.commentInput}
+                              rows="2"
+                            />
+                            <div className={styles.editActions}>
+                              <button
+                                onClick={() => handleEditComment(reply.id)}
+                                disabled={!editText.trim()}
+                                className={styles.saveBtn}
+                              >
+                                Save
+                              </button>
+                              <button
+                                onClick={cancelEditing}
+                                className={styles.cancelBtn}
+                              >
+                                Cancel
+                              </button>
+                            </div>
+                          </div>
+                        ) : (
+                          <p className={styles.commentText}>{reply.comment}</p>
+                        )}
                       </div>
                     ))}
                   </div>
@@ -289,6 +526,18 @@ export default function EngagementSection({ contentType, contentId, title }) {
           </div>
         </div>
       )}
+
+      {/* Delete Confirmation Modal */}
+      <ConfirmationModal
+        isOpen={showDeleteConfirm}
+        onClose={() => setShowDeleteConfirm(false)}
+        onConfirm={handleDeleteComment}
+        title="Delete Comment"
+        message="Are you sure you want to delete this comment? This action cannot be undone."
+        confirmText="Delete"
+        cancelText="Cancel"
+        type="danger"
+      />
     </div>
   );
 }

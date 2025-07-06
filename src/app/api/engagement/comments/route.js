@@ -1,5 +1,17 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { createClient as createAdminClient } from "@supabase/supabase-js";
+
+// Validate environment variables
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+if (!supabaseUrl || !supabaseServiceKey) {
+  throw new Error("Missing required Supabase environment variables");
+}
+
+// Create service role client for admin operations
+const supabaseAdmin = createAdminClient(supabaseUrl, supabaseServiceKey);
 
 export async function POST(request) {
   try {
@@ -178,6 +190,91 @@ export async function GET(request) {
   }
 }
 
+export async function PATCH(request) {
+  try {
+    const supabase = await createClient();
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
+
+    if (!session) {
+      return NextResponse.json(
+        { error: "Authentication required" },
+        { status: 401 }
+      );
+    }
+
+    const { searchParams } = new URL(request.url);
+    const commentId = searchParams.get("id");
+    const body = await request.json();
+    const { is_approved } = body;
+
+    console.log("PATCH request - Comment ID:", commentId);
+    console.log("PATCH request - User ID:", session.user.id);
+    console.log("PATCH request - is_approved:", is_approved);
+
+    if (!commentId) {
+      return NextResponse.json(
+        { error: "Comment ID is required" },
+        { status: 400 }
+      );
+    }
+
+    if (typeof is_approved !== "boolean") {
+      return NextResponse.json(
+        { error: "is_approved must be a boolean" },
+        { status: 400 }
+      );
+    }
+
+    // Check if user is admin
+    const { data: profile, error: profileError } = await supabase
+      .from("profiles")
+      .select("role")
+      .eq("id", session.user.id)
+      .single();
+
+    console.log("Profile lookup:", { profile, profileError });
+
+    const isAdmin = profile?.role === "admin";
+    console.log("Is admin:", isAdmin);
+
+    if (!isAdmin) {
+      return NextResponse.json(
+        { error: "Forbidden - Admin only" },
+        { status: 403 }
+      );
+    }
+
+    // Use service role client for admin operations to bypass RLS
+    console.log("Using admin client for approval/rejection...");
+    const { data, error } = await supabaseAdmin
+      .from("user_comments")
+      .update({ is_approved })
+      .eq("id", commentId)
+      .select();
+
+    console.log("Update result:", { data, error });
+
+    if (error) {
+      console.error("Update error:", error);
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+
+    console.log("Comment updated successfully by admin");
+    return NextResponse.json({
+      message: `Comment ${is_approved ? "approved" : "rejected"} successfully`,
+      comment: data[0],
+    });
+  } catch (error) {
+    console.error("PATCH endpoint error:", error);
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 }
+    );
+  }
+}
+
 export async function DELETE(request) {
   try {
     const supabase = await createClient();
@@ -195,6 +292,9 @@ export async function DELETE(request) {
     const { searchParams } = new URL(request.url);
     const commentId = searchParams.get("id");
 
+    console.log("DELETE request - Comment ID:", commentId);
+    console.log("DELETE request - User ID:", session.user.id);
+
     if (!commentId) {
       return NextResponse.json(
         { error: "Comment ID is required" },
@@ -202,19 +302,58 @@ export async function DELETE(request) {
       );
     }
 
-    // Delete the comment (only if user owns it)
-    const { error } = await supabase
-      .from("user_comments")
-      .delete()
-      .eq("id", commentId)
-      .eq("user_id", session.user.id);
+    // Check if user is admin
+    const { data: profile, error: profileError } = await supabase
+      .from("profiles")
+      .select("role")
+      .eq("id", session.user.id)
+      .single();
 
-    if (error) {
-      return NextResponse.json({ error: error.message }, { status: 500 });
+    console.log("Profile lookup:", { profile, profileError });
+
+    const isAdmin = profile?.role === "admin";
+    console.log("Is admin:", isAdmin);
+
+    // Use service role client for admin operations to bypass RLS
+    if (isAdmin) {
+      console.log("Using admin client for deletion...");
+      const { data, error } = await supabaseAdmin
+        .from("user_comments")
+        .delete()
+        .eq("id", commentId)
+        .select();
+
+      console.log("Admin delete result:", { data, error });
+
+      if (error) {
+        console.error("Admin delete error:", error);
+        return NextResponse.json({ error: error.message }, { status: 500 });
+      }
+
+      console.log("Comment deleted successfully by admin");
+      return NextResponse.json({ message: "Comment deleted successfully" });
+    } else {
+      // Regular user - use regular client with user_id restriction
+      console.log("Using regular client for user deletion...");
+      const { data, error } = await supabase
+        .from("user_comments")
+        .delete()
+        .eq("id", commentId)
+        .eq("user_id", session.user.id)
+        .select();
+
+      console.log("User delete result:", { data, error });
+
+      if (error) {
+        console.error("User delete error:", error);
+        return NextResponse.json({ error: error.message }, { status: 500 });
+      }
+
+      console.log("Comment deleted successfully by user");
+      return NextResponse.json({ message: "Comment deleted successfully" });
     }
-
-    return NextResponse.json({ message: "Comment deleted successfully" });
   } catch (error) {
+    console.error("DELETE endpoint error:", error);
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }

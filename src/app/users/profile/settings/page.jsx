@@ -148,7 +148,9 @@ export default function SettingsPage() {
               <div className={styles.readOnlyField}>
                 {user?.email || "No email available"}
               </div>
-              <small className={styles.fieldNote}>Email cannot be changed here</small>
+              <small className={styles.fieldNote}>
+                Email cannot be changed here
+              </small>
             </div>
 
             <div className={styles.formGroup}>

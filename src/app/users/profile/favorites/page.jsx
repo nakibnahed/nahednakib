@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/services/supabaseClient";
 import UserLayout from "@/components/User/Layout/UserLayout";
+import ConfirmationModal from "@/components/ConfirmationModal/ConfirmationModal";
 import styles from "../Profile.module.css";
 
 export default function FavoritesPage() {
@@ -11,6 +12,8 @@ export default function FavoritesPage() {
   const [profileData, setProfileData] = useState(null);
   const [favorites, setFavorites] = useState([]);
   const [error, setError] = useState(null);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [favoriteToDelete, setFavoriteToDelete] = useState(null);
   const router = useRouter();
 
   useEffect(() => {
@@ -69,25 +72,32 @@ export default function FavoritesPage() {
     loadUserData();
   }, [router]);
 
-  const handleRemoveFavorite = async (favoriteId) => {
-    if (!confirm("Are you sure you want to remove this from favorites?"))
-      return;
+  const confirmRemoveFavorite = (favoriteId) => {
+    setFavoriteToDelete(favoriteId);
+    setShowDeleteConfirm(true);
+  };
+
+  const handleRemoveFavorite = async () => {
+    if (!favoriteToDelete) return;
 
     try {
       const { error } = await supabase
         .from("user_favorites")
         .delete()
-        .eq("id", favoriteId);
+        .eq("id", favoriteToDelete);
 
       if (error) {
         console.error("Error removing favorite:", error);
         alert("Failed to remove favorite");
       } else {
-        setFavorites(favorites.filter((fav) => fav.id !== favoriteId));
+        setFavorites(favorites.filter((fav) => fav.id !== favoriteToDelete));
       }
     } catch (err) {
       console.error("Error removing favorite:", err);
       alert("An error occurred while removing the favorite");
+    } finally {
+      setShowDeleteConfirm(false);
+      setFavoriteToDelete(null);
     }
   };
 
@@ -153,7 +163,7 @@ export default function FavoritesPage() {
                     </span>
                   </div>
                   <button
-                    onClick={() => handleRemoveFavorite(favorite.id)}
+                    onClick={() => confirmRemoveFavorite(favorite.id)}
                     className={styles.removeButton}
                   >
                     Remove
@@ -189,6 +199,18 @@ export default function FavoritesPage() {
             ))}
           </div>
         )}
+
+        {/* Delete Confirmation Modal */}
+        <ConfirmationModal
+          isOpen={showDeleteConfirm}
+          onClose={() => setShowDeleteConfirm(false)}
+          onConfirm={handleRemoveFavorite}
+          title="Remove from Favorites"
+          message="Are you sure you want to remove this from your favorites?"
+          confirmText="Remove"
+          cancelText="Cancel"
+          type="warning"
+        />
       </div>
     </UserLayout>
   );

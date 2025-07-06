@@ -1,6 +1,6 @@
 "use client";
 
-import { useRouter, usePathname } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { supabase } from "@/services/supabaseClient";
 import styles from "./UserSidebar.module.css";
 import {
@@ -12,34 +12,38 @@ import {
   LogOut,
 } from "lucide-react";
 
-export default function UserSidebar({ user, profileData }) {
+export default function UserSidebar({
+  user,
+  profileData,
+  activeTab,
+  setActiveTab,
+}) {
   const router = useRouter();
-  const pathname = usePathname();
 
   const navItems = [
     {
+      key: "dashboard",
       label: "Dashboard",
-      path: "/users/profile",
       icon: <User size={18} />,
     },
     {
+      key: "comments",
       label: "My Comments",
-      path: "/users/profile/comments",
       icon: <MessageCircle size={18} />,
     },
     {
+      key: "likes",
       label: "Liked Posts",
-      path: "/users/profile/likes",
       icon: <Heart size={18} />,
     },
     {
+      key: "favorites",
       label: "Favorites",
-      path: "/users/profile/favorites",
       icon: <Star size={18} />,
     },
     {
+      key: "settings",
       label: "Settings",
-      path: "/users/profile/settings",
       icon: <Settings size={18} />,
     },
   ];
@@ -80,11 +84,11 @@ export default function UserSidebar({ user, profileData }) {
         <ul className={styles.menu}>
           {navItems.map((item) => (
             <li
-              key={item.path}
+              key={item.key}
               className={`${styles.menuItem} ${
-                pathname === item.path ? styles.active : ""
+                activeTab === item.key ? styles.active : ""
               }`}
-              onClick={() => router.push(item.path)}
+              onClick={() => setActiveTab(item.key)}
             >
               <span className={styles.menuItemContent}>
                 {item.icon}

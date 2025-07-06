@@ -3,23 +3,16 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/services/supabaseClient";
 import styles from "./UserDashboard.module.css";
-import {
-  User,
-  Heart,
-  MessageCircle,
-  Star,
-  Activity,
-  Edit,
-  Settings,
-} from "lucide-react";
+import { MessageCircle, Heart, Star, Activity } from "lucide-react";
 
-export default function UserDashboard({ user, profileData }) {
+export default function UserDashboard({ user, profileData, setActiveTab }) {
   const [stats, setStats] = useState({
     comments: 0,
     likes: 0,
     favorites: 0,
     activities: 0,
   });
+  const [recentActivities, setRecentActivities] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -39,7 +32,7 @@ export default function UserDashboard({ user, profileData }) {
           .select("*", { count: "exact", head: true })
           .eq("user_id", user.id);
 
-        // Fetch user favorites count (assuming we have a favorites table)
+        // Fetch user favorites count
         const { count: favoritesCount } = await supabase
           .from("user_favorites")
           .select("*", { count: "exact", head: true })
@@ -62,57 +55,268 @@ export default function UserDashboard({ user, profileData }) {
       }
     }
 
+    async function fetchRecentActivities() {
+      if (!user?.id) return;
+
+      try {
+        // Fetch recent comments
+        const { data: recentComments } = await supabase
+          .from("user_comments")
+          .select("*")
+          .eq("user_id", user.id)
+          .order("created_at", { ascending: false })
+          .limit(3);
+
+        // Fetch recent likes
+        const { data: recentLikes } = await supabase
+          .from("user_likes")
+          .select("*")
+          .eq("user_id", user.id)
+          .order("created_at", { ascending: false })
+          .limit(3);
+
+        // Fetch recent favorites
+        const { data: recentFavorites } = await supabase
+          .from("user_favorites")
+          .select("*")
+          .eq("user_id", user.id)
+          .order("created_at", { ascending: false })
+          .limit(3);
+
+        // Fetch post details for activities
+        const activitiesWithPostDetails = await Promise.all([
+          ...(recentComments || []).map(async (comment) => {
+            try {
+              if (comment.content_type === "blog") {
+                const { data: blogPost } = await supabase
+                  .from("blogs")
+                  .select("title")
+                  .eq("id", comment.content_id)
+                  .single();
+                return {
+                  ...comment,
+                  type: "comment",
+                  icon: <MessageCircle size={16} />,
+                  text: `Commented on "${
+                    blogPost?.title || "Unknown Blog Post"
+                  }"`,
+                  date: comment.created_at,
+                };
+              } else if (comment.content_type === "portfolio") {
+                const { data: portfolioItem } = await supabase
+                  .from("portfolios")
+                  .select("title")
+                  .eq("id", comment.content_id)
+                  .single();
+                return {
+                  ...comment,
+                  type: "comment",
+                  icon: <MessageCircle size={16} />,
+                  text: `Commented on "${
+                    portfolioItem?.title || "Unknown Portfolio Item"
+                  }"`,
+                  date: comment.created_at,
+                };
+              }
+              return {
+                ...comment,
+                type: "comment",
+                icon: <MessageCircle size={16} />,
+                text: `Commented on ${
+                  comment.content_type === "blog"
+                    ? "blog post"
+                    : "portfolio item"
+                }`,
+                date: comment.created_at,
+              };
+            } catch (err) {
+              return {
+                ...comment,
+                type: "comment",
+                icon: <MessageCircle size={16} />,
+                text: `Commented on ${
+                  comment.content_type === "blog"
+                    ? "blog post"
+                    : "portfolio item"
+                }`,
+                date: comment.created_at,
+              };
+            }
+          }),
+          ...(recentLikes || []).map(async (like) => {
+            try {
+              if (like.content_type === "blog") {
+                const { data: blogPost } = await supabase
+                  .from("blogs")
+                  .select("title")
+                  .eq("id", like.content_id)
+                  .single();
+                return {
+                  ...like,
+                  type: "like",
+                  icon: <Heart size={16} />,
+                  text: `Liked "${blogPost?.title || "Unknown Blog Post"}"`,
+                  date: like.created_at,
+                };
+              } else if (like.content_type === "portfolio") {
+                const { data: portfolioItem } = await supabase
+                  .from("portfolios")
+                  .select("title")
+                  .eq("id", like.content_id)
+                  .single();
+                return {
+                  ...like,
+                  type: "like",
+                  icon: <Heart size={16} />,
+                  text: `Liked "${
+                    portfolioItem?.title || "Unknown Portfolio Item"
+                  }"`,
+                  date: like.created_at,
+                };
+              }
+              return {
+                ...like,
+                type: "like",
+                icon: <Heart size={16} />,
+                text: `Liked ${
+                  like.content_type === "blog" ? "blog post" : "portfolio item"
+                }`,
+                date: like.created_at,
+              };
+            } catch (err) {
+              return {
+                ...like,
+                type: "like",
+                icon: <Heart size={16} />,
+                text: `Liked ${
+                  like.content_type === "blog" ? "blog post" : "portfolio item"
+                }`,
+                date: like.created_at,
+              };
+            }
+          }),
+          ...(recentFavorites || []).map(async (favorite) => {
+            try {
+              if (favorite.content_type === "blog") {
+                const { data: blogPost } = await supabase
+                  .from("blogs")
+                  .select("title")
+                  .eq("id", favorite.content_id)
+                  .single();
+                return {
+                  ...favorite,
+                  type: "favorite",
+                  icon: <Star size={16} />,
+                  text: `Favorited "${blogPost?.title || "Unknown Blog Post"}"`,
+                  date: favorite.created_at,
+                };
+              } else if (favorite.content_type === "portfolio") {
+                const { data: portfolioItem } = await supabase
+                  .from("portfolios")
+                  .select("title")
+                  .eq("id", favorite.content_id)
+                  .single();
+                return {
+                  ...favorite,
+                  type: "favorite",
+                  icon: <Star size={16} />,
+                  text: `Favorited "${
+                    portfolioItem?.title || "Unknown Portfolio Item"
+                  }"`,
+                  date: favorite.created_at,
+                };
+              }
+              return {
+                ...favorite,
+                type: "favorite",
+                icon: <Star size={16} />,
+                text: `Favorited ${
+                  favorite.content_type === "blog"
+                    ? "blog post"
+                    : "portfolio item"
+                }`,
+                date: favorite.created_at,
+              };
+            } catch (err) {
+              return {
+                ...favorite,
+                type: "favorite",
+                icon: <Star size={16} />,
+                text: `Favorited ${
+                  favorite.content_type === "blog"
+                    ? "blog post"
+                    : "portfolio item"
+                }`,
+                date: favorite.created_at,
+              };
+            }
+          }),
+        ]);
+
+        // Flatten and sort all activities
+        const allActivities = activitiesWithPostDetails
+          .flat()
+          .sort((a, b) => new Date(b.date) - new Date(a.date))
+          .slice(0, 5); // Show only the 5 most recent activities
+
+        setRecentActivities(allActivities);
+      } catch (error) {
+        console.error("Error fetching recent activities:", error);
+      }
+    }
+
     fetchUserStats();
+    fetchRecentActivities();
   }, [user]);
 
+  // Get user's display name
+  const getUserDisplayName = () => {
+    if (profileData?.first_name || profileData?.last_name) {
+      const firstName = profileData?.first_name || "";
+      const lastName = profileData?.last_name || "";
+      return `${firstName} ${lastName}`.trim();
+    }
+    return profileData?.full_name || "User";
+  };
+
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffInHours = Math.floor((now - date) / (1000 * 60 * 60));
+
+    if (diffInHours < 1) return "Just now";
+    if (diffInHours < 24) return `${diffInHours}h ago`;
+    if (diffInHours < 48) return "Yesterday";
+    return date.toLocaleDateString();
+  };
+
+  const handleCardClick = (tabName) => {
+    if (setActiveTab) {
+      setActiveTab(tabName);
+    }
+  };
+
   const dashboardCards = [
-    {
-      title: "Profile",
-      icon: <User size={24} />,
-      count: "Complete",
-      description: "View and edit your profile information",
-      path: "/users/profile/edit",
-      color: "#4CAF50",
-    },
     {
       title: "My Comments",
       icon: <MessageCircle size={24} />,
       count: stats.comments,
       description: "View all your comments on posts",
-      path: "/users/profile/comments",
-      color: "#2196F3",
+      tab: "comments",
     },
     {
       title: "Liked Posts",
       icon: <Heart size={24} />,
       count: stats.likes,
       description: "Posts you've liked",
-      path: "/users/profile/likes",
-      color: "#E91E63",
+      tab: "likes",
     },
     {
       title: "Favorites",
       icon: <Star size={24} />,
       count: stats.favorites,
       description: "Your favorite posts and content",
-      path: "/users/profile/favorites",
-      color: "#FF9800",
-    },
-    {
-      title: "Activity",
-      icon: <Activity size={24} />,
-      count: stats.activities,
-      description: "Your recent activity summary",
-      path: "/users/profile/activity",
-      color: "#9C27B0",
-    },
-    {
-      title: "Settings",
-      icon: <Settings size={24} />,
-      count: "Manage",
-      description: "Account settings and preferences",
-      path: "/users/profile/settings",
-      color: "#607D8B",
+      tab: "favorites",
     },
   ];
 
@@ -127,13 +331,7 @@ export default function UserDashboard({ user, profileData }) {
   return (
     <div className={styles.container}>
       <div className={styles.header}>
-        <h1 className={styles.title}>
-          Welcome back,{" "}
-          {profileData?.first_name || profileData?.last_name
-            ? profileData?.first_name || "User"
-            : profileData?.full_name?.split(" ")[0] || "User"}
-          !
-        </h1>
+        <h1 className={styles.title}>Welcome back, {getUserDisplayName()}!</h1>
         <p className={styles.subtitle}>
           Here's an overview of your account activity
         </p>
@@ -144,8 +342,7 @@ export default function UserDashboard({ user, profileData }) {
           <div
             key={card.title}
             className={styles.card}
-            onClick={() => (window.location.href = card.path)}
-            style={{ "--card-color": card.color }}
+            onClick={() => handleCardClick(card.tab)}
           >
             <div className={styles.cardIcon}>{card.icon}</div>
             <div className={styles.cardContent}>
@@ -160,7 +357,29 @@ export default function UserDashboard({ user, profileData }) {
       <div className={styles.recentActivity}>
         <h2>Recent Activity</h2>
         <div className={styles.activityCard}>
-          <p>Your recent interactions and engagement will appear here.</p>
+          {recentActivities.length === 0 ? (
+            <p>
+              No recent activity. Start engaging with posts to see your activity
+              here!
+            </p>
+          ) : (
+            <div className={styles.activityList}>
+              {recentActivities.map((activity, index) => (
+                <div
+                  key={`${activity.type}-${activity.id}-${index}`}
+                  className={styles.activityItem}
+                >
+                  <div className={styles.activityIcon}>{activity.icon}</div>
+                  <div className={styles.activityContent}>
+                    <p className={styles.activityText}>{activity.text}</p>
+                    <span className={styles.activityDate}>
+                      {formatDate(activity.date)}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </div>

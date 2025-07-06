@@ -34,29 +34,41 @@ export default function NewPortfolioPage() {
     let imageUrl = "";
 
     if (formData.imageFile) {
-      const fileExt = formData.imageFile.name.split(".").pop();
-      const fileName = `${Date.now()}.${fileExt}`;
-      const filePath = fileName;
+      try {
+        const fileExt = formData.imageFile.name.split(".").pop();
+        const fileName = `${Date.now()}.${fileExt}`;
+        const filePath = fileName;
 
-      const { error: uploadError } = await supabase.storage
-        .from("portfolio-images")
-        .upload(filePath, formData.imageFile, {
-          cacheControl: "3600",
-          upsert: false,
-          contentType: formData.imageFile.type, // important!
-        });
+        const { error: uploadError } = await supabase.storage
+          .from("portfolio-images")
+          .upload(filePath, formData.imageFile, {
+            cacheControl: "3600",
+            upsert: false,
+            contentType: formData.imageFile.type, // important!
+          });
 
-      if (uploadError) {
+        if (uploadError) {
+          setErrorMsg("Image upload failed: " + uploadError.message);
+          setLoading(false);
+          return;
+        }
+
+        const { data: publicData, error: urlError } = supabase.storage
+          .from("portfolio-images")
+          .getPublicUrl(filePath);
+
+        if (urlError) {
+          setErrorMsg("Failed to get image URL: " + urlError.message);
+          setLoading(false);
+          return;
+        }
+
+        imageUrl = publicData.publicUrl;
+      } catch (uploadError) {
         setErrorMsg("Image upload failed: " + uploadError.message);
         setLoading(false);
         return;
       }
-
-      const { data: publicData } = supabase.storage
-        .from("portfolio-images")
-        .getPublicUrl(filePath);
-
-      imageUrl = publicData.publicUrl;
     }
 
     const createdDate = new Date().toLocaleString();

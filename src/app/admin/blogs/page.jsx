@@ -4,14 +4,14 @@ import styles from "./BlogsList.module.css";
 import { useEffect, useState, useMemo } from "react";
 import Link from "next/link";
 import { supabase } from "@/services/supabaseClient";
-import ConfirmModal from "@/components/Admin/WarmingPop/WarmingPop"; // adjust path if needed
+import ConfirmationModal from "@/components/ConfirmationModal/ConfirmationModal";
 import { Edit, Trash2 } from "lucide-react";
 
 export default function BlogListPage() {
   const [blogs, setBlogs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [blogToDelete, setBlogToDelete] = useState(null);
 
   useEffect(() => {
@@ -34,17 +34,12 @@ export default function BlogListPage() {
     setLoading(false);
   }
 
-  function openDeleteModal(blog) {
+  function confirmDelete(blog) {
     setBlogToDelete(blog);
-    setIsModalOpen(true);
+    setShowDeleteConfirm(true);
   }
 
-  function closeDeleteModal() {
-    setBlogToDelete(null);
-    setIsModalOpen(false);
-  }
-
-  async function handleConfirmDelete() {
+  async function handleDelete() {
     if (!blogToDelete) return;
 
     setLoading(true);
@@ -59,7 +54,8 @@ export default function BlogListPage() {
       setBlogs((prev) => prev.filter((b) => b.id !== blogToDelete.id));
     }
     setLoading(false);
-    closeDeleteModal();
+    setShowDeleteConfirm(false);
+    setBlogToDelete(null);
   }
 
   const filteredBlogs = useMemo(() => {
@@ -143,7 +139,7 @@ export default function BlogListPage() {
                       </Link>
                       <button
                         className={styles.deleteButton}
-                        onClick={() => openDeleteModal(blog)}
+                        onClick={() => confirmDelete(blog)}
                         type="button"
                         title="Delete blog"
                       >
@@ -158,12 +154,16 @@ export default function BlogListPage() {
         </div>
       )}
 
-      {/* Confirm Modal Popup */}
-      <ConfirmModal
-        isOpen={isModalOpen}
-        message="Are you sure you want to delete this Blog?"
-        onCancel={closeDeleteModal}
-        onConfirm={handleConfirmDelete}
+      {/* Delete Confirmation Modal */}
+      <ConfirmationModal
+        isOpen={showDeleteConfirm}
+        onClose={() => setShowDeleteConfirm(false)}
+        onConfirm={handleDelete}
+        title="Delete Blog"
+        message="Are you sure you want to delete this blog? This action cannot be undone."
+        confirmText="Delete"
+        cancelText="Cancel"
+        type="danger"
       />
     </div>
   );

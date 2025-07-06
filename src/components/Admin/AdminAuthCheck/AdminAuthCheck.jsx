@@ -9,15 +9,33 @@ export default function AdminAuthCheck({ children }) {
   const router = useRouter();
 
   useEffect(() => {
-    const checkAuth = () => {
+    const checkAuth = async () => {
       const supabase = createClient();
-      supabase.auth.getSession().then(({ data: { session } }) => {
-        if (session?.user) {
-          setLoading(false);
-        } else {
+      try {
+        const { data: { session }, error } = await supabase.auth.getSession();
+        
+        if (error || !session?.user) {
           router.push("/login");
+          return;
         }
-      });
+
+        // Check if user has admin role
+        const { data: profile, error: profileError } = await supabase
+          .from("profiles")
+          .select("role")
+          .eq("id", session.user.id)
+          .single();
+
+        if (profileError || profile?.role !== "admin") {
+          router.push("/login");
+          return;
+        }
+
+        setLoading(false);
+      } catch (error) {
+        console.error("Admin auth check error:", error);
+        router.push("/login");
+      }
     };
 
     checkAuth();

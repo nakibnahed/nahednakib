@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/services/supabaseClient";
 import UserLayout from "@/components/User/Layout/UserLayout";
+import ConfirmationModal from "@/components/ConfirmationModal/ConfirmationModal";
 import styles from "../Profile.module.css";
 
 export default function CommentsPage() {
@@ -11,6 +12,8 @@ export default function CommentsPage() {
   const [profileData, setProfileData] = useState(null);
   const [comments, setComments] = useState([]);
   const [error, setError] = useState(null);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [commentToDelete, setCommentToDelete] = useState(null);
   const router = useRouter();
 
   useEffect(() => {
@@ -69,24 +72,34 @@ export default function CommentsPage() {
     loadUserData();
   }, [router]);
 
-  const handleDeleteComment = async (commentId) => {
-    if (!confirm("Are you sure you want to delete this comment?")) return;
+  const confirmDelete = (commentId) => {
+    setCommentToDelete(commentId);
+    setShowDeleteConfirm(true);
+  };
+
+  const handleDeleteComment = async () => {
+    if (!commentToDelete) return;
 
     try {
       const { error } = await supabase
         .from("user_comments")
         .delete()
-        .eq("id", commentId);
+        .eq("id", commentToDelete);
 
       if (error) {
         console.error("Error deleting comment:", error);
         alert("Failed to delete comment");
       } else {
-        setComments(comments.filter((comment) => comment.id !== commentId));
+        setComments(
+          comments.filter((comment) => comment.id !== commentToDelete)
+        );
       }
     } catch (err) {
       console.error("Error deleting comment:", err);
       alert("An error occurred while deleting the comment");
+    } finally {
+      setShowDeleteConfirm(false);
+      setCommentToDelete(null);
     }
   };
 
@@ -151,7 +164,7 @@ export default function CommentsPage() {
                     </span>
                   </div>
                   <button
-                    onClick={() => handleDeleteComment(comment.id)}
+                    onClick={() => confirmDelete(comment.id)}
                     className={styles.deleteButton}
                   >
                     Delete
@@ -181,6 +194,18 @@ export default function CommentsPage() {
             ))}
           </div>
         )}
+
+        {/* Delete Confirmation Modal */}
+        <ConfirmationModal
+          isOpen={showDeleteConfirm}
+          onClose={() => setShowDeleteConfirm(false)}
+          onConfirm={handleDeleteComment}
+          title="Delete Comment"
+          message="Are you sure you want to delete this comment? This action cannot be undone."
+          confirmText="Delete"
+          cancelText="Cancel"
+          type="danger"
+        />
       </div>
     </UserLayout>
   );

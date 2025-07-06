@@ -116,9 +116,5 @@ export default function ProfilePage() {
     );
   }
 
-  return (
-    <UserLayout user={user} profileData={profileData}>
-      <UserDashboard user={user} profileData={profileData} />
-    </UserLayout>
-  );
+  return <UserLayout user={user} profileData={profileData} />;
 }

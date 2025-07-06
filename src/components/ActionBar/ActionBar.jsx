@@ -42,9 +42,14 @@ export default function ActionBar({ title, contentType, contentId }) {
         onClick={actions.toggleLike}
         disabled={engagement.likes.loading}
         title="Like"
+        style={{
+          color: engagement.likes.userLiked
+            ? "var(--primary-color)"
+            : "inherit",
+        }}
       >
         {engagement.likes.userLiked ? (
-          <FaThumbsUp size={16} />
+          <FaThumbsUp size={16} style={{ fill: "var(--primary-color)" }} />
         ) : (
           <FaRegThumbsUp size={16} />
         )}
@@ -58,9 +63,14 @@ export default function ActionBar({ title, contentType, contentId }) {
         onClick={actions.toggleFavorite}
         disabled={engagement.favorites.loading}
         title="Favorite"
+        style={{
+          color: engagement.favorites.userFavorited
+            ? "var(--primary-color)"
+            : "inherit",
+        }}
       >
         {engagement.favorites.userFavorited ? (
-          <FaHeart size={16} />
+          <FaHeart size={16} style={{ fill: "var(--primary-color)" }} />
         ) : (
           <FaRegHeart size={16} />
         )}

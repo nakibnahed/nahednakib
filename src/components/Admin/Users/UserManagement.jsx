@@ -3,6 +3,7 @@
 import { useState, useEffect, useMemo } from "react";
 import styles from "./UserManagement.module.css";
 import { Edit, Trash2, User, Shield, Eye } from "lucide-react";
+import ConfirmationModal from "@/components/ConfirmationModal/ConfirmationModal";
 
 export default function UserManagement() {
   const [users, setUsers] = useState([]);
@@ -10,6 +11,8 @@ export default function UserManagement() {
   const [editingUser, setEditingUser] = useState(null);
   const [newRole, setNewRole] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [userToDelete, setUserToDelete] = useState(null);
 
   useEffect(() => {
     fetchUsers();
@@ -51,14 +54,13 @@ export default function UserManagement() {
     }
   };
 
-  const handleDeleteUser = async (userId) => {
-    if (
-      !confirm(
-        "Are you sure you want to delete this user? This action cannot be undone."
-      )
-    ) {
-      return;
-    }
+  const confirmDeleteUser = (userId) => {
+    setUserToDelete(userId);
+    setShowDeleteConfirm(true);
+  };
+
+  const handleDeleteUser = async () => {
+    if (!userToDelete) return;
 
     try {
       const response = await fetch("/api/admin/users", {
@@ -66,13 +68,13 @@ export default function UserManagement() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ userId }),
+        body: JSON.stringify({ userId: userToDelete }),
       });
 
       const data = await response.json();
 
       if (response.ok) {
-        setUsers(users.filter((user) => user.id !== userId));
+        setUsers(users.filter((user) => user.id !== userToDelete));
         alert("User deleted successfully");
       } else {
         alert(`Error: ${data.error}`);
@@ -80,6 +82,9 @@ export default function UserManagement() {
     } catch (error) {
       console.error("Error:", error);
       alert("Failed to delete user");
+    } finally {
+      setShowDeleteConfirm(false);
+      setUserToDelete(null);
     }
   };
 
@@ -214,7 +219,7 @@ export default function UserManagement() {
                         <Edit size={16} />
                       </button>
                       <button
-                        onClick={() => handleDeleteUser(user.id)}
+                        onClick={() => confirmDeleteUser(user.id)}
                         className={styles.deleteBtn}
                         title="Delete user"
                       >
@@ -240,6 +245,18 @@ export default function UserManagement() {
           </div>
         ) : null}
       </div>
+
+      {/* Delete Confirmation Modal */}
+      <ConfirmationModal
+        isOpen={showDeleteConfirm}
+        onClose={() => setShowDeleteConfirm(false)}
+        onConfirm={handleDeleteUser}
+        title="Delete User"
+        message="Are you sure you want to delete this user? This action cannot be undone."
+        confirmText="Delete"
+        cancelText="Cancel"
+        type="danger"
+      />
     </div>
   );
 }

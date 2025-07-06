@@ -4,14 +4,14 @@ import styles from "./PortfolioList.module.css";
 import { useEffect, useState, useMemo } from "react";
 import Link from "next/link";
 import { supabase } from "@/services/supabaseClient";
-import ConfirmModal from "@/components/Admin/WarmingPop/WarmingPop"; // adjust path if needed
+import ConfirmationModal from "@/components/ConfirmationModal/ConfirmationModal";
 import { Edit, Trash2 } from "lucide-react";
 
 export default function PortfolioListPage() {
   const [portfolios, setPortfolios] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [portfolioToDelete, setPortfolioToDelete] = useState(null);
 
   useEffect(() => {
@@ -34,17 +34,12 @@ export default function PortfolioListPage() {
     setLoading(false);
   }
 
-  function openDeleteModal(portfolio) {
+  function confirmDelete(portfolio) {
     setPortfolioToDelete(portfolio);
-    setIsModalOpen(true);
+    setShowDeleteConfirm(true);
   }
 
-  function closeDeleteModal() {
-    setPortfolioToDelete(null);
-    setIsModalOpen(false);
-  }
-
-  async function handleConfirmDelete() {
+  async function handleDelete() {
     if (!portfolioToDelete) return;
 
     setLoading(true);
@@ -61,7 +56,8 @@ export default function PortfolioListPage() {
       );
     }
     setLoading(false);
-    closeDeleteModal();
+    setShowDeleteConfirm(false);
+    setPortfolioToDelete(null);
   }
 
   const filteredPortfolios = useMemo(() => {
@@ -145,7 +141,7 @@ export default function PortfolioListPage() {
                       </Link>
                       <button
                         className={styles.deleteButton}
-                        onClick={() => openDeleteModal(portfolio)}
+                        onClick={() => confirmDelete(portfolio)}
                         type="button"
                         title="Delete portfolio"
                       >
@@ -160,12 +156,16 @@ export default function PortfolioListPage() {
         </div>
       )}
 
-      {/* Confirm Modal Popup */}
-      <ConfirmModal
-        isOpen={isModalOpen}
-        message="Are you sure you want to delete this Portfolio?"
-        onCancel={closeDeleteModal}
-        onConfirm={handleConfirmDelete}
+      {/* Delete Confirmation Modal */}
+      <ConfirmationModal
+        isOpen={showDeleteConfirm}
+        onClose={() => setShowDeleteConfirm(false)}
+        onConfirm={handleDelete}
+        title="Delete Portfolio"
+        message="Are you sure you want to delete this portfolio? This action cannot be undone."
+        confirmText="Delete"
+        cancelText="Cancel"
+        type="danger"
       />
     </div>
   );
