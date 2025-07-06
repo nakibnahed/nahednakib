@@ -59,38 +59,46 @@ export async function POST(request) {
   }
 }
 
-export async function GET(request) {
+export async function GET() {
   try {
     const supabase = await createClient();
-
-    // Get the authenticated user
     const {
-      data: { user },
-      error: userError,
-    } = await supabase.auth.getUser();
+      data: { session },
+      error: sessionError,
+    } = await supabase.auth.getSession();
 
-    if (userError || !user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
-    // Get the user's profile
-    const { data, error } = await supabase
-      .from("profiles")
-      .select("*")
-      .eq("id", user.id)
-      .single();
-
-    if (error) {
-      console.error("Profile fetch error:", error);
+    if (!session?.user) {
       return NextResponse.json(
-        { error: "Failed to fetch profile: " + error.message },
-        { status: 400 }
+        { error: "Authentication required" },
+        { status: 401 }
       );
     }
 
-    return NextResponse.json({ data });
+    // Get user profile
+    const { data: profile, error: profileError } = await supabase
+      .from("profiles")
+      .select("*")
+      .eq("id", session.user.id)
+      .single();
+
+    if (profileError) {
+      console.error("Error fetching profile:", profileError);
+      return NextResponse.json(
+        { error: "Failed to fetch profile" },
+        { status: 500 }
+      );
+    }
+
+    return NextResponse.json({
+      user: {
+        id: session.user.id,
+        email: session.user.email,
+        role: profile?.role || "user",
+      },
+      profile,
+    });
   } catch (error) {
-    console.error("API error:", error);
+    console.error("Error in profile API:", error);
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }

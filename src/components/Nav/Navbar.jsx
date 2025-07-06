@@ -8,6 +8,7 @@ import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { User, Menu, X } from "lucide-react";
 import { useRouter } from "next/navigation";
+import NotificationIcon from "../NotificationIcon/NotificationIcon";
 
 const navLinks = [
   { id: 1, url: "/about", title: "About" },
@@ -126,8 +127,9 @@ export default function Navbar() {
           </div>
         </nav>
 
-        {/* Right section: Dark mode, User */}
+        {/* Right section: Notifications, User, Dark mode */}
         <div className={styles.rightSection}>
+          {user && <NotificationIcon />}
           <button
             className={styles.dashboardIconOnly}
             aria-label="User"
@@ -139,8 +141,9 @@ export default function Navbar() {
           <DarkMoodToggle />
         </div>
 
-        {/* Mobile right: user icon, burger */}
+        {/* Mobile right: notifications, user icon, burger */}
         <div className={styles.mobileRight}>
+          {user && <NotificationIcon />}
           <button
             className={styles.userMobileIcon}
             aria-label="User"

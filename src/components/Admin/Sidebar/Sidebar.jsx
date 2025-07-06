@@ -14,6 +14,7 @@ import {
   Send,
   Shield,
   Crown,
+  Bell,
 } from "lucide-react";
 
 export default function Sidebar({ adminData }) {
@@ -39,6 +40,11 @@ export default function Sidebar({ adminData }) {
       label: "Comments",
       path: "/admin/comments",
       icon: <MessageCircle size={18} />,
+    },
+    {
+      label: "Notifications",
+      path: "/admin/notifications",
+      icon: <Bell size={18} />,
     },
   ];
 

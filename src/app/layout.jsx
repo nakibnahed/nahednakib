@@ -1,6 +1,7 @@
 import "./globals.css";
 import Navbar from "@/components/Nav/Navbar";
 import Footer from "@/components/Footer/Footer";
+import ToastContainer from "@/components/Toast/ToastContainer";
 import { metadata as siteMetadata } from "@/constants/metadata";
 import { ThemeProvider } from "@/context/ThemeContext";
 
@@ -43,6 +44,7 @@ export default function RootLayout({ children }) {
             {children}
             <Footer />
           </div>
+          <ToastContainer />
         </ThemeProvider>
       </body>
     </html>

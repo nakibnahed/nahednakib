@@ -1,0 +1,258 @@
+.overlay {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+}
+
+.popup {
+  background: color-mix(
+    in srgb,
+    var(--background-main, #121212) 98%,
+    transparent 2%
+  );
+  border: 1px solid var(--card-border, rgba(255, 255, 255, 0.14));
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(16px) saturate(160%);
+  -webkit-backdrop-filter: blur(16px) saturate(160%);
+  width: 350px;
+  max-width: 350px;
+  max-height: 500px;
+  overflow: hidden;
+  animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--card-border, rgba(255, 255, 255, 0.14));
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text-primary, #fff);
+}
+
+.headerActions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.clearAllButton {
+  background: transparent;
+  color: #ef4444;
+  border: none;
+  padding: 6px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  text-decoration: none;
+}
+
+.clearAllButton:hover {
+  background: rgba(239, 68, 68, 0.1);
+  color: #dc2626;
+}
+
+.clearAllButton:active {
+  background: rgba(239, 68, 68, 0.2);
+}
+
+.markAllReadButton {
+  background: transparent;
+  color: var(--primary-color, #ee681a);
+  border: none;
+  padding: 6px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  text-decoration: none;
+}
+
+.markAllReadButton:hover {
+  background: rgba(238, 104, 26, 0.1);
+  color: #d85d15;
+}
+
+.markAllReadButton:active {
+  background: rgba(238, 104, 26, 0.2);
+}
+
+.closeButton {
+  background: transparent;
+  border: none;
+  color: var(--text-secondary, #aaa);
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.closeButton:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--text-primary, #fff);
+}
+
+.content {
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  color: var(--text-secondary, #aaa);
+}
+
+.spinner {
+  width: 24px;
+  height: 24px;
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  border-top: 2px solid var(--primary-color, #ee681a);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 12px;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  color: #ff6b6b;
+  text-align: center;
+}
+
+.error p {
+  margin: 8px 0 0 0;
+  font-size: 14px;
+}
+
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  color: var(--text-secondary, #aaa);
+  text-align: center;
+}
+
+.empty p {
+  margin: 12px 0 4px 0;
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--text-primary, #fff);
+}
+
+.empty span {
+  font-size: 14px;
+  opacity: 0.7;
+}
+
+.notificationsList {
+  padding: 0 0 8px 0;
+  max-height: 350px;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 8px 20px;
+  border-bottom: 1px solid var(--card-border, rgba(255, 255, 255, 0.14));
+  background: rgba(255, 255, 255, 0.01);
+}
+
+/* Scrollbar styling */
+.content::-webkit-scrollbar,
+.notificationsList::-webkit-scrollbar {
+  width: 6px;
+}
+
+.content::-webkit-scrollbar-track,
+.notificationsList::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.content::-webkit-scrollbar-thumb,
+.notificationsList::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 3px;
+}
+
+.content::-webkit-scrollbar-thumb:hover,
+.notificationsList::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+  .overlay {
+    padding-top: 60px;
+  }
+
+  .popup {
+    width: 95%;
+    max-height: 70vh;
+  }
+
+  .header {
+    padding: 12px 16px;
+  }
+
+  .title {
+    font-size: 16px;
+  }
+
+  .markAllReadButton {
+    padding: 4px 8px;
+    font-size: 11px;
+  }
+}

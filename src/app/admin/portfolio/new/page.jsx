@@ -87,6 +87,23 @@ export default function NewPortfolioPage() {
     if (error) {
       setErrorMsg(error.message);
     } else {
+      // Send notification to all users about new portfolio item
+      try {
+        await fetch("/api/admin/notifications", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            title: "New Portfolio Project! 🚀",
+            message: `Check out our latest project: "${formData.title}"`,
+            type: "portfolio",
+            isGlobal: true,
+          }),
+        });
+      } catch (error) {
+        console.error("Error sending portfolio notification:", error);
+      }
       router.push("/admin/portfolio");
     }
     setLoading(false);

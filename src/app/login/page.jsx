@@ -33,7 +33,28 @@ export default function LoginPage() {
       return;
     }
 
-    // Simple admin check
+    // Send welcome notification for ALL users (including admins)
+    try {
+      console.log("Sending welcome notification for user:", data.user.email);
+      const welcomeResponse = await fetch("/api/notifications/send-welcome", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (welcomeResponse.ok) {
+        const welcomeData = await welcomeResponse.json();
+        console.log("Welcome notification sent successfully:", welcomeData);
+      } else {
+        const errorData = await welcomeResponse.json();
+        console.error("Welcome notification failed:", errorData);
+      }
+    } catch (error) {
+      console.error("Error sending welcome notification:", error);
+    }
+
+    // Simple admin check for routing
     const adminEmails = ["admin@example.com", "nahednakibyos@gmail.com"];
     if (adminEmails.includes(data.user.email)) {
       router.push("/admin/");

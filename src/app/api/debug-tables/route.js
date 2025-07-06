@@ -1,7 +1,9 @@
-import { supabase } from "@/lib/supabase/client";
+import { createClient } from "@/lib/supabase/server";
 
 export async function GET() {
   try {
+    const supabase = await createClient();
+
     // Test different table names to see what exists
     const tables = [
       "comments",
@@ -10,6 +12,7 @@ export async function GET() {
       "user_likes",
       "favorites",
       "user_favorites",
+      "notifications",
     ];
     const results = {};
 

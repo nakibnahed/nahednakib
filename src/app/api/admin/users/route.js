@@ -16,43 +16,105 @@ const supabaseAdmin = createAdminClient(supabaseUrl, supabaseServiceKey);
 export async function GET() {
   try {
     const supabase = await createClient();
-
-    // Check if user is authenticated and is admin
     const {
       data: { session },
       error: sessionError,
     } = await supabase.auth.getSession();
 
-    console.log("Session:", session);
-    console.log("Session error:", sessionError);
-
     if (!session?.user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      return NextResponse.json(
+        { error: "Authentication required" },
+        { status: 401 }
+      );
     }
 
-    const { data: profile } = await supabase
+    // Check if current user is admin
+    const { data: currentUserProfile } = await supabase
       .from("profiles")
       .select("role")
       .eq("id", session.user.id)
       .single();
 
-    if (!profile || profile.role !== "admin") {
-      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    if (!currentUserProfile || currentUserProfile.role !== "admin") {
+      return NextResponse.json(
+        { error: "Admin access required" },
+        { status: 403 }
+      );
     }
 
-    // Get all users using service role (bypasses RLS)
-    const { data: profiles, error } = await supabaseAdmin
+    // Get all users from profiles table (including current admin)
+    const { data: profileUsers, error: profileError } = await supabase
       .from("profiles")
-      .select("*")
+      .select("id, email, full_name, role, created_at")
       .order("created_at", { ascending: false });
 
-    if (error) {
-      return NextResponse.json({ error: error.message }, { status: 500 });
+    if (profileError) {
+      console.error("Error fetching profile users:", profileError);
+      return NextResponse.json(
+        { error: "Failed to fetch users" },
+        { status: 500 }
+      );
     }
 
-    return NextResponse.json({ users: profiles });
+    console.log(
+      "✅ Fetched users from profiles:",
+      profileUsers?.length || 0,
+      "users"
+    );
+
+    // Get all users from auth.users table
+    const { data: authUsers, error: authError } =
+      await supabaseAdmin.auth.admin.listUsers();
+
+    if (authError) {
+      console.error("Error fetching auth users:", authError);
+    } else {
+      console.log("✅ Auth users count:", authUsers?.users?.length || 0);
+    }
+
+    // Combine users from both sources, prioritizing profiles data
+    const profileUserMap = new Map();
+    if (profileUsers) {
+      profileUsers.forEach((user) => {
+        profileUserMap.set(user.id, user);
+      });
+    }
+
+    const allUsers = [];
+    if (authUsers?.users) {
+      authUsers.users.forEach((authUser) => {
+        const profileUser = profileUserMap.get(authUser.id);
+        if (profileUser) {
+          // User exists in both tables, use profile data
+          allUsers.push(profileUser);
+        } else {
+          // User exists in auth but not in profiles, create basic user object
+          allUsers.push({
+            id: authUser.id,
+            email: authUser.email,
+            full_name: authUser.user_metadata?.full_name || null,
+            role: "user", // Default role
+            created_at: authUser.created_at,
+          });
+        }
+      });
+    }
+
+    // Sort by created_at descending
+    allUsers.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+
+    console.log("✅ Combined users:", allUsers.length, "users");
+    console.log(
+      "Users:",
+      allUsers.map((u) => ({ id: u.id, email: u.email, role: u.role }))
+    );
+
+    return NextResponse.json({
+      users: allUsers,
+      total: allUsers.length,
+    });
   } catch (error) {
-    console.error("API Error:", error);
+    console.error("Error in users API:", error);
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }

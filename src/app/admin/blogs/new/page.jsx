@@ -75,6 +75,23 @@ export default function NewBlogPage() {
     if (error) {
       setErrorMsg(error.message);
     } else {
+      // Send notification to all users about new blog post
+      try {
+        await fetch("/api/admin/notifications", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            title: "New Blog Post Published! 📝",
+            message: `Check out our latest blog post: "${formData.title}"`,
+            type: "blog",
+            isGlobal: true,
+          }),
+        });
+      } catch (error) {
+        console.error("Error sending blog notification:", error);
+      }
       router.push("/admin/blogs");
     }
     setLoading(false);
