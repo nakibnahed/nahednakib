@@ -20,7 +20,7 @@ body {
 }
 
 /* Default: gradient text */
-p,
+
 h1,
 h2,
 h3,
@@ -33,6 +33,7 @@ strong {
   -webkit-text-fill-color: transparent;
 }
 
+p,
 li {
   color: var(--text-dark);
 }

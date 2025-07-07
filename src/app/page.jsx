@@ -23,13 +23,13 @@ export default function Home() {
             <span>Explore More</span>
             <span className={styles.arrow}>→</span>
           </Link>
-          {/* <Link
-            href="/about"
+          <Link
+            href="/contact"
             className={`${styles.button} ${styles.aboutButton}`}
           >
-            <span>About</span>
+            <span>Get Started</span>
             <span className={styles.arrow}>→</span>
-          </Link> */}
+          </Link>
         </div>
       </div>
     </div>

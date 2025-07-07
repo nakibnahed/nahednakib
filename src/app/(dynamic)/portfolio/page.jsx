@@ -1,48 +1,52 @@
 export const dynamic = "force-dynamic";
 
-import { supabase } from "@/services/supabaseClient";
-import Link from "next/link";
+import { createClient } from "@/lib/supabase/server";
 import styles from "./page.module.css";
-import { Globe } from "lucide-react";
+import PortfolioCard from "@/components/PortfolioCard/PortfolioCard";
 
 export default async function Portfolio() {
-  const { data: portfolios, error } = await supabase
-    .from("portfolios")
-    .select("*");
+  try {
+    const supabase = await createClient();
 
-  if (error) {
-    return <p>Failed to load portfolios</p>;
-  }
+    // Fetch all needed fields, including technologies
+    const { data: portfolios, error } = await supabase
+      .from("portfolios")
+      .select(
+        `
+        id,
+        title,
+        description,
+        created_at,
+        category,
+        image,
+        technologies
+      `
+      )
+      .order("created_at", { ascending: false });
 
-  return (
-    <div className="pageMainContainer">
-      <div className={styles.container}>
-        <h1 className={styles.pageTitle}>Crafted with Passion</h1>
-        <div className={styles.gridContainer}>
-          {portfolios.map((portfolio) => (
-            <Link
-              key={portfolio.id}
-              href={`/portfolio/${portfolio.id}`}
-              className={styles.post}
-            >
-              <div className={styles.card}>
-                <div>
-                  <div className={styles.icon}>
-                    <Globe size={24} strokeWidth={2} />
-                  </div>
-                  <h1 className={styles.title}>{portfolio.title}</h1>
-                  <p className={styles.date}>{portfolio.date}</p>
-                  <p className={styles.description}>{portfolio.description}</p>
-                </div>
-                <div className={styles.readMore}>
-                  <span>Read More</span>
-                  <span className={styles.arrow}>→</span>
-                </div>
-              </div>
-            </Link>
-          ))}
+    if (error) {
+      console.error("Supabase query error:", error.message);
+      return <p>Failed to load portfolios</p>;
+    }
+
+    if (!portfolios || portfolios.length === 0) {
+      return <p>No portfolios available</p>;
+    }
+
+    return (
+      <div className="pageMainContainer">
+        <div className={styles.container}>
+          <h1 className={styles.pageTitle}>Crafted with Passion</h1>
+          <div className={styles.gridContainer}>
+            {portfolios.map((portfolio) => (
+              <PortfolioCard key={portfolio.id} portfolio={portfolio} />
+            ))}
+          </div>
         </div>
       </div>
-    </div>
-  );
+    );
+  } catch (error) {
+    console.error("Error in Portfolio component:", error);
+    return <p>Failed to load portfolios</p>;
+  }
 }

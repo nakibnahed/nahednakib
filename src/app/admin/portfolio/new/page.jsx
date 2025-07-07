@@ -5,14 +5,31 @@ import { useRouter } from "next/navigation";
 import { supabase } from "@/services/supabaseClient";
 import styles from "./NewPortfolio.module.css";
 
+const CATEGORY_OPTIONS = [
+  "Web Development",
+  "Mobile App",
+  "UI/UX",
+  "Backend",
+  "Full Stack",
+  "Marketing",
+  "Data Science",
+  "Other",
+];
+
 export default function NewPortfolioPage() {
   const router = useRouter();
   const [formData, setFormData] = useState({
     title: "",
-    imageFile: null, // store uploaded file here
+    imageFile: null,
     category: "",
     description: "",
-    content: "",
+    overview: "",
+    achievements: "",
+    key_features: "",
+    live_url: "",
+    repo_url: "",
+    status: "Completed",
+    technologies: "",
   });
 
   const [loading, setLoading] = useState(false);
@@ -24,6 +41,19 @@ export default function NewPortfolioPage() {
 
   function handleFileChange(e) {
     setFormData({ ...formData, imageFile: e.target.files[0] || null });
+  }
+
+  function handleCategoryChange(e) {
+    const value = e.target.value;
+    let selected = formData.category
+      ? formData.category.split(",").map((c) => c.trim())
+      : [];
+    if (e.target.checked) {
+      if (!selected.includes(value)) selected.push(value);
+    } else {
+      selected = selected.filter((c) => c !== value);
+    }
+    setFormData({ ...formData, category: selected.join(", ") });
   }
 
   async function handleSubmit(e) {
@@ -44,7 +74,7 @@ export default function NewPortfolioPage() {
           .upload(filePath, formData.imageFile, {
             cacheControl: "3600",
             upsert: false,
-            contentType: formData.imageFile.type, // important!
+            contentType: formData.imageFile.type,
           });
 
         if (uploadError) {
@@ -80,13 +110,22 @@ export default function NewPortfolioPage() {
         date: createdDate,
         category: formData.category,
         description: formData.description,
-        content: formData.content,
+        overview: formData.overview,
+        achievements: formData.achievements,
+        key_features: formData.key_features,
+        live_url: formData.live_url,
+        repo_url: formData.repo_url,
+        status: formData.status,
+        technologies: formData.technologies,
       },
     ]);
 
     if (error) {
       setErrorMsg(error.message);
     } else {
+      if (typeof window !== "undefined" && window.showToast) {
+        window.showToast("Portfolio created successfully!", "success");
+      }
       // Send notification to all users about new portfolio item
       try {
         await fetch("/api/admin/notifications", {
@@ -96,7 +135,7 @@ export default function NewPortfolioPage() {
           },
           body: JSON.stringify({
             title: "New Portfolio Project! 🚀",
-            message: `Check out our latest project: "${formData.title}"`,
+            message: `Check out our latest project: \"${formData.title}\"`,
             type: "portfolio",
             isGlobal: true,
           }),
@@ -138,13 +177,27 @@ export default function NewPortfolioPage() {
         </div>
 
         <div className={styles.formGroup}>
-          <label className={styles.label}>Category:</label>
-          <input
-            name="category"
-            value={formData.category}
-            onChange={handleChange}
-            className={styles.input}
-          />
+          <label className={styles.label}>Categories:</label>
+          <div className={styles.checkboxGroup}>
+            {CATEGORY_OPTIONS.map((cat) => (
+              <label key={cat} className={styles.checkboxLabel}>
+                <input
+                  type="checkbox"
+                  value={cat}
+                  checked={
+                    formData.category
+                      ? formData.category
+                          .split(",")
+                          .map((c) => c.trim())
+                          .includes(cat)
+                      : false
+                  }
+                  onChange={handleCategoryChange}
+                />
+                {cat}
+              </label>
+            ))}
+          </div>
         </div>
 
         <div className={styles.formGroup}>
@@ -158,12 +211,80 @@ export default function NewPortfolioPage() {
         </div>
 
         <div className={styles.formGroup}>
-          <label className={styles.label}>Content (HTML):</label>
+          <label className={styles.label}>Project Overview (HTML):</label>
           <textarea
-            name="content"
-            value={formData.content}
+            name="overview"
+            value={formData.overview}
             onChange={handleChange}
             className={styles.textarea}
+          />
+        </div>
+
+        <div className={styles.formGroup}>
+          <label className={styles.label}>Achievements (HTML):</label>
+          <textarea
+            name="achievements"
+            value={formData.achievements}
+            onChange={handleChange}
+            className={styles.textarea}
+          />
+        </div>
+
+        <div className={styles.formGroup}>
+          <label className={styles.label}>Key Features (HTML):</label>
+          <textarea
+            name="key_features"
+            value={formData.key_features}
+            onChange={handleChange}
+            className={styles.textarea}
+          />
+        </div>
+
+        <div className={styles.formGroup}>
+          <label className={styles.label}>Live Website URL:</label>
+          <input
+            name="live_url"
+            value={formData.live_url}
+            onChange={handleChange}
+            className={styles.input}
+          />
+        </div>
+
+        <div className={styles.formGroup}>
+          <label className={styles.label}>Repo URL (optional):</label>
+          <input
+            name="repo_url"
+            value={formData.repo_url}
+            onChange={handleChange}
+            className={styles.input}
+          />
+        </div>
+
+        <div className={styles.formGroup}>
+          <label className={styles.label}>Status:</label>
+          <select
+            name="status"
+            value={formData.status}
+            onChange={handleChange}
+            className={styles.input}
+          >
+            <option value="Completed">Completed</option>
+            <option value="In Progress">In Progress</option>
+            <option value="Paused">Paused</option>
+            <option value="Planned">Planned</option>
+          </select>
+        </div>
+
+        <div className={styles.formGroup}>
+          <label className={styles.label}>
+            Technologies (comma-separated):
+          </label>
+          <input
+            name="technologies"
+            value={formData.technologies}
+            onChange={handleChange}
+            className={styles.input}
+            placeholder="e.g. React, Next.js, Supabase"
           />
         </div>
 

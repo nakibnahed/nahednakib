@@ -5,6 +5,17 @@ import { useRouter, useParams } from "next/navigation";
 import { supabase } from "@/services/supabaseClient";
 import styles from "./EditPortfolio.module.css";
 
+const CATEGORY_OPTIONS = [
+  "Web Development",
+  "Mobile App",
+  "UI/UX",
+  "Backend",
+  "Full Stack",
+  "Marketing",
+  "Data Science",
+  "Other",
+];
+
 export default function EditPortfolioPage() {
   const router = useRouter();
   const { id } = useParams();
@@ -14,7 +25,13 @@ export default function EditPortfolioPage() {
     image: "",
     category: "",
     description: "",
-    content: "",
+    overview: "",
+    achievements: "",
+    key_features: "",
+    live_url: "",
+    repo_url: "",
+    status: "Completed",
+    technologies: "",
   });
 
   const [loading, setLoading] = useState(true);
@@ -35,11 +52,17 @@ export default function EditPortfolioPage() {
         setErrorMsg(error.message);
       } else {
         setFormData({
-          title: data.title,
-          image: data.image,
-          category: data.category,
-          description: data.description,
-          content: data.content,
+          title: data.title || "",
+          image: data.image || "",
+          category: data.category || "",
+          description: data.description || "",
+          overview: data.overview || "",
+          achievements: data.achievements || "",
+          key_features: data.key_features || "",
+          live_url: data.live_url || "",
+          repo_url: data.repo_url || "",
+          status: data.status || "Completed",
+          technologies: data.technologies || "",
         });
       }
       setLoading(false);
@@ -50,6 +73,19 @@ export default function EditPortfolioPage() {
   function handleChange(e) {
     setErrorMsg(null);
     setFormData({ ...formData, [e.target.name]: e.target.value });
+  }
+
+  function handleCategoryChange(e) {
+    const value = e.target.value;
+    let selected = formData.category
+      ? formData.category.split(",").map((c) => c.trim())
+      : [];
+    if (e.target.checked) {
+      if (!selected.includes(value)) selected.push(value);
+    } else {
+      selected = selected.filter((c) => c !== value);
+    }
+    setFormData({ ...formData, category: selected.join(", ") });
   }
 
   async function handleFileChange(e) {
@@ -97,13 +133,22 @@ export default function EditPortfolioPage() {
         image: formData.image,
         category: formData.category,
         description: formData.description,
-        content: formData.content,
+        overview: formData.overview,
+        achievements: formData.achievements,
+        key_features: formData.key_features,
+        live_url: formData.live_url,
+        repo_url: formData.repo_url,
+        status: formData.status,
+        technologies: formData.technologies,
       })
       .eq("id", id);
 
     if (error) {
       setErrorMsg(error.message);
     } else {
+      if (typeof window !== "undefined" && window.showToast) {
+        window.showToast("Portfolio updated successfully!", "success");
+      }
       router.push("/admin/portfolio");
     }
     setSaving(false);
@@ -159,13 +204,23 @@ export default function EditPortfolioPage() {
         </div>
 
         <div className={styles.formGroup}>
-          <label className={styles.label}>Category:</label>
-          <input
-            name="category"
-            value={formData.category}
-            onChange={handleChange}
-            className={styles.input}
-          />
+          <label className={styles.label}>Categories:</label>
+          <div className={styles.checkboxGroup}>
+            {CATEGORY_OPTIONS.map((cat) => (
+              <label key={cat} className={styles.checkboxLabel}>
+                <input
+                  type="checkbox"
+                  value={cat}
+                  checked={formData.category
+                    .split(",")
+                    .map((c) => c.trim())
+                    .includes(cat)}
+                  onChange={handleCategoryChange}
+                />
+                {cat}
+              </label>
+            ))}
+          </div>
         </div>
 
         <div className={styles.formGroup}>
@@ -179,12 +234,80 @@ export default function EditPortfolioPage() {
         </div>
 
         <div className={styles.formGroup}>
-          <label className={styles.label}>Content (HTML):</label>
+          <label className={styles.label}>Project Overview (HTML):</label>
           <textarea
-            name="content"
-            value={formData.content}
+            name="overview"
+            value={formData.overview}
             onChange={handleChange}
             className={styles.textarea}
+          />
+        </div>
+
+        <div className={styles.formGroup}>
+          <label className={styles.label}>Achievements (HTML):</label>
+          <textarea
+            name="achievements"
+            value={formData.achievements}
+            onChange={handleChange}
+            className={styles.textarea}
+          />
+        </div>
+
+        <div className={styles.formGroup}>
+          <label className={styles.label}>Key Features (HTML):</label>
+          <textarea
+            name="key_features"
+            value={formData.key_features}
+            onChange={handleChange}
+            className={styles.textarea}
+          />
+        </div>
+
+        <div className={styles.formGroup}>
+          <label className={styles.label}>Live Website URL:</label>
+          <input
+            name="live_url"
+            value={formData.live_url}
+            onChange={handleChange}
+            className={styles.input}
+          />
+        </div>
+
+        <div className={styles.formGroup}>
+          <label className={styles.label}>Repo URL (optional):</label>
+          <input
+            name="repo_url"
+            value={formData.repo_url}
+            onChange={handleChange}
+            className={styles.input}
+          />
+        </div>
+
+        <div className={styles.formGroup}>
+          <label className={styles.label}>Status:</label>
+          <select
+            name="status"
+            value={formData.status}
+            onChange={handleChange}
+            className={styles.input}
+          >
+            <option value="Completed">Completed</option>
+            <option value="In Progress">In Progress</option>
+            <option value="Paused">Paused</option>
+            <option value="Planned">Planned</option>
+          </select>
+        </div>
+
+        <div className={styles.formGroup}>
+          <label className={styles.label}>
+            Technologies (comma-separated):
+          </label>
+          <input
+            name="technologies"
+            value={formData.technologies}
+            onChange={handleChange}
+            className={styles.input}
+            placeholder="e.g. React, Next.js, Supabase"
           />
         </div>
 

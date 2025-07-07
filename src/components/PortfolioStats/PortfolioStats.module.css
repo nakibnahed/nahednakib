@@ -1,0 +1,60 @@
+/* Styling for the views icon - corner only, no border */
+.icon {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  opacity: 0.7;
+  color: #ddd;
+  font-size: 14px;
+  z-index: 10;
+}
+
+.iconText {
+  font-size: 12px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+/* Styling for the likes icon - in row below date */
+.likesIcon {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  opacity: 0.7;
+  color: #ddd;
+  font-size: 14px;
+  margin-right: 6px;
+}
+
+/* Styling for the favorites icon - in row below date */
+.favIcon {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  opacity: 0.7;
+  color: #ddd;
+  font-size: 14px;
+  margin-right: 6px;
+}
+
+/* Styling for comments icon - in row below date */
+.commentsIcon {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  opacity: 0.7;
+  color: #ddd;
+  font-size: 14px;
+}
+
+/* Container for the stats row below date */
+.statsRow {
+  display: flex;
+  align-items: center;
+  margin-top: 8px;
+  margin-bottom: 12px;
+  gap: 6px;
+}
