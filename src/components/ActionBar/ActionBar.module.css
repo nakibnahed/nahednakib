@@ -15,7 +15,7 @@
   background: transparent;
   border: none;
   border-radius: 3px;
-  color: var(--text-secondary);
+  color: var(--text-dark);
   cursor: pointer;
   transition: all 0.2s ease;
   font-size: 13px;
@@ -23,10 +23,20 @@
   white-space: nowrap;
 }
 
-.actionBtn:hover {
-  background: var(--card-background-hover);
+.actionBtn svg {
+  color: var(--text-dark);
+  transition: all 0.2s ease;
+}
+
+.actionBtn:hover,
+.actionBtn:focus {
   color: var(--primary-color);
-  transform: translateY(-1px);
+  background: transparent;
+}
+
+.actionBtn:hover svg,
+.actionBtn:focus svg {
+  color: var(--primary-color);
 }
 
 .actionBtn:active {
@@ -35,11 +45,11 @@
 
 .actionBtn.active {
   color: var(--primary-color);
-  background: rgba(var(--primary-color-rgb), 0.1);
+  background: transparent;
 }
 
-.actionBtn svg {
-  transition: all 0.2s ease;
+.actionBtn.active svg {
+  color: var(--primary-color);
 }
 
 .actionBtn:disabled {
@@ -69,18 +79,31 @@
   transition: all 0.2s ease;
   font-size: 0.875rem;
   font-weight: 400;
-  color: var(--text-secondary);
+  color: var(--text-dark);
   min-width: auto;
 }
 
-.actionBarWrapper .actionBtn:hover {
-  background: var(--primary-color);
+.actionBarWrapper .actionBtn svg {
+  color: var(--text-dark);
+}
+
+.actionBarWrapper .actionBtn:hover,
+.actionBarWrapper .actionBtn:focus {
   color: white;
-  transform: translateY(-1px);
+  background: transparent;
+}
+
+.actionBarWrapper .actionBtn:hover svg,
+.actionBarWrapper .actionBtn:focus svg {
+  color: white;
 }
 
 .actionBarWrapper .actionBtn.active {
-  background: var(--primary-color);
+  color: white;
+  background: transparent;
+}
+
+.actionBarWrapper .actionBtn.active svg {
   color: white;
 }
 

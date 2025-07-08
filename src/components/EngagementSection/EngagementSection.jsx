@@ -15,7 +15,12 @@ import { useEngagement } from "@/hooks/useEngagement";
 import ConfirmationModal from "@/components/ConfirmationModal/ConfirmationModal";
 import styles from "./EngagementSection.module.css";
 
-export default function EngagementSection({ contentType, contentId, title }) {
+export default function EngagementSection({
+  contentType,
+  contentId,
+  title,
+  id,
+}) {
   const { user, loading, engagement, actions } = useEngagement(
     contentType,
     contentId
@@ -199,7 +204,7 @@ export default function EngagementSection({ contentType, contentId, title }) {
   }
 
   return (
-    <div className={styles.container}>
+    <div className={styles.container} id={id}>
       {/* Action Buttons */}
       <div className={styles.actionRow}>
         <button

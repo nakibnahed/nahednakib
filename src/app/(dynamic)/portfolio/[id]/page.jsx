@@ -226,7 +226,11 @@ export default async function PortfolioPage({ params }) {
           </div>
         )}
         <div className={styles.engagementSection}>
-          <EngagementSection contentId={portfolio.id} contentType="portfolio" />
+          <EngagementSection
+            id="comments-section"
+            contentId={portfolio.id}
+            contentType="portfolio"
+          />
         </div>
       </div>
     </div>

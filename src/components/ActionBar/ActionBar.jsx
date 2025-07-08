@@ -53,7 +53,6 @@ export default function ActionBar({ title, contentType, contentId }) {
         ) : (
           <FaRegThumbsUp size={16} />
         )}
-        <span>{engagement.likes.count > 0 && engagement.likes.count}</span>
       </button>
 
       <button
@@ -74,9 +73,6 @@ export default function ActionBar({ title, contentType, contentId }) {
         ) : (
           <FaRegHeart size={16} />
         )}
-        <span>
-          {engagement.favorites.count > 0 && engagement.favorites.count}
-        </span>
       </button>
 
       <button
@@ -85,9 +81,6 @@ export default function ActionBar({ title, contentType, contentId }) {
         onClick={scrollToComments}
       >
         <FaComment size={16} />
-        <span>
-          {engagement.comments.count > 0 && engagement.comments.count}
-        </span>
       </button>
 
       <button className={styles.actionBtn} title="Share" onClick={handleShare}>
