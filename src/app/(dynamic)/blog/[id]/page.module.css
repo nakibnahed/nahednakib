@@ -101,12 +101,103 @@
 .content {
   font-size: 1.08rem;
   line-height: 1.7;
-  color: var(--text-primary);
+  color: var(--primary-color);
 }
 .prose {
   font-size: inherit;
   line-height: inherit;
   color: inherit;
+}
+.prose h1,
+.prose h2,
+.prose h3,
+.prose h4,
+.prose h5,
+.prose h6 {
+  margin: 2rem 0 1rem;
+  font-weight: 600;
+  line-height: 1.3;
+  color: var(--primary-color);
+}
+
+.prose h1 {
+  font-size: 2rem;
+}
+
+.prose h2 {
+  font-size: 1.75rem;
+}
+
+.prose h3 {
+  font-size: 1.5rem;
+}
+
+.prose p {
+  margin: 1.2rem 0;
+  max-width: 100%;
+  word-wrap: break-word;
+}
+
+.prose img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 0.5rem;
+  margin: 1.5rem 0;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
+.prose blockquote {
+  border-left: 4px solid var(--primary-color);
+  padding-left: 1.5rem;
+  margin: 1.5rem 0;
+  font-style: italic;
+  color: var(--text-secondary);
+  background: var(--card-background);
+  padding: 1rem 1.5rem;
+  border-radius: 0.5rem;
+}
+
+.prose ul,
+.prose ol {
+  padding-left: 1.5rem;
+  margin: 1.2rem 0;
+}
+
+.prose li {
+  margin: 0.4rem 0;
+}
+
+.prose a {
+  color: var(--primary-color);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: border-color 0.2s ease;
+}
+
+.prose a:hover {
+  border-bottom-color: var(--primary-color);
+}
+
+.prose code {
+  background: var(--card-background);
+  padding: 0.2rem 0.4rem;
+  border-radius: 0.25rem;
+  font-size: 0.9rem;
+  color: var(--primary-color);
+}
+
+.prose pre {
+  background: var(--card-background);
+  padding: 1rem;
+  border-radius: 0.5rem;
+  overflow-x: auto;
+  margin: 1.5rem 0;
+}
+
+.prose pre code {
+  background: transparent;
+  padding: 0;
+  color: var(--primary-color);
 }
 .relatedSection {
   margin-top: 32px;
@@ -117,7 +208,7 @@
   font-size: 1.1rem;
   font-weight: 600;
   margin-bottom: 12px;
-  color: var(--text-primary);
+  color: var(--primary-color);
 }
 .relatedList {
   list-style: none;
@@ -139,9 +230,9 @@
   transition: border-color 0.18s;
 }
 .relatedPostThumb {
-  width: 38px;
-  height: 38px;
-  border-radius: 8px;
+  width: 75px;
+  height: 60px;
+  border-radius: 16px;
   object-fit: cover;
   background: #eee;
   flex-shrink: 0;
@@ -155,15 +246,15 @@
 .relatedPostTitle {
   font-size: 1.02rem;
   font-weight: 700;
-  color: var(--text-primary);
+  color: var(--text-dark);
 }
 .relatedPostDesc {
-  font-size: 0.97rem;
-  color: var(--text-secondary);
+  color: var(--text-dark);
+  font-size: 16px;
   opacity: 0.85;
 }
 .relatedReadMore {
-  color: var(--primary-color, #ee681a);
+  color: var(--primary-color);
   font-weight: 600;
   font-size: 1rem;
   text-decoration: none;
