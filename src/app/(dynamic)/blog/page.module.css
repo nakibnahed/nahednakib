@@ -27,31 +27,23 @@
 
 .categoryButton {
   padding: 12px 24px;
+  background: var(--button-bg-no-active);
   border: 1px solid var(--card-border);
-  background: var(--card-bg);
-  color: var(--text-dark);
+  color: var(--button-text-no-activ);
   border-radius: 50px;
   cursor: pointer;
-  transition: all 0.3s ease;
   font-weight: 500;
   font-size: 14px;
+  font-weight: 700;
 }
 
 .categoryButton:hover {
-  border-color: var(--primary-color);
-  color: var(--primary-color);
-  transform: translateY(-2px);
+  opacity: 0.9;
 }
 
 .categoryButton.active {
-  background: var(--primary-color);
-  color: #222;
-  border-color: var(--primary-color);
-}
-
-.categoryButton.active:hover {
-  background: #d55e0a;
-  transform: translateY(-2px);
+  background: var(--button-bg);
+  color: var(--button-text);
 }
 
 /* Category Header */
@@ -75,7 +67,6 @@
   position: relative;
   overflow: hidden;
   opacity: 0.95;
-  transition: opacity 0.2s ease;
 }
 
 /* Very subtle gradient overlay for glass effect */
@@ -156,7 +147,6 @@
   position: relative;
   overflow: hidden;
   opacity: 0.95;
-  transition: opacity 0.2s ease;
 }
 
 /* Very subtle gradient overlay for glass effect */
@@ -259,7 +249,6 @@
 
 .readMore .arrow {
   font-size: 18px;
-  transition: transform 0.3s ease;
 }
 
 .readMore:hover .arrow {

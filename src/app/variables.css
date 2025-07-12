@@ -55,7 +55,7 @@
   --footer-bg: #18181b;
 
   --button-bg: linear-gradient(to bottom, #ee681a, rgb(155, 64, 22));
-  --button-bg-no-activ: #222;
+  --button-bg-no-activ: rgba(18, 18, 18, 0.82);
   --button-bg-hover: #ff8c42;
   --button-text: #222;
   --button-text-no-activ: #a2a2a2;
