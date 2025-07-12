@@ -43,6 +43,22 @@
   gap: 12px;
   margin: 12px auto;
 }
+
+.authorLink {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+  color: inherit;
+  transition: opacity 0.3s ease;
+  border-radius: 8px;
+  padding: 4px;
+}
+
+.authorLink:hover {
+  opacity: 0.8;
+  background: rgba(255, 255, 255, 0.05);
+}
 .authorAvatar {
   border-radius: 50%;
   object-fit: cover;

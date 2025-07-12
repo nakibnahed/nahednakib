@@ -16,11 +16,13 @@ export default function EditBlogPage() {
     slug: "",
     image: "",
     category_id: "",
+    author_id: "",
     description: "",
     content: "",
   });
 
   const [categories, setCategories] = useState([]);
+  const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [errorMsg, setErrorMsg] = useState(null);
@@ -28,6 +30,7 @@ export default function EditBlogPage() {
 
   useEffect(() => {
     fetchCategories();
+    fetchUsers();
     fetchBlog();
   }, [id]);
 
@@ -42,6 +45,20 @@ export default function EditBlogPage() {
       setCategories([]);
     } else {
       setCategories(data);
+    }
+  }
+
+  async function fetchUsers() {
+    const { data, error } = await supabase
+      .from("profiles")
+      .select("id, full_name, first_name, last_name, email, role")
+      .order("full_name");
+
+    if (error) {
+      console.error("Error fetching users:", error);
+      setUsers([]);
+    } else {
+      setUsers(data);
     }
   }
 
@@ -61,6 +78,7 @@ export default function EditBlogPage() {
         slug: data.slug,
         image: data.image,
         category_id: data.category_id || "",
+        author_id: data.author_id || "",
         description: data.description,
         content: data.content,
       });
@@ -140,6 +158,7 @@ export default function EditBlogPage() {
         slug: uniqueSlug,
         image: formData.image,
         category_id: formData.category_id || null,
+        author_id: formData.author_id || null,
         description: formData.description,
         content: formData.content,
       })
@@ -197,6 +216,26 @@ export default function EditBlogPage() {
             {categories.map((category) => (
               <option key={category.id} value={category.id}>
                 {category.name}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div className={styles.formGroup}>
+          <label className={styles.label}>Author:</label>
+          <select
+            name="author_id"
+            value={formData.author_id}
+            onChange={handleChange}
+            className={styles.input}
+          >
+            <option value="">Select an author</option>
+            {users.map((user) => (
+              <option key={user.id} value={user.id}>
+                {user.full_name ||
+                  `${user.first_name} ${user.last_name}` ||
+                  user.email}
+                {user.role === "admin" ? " (Admin)" : ""}
               </option>
             ))}
           </select>
