@@ -6,15 +6,40 @@ import EngagementSection from "@/components/EngagementSection/EngagementSection"
 import { supabase } from "@/services/supabaseClient";
 
 export default async function Post({ params }) {
-  const { id } = params;
+  const { slug } = await params;
+
   const { data: blog, error } = await supabase
     .from("blogs")
     .select("*")
-    .eq("id", id)
+    .eq("slug", slug)
     .single();
 
-  if (error) return <p>Error: {error.message}</p>;
-  if (!blog) return <p>Not found</p>;
+  if (error) {
+    console.error("Database error:", error);
+    return (
+      <div className={styles.container}>
+        <h1>Error Loading Blog Post</h1>
+        <p>
+          Sorry, there was an error loading this blog post. Please try again.
+        </p>
+        <Link href="/blog" className={styles.breadcrumbLink}>
+          ← Back to Blog
+        </Link>
+      </div>
+    );
+  }
+
+  if (!blog) {
+    return (
+      <div className={styles.container}>
+        <h1>Blog Post Not Found</h1>
+        <p>The blog post you're looking for doesn't exist or has been moved.</p>
+        <Link href="/blog" className={styles.breadcrumbLink}>
+          ← Back to Blog
+        </Link>
+      </div>
+    );
+  }
 
   const formattedDate = new Date(blog.created_at).toLocaleDateString(
     undefined,

@@ -1,0 +1,248 @@
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 32px;
+}
+
+.title {
+  font-size: 32px;
+  font-family: "Unbounded", sans-serif !important;
+  background: linear-gradient(to bottom, #ee681a, rgb(76, 40, 23));
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-weight: 700;
+  margin: 0;
+}
+
+.addButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 20px;
+  background: linear-gradient(to bottom, #ee681a, rgb(155, 64, 22));
+  border: none;
+  border-radius: 6px;
+  color: #222;
+  font-weight: 700;
+  cursor: pointer;
+  transition: 0.3s ease-in-out;
+  font-size: 16px;
+}
+
+.addButton:hover:not(:disabled) {
+  background: linear-gradient(to bottom, #d55e0a, rgb(124, 51, 18));
+}
+
+.addButton:disabled {
+  background-color: #888;
+  cursor: not-allowed;
+}
+
+.formContainer {
+  background: var(--card-bg, #1a1a1a);
+  border: 1px solid var(--card-border, #333);
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 32px;
+}
+
+.formContainer h2 {
+  margin: 0 0 20px 0;
+  color: var(--text-primary, #fff);
+  font-size: 24px;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.formGroup label {
+  font-weight: 600;
+  color: var(--text-primary, #fff);
+  font-size: 16px;
+}
+
+.input,
+.textarea {
+  padding: 12px;
+  border: 1px solid var(--card-border, #333);
+  border-radius: 8px;
+  background-color: var(--background-main, #181818);
+  color: var(--text-primary, #fff);
+  font-size: 16px;
+}
+
+.textarea {
+  min-height: 100px;
+  resize: vertical;
+}
+
+.colorInput {
+  width: 60px;
+  height: 40px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.formActions {
+  display: flex;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.submitButton,
+.cancelButton {
+  padding: 12px 24px;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.3s ease-in-out;
+  font-size: 16px;
+}
+
+.submitButton {
+  background: linear-gradient(to bottom, #ee681a, rgb(155, 64, 22));
+  color: #222;
+}
+
+.submitButton:hover:not(:disabled) {
+  background: linear-gradient(to bottom, #d55e0a, rgb(124, 51, 18));
+}
+
+.submitButton:disabled {
+  background-color: #888;
+  cursor: not-allowed;
+}
+
+.cancelButton {
+  background: transparent;
+  color: var(--text-secondary, #888);
+  border: 1px solid var(--card-border, #333);
+}
+
+.cancelButton:hover {
+  background: var(--card-bg-hover, #222);
+}
+
+.categoriesGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+.categoryCard {
+  background: var(--card-bg, #1a1a1a);
+  border: 1px solid var(--card-border, #333);
+  border-radius: 12px;
+  padding: 20px;
+  transition: all 0.3s ease;
+}
+
+.categoryCard:hover {
+  border-color: var(--primary-color, #ee681a);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+}
+
+.categoryHeader {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.colorIndicator {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.categoryHeader h3 {
+  margin: 0;
+  color: var(--text-primary, #fff);
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.slug {
+  color: var(--text-secondary, #888);
+  font-size: 14px;
+  margin: 0 0 12px 0;
+  font-family: monospace;
+}
+
+.description {
+  color: var(--text-secondary, #888);
+  font-size: 14px;
+  margin: 0 0 16px 0;
+  line-height: 1.5;
+}
+
+.actions {
+  display: flex;
+  gap: 8px;
+}
+
+.editButton,
+.deleteButton {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: 0.3s ease;
+}
+
+.editButton {
+  background: var(--primary-color, #ee681a);
+  color: #222;
+}
+
+.editButton:hover {
+  background: #d55e0a;
+}
+
+.deleteButton {
+  background: #dc2626;
+  color: #fff;
+}
+
+.deleteButton:hover {
+  background: #b91c1c;
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding: 16px;
+  }
+
+  .header {
+    flex-direction: column;
+    gap: 16px;
+    align-items: flex-start;
+  }
+
+  .categoriesGrid {
+    grid-template-columns: 1fr;
+  }
+}

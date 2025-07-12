@@ -1,25 +1,54 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/services/supabaseClient";
-import styles from "./NewBlog.module.css"; // Rename to NewBlog.module.css if you wish
+import { Editor } from "@tinymce/tinymce-react";
+import { slugify, generateUniqueSlug } from "@/lib/utils/slugify";
+import styles from "./NewBlog.module.css";
 
 export default function NewBlogPage() {
   const router = useRouter();
   const [formData, setFormData] = useState({
     title: "",
+    slug: "",
     imageFile: null,
-    category: "",
+    category_id: "",
     description: "",
     content: "",
   });
 
+  const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState(null);
 
+  useEffect(() => {
+    fetchCategories();
+  }, []);
+
+  async function fetchCategories() {
+    const { data, error } = await supabase
+      .from("categories")
+      .select("*")
+      .order("name");
+
+    if (error) {
+      console.error("Error fetching categories:", error);
+      setCategories([]);
+    } else {
+      setCategories(data);
+    }
+  }
+
   function handleChange(e) {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+  }
+
+  function handleTitleChange(e) {
+    const title = e.target.value;
+    const slug = slugify(title);
+    setFormData({ ...formData, title, slug });
   }
 
   function handleFileChange(e) {
@@ -30,6 +59,20 @@ export default function NewBlogPage() {
     e.preventDefault();
     setLoading(true);
     setErrorMsg(null);
+
+    // Generate unique slug
+    const { data: existingSlugs } = await supabase
+      .from("blogs")
+      .select("slug")
+      .eq("slug", formData.slug);
+
+    const uniqueSlug =
+      existingSlugs?.length > 0
+        ? generateUniqueSlug(
+            formData.title,
+            existingSlugs.map((b) => b.slug)
+          )
+        : formData.slug;
 
     let imageUrl = "";
 
@@ -64,9 +107,10 @@ export default function NewBlogPage() {
     const { error } = await supabase.from("blogs").insert([
       {
         title: formData.title,
+        slug: uniqueSlug,
         image: imageUrl,
         date: createdDate,
-        category: formData.category,
+        category_id: formData.category_id || null,
         description: formData.description,
         content: formData.content,
       },
@@ -109,10 +153,39 @@ export default function NewBlogPage() {
           <input
             name="title"
             value={formData.title}
-            onChange={handleChange}
+            onChange={handleTitleChange}
             required
             className={styles.input}
           />
+        </div>
+
+        <div className={styles.formGroup}>
+          <label className={styles.label}>Slug:</label>
+          <input
+            name="slug"
+            value={formData.slug}
+            onChange={handleChange}
+            required
+            className={styles.input}
+            placeholder="URL-friendly version of title"
+          />
+        </div>
+
+        <div className={styles.formGroup}>
+          <label className={styles.label}>Category:</label>
+          <select
+            name="category_id"
+            value={formData.category_id}
+            onChange={handleChange}
+            className={styles.input}
+          >
+            <option value="">Select a category</option>
+            {categories.map((category) => (
+              <option key={category.id} value={category.id}>
+                {category.name}
+              </option>
+            ))}
+          </select>
         </div>
 
         <div className={styles.formGroup}>
@@ -121,16 +194,6 @@ export default function NewBlogPage() {
             type="file"
             accept="image/*"
             onChange={handleFileChange}
-            className={styles.input}
-          />
-        </div>
-
-        <div className={styles.formGroup}>
-          <label className={styles.label}>Category:</label>
-          <input
-            name="category"
-            value={formData.category}
-            onChange={handleChange}
             className={styles.input}
           />
         </div>
@@ -147,11 +210,66 @@ export default function NewBlogPage() {
 
         <div className={styles.formGroup}>
           <label className={styles.label}>Content (HTML):</label>
-          <textarea
-            name="content"
+          <Editor
+            apiKey={process.env.NEXT_PUBLIC_TINYMCE_API_KEY}
             value={formData.content}
-            onChange={handleChange}
-            className={styles.textarea}
+            init={{
+              height: 400,
+              menubar: "file edit view insert format tools table help",
+              plugins: [
+                "advlist",
+                "lists",
+                "autolink",
+                "link",
+                "image",
+                "charmap",
+                "preview",
+                "anchor",
+                "searchreplace",
+                "visualblocks",
+                "code",
+                "fullscreen",
+                "insertdatetime",
+                "media",
+                "table",
+                "help",
+                "wordcount",
+              ],
+              toolbar:
+                "undo redo | styles | bold italic underline strikethrough | " +
+                "alignleft aligncenter alignright alignjustify | " +
+                "bullist numlist outdent indent | blockquote | code | image | link | removeformat | help",
+              content_style:
+                "body { background: #181818; color: #fff; font-family:Helvetica,Arial,sans-serif; font-size:16px }",
+              images_upload_handler: function (blobInfo) {
+                return new Promise((resolve, reject) => {
+                  const file = blobInfo.blob();
+                  const fileExt = file.name.split(".").pop();
+                  const fileName = `${Date.now()}.${fileExt}`;
+                  supabase.storage
+                    .from("blog-images")
+                    .upload(fileName, file, {
+                      cacheControl: "3600",
+                      upsert: false,
+                      contentType: file.type,
+                    })
+                    .then(({ error }) => {
+                      if (error) {
+                        reject("Upload failed: " + error.message);
+                        return;
+                      }
+                      const { data: publicData } = supabase.storage
+                        .from("blog-images")
+                        .getPublicUrl(fileName);
+                      resolve(publicData.publicUrl);
+                    })
+                    .catch((err) => {
+                      reject("Upload failed: " + err.message);
+                    });
+                });
+              },
+            }}
+            onEditorChange={(val) => setFormData({ ...formData, content: val })}
           />
         </div>
 
