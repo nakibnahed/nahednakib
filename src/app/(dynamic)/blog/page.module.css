@@ -130,23 +130,20 @@
 }
 
 .card {
-  background: color-mix(
-    in srgb,
-    var(--background-main, #121212) 82%,
-    transparent 18%
-  );
-  border: 1px solid var(--card-border, rgba(255, 255, 255, 0.14));
-  color: var(--card-text, #fff);
   border-radius: 24px;
   padding: 22px;
   height: 100%;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08),
-    0 0 0 1px rgba(255, 255, 255, 0.06);
-  backdrop-filter: blur(24px) saturate(140%);
-  -webkit-backdrop-filter: blur(24px) saturate(140%);
-  position: relative;
-  overflow: hidden;
-  opacity: 0.95;
+  background: color-mix(
+    in srgb,
+    var(--background-main, #121212) 80%,
+    transparent 15%
+  );
+  border: 1px solid var(--card-border, rgba(255, 255, 255, 0.14));
+  color: var(--card-text, #fff);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  backdrop-filter: blur(16px) saturate(160%);
+  -webkit-backdrop-filter: blur(16px) saturate(160%);
+  opacity: 0.98;
 }
 
 /* Very subtle gradient overlay for glass effect */
@@ -249,6 +246,7 @@
 
 .readMore .arrow {
   font-size: 18px;
+  transition: transform 0.3s ease;
 }
 
 .readMore:hover .arrow {
