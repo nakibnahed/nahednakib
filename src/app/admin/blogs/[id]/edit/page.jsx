@@ -243,67 +243,91 @@ export default function EditBlogPage() {
 
         <div className={styles.formGroup}>
           <label className={styles.label}>Content (HTML):</label>
-          <Editor
-            apiKey={process.env.NEXT_PUBLIC_TINYMCE_API_KEY}
-            value={formData.content}
-            init={{
-              height: 400,
-              menubar: "file edit view insert format tools table help",
-              plugins: [
-                "advlist",
-                "lists",
-                "autolink",
-                "link",
-                "image",
-                "charmap",
-                "preview",
-                "anchor",
-                "searchreplace",
-                "visualblocks",
-                "code",
-                "fullscreen",
-                "insertdatetime",
-                "media",
-                "table",
-                "help",
-                "wordcount",
-              ],
-              toolbar:
-                "undo redo | styles | bold italic underline strikethrough | " +
-                "alignleft aligncenter alignright alignjustify | " +
-                "bullist numlist outdent indent | blockquote | code | image | link | removeformat | help",
-              content_style:
-                "body { background: #181818; color: #fff; font-family:Helvetica,Arial,sans-serif; font-size:16px }",
-              images_upload_handler: function (blobInfo) {
-                return new Promise((resolve, reject) => {
-                  const file = blobInfo.blob();
-                  const fileExt = file.name.split(".").pop();
-                  const fileName = `${Date.now()}.${fileExt}`;
-                  supabase.storage
-                    .from("blog-images")
-                    .upload(fileName, file, {
-                      cacheControl: "3600",
-                      upsert: false,
-                      contentType: file.type,
-                    })
-                    .then(({ error }) => {
-                      if (error) {
-                        reject("Upload failed: " + error.message);
-                        return;
-                      }
-                      const { data: publicData } = supabase.storage
-                        .from("blog-images")
-                        .getPublicUrl(fileName);
-                      resolve(publicData.publicUrl);
-                    })
-                    .catch((err) => {
-                      reject("Upload failed: " + err.message);
-                    });
-                });
-              },
-            }}
-            onEditorChange={(val) => setFormData({ ...formData, content: val })}
-          />
+          {process.env.NEXT_PUBLIC_TINYMCE_API_KEY ? (
+            <Editor
+              apiKey={process.env.NEXT_PUBLIC_TINYMCE_API_KEY}
+              value={formData.content}
+              init={{
+                height: 400,
+                menubar: "file edit view insert format tools table help",
+                plugins: [
+                  "advlist",
+                  "lists",
+                  "autolink",
+                  "link",
+                  "image",
+                  "charmap",
+                  "preview",
+                  "anchor",
+                  "searchreplace",
+                  "visualblocks",
+                  "code",
+                  "fullscreen",
+                  "insertdatetime",
+                  "media",
+                  "table",
+                  "help",
+                  "wordcount",
+                ],
+                toolbar:
+                  "undo redo | styles | bold italic underline strikethrough | " +
+                  "alignleft aligncenter alignright alignjustify | " +
+                  "bullist numlist outdent indent | blockquote | code | image | link | removeformat | help",
+                content_style:
+                  "body { background: #181818; color: #fff; font-family:Helvetica,Arial,sans-serif; font-size:16px }",
+                images_upload_handler: function (blobInfo) {
+                  return new Promise((resolve, reject) => {
+                    const file = blobInfo.blob();
+                    const fileExt = file.name.split(".").pop();
+                    const fileName = `${Date.now()}.${fileExt}`;
+                    supabase.storage
+                      .from("blog-images")
+                      .upload(fileName, file, {
+                        cacheControl: "3600",
+                        upsert: false,
+                        contentType: file.type,
+                      })
+                      .then(({ error }) => {
+                        if (error) {
+                          reject("Upload failed: " + error.message);
+                          return;
+                        }
+                        const { data: publicData } = supabase.storage
+                          .from("blog-images")
+                          .getPublicUrl(fileName);
+                        resolve(publicData.publicUrl);
+                      })
+                      .catch((err) => {
+                        reject("Upload failed: " + err.message);
+                      });
+                  });
+                },
+              }}
+              onEditorChange={(val) =>
+                setFormData({ ...formData, content: val })
+              }
+            />
+          ) : (
+            <div
+              style={{
+                padding: "20px",
+                border: "1px solid #ccc",
+                borderRadius: "4px",
+                background: "#f5f5f5",
+              }}
+            >
+              <p>
+                ⚠️ TinyMCE API Key not found. Please check your environment
+                variables.
+              </p>
+              <p>
+                API Key:{" "}
+                {process.env.NEXT_PUBLIC_TINYMCE_API_KEY
+                  ? "Present"
+                  : "Missing"}
+              </p>
+            </div>
+          )}
         </div>
 
         <button
