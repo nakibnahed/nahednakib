@@ -14,11 +14,12 @@ export default function AuthorPage({ params }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  // Unwrap params outside of try/catch
+  const { id } = use(params);
+
   useEffect(() => {
     async function fetchData() {
       try {
-        const { id } = use(params);
-
         // Fetch author profile
         const { data: authorData, error: authorError } = await supabase
           .from("profiles")
@@ -66,7 +67,7 @@ export default function AuthorPage({ params }) {
     }
 
     fetchData();
-  }, [params]);
+  }, [id]);
 
   if (loading) {
     return (
