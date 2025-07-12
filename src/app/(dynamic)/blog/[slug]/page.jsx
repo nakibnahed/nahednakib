@@ -13,13 +13,17 @@ export default async function Post({ params }) {
     .select(
       `
       *,
-      authors (
+      profiles!blogs_author_user_id_fkey (
         id,
-        name,
-        slug,
-        avatar_url,
+        full_name,
+        email,
         role,
-        bio
+        bio,
+        website,
+        twitter,
+        linkedin,
+        github,
+        avatar_url
       )
     `
     )
@@ -74,23 +78,25 @@ export default async function Post({ params }) {
         <h1 className={styles.title}>{blog.title}</h1>
         <div className={styles.authorRow}>
           <Image
-            src={blog.authors?.avatar_url || "/images/me.jpg"}
-            alt={blog.authors?.name || "Author"}
+            src={blog.profiles?.avatar_url || "/images/me.jpg"}
+            alt={blog.profiles?.full_name || "Author"}
             width={40}
             height={40}
             className={styles.authorAvatar}
           />
           <div>
             <Link
-              href={`/authors/${blog.authors?.slug || "nahed-nakib"}`}
+              href={`/authors/${blog.profiles?.id || "admin"}`}
               className={styles.authorLink}
             >
               <div className={styles.author}>
-                {blog.authors?.name || "Nahed Nakib"}
+                {blog.profiles?.full_name || "Nahed Nakib"}
               </div>
             </Link>
             <div className={styles.authorRole}>
-              {blog.authors?.role || "Founder & CEO"}
+              {blog.profiles?.role === "admin"
+                ? "Founder & CEO"
+                : blog.profiles?.role || "Author"}
             </div>
           </div>
         </div>

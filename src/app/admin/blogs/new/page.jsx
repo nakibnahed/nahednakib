@@ -14,19 +14,19 @@ export default function NewBlogPage() {
     slug: "",
     imageFile: null,
     category_id: "",
-    author_id: "",
+    author_user_id: "",
     description: "",
     content: "",
   });
 
   const [categories, setCategories] = useState([]);
-  const [authors, setAuthors] = useState([]);
+  const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState(null);
 
   useEffect(() => {
     fetchCategories();
-    fetchAuthors();
+    fetchUsers();
   }, []);
 
   async function fetchCategories() {
@@ -43,17 +43,17 @@ export default function NewBlogPage() {
     }
   }
 
-  async function fetchAuthors() {
+  async function fetchUsers() {
     const { data, error } = await supabase
-      .from("authors")
-      .select("*")
-      .order("name");
+      .from("profiles")
+      .select("id, full_name, email, role")
+      .order("full_name");
 
     if (error) {
-      console.error("Error fetching authors:", error);
-      setAuthors([]);
+      console.error("Error fetching users:", error);
+      setUsers([]);
     } else {
-      setAuthors(data);
+      setUsers(data);
     }
   }
 
@@ -128,7 +128,7 @@ export default function NewBlogPage() {
         image: imageUrl,
         date: createdDate,
         category_id: formData.category_id || null,
-        author_id: formData.author_id || null,
+        author_user_id: formData.author_user_id || null,
         description: formData.description,
         content: formData.content,
       },
@@ -209,15 +209,15 @@ export default function NewBlogPage() {
         <div className={styles.formGroup}>
           <label className={styles.label}>Author:</label>
           <select
-            name="author_id"
-            value={formData.author_id}
+            name="author_user_id"
+            value={formData.author_user_id}
             onChange={handleChange}
             className={styles.input}
           >
-            <option value="">Select an author</option>
-            {authors.map((author) => (
-              <option key={author.id} value={author.id}>
-                {author.name} ({author.role})
+            <option value="">Select an author (defaults to admin)</option>
+            {users.map((user) => (
+              <option key={user.id} value={user.id}>
+                {user.full_name} ({user.email}) - {user.role}
               </option>
             ))}
           </select>

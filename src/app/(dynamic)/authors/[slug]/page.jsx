@@ -6,11 +6,11 @@ import { supabase } from "@/services/supabaseClient";
 export default async function AuthorPage({ params }) {
   const { slug } = await params;
 
-  // Fetch author data
+  // Fetch author data from profiles table
   const { data: author, error: authorError } = await supabase
-    .from("authors")
+    .from("profiles")
     .select("*")
-    .eq("slug", slug)
+    .eq("id", slug)
     .single();
 
   if (authorError || !author) {
@@ -42,7 +42,7 @@ export default async function AuthorPage({ params }) {
       )
     `
     )
-    .eq("author_id", author.id)
+    .eq("author_user_id", author.id)
     .order("date", { ascending: false });
 
   if (postsError) {
@@ -73,9 +73,13 @@ export default async function AuthorPage({ params }) {
             />
           </div>
           <div className={styles.authorDetails}>
-            <h1 className={styles.authorName}>{author.name}</h1>
-            <p className={styles.authorRole}>{author.role}</p>
-            <p className={styles.authorBio}>{author.bio}</p>
+            <h1 className={styles.authorName}>{author.full_name}</h1>
+            <p className={styles.authorRole}>
+              {author.role === "admin" ? "Founder & CEO" : author.role}
+            </p>
+            <p className={styles.authorBio}>
+              {author.bio || "No bio available yet."}
+            </p>
 
             {/* Social Links */}
             <div className={styles.socialLinks}>
