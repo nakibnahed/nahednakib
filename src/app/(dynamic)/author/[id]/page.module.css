@@ -88,97 +88,173 @@
   font-size: 1.1rem;
 }
 
-/* Posts Grid */
-.postsGrid {
+/* Blog Grid - Using Portfolio Card Styling */
+.gridContainer {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-  gap: 24px;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  z-index: 999;
+  flex: 1;
 }
 
-.postCard {
-  display: block;
-  text-decoration: none;
-  color: inherit;
-  background: color-mix(
-    in srgb,
-    var(--background-main, #121212) 82%,
-    transparent 18%
-  );
-  border: 1px solid var(--card-border, rgba(255, 255, 255, 0.14));
-  border-radius: 16px;
-  overflow: hidden;
-  transition: all 0.3s ease;
-  opacity: 0.95;
-}
-
-.postCard:hover {
-  opacity: 1;
-  transform: translateY(-4px);
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-}
-
-.postImage {
+/* Post Link */
+.post {
   position: relative;
   width: 100%;
-  height: 200px;
+  text-decoration: none;
+  color: inherit;
+  z-index: 999;
 }
 
-.image {
-  border-radius: 16px 16px 0 0;
+.card {
+  border-radius: 24px;
+  padding: 22px;
+  height: 100%;
+  background: color-mix(
+    in srgb,
+    var(--background-main, #121212) 80%,
+    transparent 15%
+  );
+  border: 1px solid var(--card-border, rgba(255, 255, 255, 0.14));
+  color: var(--card-text, #fff);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  backdrop-filter: blur(16px) saturate(160%);
+  -webkit-backdrop-filter: blur(16px) saturate(160%);
+  opacity: 0.98;
 }
 
-.postContent {
-  padding: 20px;
+/* Very subtle gradient overlay for glass effect */
+.card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    145deg,
+    rgba(255, 255, 255, 0.02) 0%,
+    rgba(255, 255, 255, 0.01) 35%,
+    rgba(255, 255, 255, 0) 65%
+  );
+  pointer-events: none;
+  border-radius: inherit;
 }
 
-.postMeta {
+.card:hover {
+  opacity: 1;
+}
+
+.cardContent {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  gap: 16px;
+  z-index: 1;
+}
+
+.cardHeader {
+  position: relative;
+}
+
+.cardBody {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.cardFooter {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 12px;
+  margin-top: auto;
 }
 
-.postDate {
-  font-size: 0.9rem;
-  color: var(--text-secondary);
-}
-
-.postCategory {
-  font-size: 0.8rem;
-  padding: 4px 8px;
-  border-radius: 12px;
-  color: #fff;
-  font-weight: 500;
-}
-
-.postTitle {
-  font-size: 1.2rem;
+/* Title Styling */
+.title {
+  font-size: 18px;
   font-weight: 600;
-  margin: 0 0 8px 0;
   color: var(--text-primary);
+  margin: 0 0 8px 0;
   line-height: 1.4;
-}
-
-.postDescription {
-  font-size: 0.95rem;
-  color: var(--text-secondary);
-  margin: 0 0 16px 0;
-  line-height: 1.5;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
 
-.postFooter {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+.date {
+  font-size: 14px;
+  color: var(--text-dark);
+  margin: 0;
 }
 
-.readTime {
-  font-size: 0.85rem;
+.description {
+  font-size: 14px;
+  color: var(--text-dark);
+  line-height: 1.5;
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.technologies {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.techTag {
+  font-size: 12px;
+  padding: 4px 8px;
+  background: var(--button-bg-no-active);
+  color: var(--button-text-no-activ);
+  border-radius: 12px;
+  font-weight: 500;
+}
+
+.readMore {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--primary-color);
+}
+
+.readMore .arrow {
+  transition: transform 0.3s ease;
+}
+
+.readMore:hover .arrow {
+  transform: translateX(4px);
+}
+
+.icon {
+  position: absolute;
+  top: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--text-dark);
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.iconText {
+  font-size: 12px;
+}
+
+.loading {
+  text-align: center;
+  padding: 48px;
   color: var(--text-secondary);
+  font-size: 1.1rem;
 }
 
 /* Back Link */
@@ -202,6 +278,12 @@
 }
 
 /* Responsive Design */
+@media (max-width: 1024px) {
+  .gridContainer {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
 @media (max-width: 768px) {
   .container {
     padding: 16px;
@@ -226,7 +308,7 @@
     justify-content: center;
   }
 
-  .postsGrid {
+  .gridContainer {
     grid-template-columns: 1fr;
     gap: 20px;
   }
@@ -246,11 +328,11 @@
     font-size: 1rem;
   }
 
-  .postContent {
+  .card {
     padding: 16px;
   }
 
-  .postTitle {
-    font-size: 1.1rem;
+  .title {
+    font-size: 16px;
   }
 }

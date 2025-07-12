@@ -17,6 +17,8 @@ export default function NewBlogPage() {
     author_id: "",
     description: "",
     content: "",
+    tags: "",
+    readTime: "",
   });
 
   const [categories, setCategories] = useState([]);
@@ -131,6 +133,8 @@ export default function NewBlogPage() {
         author_id: formData.author_id || null,
         description: formData.description,
         content: formData.content,
+        tags: formData.tags.trim() || "Web Development",
+        readTime: formData.readTime ? parseInt(formData.readTime) : null,
       },
     ]);
 
@@ -215,14 +219,22 @@ export default function NewBlogPage() {
             className={styles.input}
           >
             <option value="">Select an author</option>
-            {users.map((user) => (
-              <option key={user.id} value={user.id}>
-                {user.full_name ||
-                  `${user.first_name} ${user.last_name}` ||
-                  user.email}
-                {user.role === "admin" ? " (Admin)" : ""}
-              </option>
-            ))}
+            {users.map((user) => {
+              const displayName =
+                user.full_name ||
+                (user.first_name && user.last_name
+                  ? `${user.first_name} ${user.last_name}`
+                  : null) ||
+                user.email ||
+                "Unknown User";
+
+              return (
+                <option key={user.id} value={user.id}>
+                  {displayName}
+                  {user.role === "admin" ? " (Admin)" : ""}
+                </option>
+              );
+            })}
           </select>
         </div>
 
@@ -244,6 +256,40 @@ export default function NewBlogPage() {
             onChange={handleChange}
             className={styles.textarea}
           />
+        </div>
+
+        <div className={styles.formGroup}>
+          <label className={styles.label}>Tags:</label>
+          <input
+            name="tags"
+            value={formData.tags}
+            onChange={handleChange}
+            className={styles.input}
+            placeholder="Enter tags separated by commas (e.g., Next.js, React, Web Development)"
+          />
+          <small className={styles.helpText}>
+            Separate multiple tags with commas. These will be used for related
+            posts and search. If no tags are provided, "Web Development" will be
+            used as default.
+          </small>
+        </div>
+
+        <div className={styles.formGroup}>
+          <label className={styles.label}>Read Time (minutes):</label>
+          <input
+            name="readTime"
+            type="number"
+            min="1"
+            value={formData.readTime}
+            onChange={handleChange}
+            className={styles.input}
+            placeholder="Leave empty for automatic calculation"
+          />
+          <small className={styles.helpText}>
+            Optional: Manually set the read time in minutes. If left empty, it
+            will be automatically calculated based on content length (200 words
+            per minute).
+          </small>
         </div>
 
         <div className={styles.formGroup}>

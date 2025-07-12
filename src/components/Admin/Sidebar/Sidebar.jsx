@@ -1,6 +1,7 @@
 "use client";
 
 import { useRouter, usePathname } from "next/navigation";
+import Link from "next/link";
 import { supabase } from "@/services/supabaseClient";
 import LogoutButton from "@/components/Admin/LogoutButton/LogoutButton";
 import styles from "./Sidebar.module.css";
@@ -16,6 +17,7 @@ import {
   Crown,
   Bell,
   Tag,
+  User,
 } from "lucide-react";
 
 export default function Sidebar({ adminData }) {
@@ -67,7 +69,18 @@ export default function Sidebar({ adminData }) {
     if (adminData?.profile?.avatar_url) {
       return adminData.profile.avatar_url;
     }
-    return "/default-avatar.svg"; // fallback
+    return "/images/me.jpg"; // fallback
+  };
+
+  // Get admin role
+  const getAdminRole = () => {
+    if (adminData?.profile?.role === "admin") {
+      return "Administrator";
+    }
+    if (adminData?.profile?.role === "user") {
+      return "User";
+    }
+    return "Admin";
   };
 
   return (
@@ -75,18 +88,22 @@ export default function Sidebar({ adminData }) {
       <nav className={styles.sidebar}>
         {/* Admin Profile Section */}
         <div className={styles.adminInfo}>
-          <div className={styles.adminAvatar}>
-            <img
-              src={getAdminAvatar()}
-              alt="Admin Avatar"
-              className={styles.avatarImage}
-            />
-          </div>
+          <Link href="/users/profile" className={styles.adminAvatarLink}>
+            <div className={styles.adminAvatar}>
+              <img
+                src={getAdminAvatar()}
+                alt="Admin Avatar"
+                className={styles.avatarImage}
+              />
+            </div>
+          </Link>
           <div className={styles.adminDetails}>
-            <h4 className={styles.adminName}>{getAdminDisplayName()}</h4>
+            <Link href="/users/profile" className={styles.adminNameLink}>
+              <h4 className={styles.adminName}>{getAdminDisplayName()}</h4>
+            </Link>
             <p className={styles.adminRole}>
-              <Shield size={12} style={{ color: "var(--primary-color)" }} />
-              Administrator
+              <User size={12} style={{ color: "var(--primary-color)" }} />
+              {getAdminRole()}
             </p>
           </div>
         </div>

@@ -7,6 +7,7 @@ import Image from "next/image";
 import styles from "./page.module.css";
 import { Calendar, Clock, ArrowRight, Eye } from "lucide-react";
 import { useViews } from "@/hooks/useViews";
+import { calculateReadTime, formatReadTime } from "@/lib/utils/readTime";
 
 export default function Blog() {
   const [blogs, setBlogs] = useState([]);
@@ -61,7 +62,7 @@ export default function Blog() {
         )
       `
       )
-      .order("date", { ascending: false });
+      .order("created_at", { ascending: false });
 
     if (error) {
       console.error("Error fetching blogs:", error);
@@ -89,13 +90,6 @@ export default function Blog() {
       month: "short",
       day: "numeric",
     });
-  }
-
-  function getReadTime(content) {
-    const wordsPerMinute = 200;
-    const wordCount = content.replace(/<[^>]*>/g, "").split(/\s+/).length;
-    const readTime = Math.ceil(wordCount / wordsPerMinute);
-    return readTime;
   }
 
   if (loading) {
@@ -186,7 +180,9 @@ export default function Blog() {
                     <div className={styles.cardHeader}>
                       <BlogViews blogId={blog.id} />
                       <h1 className={styles.title}>{blog.title}</h1>
-                      <p className={styles.date}>{formatDate(blog.date)}</p>
+                      <p className={styles.date}>
+                        {formatDate(blog.created_at)}
+                      </p>
                     </div>
 
                     <div className={styles.cardBody}>
@@ -197,7 +193,7 @@ export default function Blog() {
                           </span>
                         )}
                         <span className={styles.techTag}>
-                          {getReadTime(blog.content)} min read
+                          {formatReadTime(calculateReadTime(blog.content))}
                         </span>
                       </div>
                       <p className={styles.description}>

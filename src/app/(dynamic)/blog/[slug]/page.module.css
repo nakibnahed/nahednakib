@@ -57,7 +57,6 @@
 
 .authorLink:hover {
   opacity: 0.8;
-  background: rgba(255, 255, 255, 0.05);
 }
 .authorAvatar {
   border-radius: 50%;

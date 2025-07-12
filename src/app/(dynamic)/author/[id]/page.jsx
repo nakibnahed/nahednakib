@@ -1,19 +1,82 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
+import { useState, useEffect, use } from "react";
 import styles from "./page.module.css";
 import { supabase } from "@/services/supabaseClient";
+import { calculateReadTime, formatReadTime } from "@/lib/utils/readTime";
+import { Eye } from "lucide-react";
 
-export default async function AuthorPage({ params }) {
-  const { id } = await params;
+export default function AuthorPage({ params }) {
+  const [author, setAuthor] = useState(null);
+  const [posts, setPosts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  // Fetch author profile
-  const { data: author, error: authorError } = await supabase
-    .from("profiles")
-    .select("*")
-    .eq("id", id)
-    .single();
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const { id } = use(params);
 
-  if (authorError || !author) {
+        // Fetch author profile
+        const { data: authorData, error: authorError } = await supabase
+          .from("profiles")
+          .select(
+            "id, full_name, first_name, last_name, avatar_url, email, role, bio, professional_role"
+          )
+          .eq("id", id)
+          .single();
+
+        if (authorError || !authorData) {
+          setError("Author not found");
+          setLoading(false);
+          return;
+        }
+
+        setAuthor(authorData);
+
+        // Fetch author's blog posts
+        const { data: authorPosts, error: postsError } = await supabase
+          .from("blogs")
+          .select(
+            `
+            *,
+            categories (
+              id,
+              name,
+              slug,
+              color
+            )
+          `
+          )
+          .eq("author_id", id)
+          .order("created_at", { ascending: false });
+
+        if (postsError) {
+          console.error("Error fetching author posts:", postsError);
+        }
+
+        setPosts(authorPosts || []);
+        setLoading(false);
+      } catch (err) {
+        setError("Error loading author data");
+        setLoading(false);
+      }
+    }
+
+    fetchData();
+  }, [params]);
+
+  if (loading) {
+    return (
+      <div className={styles.container}>
+        <div className={styles.loading}>Loading author...</div>
+      </div>
+    );
+  }
+
+  if (error || !author) {
     return (
       <div className={styles.container}>
         <h1>Author Not Found</h1>
@@ -25,29 +88,6 @@ export default async function AuthorPage({ params }) {
     );
   }
 
-  // Fetch author's blog posts
-  const { data: authorPosts, error: postsError } = await supabase
-    .from("blogs")
-    .select(
-      `
-      *,
-      categories (
-        id,
-        name,
-        slug,
-        color
-      )
-    `
-    )
-    .eq("author_id", id)
-    .order("created_at", { ascending: false });
-
-  if (postsError) {
-    console.error("Error fetching author posts:", postsError);
-  }
-
-  const posts = authorPosts || [];
-
   function formatDate(dateString) {
     const date = new Date(dateString);
     return date.toLocaleDateString("en-US", {
@@ -57,11 +97,17 @@ export default async function AuthorPage({ params }) {
     });
   }
 
-  function getReadTime(content) {
-    const wordsPerMinute = 200;
-    const wordCount = content.replace(/<[^>]*>/g, "").split(/\s+/).length;
-    const readTime = Math.ceil(wordCount / wordsPerMinute);
-    return readTime;
+  // Blog Views Component (same as blog page)
+  function BlogViews({ blogId }) {
+    // Generate random numbers for views only
+    const randomViews = Math.floor(Math.random() * 500) + 50; // 50-550 views
+
+    return (
+      <div className={styles.icon}>
+        <Eye size={20} strokeWidth={2} />
+        <span className={styles.iconText}>{randomViews}</span>
+      </div>
+    );
   }
 
   return (
@@ -84,14 +130,18 @@ export default async function AuthorPage({ params }) {
             </h1>
             <p className={styles.authorBio}>
               {author.bio ||
-                "Passionate writer and developer sharing insights about technology and web development."}
+                (author.role === "admin"
+                  ? "Founder & CEO with a passion for web development and creating amazing digital experiences."
+                  : "Passionate writer and developer sharing insights about technology and web development.")}
             </p>
             <div className={styles.authorStats}>
               <span className={styles.stat}>
                 <strong>{posts.length}</strong> posts
               </span>
               <span className={styles.stat}>
-                <strong>{author.role || "Author"}</strong>
+                <strong>
+                  {author.professional_role || author.role || "Author"}
+                </strong>
               </span>
             </div>
           </div>
@@ -109,44 +159,56 @@ export default async function AuthorPage({ params }) {
             <p>No posts published yet.</p>
           </div>
         ) : (
-          <div className={styles.postsGrid}>
+          <div className={styles.gridContainer}>
             {posts.map((post) => (
               <Link
                 key={post.id}
                 href={`/blog/${post.slug}`}
-                className={styles.postCard}
+                className={styles.post}
               >
-                <div className={styles.postImage}>
-                  <Image
-                    src={post.image || "/images/portfolio.jpg"}
-                    alt={post.title}
-                    fill
-                    className={styles.image}
-                    style={{ objectFit: "cover" }}
-                  />
-                </div>
-                <div className={styles.postContent}>
-                  <div className={styles.postMeta}>
-                    <span className={styles.postDate}>
-                      {formatDate(post.created_at)}
-                    </span>
-                    {post.categories && (
-                      <span
-                        className={styles.postCategory}
-                        style={{ backgroundColor: post.categories.color }}
-                      >
-                        {post.categories.name}
-                      </span>
-                    )}
-                  </div>
-                  <h3 className={styles.postTitle}>{post.title}</h3>
-                  <p className={styles.postDescription}>
-                    {post.description || "Read this amazing blog post..."}
-                  </p>
-                  <div className={styles.postFooter}>
-                    <span className={styles.readTime}>
-                      {getReadTime(post.content)} min read
-                    </span>
+                <div
+                  className={styles.card}
+                  onMouseMove={(e) => {
+                    const rect = e.currentTarget.getBoundingClientRect();
+                    const x = e.clientX - rect.left;
+                    const y = e.clientY - rect.top;
+
+                    e.currentTarget.style.setProperty("--mouse-x", `${x}px`);
+                    e.currentTarget.style.setProperty("--mouse-y", `${y}px`);
+                  }}
+                >
+                  <div className={styles.cardGlow} />
+                  <div className={styles.cardContent}>
+                    <div className={styles.cardHeader}>
+                      <BlogViews blogId={post.id} />
+                      <h1 className={styles.title}>{post.title}</h1>
+                      <p className={styles.date}>
+                        {formatDate(post.created_at)}
+                      </p>
+                    </div>
+
+                    <div className={styles.cardBody}>
+                      <div className={styles.technologies}>
+                        {post.categories && (
+                          <span className={styles.techTag}>
+                            {post.categories.name}
+                          </span>
+                        )}
+                        <span className={styles.techTag}>
+                          {formatReadTime(calculateReadTime(post.content))}
+                        </span>
+                      </div>
+                      <p className={styles.description}>
+                        {post.description || "Read this amazing blog post..."}
+                      </p>
+                    </div>
+
+                    <div className={styles.cardFooter}>
+                      <div className={styles.readMore}>
+                        <span>Read More</span>
+                        <span className={styles.arrow}>→</span>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </Link>

@@ -70,12 +70,8 @@ export default function UserSidebar({
                   }`.trim()
                 : profileData?.full_name || "User"}
             </h4>
-            <p className={styles.userEmail}>
-              {profileData?.first_name || profileData?.last_name
-                ? `${profileData?.first_name || ""} ${
-                    profileData?.last_name || ""
-                  }`.trim()
-                : profileData?.full_name || "User"}
+            <p className={styles.userRole}>
+              {profileData?.professional_role || "User"}
             </p>
           </div>
         </div>

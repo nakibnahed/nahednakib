@@ -21,6 +21,29 @@
   opacity: 0.98;
 }
 
+.adminAvatarLink {
+  text-decoration: none;
+  color: inherit;
+  display: block;
+  transition: all 0.2s ease;
+  border-radius: 50%;
+}
+
+.adminAvatarLink:hover {
+  opacity: 0.8;
+}
+
+.adminNameLink {
+  text-decoration: none;
+  color: inherit;
+  display: block;
+  transition: all 0.2s ease;
+}
+
+.adminNameLink:hover .adminName {
+  color: var(--primary-color, #ee681a);
+}
+
 .adminInfo {
   display: flex;
   align-items: center;
@@ -162,6 +185,14 @@
     flex-direction: row;
     align-items: center;
     overflow-x: auto;
+  }
+
+  .adminAvatarLink:hover {
+    opacity: 0.8;
+  }
+
+  .adminNameLink:hover .adminName {
+    color: var(--primary-color, #ee681a);
   }
 
   .adminInfo {

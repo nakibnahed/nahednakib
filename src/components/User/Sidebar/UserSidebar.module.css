@@ -50,10 +50,13 @@
   color: var(--text-primary, #fff);
 }
 
-.userEmail {
+.userRole {
   margin: 0;
   font-size: 12px;
   color: var(--text-secondary, #aaa);
+  display: flex;
+  align-items: center;
+  gap: 4px;
 }
 
 .panelTitle {
@@ -156,7 +159,7 @@
     font-size: 14px;
   }
 
-  .userEmail {
+  .userRole {
     font-size: 10px;
   }
 
