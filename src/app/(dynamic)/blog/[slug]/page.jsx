@@ -8,22 +8,10 @@ import { supabase } from "@/services/supabaseClient";
 export default async function Post({ params }) {
   const { slug } = await params;
 
+  // First get the blog post
   const { data: blog, error } = await supabase
     .from("blogs")
-    .select(
-      `
-      *,
-      profiles!blogs_author_id_fkey (
-        id,
-        full_name,
-        first_name,
-        last_name,
-        avatar_url,
-        email,
-        bio
-      )
-    `
-    )
+    .select("*")
     .eq("slug", slug)
     .single();
 
@@ -54,6 +42,20 @@ export default async function Post({ params }) {
     );
   }
 
+  // Then get the author profile if author_id exists
+  let authorProfile = null;
+  if (blog.author_id) {
+    const { data: author, error: authorError } = await supabase
+      .from("profiles")
+      .select("id, full_name, first_name, last_name, avatar_url, email, bio")
+      .eq("id", blog.author_id)
+      .single();
+
+    if (!authorError) {
+      authorProfile = author;
+    }
+  }
+
   const formattedDate = new Date(blog.created_at).toLocaleDateString(
     undefined,
     { year: "numeric", month: "short", day: "numeric" }
@@ -75,24 +77,25 @@ export default async function Post({ params }) {
         <h1 className={styles.title}>{blog.title}</h1>
         <div className={styles.authorRow}>
           <Link
-            href={`/author/${blog.profiles?.id || "default"}`}
+            href={`/author/${authorProfile?.id || "default"}`}
             className={styles.authorLink}
           >
             <Image
-              src={blog.profiles?.avatar_url || "/images/me.jpg"}
-              alt={blog.profiles?.full_name || "Author"}
+              src={authorProfile?.avatar_url || "/images/me.jpg"}
+              alt={authorProfile?.full_name || "Author"}
               width={40}
               height={40}
               className={styles.authorAvatar}
             />
             <div>
               <div className={styles.author}>
-                {blog.profiles?.full_name ||
-                  blog.profiles?.first_name + " " + blog.profiles?.last_name ||
-                  "Nahed Nakib"}
+                {authorProfile?.full_name ||
+                  (authorProfile?.first_name && authorProfile?.last_name
+                    ? `${authorProfile.first_name} ${authorProfile.last_name}`
+                    : "Nahed Nakib")}
               </div>
               <div className={styles.authorRole}>
-                {blog.profiles?.bio || "Founder & CEO"}
+                {authorProfile?.bio || "Founder & CEO"}
               </div>
             </div>
           </Link>
