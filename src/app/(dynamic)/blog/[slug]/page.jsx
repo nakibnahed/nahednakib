@@ -10,7 +10,19 @@ export default async function Post({ params }) {
 
   const { data: blog, error } = await supabase
     .from("blogs")
-    .select("*")
+    .select(
+      `
+      *,
+      authors (
+        id,
+        name,
+        slug,
+        avatar_url,
+        role,
+        bio
+      )
+    `
+    )
     .eq("slug", slug)
     .single();
 
@@ -62,16 +74,23 @@ export default async function Post({ params }) {
         <h1 className={styles.title}>{blog.title}</h1>
         <div className={styles.authorRow}>
           <Image
-            src={blog.authorAvatar || "/images/me.jpg"}
-            alt={blog.author || "Author"}
+            src={blog.authors?.avatar_url || "/images/me.jpg"}
+            alt={blog.authors?.name || "Author"}
             width={40}
             height={40}
             className={styles.authorAvatar}
           />
           <div>
-            <div className={styles.author}>{blog.author || "Nahed Nakib"}</div>
+            <Link
+              href={`/authors/${blog.authors?.slug || "nahed-nakib"}`}
+              className={styles.authorLink}
+            >
+              <div className={styles.author}>
+                {blog.authors?.name || "Nahed Nakib"}
+              </div>
+            </Link>
             <div className={styles.authorRole}>
-              {blog.authorRole || "Founder & CEO"}
+              {blog.authors?.role || "Founder & CEO"}
             </div>
           </div>
         </div>

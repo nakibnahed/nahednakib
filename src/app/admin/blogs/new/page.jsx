@@ -14,16 +14,19 @@ export default function NewBlogPage() {
     slug: "",
     imageFile: null,
     category_id: "",
+    author_id: "",
     description: "",
     content: "",
   });
 
   const [categories, setCategories] = useState([]);
+  const [authors, setAuthors] = useState([]);
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState(null);
 
   useEffect(() => {
     fetchCategories();
+    fetchAuthors();
   }, []);
 
   async function fetchCategories() {
@@ -37,6 +40,20 @@ export default function NewBlogPage() {
       setCategories([]);
     } else {
       setCategories(data);
+    }
+  }
+
+  async function fetchAuthors() {
+    const { data, error } = await supabase
+      .from("authors")
+      .select("*")
+      .order("name");
+
+    if (error) {
+      console.error("Error fetching authors:", error);
+      setAuthors([]);
+    } else {
+      setAuthors(data);
     }
   }
 
@@ -111,6 +128,7 @@ export default function NewBlogPage() {
         image: imageUrl,
         date: createdDate,
         category_id: formData.category_id || null,
+        author_id: formData.author_id || null,
         description: formData.description,
         content: formData.content,
       },
@@ -183,6 +201,23 @@ export default function NewBlogPage() {
             {categories.map((category) => (
               <option key={category.id} value={category.id}>
                 {category.name}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div className={styles.formGroup}>
+          <label className={styles.label}>Author:</label>
+          <select
+            name="author_id"
+            value={formData.author_id}
+            onChange={handleChange}
+            className={styles.input}
+          >
+            <option value="">Select an author</option>
+            {authors.map((author) => (
+              <option key={author.id} value={author.id}>
+                {author.name} ({author.role})
               </option>
             ))}
           </select>

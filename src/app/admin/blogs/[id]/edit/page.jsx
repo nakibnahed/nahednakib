@@ -16,11 +16,13 @@ export default function EditBlogPage() {
     slug: "",
     image: "",
     category_id: "",
+    author_id: "",
     description: "",
     content: "",
   });
 
   const [categories, setCategories] = useState([]);
+  const [authors, setAuthors] = useState([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [errorMsg, setErrorMsg] = useState(null);
@@ -28,6 +30,7 @@ export default function EditBlogPage() {
 
   useEffect(() => {
     fetchCategories();
+    fetchAuthors();
     fetchBlog();
   }, [id]);
 
@@ -45,11 +48,34 @@ export default function EditBlogPage() {
     }
   }
 
+  async function fetchAuthors() {
+    const { data, error } = await supabase
+      .from("authors")
+      .select("*")
+      .order("name");
+
+    if (error) {
+      console.error("Error fetching authors:", error);
+      setAuthors([]);
+    } else {
+      setAuthors(data);
+    }
+  }
+
   async function fetchBlog() {
     setErrorMsg(null);
     const { data, error } = await supabase
       .from("blogs")
-      .select("*")
+      .select(
+        `
+        *,
+        authors (
+          id,
+          name,
+          role
+        )
+      `
+      )
       .eq("id", id)
       .single();
 
@@ -61,6 +87,7 @@ export default function EditBlogPage() {
         slug: data.slug,
         image: data.image,
         category_id: data.category_id || "",
+        author_id: data.author_id || "",
         description: data.description,
         content: data.content,
       });
@@ -140,6 +167,7 @@ export default function EditBlogPage() {
         slug: uniqueSlug,
         image: formData.image,
         category_id: formData.category_id || null,
+        author_id: formData.author_id || null,
         description: formData.description,
         content: formData.content,
       })
@@ -197,6 +225,23 @@ export default function EditBlogPage() {
             {categories.map((category) => (
               <option key={category.id} value={category.id}>
                 {category.name}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div className={styles.formGroup}>
+          <label className={styles.label}>Author:</label>
+          <select
+            name="author_id"
+            value={formData.author_id}
+            onChange={handleChange}
+            className={styles.input}
+          >
+            <option value="">Select an author</option>
+            {authors.map((author) => (
+              <option key={author.id} value={author.id}>
+                {author.name} ({author.role})
               </option>
             ))}
           </select>

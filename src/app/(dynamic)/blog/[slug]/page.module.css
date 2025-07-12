@@ -53,6 +53,16 @@
   font-weight: 600;
   color: var(--text-dark);
 }
+
+.authorLink {
+  text-decoration: none;
+  color: inherit;
+  transition: color 0.3s ease;
+}
+
+.authorLink:hover .author {
+  color: var(--primary-color);
+}
 .authorRole {
   font-size: 14px;
   color: var(--text-dark);
