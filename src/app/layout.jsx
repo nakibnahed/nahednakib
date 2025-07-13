@@ -4,6 +4,8 @@ import Footer from "@/components/Footer/Footer";
 import ToastContainer from "@/components/Toast/ToastContainer";
 import { metadata as siteMetadata } from "@/constants/metadata";
 import { ThemeProvider } from "@/context/ThemeContext";
+import { SpeedInsights } from "@vercel/speed-insights/next";
+import { Analytics } from "@vercel/analytics/next";
 
 export const metadata = {
   title: siteMetadata.title,
@@ -45,6 +47,8 @@ export default function RootLayout({ children }) {
             <Footer />
           </div>
           <ToastContainer />
+          <SpeedInsights />
+          <Analytics />
         </ThemeProvider>
       </body>
     </html>
