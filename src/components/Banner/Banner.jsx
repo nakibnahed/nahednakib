@@ -6,13 +6,13 @@ export default function Banner({ activeTab, setActiveTab }) {
   return (
     <div className={styles.banner}>
       <div className={styles.bannerContent}>
-        <div className={styles.title}>
+        {/* <div className={styles.title}>
           <h1>Nahed Nakib</h1>
           <p>
             Explore my skills and experience in web development and distance
             running.
           </p>
-        </div>
+        </div> */}
         <div className={styles.toggleButtons}>
           <div className={styles.backButton}>
             <Link href="/about" className={styles.tabButton}>
