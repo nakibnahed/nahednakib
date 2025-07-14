@@ -115,7 +115,7 @@ export default function RunningContent() {
         Icon={HeartPulse}
         details={
           <>
-            <p>Weekly mileage: ~110 km</p>
+            <p>Weekly mileage: Avg. ~110 km</p>
             <p> Current pace: 3:30/km</p>
             <p> Target pace: 3:20/km</p>
             <p>
@@ -146,9 +146,9 @@ export default function RunningContent() {
         Icon={Trophy}
         details={
           <>
-            <p> 🏃‍♂️ 5K: 16:45 (3:21/km)</p>
-            <p> 🏃‍♂️ 10K: 35:10 (3:31/km)</p>
-            <p> 🏃‍♂️ Half-Marathon: 1:20:00 (3:47/km)</p>
+            <p> 🏃‍♂️ 5K: !!! (!!!/km)</p>
+            <p> 🏃‍♂️ 10K: !!! (!!!/km)</p>
+            <p> 🏃‍♂️ Half-Marathon: !!! (!!!/km)</p>
           </>
         }
       />
@@ -159,7 +159,7 @@ export default function RunningContent() {
         details={
           <>
             <p> ✅ Break 16:30 in 5K (Fall 2025)</p>
-            <p> ✅ Sub-33 10K (Late 2025)</p>
+            <p> ✅ Sub-34:00 10K (Late 2025)</p>
             <p>✅ Marathon goal: 2h 30m (2026)</p>
           </>
         }

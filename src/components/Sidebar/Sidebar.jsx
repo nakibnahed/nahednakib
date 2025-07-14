@@ -7,9 +7,33 @@ import myImage from "/public/images/me.jpg";
 import runningImage from "/public/images/run2.jpg";
 import { Globe, Star, Phone } from "lucide-react";
 import SocialLinks from "@/components/SocialLinks/SocialLinks";
+import { useEffect, useState } from "react";
+import { createClient } from "@/lib/supabase/client";
 
 export default function Sidebar({ activeTab }) {
   const displayImage = activeTab === "web" ? myImage : runningImage;
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    const getSession = async () => {
+      const supabase = createClient();
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+      setUser(session?.user || null);
+    };
+    getSession();
+    const supabase = createClient();
+    const { data: listener } = supabase.auth.onAuthStateChange(
+      async (_event, session) => {
+        setUser(session?.user ?? null);
+      }
+    );
+    return () => listener?.subscription?.unsubscribe();
+  }, []);
+
+  const phoneNumber = "(+49) 176 63816827";
+  const maskedNumber = "(+49) 176 ********";
 
   return (
     <div className={styles.sidebar}>
@@ -22,7 +46,6 @@ export default function Sidebar({ activeTab }) {
           height={400}
         />
       </div>
-
       {/* Languages Section */}
       <div className={styles.card}>
         <div className={styles.cardHeader}>
@@ -43,7 +66,6 @@ export default function Sidebar({ activeTab }) {
           <li>German — (5%)</li>
         </ul>
       </div>
-
       {/* Hobbies Section */}
       {/* <div className={styles.card}>
         <div className={styles.cardHeader}>
@@ -74,7 +96,17 @@ export default function Sidebar({ activeTab }) {
           <strong>Email:</strong> nahednakibyos@gmail.com
         </p>
         <p>
-          <strong>Phone:</strong> (+49) 176 63816827
+          <strong>Phone: </strong>{" "}
+          {user ? (
+            <span>{phoneNumber}</span>
+          ) : (
+            <span className={styles.maskedPhone} tabIndex={0}>
+              {maskedNumber}
+              <span className={styles.tooltip}>
+                For privacy, log in to see the full number.
+              </span>
+            </span>
+          )}
         </p>
       </div>
 

@@ -47,3 +47,34 @@
 .SocialIcons {
   margin: 8px 0;
 }
+
+.maskedPhone {
+  position: relative;
+  cursor: pointer;
+  border-bottom: 1px dashed var(--primary-color);
+  color: var(--text-dark);
+}
+
+.tooltip {
+  visibility: hidden;
+  opacity: 0;
+  width: max-content;
+  background: var(--background-dark);
+  text-align: center;
+  border-radius: 8px;
+  padding: 6px 14px;
+  position: absolute;
+  z-index: 10;
+  left: 50%;
+  top: 120%;
+  transform: translateX(-50%);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+  transition: opacity 0.2s, visibility 0.2s;
+  pointer-events: none;
+}
+
+.maskedPhone:hover .tooltip,
+.maskedPhone:focus .tooltip {
+  visibility: visible;
+  opacity: 1;
+}
