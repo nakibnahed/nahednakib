@@ -73,7 +73,7 @@
   padding: 12px 20px;
   background: var(--button-bg);
   border: none;
-  border-radius: 10px;
+  border-radius: var(--button-radius);
   color: var(--button-text);
   font-weight: 700;
   cursor: pointer;
@@ -84,6 +84,7 @@
   background: var(--button-bg-no-activ);
   border: 1px solid var(--card-border);
   color: var(--button-text-no-activ);
+  border-radius: var(--button-radius);
 }
 
 /* Arrow Styling */

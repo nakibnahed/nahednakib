@@ -48,11 +48,14 @@
   padding: 12px 20px;
   background: var(--button-bg);
   border: none;
-  border-radius: 6px;
+  border-radius: var(--button-radius);
   color: var(--button-text);
   font-weight: 700;
   cursor: pointer;
   text-decoration: none;
+}
+.button:hover {
+  opacity: 0.9;
 }
 
 .button .arrow {

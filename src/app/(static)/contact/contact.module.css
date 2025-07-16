@@ -161,7 +161,7 @@
 }
 
 .submitBtn:hover:not(:disabled) {
-  background: var(--button-bg-hover);
+  opacity: 0.9;
 }
 
 .successMsg {

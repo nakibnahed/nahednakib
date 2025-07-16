@@ -57,11 +57,12 @@
   --footer-bg: #18181b;
 
   --button-bg: linear-gradient(to bottom, #ee681a, rgb(155, 64, 22));
-  --button-bg-no-activ: rgba(18, 18, 18, 0.82);
+  /* --button-bg-no-activ: rgba(18, 18, 18, 0.82); */
+  --button-bg-no-activ: #0f0f0f;
   --button-bg-hover: #ff8c42;
   --button-text: #222;
   --button-text-no-activ: #a2a2a2;
-  --button-radius: 0.75rem;
+  --button-radius: 10px;
   --button-shadow: 0 2px 8px rgba(238, 104, 26, 0.08);
   --button-border-color: transparent;
 }
