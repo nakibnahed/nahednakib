@@ -63,3 +63,56 @@
     grid-template-columns: 1fr;
   }
 }
+
+.likeButtonRow {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  margin-top: -20px;
+}
+
+.likeBtn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 6px;
+  background: transparent;
+  border: none;
+  border-radius: 3px;
+  color: var(--text-dark);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 13px;
+  font-weight: 300;
+}
+
+.likeBtn svg {
+  color: var(--text-dark);
+  transition: all 0.2s ease;
+}
+
+.likeBtn:hover,
+.likeBtn:focus {
+  color: var(--primary-color);
+  background: transparent;
+}
+
+.likeBtn:hover svg,
+.likeBtn:focus svg {
+  color: var(--primary-color);
+}
+
+.likeBtn.active {
+  color: var(--primary-color);
+  background: transparent;
+}
+
+.likeBtn.active svg {
+  color: var(--primary-color);
+}
+
+.likeBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
