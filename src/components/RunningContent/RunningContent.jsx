@@ -13,12 +13,24 @@ import {
   Clock,
   Activity as ActivityIcon,
   HeartPulse as HeartIcon,
-  BarChart,
+  BarChart as BarChartIcon,
   ListChecks,
   Watch,
+  Mountain,
 } from "lucide-react";
 import { FaThumbsUp, FaRegThumbsUp } from "react-icons/fa";
 import { useSwipeable } from "react-swipeable";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ResponsiveContainer,
+  CartesianGrid,
+  Legend,
+  Line,
+} from "recharts";
 
 export default function RunningContent() {
   const [activities, setActivities] = useState([]);
@@ -65,11 +77,85 @@ export default function RunningContent() {
         const avgPace =
           totalDistance > 0 ? totalTime / (totalDistance / 1000) : 0; // sec/km
 
+        // Best day
+        const days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+        const runsPerDay = [0, 0, 0, 0, 0, 0, 0];
+        weekActivities.forEach((a) => {
+          const d = new Date(a.start_date_local);
+          let dayIdx = d.getDay() - 1;
+          if (dayIdx < 0) dayIdx = 6;
+          runsPerDay[dayIdx]++;
+        });
+        const maxRuns = Math.max(...runsPerDay);
+        const bestDay = maxRuns > 0 ? days[runsPerDay.indexOf(maxRuns)] : "-";
+        // Longest run
+        let longestRun = null;
+        weekActivities.forEach((a) => {
+          if (!longestRun || (a.distance || 0) > (longestRun.distance || 0))
+            longestRun = a;
+        });
+        const longestRunDist =
+          longestRun && longestRun.distance
+            ? (longestRun.distance / 1000).toFixed(2)
+            : "-";
+        const longestRunDate =
+          longestRun && longestRun.start_date_local
+            ? new Date(longestRun.start_date_local).toLocaleDateString()
+            : "-";
+        // Avg run distance
+        const avgRunDist =
+          numRuns > 0 && totalDistance > 0
+            ? (totalDistance / 1000 / numRuns).toFixed(2)
+            : "-";
+        // Total elevation gain
+        const totalElevation = weekActivities.reduce(
+          (sum, a) => sum + (a.total_elevation_gain || 0),
+          0
+        );
+        // Avg run time
+        const avgRunTime =
+          numRuns > 0 ? formatTime(Math.round(totalTime / numRuns)) : "-";
+        // Avg heart rate
+        const heartRates = weekActivities
+          .map((a) => a.average_heartrate)
+          .filter(Boolean);
+        const avgHeartRate =
+          heartRates.length > 0
+            ? Math.round(
+                heartRates.reduce((a, b) => a + b, 0) / heartRates.length
+              )
+            : 0;
+        // Total calories
+        const totalCalories = weekActivities.reduce(
+          (sum, a) => sum + (a.calories || 0),
+          0
+        );
+        // Avg daily run (total distance / number of days with at least one run)
+        const daysWithRun = new Set();
+        weekActivities.forEach((a) => {
+          if (a.type !== "Run") return;
+          const d = new Date(a.start_date_local);
+          let dayIdx = d.getDay() - 1;
+          if (dayIdx < 0) dayIdx = 6;
+          daysWithRun.add(dayIdx);
+        });
+        const avgDailyRun =
+          daysWithRun.size > 0
+            ? (totalDistance / 1000 / daysWithRun.size).toFixed(2)
+            : "-";
         setWeeklyStats({
           totalDistance,
           totalTime,
           avgPace,
           numRuns,
+          weekActivities,
+          bestDay,
+          longestRunDist,
+          avgDailyRun,
+          totalElevation: Math.round(totalElevation),
+          avgRunTime,
+          avgHeartRate,
+          totalCalories: Math.round(totalCalories),
         });
         setLoadingWeekly(false);
       });
@@ -295,20 +381,20 @@ export default function RunningContent() {
       <InfoCard
         title="This Week"
         size="medium"
-        Icon={BarChart}
+        Icon={BarChartIcon}
         details={
           loadingWeekly ? (
             <div style={{ padding: "1.5rem 0", textAlign: "center" }}>
               <span className={styles.loader} />
               <div className={styles.loadingText}>Loading weekly stats…</div>
             </div>
-          ) : weeklyStats && weeklyStats.numRuns > 0 ? (
+          ) : weeklyStats ? (
             <div className={styles.statsGrid}>
               <div className={styles.statItem}>
                 <span className={styles.statIcon}>
                   <Flag size={18} />
                 </span>
-                <span className={styles.statLabel}>Total Distance:</span>
+                <span className={styles.statLabel}>Distance:</span>
                 <span className={styles.statValue}>
                   {(weeklyStats.totalDistance / 1000).toFixed(2)} km
                 </span>
@@ -317,7 +403,7 @@ export default function RunningContent() {
                 <span className={styles.statIcon}>
                   <Clock size={18} />
                 </span>
-                <span className={styles.statLabel}>Total Time:</span>
+                <span className={styles.statLabel}>Time:</span>
                 <span className={styles.statValue}>
                   {formatTime(weeklyStats.totalTime)}
                 </span>
@@ -331,6 +417,28 @@ export default function RunningContent() {
                   {formatPaceFromSecondsPerKm(weeklyStats.avgPace)}
                 </span>
               </div>
+              {weeklyStats.avgHeartRate > 0 && (
+                <div className={styles.statItem}>
+                  <span className={styles.statIcon}>
+                    <HeartIcon size={18} />
+                  </span>
+                  <span className={styles.statLabel}>Avg HR:</span>
+                  <span className={styles.statValue}>
+                    {weeklyStats.avgHeartRate} bpm
+                  </span>
+                </div>
+              )}
+              {weeklyStats.totalElevation > 0 && (
+                <div className={styles.statItem}>
+                  <span className={styles.statIcon}>
+                    <Mountain size={18} />
+                  </span>
+                  <span className={styles.statLabel}>Elevation Gain:</span>
+                  <span className={styles.statValue}>
+                    {weeklyStats.totalElevation} m
+                  </span>
+                </div>
+              )}
               <div className={styles.statItem}>
                 <span className={styles.statIcon}>
                   <ListChecks size={18} />
@@ -338,20 +446,25 @@ export default function RunningContent() {
                 <span className={styles.statLabel}>Runs:</span>
                 <span className={styles.statValue}>{weeklyStats.numRuns}</span>
               </div>
-              <div className={styles.statItem}>
-                <span className={styles.statIcon}>
-                  <Watch size={18} />
-                </span>
-                <span className={styles.statLabel}>Tools:</span>
-                <span className={styles.statValue}>Garmin Forerunner</span>
-              </div>
             </div>
-          ) : (
-            <>
-              <p>No runs recorded this week yet.</p>
-              <p>Tools: Garmin Forerunner® 245 Music, Garmin HRM-Pro.</p>
-            </>
-          )
+          ) : null
+        }
+      />
+      <InfoCard
+        title="Weekly Analysis"
+        size="large"
+        Icon={BarChartIcon}
+        details={
+          loadingWeekly ? (
+            <div style={{ padding: "1.5rem 0", textAlign: "center" }}>
+              <span className={styles.loader} />
+              <div className={styles.loadingText}>Loading weekly stats…</div>
+            </div>
+          ) : weeklyStats && weeklyStats.numRuns > 0 ? (
+            <WeeklyAnalysisChart
+              weekActivities={weeklyStats.weekActivities || []}
+            />
+          ) : null
         }
       />
       <InfoCard
@@ -429,6 +542,117 @@ export default function RunningContent() {
           </>
         }
       />
+    </div>
+  );
+}
+
+// Helper to get runs per day (Mon-Sun) from weekActivities
+function getRunsPerDay(weekActivities) {
+  const runsPerDay = [0, 0, 0, 0, 0, 0, 0];
+  weekActivities?.forEach((a) => {
+    if (a.type !== "Run") return;
+    const d = new Date(a.start_date_local);
+    let dayIdx = d.getDay() - 1;
+    if (dayIdx < 0) dayIdx = 6;
+    runsPerDay[dayIdx]++;
+  });
+  return runsPerDay;
+}
+
+// Helper to get total distance per day (Mon-Sun) from weekActivities
+function getDistancePerDay(weekActivities) {
+  const distancePerDay = [0, 0, 0, 0, 0, 0, 0];
+  weekActivities?.forEach((a) => {
+    if (a.type !== "Run") return;
+    const d = new Date(a.start_date_local);
+    let dayIdx = d.getDay() - 1;
+    if (dayIdx < 0) dayIdx = 6;
+    distancePerDay[dayIdx] += (a.distance || 0) / 1000; // km
+  });
+  return distancePerDay;
+}
+
+// Helper to get chart data for Recharts
+function getWeeklyChartData(weekActivities) {
+  const days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+  const data = days.map((day, i) => ({
+    day,
+    distance: 0,
+    avgPace: null,
+    avgHR: null,
+    runs: 0,
+  }));
+  weekActivities?.forEach((a) => {
+    if (a.type !== "Run") return;
+    const d = new Date(a.start_date_local);
+    let dayIdx = d.getDay() - 1;
+    if (dayIdx < 0) dayIdx = 6;
+    data[dayIdx].distance += (a.distance || 0) / 1000; // km
+    data[dayIdx].runs += 1;
+    if (a.average_speed) {
+      // Convert m/s to min/km
+      const pace = 1000 / a.average_speed / 60;
+      if (!data[dayIdx].paceSum) data[dayIdx].paceSum = 0;
+      data[dayIdx].paceSum += pace;
+    }
+    if (a.average_heartrate) {
+      if (!data[dayIdx].hrSum) data[dayIdx].hrSum = 0;
+      if (!data[dayIdx].hrCount) data[dayIdx].hrCount = 0;
+      data[dayIdx].hrSum += a.average_heartrate;
+      data[dayIdx].hrCount += 1;
+    }
+  });
+  // Calculate avgPace and avgHR
+  data.forEach((d) => {
+    d.avgPace =
+      d.runs > 0 && d.paceSum
+        ? parseFloat((d.paceSum / d.runs).toFixed(2))
+        : null;
+    d.avgHR = d.hrCount > 0 ? Math.round(d.hrSum / d.hrCount) : null;
+    delete d.paceSum;
+    delete d.hrSum;
+    delete d.hrCount;
+  });
+  return data;
+}
+
+function WeeklyAnalysisChart({ weekActivities }) {
+  const chartData = getWeeklyChartData(weekActivities);
+  return (
+    <div style={{ width: "100%", height: 220 }}>
+      <ResponsiveContainer width="100%" height="100%">
+        <BarChart
+          data={chartData}
+          margin={{ top: 10, right: 20, left: 0, bottom: 20 }}
+        >
+          <CartesianGrid strokeDasharray="3 3" opacity={0.13} />
+          <XAxis dataKey="day" tick={{ fill: "var(--text-dark)" }} />
+          <YAxis
+            yAxisId="left"
+            tick={{ fill: "var(--text-dark)" }}
+            width={32}
+          />
+          <Legend verticalAlign="top" height={36} iconType="circle" />
+          <Bar
+            yAxisId="left"
+            dataKey="distance"
+            name="Distance"
+            fill="var(--primary-color, #ee681a)"
+            radius={[6, 6, 0, 0]}
+            barSize={22}
+          />
+          <Line
+            yAxisId="left"
+            type="monotone"
+            dataKey="avgPace"
+            name="Avg Pace"
+            stroke="#8884d8"
+            strokeWidth={2}
+            dot={{ r: 3 }}
+            activeDot={{ r: 5 }}
+          />
+        </BarChart>
+      </ResponsiveContainer>
     </div>
   );
 }
