@@ -68,7 +68,7 @@
   display: flex;
   justify-content: flex-end;
   align-items: center;
-  margin-top: -20px;
+  margin-top: 10px;
 }
 
 .likeBtn {
@@ -128,11 +128,15 @@
   color: var(--primary-color, #ee681a);
   margin-bottom: 0.5rem;
 }
-
+.activityDate {
+  font-size: 14px;
+}
 .statsGrid {
   display: flex;
   flex-wrap: wrap;
-  gap: 1.2rem;
+  flex-direction: column;
+  gap: 1rem;
+  margin-top: 15px;
   margin-bottom: 0.7rem;
 }
 .statItem {
@@ -168,14 +172,25 @@
 }
 @media (max-width: 600px) {
   .activityCard {
-    padding: 0.8rem 0.6rem 0.5rem 0.6rem;
+    padding: 0.7rem 0.4rem 0.4rem 0.4rem;
   }
   .statsGrid {
-    gap: 0.7rem;
+    flex-direction: column;
+    gap: 0.5rem;
   }
   .statItem {
-    min-width: 90px;
+    min-width: 0;
+    width: 100%;
     font-size: 0.97em;
-    padding: 0.25em 0.5em 0.25em 0.4em;
+    margin: 0;
+    justify-content: flex-start;
+  }
+  .activityName {
+    font-size: 1rem;
+    margin-bottom: 0.3rem;
+  }
+  .activityDate {
+    font-size: 0.93em;
+    margin-bottom: 0.4rem;
   }
 }
