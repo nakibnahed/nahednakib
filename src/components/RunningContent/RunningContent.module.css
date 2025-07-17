@@ -116,3 +116,66 @@
   cursor: not-allowed;
   transform: none;
 }
+
+.activityCard {
+  position: relative;
+  transition: box-shadow 0.2s, border-color 0.2s;
+}
+
+.activityName {
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: var(--primary-color, #ee681a);
+  margin-bottom: 0.5rem;
+}
+
+.statsGrid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.2rem;
+  margin-bottom: 0.7rem;
+}
+.statItem {
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 0.7em;
+  padding: 0.35em 0.9em 0.35em 0.6em;
+  font-size: 1.01em;
+  color: var(--text-dark);
+  min-width: 110px;
+}
+.statIcon {
+  color: var(--primary-color, #ee681a);
+
+  display: flex;
+  align-items: center;
+}
+.statLabel {
+  font-size: 0.93em;
+  color: var(--text-dark);
+  margin-left: 0.2em;
+}
+.statValue {
+  font-weight: 500;
+  color: var(--text-dark);
+  margin-left: 0.2em;
+}
+.activityDate {
+  color: var(--text-dark);
+  margin-bottom: 0.7rem;
+}
+@media (max-width: 600px) {
+  .activityCard {
+    padding: 0.8rem 0.6rem 0.5rem 0.6rem;
+  }
+  .statsGrid {
+    gap: 0.7rem;
+  }
+  .statItem {
+    min-width: 90px;
+    font-size: 0.97em;
+    padding: 0.25em 0.5em 0.25em 0.4em;
+  }
+}

@@ -4,8 +4,21 @@ import { SiStrava } from "react-icons/si";
 import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
 import InfoCard from "../InfoCard/InfoCard";
 import styles from "./RunningContent.module.css";
-import { Medal, Calendar, HeartPulse, Trophy, Flag } from "lucide-react";
+import {
+  Medal,
+  Calendar,
+  HeartPulse,
+  Trophy,
+  Flag,
+  Clock,
+  Activity as ActivityIcon,
+  HeartPulse as HeartIcon,
+  BarChart,
+  ListChecks,
+  Watch,
+} from "lucide-react";
 import { FaThumbsUp, FaRegThumbsUp } from "react-icons/fa";
+import { useSwipeable } from "react-swipeable";
 
 export default function RunningContent() {
   const [activities, setActivities] = useState([]);
@@ -124,6 +137,48 @@ export default function RunningContent() {
     return `${min}:${sec.toString().padStart(2, "0")}` + " /km";
   }
 
+  function formatFriendlyDate(dateString) {
+    const date = new Date(dateString);
+    const now = new Date();
+    const isToday =
+      date.getDate() === now.getDate() &&
+      date.getMonth() === now.getMonth() &&
+      date.getFullYear() === now.getFullYear();
+    const yesterday = new Date(now);
+    yesterday.setDate(now.getDate() - 1);
+    const isYesterday =
+      date.getDate() === yesterday.getDate() &&
+      date.getMonth() === yesterday.getMonth() &&
+      date.getFullYear() === yesterday.getFullYear();
+    const time = date.toLocaleTimeString([], {
+      hour: "numeric",
+      minute: "2-digit",
+      hour12: true,
+    });
+    if (isToday) {
+      return `Today at ${time}`;
+    } else if (isYesterday) {
+      return `Yesterday at ${time}`;
+    } else {
+      const dateStr = date.toLocaleDateString(undefined, {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      });
+      return `${dateStr} at ${time}`;
+    }
+  }
+
+  // Swipe handlers for activity card
+  const swipeHandlers = useSwipeable({
+    onSwipedLeft: () => setCurrent((current + 1) % activities.length),
+    onSwipedRight: () =>
+      setCurrent((current - 1 + activities.length) % activities.length),
+    trackMouse: true,
+    preventScrollOnSwipe: true,
+    delta: 30,
+  });
+
   return (
     <div className={styles.container}>
       <InfoCard
@@ -134,36 +189,53 @@ export default function RunningContent() {
           activities.length ? (
             <div>
               {/* Activity Content */}
-              <div>
-                <p>
-                  <strong>{activities[current].name}</strong>
-                </p>
-                <p>
-                  Distance: {(activities[current].distance / 1000).toFixed(2)}{" "}
-                  km
-                </p>
-                <p>Time: {formatTime(activities[current].moving_time)}</p>
-                <p>Avg Pace: {formatPace(activities[current].average_speed)}</p>
-                {activities[current].average_heartrate && (
-                  <p>
-                    Avg Heart Rate:{" "}
-                    {Math.round(activities[current].average_heartrate)} bpm
-                  </p>
-                )}
-                <p>
-                  Date:{" "}
-                  {new Date(activities[current].start_date).toLocaleTimeString(
-                    [],
-                    {
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    }
-                  )}{" "}
-                  {new Date(
-                    activities[current].start_date
-                  ).toLocaleDateString()}
-                </p>
-                {/* Like button row */}
+              <div className={styles.activityCard} {...swipeHandlers}>
+                <div className={styles.activityName}>
+                  {activities[current].name}
+                </div>
+                <div className={styles.activityDate}>
+                  {formatFriendlyDate(activities[current].start_date)}
+                </div>
+                <div className={styles.statsGrid}>
+                  <div className={styles.statItem}>
+                    <span className={styles.statIcon}>
+                      <Flag size={18} />
+                    </span>
+                    <span className={styles.statLabel}>Distance:</span>
+                    <span className={styles.statValue}>
+                      {(activities[current].distance / 1000).toFixed(2)} km
+                    </span>
+                  </div>
+                  <div className={styles.statItem}>
+                    <span className={styles.statIcon}>
+                      <Clock size={18} />
+                    </span>
+                    <span className={styles.statLabel}>Time:</span>
+                    <span className={styles.statValue}>
+                      {formatTime(activities[current].moving_time)}
+                    </span>
+                  </div>
+                  <div className={styles.statItem}>
+                    <span className={styles.statIcon}>
+                      <ActivityIcon size={18} />
+                    </span>
+                    <span className={styles.statLabel}>Avg Pace:</span>
+                    <span className={styles.statValue}>
+                      {formatPace(activities[current].average_speed)}
+                    </span>
+                  </div>
+                  {activities[current].average_heartrate && (
+                    <div className={styles.statItem}>
+                      <span className={styles.statIcon}>
+                        <HeartIcon size={18} />
+                      </span>
+                      <span className={styles.statLabel}>Avg HR:</span>
+                      <span className={styles.statValue}>
+                        {Math.round(activities[current].average_heartrate)} bpm
+                      </span>
+                    </div>
+                  )}
+                </div>
                 <div className={styles.likeButtonRow}>
                   <button
                     className={`${styles.likeBtn} ${
@@ -223,7 +295,7 @@ export default function RunningContent() {
       <InfoCard
         title="This Week"
         size="medium"
-        Icon={HeartPulse}
+        Icon={BarChart}
         details={
           loadingWeekly ? (
             <div style={{ padding: "1.5rem 0", textAlign: "center" }}>
@@ -231,41 +303,85 @@ export default function RunningContent() {
               <div className={styles.loadingText}>Loading weekly stats…</div>
             </div>
           ) : weeklyStats && weeklyStats.numRuns > 0 ? (
-            <>
-              <p>
-                Total Distance: {(weeklyStats.totalDistance / 1000).toFixed(2)}{" "}
-                km
-              </p>
-              <p>Total time: {formatTime(weeklyStats.totalTime)}</p>
-              <p>
-                Average pace: {formatPaceFromSecondsPerKm(weeklyStats.avgPace)}
-              </p>
-              <p>Number of runs: {weeklyStats.numRuns}</p>
-
-              <p>Tools: Garmin Forerunner® 245 Music, Garmin HRM-Pro.</p>
-            </>
+            <div className={styles.statsGrid}>
+              <div className={styles.statItem}>
+                <span className={styles.statIcon}>
+                  <Flag size={18} />
+                </span>
+                <span className={styles.statLabel}>Total Distance:</span>
+                <span className={styles.statValue}>
+                  {(weeklyStats.totalDistance / 1000).toFixed(2)} km
+                </span>
+              </div>
+              <div className={styles.statItem}>
+                <span className={styles.statIcon}>
+                  <Clock size={18} />
+                </span>
+                <span className={styles.statLabel}>Total Time:</span>
+                <span className={styles.statValue}>
+                  {formatTime(weeklyStats.totalTime)}
+                </span>
+              </div>
+              <div className={styles.statItem}>
+                <span className={styles.statIcon}>
+                  <ActivityIcon size={18} />
+                </span>
+                <span className={styles.statLabel}>Avg Pace:</span>
+                <span className={styles.statValue}>
+                  {formatPaceFromSecondsPerKm(weeklyStats.avgPace)}
+                </span>
+              </div>
+              <div className={styles.statItem}>
+                <span className={styles.statIcon}>
+                  <ListChecks size={18} />
+                </span>
+                <span className={styles.statLabel}>Runs:</span>
+                <span className={styles.statValue}>{weeklyStats.numRuns}</span>
+              </div>
+              <div className={styles.statItem}>
+                <span className={styles.statIcon}>
+                  <Watch size={18} />
+                </span>
+                <span className={styles.statLabel}>Tools:</span>
+                <span className={styles.statValue}>Garmin Forerunner</span>
+              </div>
+            </div>
           ) : (
             <>
               <p>No runs recorded this week yet.</p>
-              <p>
-                Tools: Garmin HRM-Pro chest strap, structured workouts, recovery
-                tracking
-              </p>
+              <p>Tools: Garmin Forerunner® 245 Music, Garmin HRM-Pro.</p>
             </>
           )
         }
       />
-
       <InfoCard
         title="Personal Bests"
         size="medium"
         Icon={Trophy}
         details={
-          <>
-            <p> 5K: !!! (!!!/km)</p>
-            <p> 10K: !!! (!!!/km)</p>
-            <p> Half-Marathon: !!! (!!!/km)</p>
-          </>
+          <div className={styles.statsGrid}>
+            <div className={styles.statItem}>
+              <span className={styles.statIcon}>
+                <Flag size={18} />
+              </span>
+              <span className={styles.statLabel}>5K:</span>
+              <span className={styles.statValue}>!!! (!!!/km)</span>
+            </div>
+            <div className={styles.statItem}>
+              <span className={styles.statIcon}>
+                <Flag size={18} />
+              </span>
+              <span className={styles.statLabel}>10K:</span>
+              <span className={styles.statValue}>!!! (!!!/km)</span>
+            </div>
+            <div className={styles.statItem}>
+              <span className={styles.statIcon}>
+                <Flag size={18} />
+              </span>
+              <span className={styles.statLabel}>Half-Marathon:</span>
+              <span className={styles.statValue}>!!! (!!!/km)</span>
+            </div>
+          </div>
         }
       />
       <InfoCard
@@ -273,11 +389,29 @@ export default function RunningContent() {
         size="medium"
         Icon={Calendar}
         details={
-          <>
-            <p> Break 16:30 in 5K (Fall 2025)</p>
-            <p> Sub-34:00 10K (Late 2025)</p>
-            <p> Marathon goal: 2h 30m (2026)</p>
-          </>
+          <div className={styles.statsGrid}>
+            <div className={styles.statItem}>
+              <span className={styles.statIcon}>
+                <Trophy size={18} />
+              </span>
+              <span className={styles.statLabel}>5K Goal:</span>
+              <span className={styles.statValue}>Break 16:30</span>
+            </div>
+            <div className={styles.statItem}>
+              <span className={styles.statIcon}>
+                <Trophy size={18} />
+              </span>
+              <span className={styles.statLabel}>10K Goal:</span>
+              <span className={styles.statValue}>Sub-34:00</span>
+            </div>
+            <div className={styles.statItem}>
+              <span className={styles.statIcon}>
+                <Trophy size={18} />
+              </span>
+              <span className={styles.statLabel}>Marathon:</span>
+              <span className={styles.statValue}>2h 30m</span>
+            </div>
+          </div>
         }
       />
       <InfoCard

@@ -30,14 +30,21 @@
   grid-column: span 4;
 }
 
+.headerRow {
+  display: flex;
+  align-items: center;
+  gap: 0.7em;
+  margin-bottom: 20px;
+}
+
 .icon {
-  margin-bottom: 10px;
   color: #ee681a; /* Your primary color */
+  margin-bottom: 0;
 }
 
 .title {
-  margin-bottom: 10px;
-  font-size: 21px;
+  font-size: 18px;
+  margin-bottom: 0;
 }
 
 @media (max-width: 768px) {
