@@ -1,6 +1,6 @@
 .card {
   border-radius: 24px;
-  padding: 22px;
+  padding: 22px 20px 15px 20px;
   height: 100%;
   background: color-mix(
     in srgb,
@@ -53,5 +53,8 @@
   .semi,
   .small {
     grid-column: span 12;
+  }
+  .card {
+    padding: 22px 15px 10px 15px;
   }
 }

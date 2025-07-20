@@ -49,19 +49,18 @@ export default function RunningContent() {
         // const publicActivities = arr.filter((a) => !a.private);
         setActivities(arr.filter((a) => !a.private).slice(0, 3)); // keep public for Last Activities card
 
-        // --- Weekly Stats Calculation ---
-        // Get start of week (Monday)
+        // --- Weekly Stats Calculation (Last 7 Days) ---
+        // Get date 7 days ago (including today)
         const now = new Date();
-        const day = now.getDay();
-        const diff = now.getDate() - day + (day === 0 ? -6 : 1); // adjust when day is Sunday
-        const weekStart = new Date(now.setDate(diff));
-        weekStart.setHours(0, 0, 0, 0);
+        const sevenDaysAgo = new Date(now);
+        sevenDaysAgo.setDate(now.getDate() - 6); // includes today
+        sevenDaysAgo.setHours(0, 0, 0, 0);
 
-        // Filter activities for this week (runs only, using local time, include private)
+        // Filter activities for last 7 days (runs only, using local time, include private)
         const weekActivities = arr.filter((a) => {
           if (a.type !== "Run") return false;
           const actDate = new Date(a.start_date_local);
-          return actDate >= weekStart;
+          return actDate >= sevenDaysAgo;
         });
 
         // Calculate stats
@@ -379,7 +378,7 @@ export default function RunningContent() {
         }
       />
       <InfoCard
-        title="This Week"
+        title="Last 7 Days"
         size="medium"
         Icon={BarChartIcon}
         details={
