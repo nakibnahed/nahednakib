@@ -18,7 +18,7 @@ export default function WebContent() {
                 Programming
               </p>
               <br />
-              <p> Dec 2022 - Present</p>
+              <p> Dec 2022 - Pending</p>
 
               <p>
                 Focused on software development, algorithms, and web
@@ -54,7 +54,7 @@ export default function WebContent() {
             <p>
               <strong>Web Developer - Insanca Yardim Vakfi</strong>
               <br />
-              2024 - Present
+              2024
             </p>
             <p>
               - Maintained and updated the organization's website using
