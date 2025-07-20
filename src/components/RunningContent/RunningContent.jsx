@@ -267,7 +267,7 @@ export default function RunningContent() {
   return (
     <div className={styles.container}>
       <InfoCard
-        title="Last Activities"
+        title="Latest Activities"
         size="medium"
         Icon={SiStrava}
         details={
