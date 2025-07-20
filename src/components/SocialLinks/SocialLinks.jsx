@@ -2,6 +2,7 @@
 
 import Image from "next/image"; // Importing Next.js Image component
 import { socialLinks } from "./socialLinksData"; // Import the data
+import { SiStrava } from "react-icons/si";
 
 import styles from "./socialLinks.module.css"; // Import the CSS Module for styling
 
@@ -17,13 +18,22 @@ const SocialLinks = () => {
             target="_blank"
             rel="noopener noreferrer"
           >
-            <Image
-              src={`/images/icons/${link.name}.png`} // Path to the icon images
-              alt={`Nahed Nakib ${link.name} Icon`} // Alt text for accessibility
-              width={21} // Set the width of the icon
-              height={21} // Set the height of the icon
-              className={styles.icon} // Apply the icon styles
-            />
+            {link.name === "strava" ? (
+              <SiStrava
+                size={21}
+                className={styles.icon}
+                title="Strava"
+                color="var(--primary-color)"
+              />
+            ) : (
+              <Image
+                src={`/images/icons/${link.name}.png`}
+                alt={`Nahed Nakib ${link.name} Icon`}
+                width={21}
+                height={21}
+                className={styles.icon}
+              />
+            )}
           </a>
         ))}
       </div>
