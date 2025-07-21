@@ -2,6 +2,7 @@
 import InfoCard from "../InfoCard/InfoCard";
 import styles from "./WebContent.module.css";
 import { Briefcase, GraduationCap, Code, Rocket, MapPin } from "lucide-react";
+import Link from "next/link";
 
 export default function WebContent() {
   return (
@@ -97,34 +98,14 @@ export default function WebContent() {
         details={
           <>
             <p>
-              - <strong>Personal Website:</strong> Built with Next.js and
-              dynamic content dashboard.
-            </p>
-
-            <br />
-            <p>
-              - <strong>Task Manager App:</strong> Full-stack app using React,
-              Node.js, and PostgreSQL.
-            </p>
-
-            <br />
-            <p>
-              - <strong>Children's YouTube Channel:</strong> Creating
-              AI-generated animated videos.
-            </p>
-            <br />
-            <p>
-              - <strong>GitHub Projects:</strong> See more on
-              <a
-                href="https://github.com/nakibnahed"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                GitHub
-              </a>
+              You can review all my works on my{" "}
+              <Link href="/portfolio">
+                <span className="text-blue-500 underline hover:text-blue-700">
+                  portfolio page
+                </span>
+              </Link>
               .
             </p>
-            <br />
           </>
         }
       />
