@@ -94,7 +94,7 @@ export default function Sidebar({ activeTab }) {
               <li>💊 Supplements</li>
             </ul>
             <a
-              href="https://www.paypal.com/paypalme/nahednakib"
+              href="https://www.paypal.com/paypalme/nahednakib/25"
               target="_blank"
               rel="noopener noreferrer"
               className={styles.donateButton}
