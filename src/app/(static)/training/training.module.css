@@ -1,0 +1,1113 @@
+.container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 24px;
+  min-height: 100vh;
+}
+
+.loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  color: var(--text-dark);
+}
+
+.loader {
+  width: 40px;
+  height: 40px;
+  border: 3px solid var(--card-border, #333);
+  border-top: 3px solid var(--primary-color, #ee681a);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 16px;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  margin-bottom: 32px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid var(--card-border, #333);
+}
+
+.backButton {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: var(--card-bg, #1a1a1a);
+  border: 1px solid var(--card-border, #333);
+  border-radius: 8px;
+  color: var(--text-dark);
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.backButton:hover {
+  background: var(--primary-color, #ee681a);
+  color: white;
+}
+
+.titleSection {
+  flex: 1;
+}
+
+.title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 32px;
+  font-family: "Unbounded", sans-serif;
+  background: linear-gradient(to bottom, #ee681a, rgb(76, 40, 23));
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-weight: 700;
+  margin: 0 0 8px 0;
+}
+
+.subtitle {
+  color: var(--text-dark);
+  font-size: 16px;
+  margin: 0;
+}
+
+.monthNavigation {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.monthTitle {
+  margin: 0;
+  color: var(--text-primary, #fff);
+  font-size: 24px;
+  font-weight: 600;
+}
+
+.navigationButtons {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.navArrow {
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: var(--card-background, #1a1a1a);
+  color: var(--text-muted);
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  transition: all 0.2s ease;
+}
+
+.navArrow:hover:not(:disabled) {
+  background: var(--card-border, #333);
+  color: var(--text-primary, #fff);
+}
+
+.navArrow:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.todayButton {
+  padding: 6px 12px;
+  border: 1px solid var(--card-border, #333);
+  background: var(--card-background, #1a1a1a);
+  color: var(--text-dark);
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.todayButton:hover {
+  background: var(--primary-color, #ee681a);
+  color: white;
+  border-color: var(--primary-color, #ee681a);
+}
+
+.navButton {
+  padding: 8px 16px;
+  background: transparent;
+  border: 1px solid var(--card-border, #333);
+  border-radius: 6px;
+  color: var(--text-dark);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.navButton:hover:not(:disabled) {
+  background: var(--primary-color, #ee681a);
+  color: white;
+  border-color: var(--primary-color, #ee681a);
+}
+
+.navButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.weekInfo {
+  font-weight: 600;
+  color: var(--text-primary, #fff);
+  font-size: 16px;
+}
+
+.calendarContainer {
+  background: var(--card-bg, #1a1a1a);
+  border: 1px solid var(--card-border, #333);
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.weekHeader {
+  padding: 24px;
+  border-bottom: 1px solid var(--card-border, #333);
+  background: var(--background-main, #181818);
+}
+
+.calendarTable {
+  display: flex;
+  flex-direction: column;
+}
+
+.headerRow {
+  display: grid;
+  grid-template-columns: 80px repeat(7, 1fr);
+  background: var(--background-main, #181818);
+  border-bottom: 2px solid var(--card-border, #333);
+}
+
+.weekColumnHeader {
+  padding: 12px 8px;
+  text-align: center;
+  font-weight: 600;
+  color: var(--text-dark);
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-right: 2px solid var(--card-border, #333);
+  background: var(--background-main, #181818);
+}
+
+.dayHeader {
+  padding: 16px 12px;
+  text-align: center;
+  font-weight: 600;
+  color: var(--text-dark);
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-right: 1px solid var(--card-border, #333);
+}
+
+.dayHeader:last-child {
+  border-right: none;
+}
+
+.trainingRow {
+  display: grid;
+  grid-template-columns: 80px repeat(7, 1fr);
+  min-height: 120px;
+  border-bottom: 1px solid var(--card-border, #333);
+}
+
+.trainingRow:last-child {
+  border-bottom: none;
+}
+
+.weekColumn {
+  padding: 12px 8px;
+  border-right: 2px solid var(--card-border, #333);
+  background: var(--background-main, #181818);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  gap: 4px;
+}
+
+.weekNumber {
+  font-weight: 700;
+  color: var(--text-primary, #fff);
+  font-size: 14px;
+  line-height: 1.2;
+}
+
+.weekDateRange {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.dateRange {
+  color: var(--text-dark);
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1;
+}
+
+.monthName {
+  color: var(--text-muted);
+  font-size: 10px;
+  font-weight: 400;
+  line-height: 1;
+}
+
+.dayCell {
+  width: 140px;
+  height: 150px;
+  min-width: 140px;
+  min-height: 150px;
+  max-width: 140px;
+  max-height: 150px;
+  box-sizing: border-box;
+  padding: 14px 10px;
+  border-right: 1px solid var(--card-border, #333);
+  border-left: 4px solid transparent;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  justify-content: flex-start;
+  align-items: stretch;
+  overflow: hidden;
+}
+
+.dayCell:hover {
+  background: rgba(238, 104, 26, 0.05);
+}
+
+.dayCell.completed {
+  background: rgba(16, 185, 129, 0.08);
+}
+
+.dayCell.completed:hover {
+  background: rgba(16, 185, 129, 0.12);
+}
+
+.dayCell.today {
+  background: rgba(239, 68, 68, 0.08);
+  position: relative;
+}
+
+.dayCell.today:hover {
+  background: rgba(239, 68, 68, 0.12);
+}
+
+.todayIndicator {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 12px;
+  height: 12px;
+  background: #ef4444;
+  border-radius: 50%;
+  z-index: 2;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.dayCell:last-child {
+  border-right: none;
+}
+
+.cellDate {
+  position: absolute;
+  top: 4px;
+  left: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  z-index: 1;
+}
+
+.dayName {
+  font-size: 9px;
+  color: var(--text-muted);
+  font-weight: 500;
+  line-height: 1;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.dateNumber {
+  font-size: 11px;
+  color: var(--text-dark);
+  font-weight: 600;
+  line-height: 1;
+  margin-top: 1px;
+}
+
+.dayContent {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: stretch;
+  gap: 8px;
+  overflow: hidden;
+  margin-top: 32px;
+}
+
+.stravaCell,
+.workoutType,
+.workoutDetails {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.workoutType {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  color: var(--text-primary, #fff);
+  font-size: 14px;
+  margin-bottom: 6px;
+  position: relative;
+}
+
+.completedBadge {
+  position: absolute;
+  right: 0;
+  top: -2px;
+  background: #10b981;
+  color: white;
+  border-radius: 50%;
+  width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.workoutIcon {
+  font-size: 16px;
+}
+
+.workoutDetails {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 2px;
+}
+
+.distance {
+  color: var(--primary-color, #ee681a);
+  font-weight: 600;
+  font-size: 16px;
+}
+
+.duration {
+  color: var(--text-dark);
+  font-size: 13px;
+}
+
+.pace {
+  color: var(--text-muted);
+  font-size: 12px;
+}
+
+/* Modal Styles */
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+}
+
+.modalContent {
+  background: var(--card-bg, #1a1a1a);
+  border: 1px solid var(--card-border, #333);
+  border-radius: 16px;
+  max-width: 500px;
+  width: 100%;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+.modalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24px;
+  border-bottom: 1px solid var(--card-border, #333);
+}
+
+.modalTitle {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.modalHeader h3 {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--text-primary, #fff);
+  font-size: 20px;
+  margin: 0;
+}
+
+.modalDate {
+  color: var(--text-muted);
+  font-size: 14px;
+  font-weight: 400;
+  margin-left: 36px; /* Align with the text after the icon */
+}
+
+.modalIcon {
+  font-size: 24px;
+}
+
+.closeButton {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 24px;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.closeButton:hover {
+  background: var(--card-border, #333);
+  color: var(--text-primary, #fff);
+}
+
+.modalBody {
+  padding: 24px;
+}
+
+.modalStats {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.modalStat {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--text-dark);
+  font-size: 14px;
+}
+
+.modalStat svg {
+  color: var(--primary-color, #ee681a);
+  flex-shrink: 0;
+}
+
+.modalNotes {
+  margin-bottom: 24px;
+}
+
+.modalNotes h4 {
+  color: var(--text-primary, #fff);
+  font-size: 16px;
+  margin: 0 0 12px 0;
+}
+
+.modalNotes p {
+  color: var(--text-dark);
+  line-height: 1.6;
+  margin: 0;
+}
+
+.modalActions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.intensityBadge {
+  display: inline-block;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-align: center;
+}
+
+.completedButton {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background: transparent;
+  border: 2px solid var(--card-border, #333);
+  border-radius: 8px;
+  color: var(--text-dark);
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 14px;
+  transition: all 0.2s ease;
+}
+
+.completedButton:hover {
+  border-color: var(--primary-color, #ee681a);
+  color: var(--primary-color, #ee681a);
+}
+
+.completedButton.completed {
+  background: #10b981;
+  border-color: #10b981;
+  color: white;
+}
+
+.completedButton.completed:hover {
+  background: #059669;
+  border-color: #059669;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .headerRow,
+  .trainingRow {
+    grid-template-columns: 70px repeat(3, 1fr);
+  }
+
+  .weekColumnHeader,
+  .weekColumn {
+    grid-row: span 3;
+  }
+
+  .weekNumber {
+    font-size: 12px;
+  }
+
+  .dateRange {
+    font-size: 10px;
+  }
+
+  .monthName {
+    font-size: 9px;
+  }
+
+  .dayHeader:nth-child(n + 5) {
+    border-top: 1px solid var(--card-border, #333);
+  }
+
+  .dayCell:nth-child(n + 5) {
+    border-top: 1px solid var(--card-border, #333);
+  }
+
+  .dayCell {
+    width: 100px;
+    min-width: 100px;
+    max-width: 100px;
+    height: 110px;
+    min-height: 110px;
+    max-height: 110px;
+    padding: 8px 4px;
+  }
+
+  .cellDate {
+    margin-bottom: 12px;
+  }
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding: 16px;
+  }
+
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+
+  .title {
+    font-size: 24px;
+  }
+
+  .monthNavigation {
+    flex-direction: column;
+    gap: 16px;
+    text-align: center;
+  }
+
+  .monthTitle {
+    font-size: 20px;
+  }
+
+  .navigationButtons {
+    gap: 12px;
+  }
+
+  .headerRow,
+  .trainingRow {
+    grid-template-columns: 50px 1fr;
+    grid-template-rows: auto repeat(7, 1fr);
+  }
+
+  .weekColumnHeader,
+  .weekColumn {
+    grid-row: 1 / -1;
+    writing-mode: vertical-lr;
+    text-orientation: mixed;
+    padding: 8px 4px;
+  }
+
+  .weekNumber {
+    font-size: 10px;
+  }
+
+  .dateRange {
+    font-size: 8px;
+    margin-top: 4px;
+  }
+
+  .monthName {
+    font-size: 7px;
+    margin-top: 2px;
+  }
+
+  .dayHeader {
+    border-right: none;
+    border-bottom: 1px solid var(--card-border, #333);
+    grid-column: 2;
+  }
+
+  .dayCell {
+    border-right: none;
+    border-bottom: 1px solid var(--card-border, #333);
+    min-height: 100px;
+    grid-column: 2;
+    width: 80px;
+    min-width: 80px;
+    max-width: 80px;
+    height: 85px;
+    min-height: 85px;
+    max-height: 85px;
+    padding: 4px 2px;
+  }
+
+  .workoutType {
+    font-size: 12px;
+  }
+
+  .distance {
+    font-size: 14px;
+  }
+
+  .modal {
+    padding: 10px;
+  }
+
+  .modalContent {
+    max-height: 90vh;
+  }
+
+  .cellDate {
+    margin-bottom: 8px;
+  }
+}
+
+/* Training Details Styles */
+.modalDetails {
+  margin: 24px 0;
+}
+
+.modalDetails h4 {
+  color: var(--text-primary, #fff);
+  font-size: 16px;
+  margin: 0 0 16px 0;
+  font-weight: 600;
+}
+
+.trainingSection {
+  margin-bottom: 20px;
+  padding: 16px;
+  background: var(--card-background, #1a1a1a);
+  border-radius: 8px;
+  border: 1px solid var(--card-border, #333);
+}
+
+.sectionTitle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-primary, #fff);
+  font-weight: 600;
+  font-size: 14px;
+  margin-bottom: 8px;
+}
+
+.sectionIcon {
+  font-size: 16px;
+}
+
+.sectionContent {
+  color: var(--text-dark);
+  line-height: 1.5;
+  margin: 0;
+  font-size: 14px;
+}
+
+.intervalDetails {
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.intervalItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 12px;
+  background: var(--background-dark, #0a0a0a);
+  border-radius: 6px;
+  border-left: 3px solid var(--primary-color, #ee681a);
+}
+
+.intervalDistance {
+  color: var(--text-primary, #fff);
+  font-weight: 600;
+  font-size: 14px;
+  min-width: 60px;
+}
+
+.intervalPace {
+  color: var(--text-dark);
+  font-size: 13px;
+  flex: 1;
+}
+
+.intervalReps {
+  color: var(--primary-color, #ee681a);
+  font-weight: 600;
+  font-size: 13px;
+  background: var(--card-background, #1a1a1a);
+  padding: 2px 8px;
+  border-radius: 12px;
+  border: 1px solid var(--primary-color, #ee681a);
+}
+
+.restDetails {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.restItem {
+  color: var(--text-dark);
+  font-size: 14px;
+  margin: 0;
+  line-height: 1.4;
+}
+
+.restItem strong {
+  color: var(--text-primary, #fff);
+}
+
+/* Strava Activity Styles */
+.stravaSection {
+  margin-bottom: 24px;
+  padding: 20px;
+  background: var(--card-background, #1a1a1a);
+  border-radius: 12px;
+  border: 1px solid var(--card-border, #333);
+}
+
+.stravaHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.stravaSection h4 {
+  color: var(--text-primary, #fff);
+  font-size: 16px;
+  margin: 0;
+  font-weight: 600;
+}
+
+.activityNavigation {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.navActivityButton {
+  width: 28px;
+  height: 28px;
+  border: none;
+  background: var(--card-border, #333);
+  color: var(--text-muted);
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  transition: all 0.2s ease;
+}
+
+.navActivityButton:hover:not(:disabled) {
+  background: var(--primary-color, #ee681a);
+  color: white;
+}
+
+.navActivityButton:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.activityCounter {
+  color: var(--text-muted);
+  font-size: 12px;
+  font-weight: 500;
+  min-width: 60px;
+  text-align: center;
+}
+
+.loadingActivity {
+  color: var(--text-muted);
+  font-style: italic;
+  text-align: center;
+  padding: 20px;
+}
+
+.noActivity {
+  color: var(--text-muted);
+  text-align: center;
+  padding: 20px;
+  font-style: italic;
+}
+
+.stravaActivity {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.activityHeader {
+  margin-bottom: 16px;
+}
+
+.activityTime {
+  color: var(--text-primary, #fff);
+  font-weight: 600;
+  font-size: 15px;
+  margin-bottom: 4px;
+}
+
+.activityName {
+  color: var(--text-muted);
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.activityStats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 12px;
+}
+
+.activityStat {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 12px;
+  background: var(--background-dark, #0a0a0a);
+  border-radius: 8px;
+  border-left: 3px solid var(--primary-color, #ee681a);
+}
+
+.statLabel {
+  color: var(--text-muted);
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.statValue {
+  color: var(--text-primary, #fff);
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.stravaButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 20px;
+  background: var(--primary-color, #ee681a);
+  color: white;
+  text-decoration: none;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 14px;
+  transition: all 0.2s ease;
+  align-self: flex-start;
+}
+
+.stravaButton:hover {
+  background: var(--primary-hover, #d55a15);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(238, 104, 26, 0.3);
+}
+
+/* Strava Cell Styles for Empty Days */
+.stravaCell {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 10px;
+  background: var(--background-dark, #0a0a0a);
+  border-radius: 6px;
+  border-left: 3px solid var(--primary-color, #ee681a);
+}
+
+.stravaCellHeader {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 2px;
+}
+
+.stravaIcon {
+  font-size: 14px;
+}
+
+.stravaActivityName {
+  color: var(--text-primary, #fff);
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.2;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+}
+
+.stravaTime {
+  color: var(--text-muted);
+  font-size: 10px;
+  margin-bottom: 4px;
+}
+
+.stravaStats {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.stravaDistance,
+.stravaDuration,
+.stravaPace {
+  color: var(--text-dark);
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1.2;
+}
+
+.stravaDistance {
+  color: var(--text-primary, #fff);
+  font-weight: 600;
+}
+
+@media (max-width: 768px) {
+  .activityStats {
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+
+  .activityStat {
+    padding: 10px;
+  }
+
+  .statValue {
+    font-size: 14px;
+  }
+
+  .stravaCell {
+    gap: 4px;
+    padding: 6px;
+  }
+
+  .stravaActivityName {
+    font-size: 11px;
+  }
+
+  .stravaTime {
+    font-size: 9px;
+  }
+
+  .stravaDistance,
+  .stravaDuration,
+  .stravaPace {
+    font-size: 10px;
+  }
+}
+
+@media (max-width: 1024px) {
+  .dayContent {
+    margin-top: 28px;
+  }
+}
+
+@media (max-width: 768px) {
+  .dayContent {
+    margin-top: 24px;
+  }
+}

@@ -47,20 +47,28 @@ export default function RunningContent() {
         const arr = Array.isArray(data) ? data : [data];
         // Remove the filter for !a.private so private activities are included
         // const publicActivities = arr.filter((a) => !a.private);
-        setActivities(arr.filter((a) => !a.private).slice(0, 3)); // keep public for Last Activities card
+        setActivities(arr.filter((a) => !a.private).slice(0, 5)); // keep public for Last Activities card
 
-        // --- Weekly Stats Calculation (Last 7 Days) ---
-        // Get date 7 days ago (including today)
+        // --- Weekly Stats Calculation (Current Week: Monday to Sunday) ---
         const now = new Date();
-        const sevenDaysAgo = new Date(now);
-        sevenDaysAgo.setDate(now.getDate() - 6); // includes today
-        sevenDaysAgo.setHours(0, 0, 0, 0);
+        const currentDay = now.getDay(); // 0 = Sunday, 1 = Monday, etc.
 
-        // Filter activities for last 7 days (runs only, using local time, include private)
+        // Calculate Monday of current week
+        const mondayOfWeek = new Date(now);
+        const daysFromMonday = currentDay === 0 ? 6 : currentDay - 1; // If Sunday, go back 6 days
+        mondayOfWeek.setDate(now.getDate() - daysFromMonday);
+        mondayOfWeek.setHours(0, 0, 0, 0);
+
+        // Calculate Sunday of current week
+        const sundayOfWeek = new Date(mondayOfWeek);
+        sundayOfWeek.setDate(mondayOfWeek.getDate() + 6);
+        sundayOfWeek.setHours(23, 59, 59, 999);
+
+        // Filter activities for current week only (Monday to Sunday)
         const weekActivities = arr.filter((a) => {
           if (a.type !== "Run") return false;
           const actDate = new Date(a.start_date_local);
-          return actDate >= sevenDaysAgo;
+          return actDate >= mondayOfWeek && actDate <= sundayOfWeek;
         });
 
         // Calculate stats
@@ -160,37 +168,71 @@ export default function RunningContent() {
       });
   }, []);
 
-  // Fetch like count for current activity
+  // Fetch like counts for all activities when they load
   useEffect(() => {
     if (activities.length === 0) return;
-    const activity = activities[current];
-    if (!activity) return;
-    const activityId = activity.id;
-    // Get like state from localStorage
-    const liked = localStorage.getItem(`activity_like_${activityId}`) === "1";
-    setLikedActivities((prev) => ({ ...prev, [activityId]: liked }));
-    // Fetch like count
-    fetch(`/api/engagement/likes?activity_id=${activityId}`)
-      .then((res) => res.json())
-      .then((data) => {
-        setLikeCounts((prev) => ({ ...prev, [activityId]: data.count || 0 }));
-      });
-  }, [activities, current]);
+
+    console.log(
+      "Activities loaded, fetching like counts for:",
+      activities.map((a) => a.id)
+    );
+
+    // Fetch like counts for all activities
+    const fetchAllLikeCounts = async () => {
+      const newLikeCounts = {};
+
+      for (const activity of activities) {
+        try {
+          console.log(`Fetching like count for activity ${activity.id}...`);
+          const response = await fetch(
+            `/api/engagement/likes?activity_id=${activity.id}`
+          );
+          const data = await response.json();
+          console.log(`Activity ${activity.id} like count:`, data.count);
+          newLikeCounts[activity.id] = data.count || 0;
+        } catch (error) {
+          console.error(
+            `Error fetching like count for activity ${activity.id}:`,
+            error
+          );
+          newLikeCounts[activity.id] = 0;
+        }
+      }
+
+      console.log("Setting like counts:", newLikeCounts);
+      setLikeCounts(newLikeCounts);
+    };
+
+    // Add a small delay to ensure activities are fully loaded
+    setTimeout(() => {
+      fetchAllLikeCounts();
+    }, 100);
+  }, [activities]);
 
   // Like button handler
   const handleLike = async (activityId) => {
     if (likedActivities[activityId]) return;
-    await fetch("/api/engagement/likes", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ activity_id: activityId }),
-    })
-      .then((res) => res.json())
-      .then((data) => {
+
+    try {
+      const response = await fetch("/api/engagement/likes", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ activity_id: activityId }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
         setLikeCounts((prev) => ({ ...prev, [activityId]: data.count || 0 }));
         setLikedActivities((prev) => ({ ...prev, [activityId]: true }));
-        localStorage.setItem(`activity_like_${activityId}`, "1");
-      });
+      } else {
+        console.error("Failed to like activity:", data.error);
+        console.error("Error details:", data.details);
+        console.error("Error code:", data.code);
+      }
+    } catch (error) {
+      console.error("Error liking activity:", error);
+    }
   };
 
   function formatTime(seconds) {
@@ -267,7 +309,7 @@ export default function RunningContent() {
   return (
     <div className={styles.container}>
       <InfoCard
-        title="Latest Activities"
+        title="Latest Runs"
         size="medium"
         Icon={SiStrava}
         details={
@@ -378,7 +420,7 @@ export default function RunningContent() {
         }
       />
       <InfoCard
-        title="Last 7 Days"
+        title="Current Week"
         size="medium"
         Icon={BarChartIcon}
         details={
@@ -617,6 +659,49 @@ function getWeeklyChartData(weekActivities) {
 
 function WeeklyAnalysisChart({ weekActivities }) {
   const chartData = getWeeklyChartData(weekActivities);
+
+  const CustomTooltip = ({ active, payload, label }) => {
+    if (active && payload && payload.length) {
+      const distance = payload[0]?.value || 0;
+      const runs = payload[0]?.payload?.runs || 0;
+
+      return (
+        <div
+          style={{
+            backgroundColor: "var(--background-dark)",
+            border: "1px solid var(--card-border)",
+            borderRadius: "8px",
+            padding: "12px",
+            boxShadow: "0 4px 12px rgba(0, 0, 0, 0.15)",
+          }}
+        >
+          <p
+            style={{
+              margin: "0 0 8px 0",
+              fontWeight: "bold",
+              color: "var(--text-light)",
+            }}
+          >
+            {label}
+          </p>
+          <p style={{ margin: "0 0 4px 0", color: "var(--text-dark)" }}>
+            Distance:{" "}
+            <span style={{ color: "var(--primary-color)", fontWeight: "bold" }}>
+              {distance.toFixed(2)} km
+            </span>
+          </p>
+          <p style={{ margin: "0", color: "var(--text-dark)" }}>
+            Runs:{" "}
+            <span style={{ color: "var(--primary-color)", fontWeight: "bold" }}>
+              {runs}
+            </span>
+          </p>
+        </div>
+      );
+    }
+    return null;
+  };
+
   return (
     <div style={{ width: "100%", height: 220 }}>
       <ResponsiveContainer width="100%" height="100%">
@@ -632,6 +717,7 @@ function WeeklyAnalysisChart({ weekActivities }) {
             width={32}
           />
           <Legend verticalAlign="top" height={36} iconType="circle" />
+          <Tooltip content={<CustomTooltip />} />
           <Bar
             yAxisId="left"
             dataKey="distance"

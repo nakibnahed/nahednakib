@@ -46,26 +46,70 @@ export default function Sidebar({ activeTab }) {
           height={400}
         />
       </div>
-      {/* Languages Section */}
-      <div className={styles.card}>
-        <div className={styles.cardHeader}>
-          <h3 className={styles.title}>
-            <Globe size={20} className={styles.icon} /> Languages
-          </h3>
+      {/* Conditional Card based on active tab */}
+      {activeTab === "web" ? (
+        /* Languages Section for Web tab */
+        <div className={styles.card}>
+          <div className={styles.cardHeader}>
+            <h3 className={styles.title}>
+              <Globe size={20} className={styles.icon} /> Languages
+            </h3>
+          </div>
+          <ul
+            style={{
+              paddingLeft: "1.2rem",
+              lineHeight: "1.6",
+              listStyleType: "none",
+            }}
+          >
+            <li>Arabic — Native</li>
+            <li>English — B2 (70%)</li>
+            <li>Turkish — C1 (85%)</li>
+            <li>German — (5%)</li>
+          </ul>
         </div>
-        <ul
-          style={{
-            paddingLeft: "1.2rem",
-            lineHeight: "1.6",
-            listStyleType: "none",
-          }}
-        >
-          <li>Arabic — Native</li>
-          <li>English — B2 (70%)</li>
-          <li>Turkish — C1 (85%)</li>
-          <li>German — (5%)</li>
-        </ul>
-      </div>
+      ) : (
+        /* Support Running Section for Running tab */
+        <div className={styles.card}>
+          <div className={styles.cardHeader}>
+            <h3 className={styles.title}>
+              <Star size={20} className={styles.icon} /> Support My Running
+            </h3>
+          </div>
+          <div className={styles.supportContent}>
+            <p style={{ marginBottom: "1rem", lineHeight: "1.6" }}>
+              Help me continue my running journey! Your support helps with:
+            </p>
+            <ul
+              style={{
+                paddingLeft: "1.2rem",
+                lineHeight: "1.6",
+                listStyleType: "none",
+                marginBottom: "1rem",
+              }}
+            >
+              <li>🏃‍♂️ Race entry fees</li>
+              <li>👟 Running gear & shoes</li>
+              <li>🏃‍♂️ Training equipment</li>
+              <li>💊 Supplements</li>
+            </ul>
+            <a
+              href="https://www.paypal.com/paypalme/nahednakib"
+              target="_blank"
+              rel="noopener noreferrer"
+              className={styles.donateButton}
+            >
+              {" "}
+              Support via
+              <img
+                src="https://www.paypalobjects.com/webstatic/de_DE/i/de-pp-logo-100px.png"
+                alt="PayPal"
+                style={{ width: "75px", height: "16px", marginRight: "8px" }}
+              />
+            </a>
+          </div>
+        </div>
+      )}
       {/* Hobbies Section */}
       {/* <div className={styles.card}>
         <div className={styles.cardHeader}>

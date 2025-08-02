@@ -78,3 +78,34 @@
   visibility: visible;
   opacity: 1;
 }
+
+.supportContent {
+  width: 100%;
+}
+
+.donateButton {
+  margin: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 20px;
+  border-radius: 50px;
+  font-weight: 700;
+  cursor: pointer;
+  text-decoration: none;
+  background: var(--button-bg);
+  border: 1px solid var(--card-border);
+  color: var(--button-text);
+  width: 100%;
+  margin-top: 8px;
+  transition: all 0.3s ease;
+}
+
+.donateButton:hover {
+  opacity: 0.9;
+}
+
+.donateButton:active {
+  transform: translateY(0);
+}
