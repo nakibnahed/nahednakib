@@ -1594,144 +1594,156 @@ export default function TrainingPage() {
                 </div>
 
                 {/* Training Days */}
-                {dayKeys.map((dayKey, index) => {
-                  const dayData = weekData.days[dayKey];
-                  const isCompleted = isWorkoutCompleted(
-                    currentMonth,
-                    weekIndex,
-                    dayKey
-                  );
-                  const isTodayCell = isToday(currentMonth, weekIndex, dayKey);
-
-                  // Calculate actual date for this cell
-                  // weekStart should be Monday, so we add index days to get the correct day
-                  const weekStartDate = new Date(
-                    weekData.weekStart + "T00:00:00"
-                  ); // Add time to avoid timezone issues
-                  const cellDate = new Date(weekStartDate);
-                  cellDate.setDate(weekStartDate.getDate() + index);
-
-                  const dayName = cellDate.toLocaleDateString("en-US", {
-                    weekday: "short",
-                  });
-                  const dateNumber = cellDate.getDate();
-
-                  // Debug log for first few cells
-                  if (weekIndex === 0 && index < 3) {
-                    console.log(
-                      `Cell ${index} (${dayKey}): ${dayName} ${dateNumber}, expected day ${
-                        index + 1
-                      }, actual day ${cellDate.getDay()}`
+                <div className={styles.daysContainer}>
+                  {dayKeys.map((dayKey, index) => {
+                    const dayData = weekData.days[dayKey];
+                    const isCompleted = isWorkoutCompleted(
+                      currentMonth,
+                      weekIndex,
+                      dayKey
                     );
-                  }
+                    const isTodayCell = isToday(
+                      currentMonth,
+                      weekIndex,
+                      dayKey
+                    );
 
-                  return (
-                    <div
-                      key={dayKey}
-                      className={`${styles.dayCell} ${
-                        isCompleted ? styles.completed : ""
-                      } ${isTodayCell ? styles.today : ""}`}
-                      onClick={() =>
-                        openDayDetails(currentMonth, weekIndex, dayKey)
-                      }
-                      style={{
-                        borderLeft: `4px solid ${getIntensityColor(
-                          dayData.intensity
-                        )}`,
-                      }}
-                    >
-                      {isTodayCell && (
-                        <div className={styles.todayIndicator}></div>
-                      )}
-                      <div className={styles.cellDate}>
-                        <span className={styles.dayName}>{dayName}</span>
-                        <span className={styles.dateNumber}>{dateNumber}</span>
-                      </div>
-                      <div className={styles.dayContent}>
-                        {(() => {
-                          // Check if this is an empty cell and has Strava data
-                          if (dayData.isEmpty) {
-                            const stravaData = getStravaDataForDate(cellDate);
-                            if (stravaData) {
-                              // Show Strava data instead of empty content
-                              const activityTime = new Date(
-                                stravaData.start_date_local
-                              );
-                              const timeStr = activityTime.toLocaleTimeString(
-                                "en-US",
-                                {
-                                  hour: "numeric",
-                                  minute: "2-digit",
-                                  hour12: true,
-                                }
-                              );
+                    // Calculate actual date for this cell
+                    // weekStart should be Monday, so we add index days to get the correct day
+                    const weekStartDate = new Date(
+                      weekData.weekStart + "T00:00:00"
+                    ); // Add time to avoid timezone issues
+                    const cellDate = new Date(weekStartDate);
+                    cellDate.setDate(weekStartDate.getDate() + index);
 
-                              return (
-                                <div className={styles.stravaCell}>
-                                  <div className={styles.stravaCellHeader}>
-                                    <span className={styles.stravaIcon}>
-                                      🏃
-                                    </span>
-                                    <span className={styles.stravaActivityName}>
-                                      {stravaData.name}
-                                    </span>
-                                  </div>
-                                  <div className={styles.stravaTime}>
-                                    at {timeStr}
-                                  </div>
-                                  <div className={styles.stravaStats}>
-                                    <div className={styles.stravaDistance}>
-                                      {(stravaData.distance / 1000).toFixed(2)}{" "}
-                                      km
+                    const dayName = cellDate.toLocaleDateString("en-US", {
+                      weekday: "short",
+                    });
+                    const dateNumber = cellDate.getDate();
+
+                    // Debug log for first few cells
+                    if (weekIndex === 0 && index < 3) {
+                      console.log(
+                        `Cell ${index} (${dayKey}): ${dayName} ${dateNumber}, expected day ${
+                          index + 1
+                        }, actual day ${cellDate.getDay()}`
+                      );
+                    }
+
+                    return (
+                      <div
+                        key={dayKey}
+                        className={`${styles.dayCell} ${
+                          isCompleted ? styles.completed : ""
+                        } ${isTodayCell ? styles.today : ""}`}
+                        onClick={() =>
+                          openDayDetails(currentMonth, weekIndex, dayKey)
+                        }
+                        style={{
+                          borderLeft: `4px solid ${getIntensityColor(
+                            dayData.intensity
+                          )}`,
+                        }}
+                      >
+                        {isTodayCell && (
+                          <div className={styles.todayIndicator}></div>
+                        )}
+                        <div className={styles.cellDate}>
+                          <span className={styles.dayName}>{dayName}</span>
+                          <span className={styles.dateNumber}>
+                            {dateNumber}
+                          </span>
+                        </div>
+                        <div className={styles.dayContent}>
+                          {(() => {
+                            // Check if this is an empty cell and has Strava data
+                            if (dayData.isEmpty) {
+                              const stravaData = getStravaDataForDate(cellDate);
+                              if (stravaData) {
+                                // Show Strava data instead of empty content
+                                const activityTime = new Date(
+                                  stravaData.start_date_local
+                                );
+                                const timeStr = activityTime.toLocaleTimeString(
+                                  "en-US",
+                                  {
+                                    hour: "numeric",
+                                    minute: "2-digit",
+                                    hour12: true,
+                                  }
+                                );
+
+                                return (
+                                  <div className={styles.stravaCell}>
+                                    <div className={styles.stravaCellHeader}>
+                                      <span className={styles.stravaIcon}>
+                                        🏃
+                                      </span>
+                                      <span
+                                        className={styles.stravaActivityName}
+                                      >
+                                        {stravaData.name}
+                                      </span>
                                     </div>
-                                    <div className={styles.stravaDuration}>
-                                      {formatTime(stravaData.moving_time)}
+                                    <div className={styles.stravaTime}>
+                                      at {timeStr}
                                     </div>
-                                    <div className={styles.stravaPace}>
-                                      {formatPace(stravaData.average_speed)}
+                                    <div className={styles.stravaStats}>
+                                      <div className={styles.stravaDistance}>
+                                        {(stravaData.distance / 1000).toFixed(
+                                          2
+                                        )}{" "}
+                                        km
+                                      </div>
+                                      <div className={styles.stravaDuration}>
+                                        {formatTime(stravaData.moving_time)}
+                                      </div>
+                                      <div className={styles.stravaPace}>
+                                        {formatPace(stravaData.average_speed)}
+                                      </div>
                                     </div>
                                   </div>
-                                </div>
-                              );
+                                );
+                              }
+                              // Empty cell with no Strava data - show nothing
+                              return null;
                             }
-                            // Empty cell with no Strava data - show nothing
-                            return null;
-                          }
 
-                          // Regular training data display
-                          return (
-                            <>
-                              <div className={styles.workoutType}>
-                                <span className={styles.workoutIcon}>
-                                  {getIntensityIcon(dayData.type)}
-                                </span>
-                                {dayData.type}
-                                {isCompleted && (
-                                  <span className={styles.completedBadge}>
-                                    ✓
+                            // Regular training data display
+                            return (
+                              <>
+                                <div className={styles.workoutType}>
+                                  <span className={styles.workoutIcon}>
+                                    {getIntensityIcon(dayData.type)}
                                   </span>
-                                )}
-                              </div>
-                              <div className={styles.workoutDetails}>
-                                <div className={styles.distance}>
-                                  {dayData.distance}
+                                  {dayData.type}
+                                  {isCompleted && (
+                                    <span className={styles.completedBadge}>
+                                      ✓
+                                    </span>
+                                  )}
                                 </div>
-                                <div className={styles.duration}>
-                                  {dayData.duration}
-                                </div>
-                                {dayData.pace !== "-" && (
-                                  <div className={styles.pace}>
-                                    {dayData.pace}
+                                <div className={styles.workoutDetails}>
+                                  <div className={styles.distance}>
+                                    {dayData.distance}
                                   </div>
-                                )}
-                              </div>
-                            </>
-                          );
-                        })()}
+                                  <div className={styles.duration}>
+                                    {dayData.duration}
+                                  </div>
+                                  {dayData.pace !== "-" && (
+                                    <div className={styles.pace}>
+                                      {dayData.pace}
+                                    </div>
+                                  )}
+                                </div>
+                              </>
+                            );
+                          })()}
+                        </div>
                       </div>
-                    </div>
-                  );
-                })}
+                    );
+                  })}
+                </div>
               </div>
             ))}
           </div>

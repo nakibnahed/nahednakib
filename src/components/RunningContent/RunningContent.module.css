@@ -329,3 +329,24 @@
     padding: 0.8em 0.7em;
   }
 }
+
+.trainingButton {
+  margin: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 20px;
+  border-radius: 50px;
+  font-weight: 700;
+  cursor: pointer;
+  text-decoration: none;
+  background: var(--button-bg);
+  border: 1px solid var(--card-border);
+  color: var(--button-text);
+  transition: all 0.3s ease;
+}
+
+.trainingButton:hover {
+  opacity: 0.9;
+}

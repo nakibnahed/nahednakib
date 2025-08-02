@@ -73,26 +73,26 @@ export default function Sidebar({ activeTab }) {
         <div className={styles.card}>
           <div className={styles.cardHeader}>
             <h3 className={styles.title}>
-              <Star size={20} className={styles.icon} /> Support My Running
+              <Star size={20} className={styles.icon} /> Why I Need Support
             </h3>
           </div>
           <div className={styles.supportContent}>
-            <p style={{ marginBottom: "1rem", lineHeight: "1.6" }}>
-              Help me continue my running journey! Your support helps with:
+            <p className={styles.supportDescription}>
+              To sustain this level of training and compete at my best, I invest
+              heavily in:
             </p>
-            <ul
-              style={{
-                paddingLeft: "1.2rem",
-                lineHeight: "1.6",
-                listStyleType: "none",
-                marginBottom: "1rem",
-              }}
-            >
-              <li>🏃‍♂️ Race entry fees</li>
-              <li>👟 Running gear & shoes</li>
-              <li>🏃‍♂️ Training equipment</li>
-              <li>💊 Supplements</li>
+            <ul className={styles.supportList}>
+              <li>🏃‍♂️ Race entry fees and travel</li>
+              <li>👟 Running shoes</li>
+              <li>💊 Nutrition and supplements</li>
+              <li>🏋️‍♂️ Training tools and recovery gear</li>
             </ul>
+            <p className={styles.supportMessage}>
+              Every contribution — big or small — helps me move forward and stay
+              consistent. If you believe in supporting independent athletes, I'd
+              truly appreciate your help. You're not just donating — you're
+              becoming part of the journey.
+            </p>
             <a
               href="https://www.paypal.com/paypalme/nahednakib/25"
               target="_blank"
@@ -104,9 +104,12 @@ export default function Sidebar({ activeTab }) {
               <img
                 src="https://www.paypalobjects.com/webstatic/de_DE/i/de-pp-logo-100px.png"
                 alt="PayPal"
-                style={{ width: "75px", height: "16px", marginRight: "8px" }}
+                className={styles.paypalLogo}
               />
             </a>
+            <p className={styles.thankYouMessage}>
+              Thank you for being part of my running story. 🙏
+            </p>
           </div>
         </div>
       )}

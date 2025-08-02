@@ -109,3 +109,36 @@
 .donateButton:active {
   transform: translateY(0);
 }
+
+.supportDescription {
+  margin-bottom: 1rem;
+  line-height: 1.6;
+}
+
+.supportList {
+  padding-left: 1.2rem;
+  line-height: 1.6;
+  list-style-type: none;
+  margin-bottom: 1rem;
+}
+
+.supportMessage {
+  margin-bottom: 1rem;
+  line-height: 1.6;
+  font-size: 0.9rem;
+  color: var(--text-dark);
+}
+
+.paypalLogo {
+  width: 75px;
+  height: 16px;
+  margin-right: 8px;
+}
+
+.thankYouMessage {
+  text-align: center;
+  margin-top: 12px;
+  font-size: 0.85rem;
+  color: var(--text-dark);
+  font-style: italic;
+}

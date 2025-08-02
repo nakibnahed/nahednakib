@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import Link from "next/link";
 
 import { SiStrava } from "react-icons/si";
 import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
@@ -575,11 +576,37 @@ export default function RunningContent() {
         details={
           <>
             <p>
-              I’m a competitive long-distance runner based in Germany. I focus
-              on high-performance training for road races, mainly 5K, 10K, and
-              half-marathon distances. My approach blends discipline, science,
-              and passion for running.
+              I’m a committed long-distance runner based in Germany,
+              specializing in road races from the 5K to the half-marathon. My
+              journey in running started with curiosity and quickly turned into
+              a deep passion — one that now shapes how I live, think, and train.
             </p>
+            <br />
+            <p>
+              Running, for me, is not just about chasing fast times. It’s a
+              lifestyle grounded in consistency, discipline, and
+              self-improvement. I train year-round, covering high weekly
+              mileage, balancing structured workouts with recovery, and always
+              looking for ways to refine my approach.
+            </p>
+            <br />
+            <p>
+              What drives me is the challenge — the process of becoming
+              stronger, smarter, and more resilient with every cycle. Each race
+              is a checkpoint, not a finish line, in a long journey of growth. I
+              see running as both an art and a science — a craft that demands
+              patience, intention, and heart.
+            </p>
+            <br />
+            <p>
+              Want to see my detailed training plans, workouts, and progress
+              tracking? Check out my comprehensive training dashboard where I
+              share my complete training methodology and current training cycle.
+            </p>
+            <br />
+            <Link href="/training" className={styles.trainingButton}>
+              🏃‍♂️ View Training Plan
+            </Link>
           </>
         }
       />

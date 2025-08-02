@@ -614,15 +614,242 @@
 }
 
 /* Responsive Design */
-@media (max-width: 1024px) {
-  .headerRow,
+/* Desktop styles - keep original layout */
+@media (min-width: 1201px) {
+  .calendarTable {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .headerRow {
+    display: grid;
+    grid-template-columns: 80px repeat(7, 1fr);
+  }
+
   .trainingRow {
-    grid-template-columns: 70px repeat(3, 1fr);
+    display: grid;
+    grid-template-columns: 80px repeat(7, 1fr);
+    min-height: 120px;
   }
 
   .weekColumnHeader,
   .weekColumn {
-    grid-row: span 3;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    gap: 4px;
+    padding: 12px 8px;
+    border-right: 2px solid var(--card-border, #333);
+    background: var(--background-main, #181818);
+  }
+
+  .weekDateRange {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+  }
+
+  .dateRange {
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 1;
+    margin-top: 0;
+  }
+
+  .monthName {
+    font-size: 10px;
+    font-weight: 400;
+    line-height: 1;
+    margin-top: 0;
+  }
+
+  .daysContainer {
+    display: contents;
+  }
+
+  .dayHeader {
+    display: block;
+    padding: 16px 12px;
+    text-align: center;
+    font-weight: 600;
+    color: var(--text-dark);
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-right: 1px solid var(--card-border, #333);
+  }
+
+  .dayCell {
+    width: 140px;
+    min-width: 140px;
+    max-width: 140px;
+    height: 150px;
+    min-height: 150px;
+    max-height: 150px;
+    padding: 14px 10px;
+    border-right: 1px solid var(--card-border, #333);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    justify-content: flex-start;
+    align-items: stretch;
+    overflow: hidden;
+  }
+
+  .cellDate {
+    position: absolute;
+    top: 4px;
+    left: 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    z-index: 1;
+  }
+
+  .dayName {
+    font-size: 9px;
+    color: var(--text-muted);
+    font-weight: 500;
+    line-height: 1;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .dateNumber {
+    font-size: 11px;
+    color: var(--text-dark);
+    font-weight: 600;
+    line-height: 1;
+    margin-top: 1px;
+  }
+
+  .dayContent {
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: stretch;
+    gap: 8px;
+    overflow: hidden;
+    margin-top: 32px;
+  }
+
+  .workoutType {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+    color: var(--text-primary, #fff);
+    font-size: 14px;
+    margin-bottom: 6px;
+    position: relative;
+  }
+
+  .workoutIcon {
+    font-size: 16px;
+  }
+
+  .workoutDetails {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin-bottom: 2px;
+  }
+
+  .distance {
+    color: var(--primary-color, #ee681a);
+    font-weight: 600;
+    font-size: 16px;
+  }
+
+  .duration {
+    color: var(--text-dark);
+    font-size: 13px;
+  }
+
+  .pace {
+    color: var(--text-muted);
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 1200px) {
+  .container {
+    padding: 20px;
+  }
+
+  .dayCell {
+    width: 120px;
+    min-width: 120px;
+    max-width: 120px;
+    height: 130px;
+    min-height: 130px;
+    max-height: 130px;
+    padding: 12px 8px;
+  }
+
+  .workoutType {
+    font-size: 13px;
+  }
+
+  .distance {
+    font-size: 15px;
+  }
+
+  .duration {
+    font-size: 12px;
+  }
+
+  .pace {
+    font-size: 11px;
+  }
+}
+
+@media (max-width: 1024px) {
+  .container {
+    padding: 16px;
+    width: 100%;
+  }
+
+  .headerRow,
+  .trainingRow {
+    grid-template-columns: 70px repeat(4, 1fr);
+  }
+
+  .dayHeader:nth-child(n + 6),
+  .dayCell:nth-child(n + 6) {
+    display: none;
+  }
+
+  .dayCell {
+    width: 100px;
+    min-width: 100px;
+    max-width: 100px;
+    height: 110px;
+    min-height: 110px;
+    max-height: 110px;
+    padding: 10px 6px;
+  }
+
+  .workoutType {
+    font-size: 12px;
+  }
+
+  .distance {
+    font-size: 14px;
+  }
+
+  .duration {
+    font-size: 11px;
+  }
+
+  .pace {
+    font-size: 10px;
   }
 
   .weekNumber {
@@ -636,49 +863,70 @@
   .monthName {
     font-size: 9px;
   }
+}
 
-  .dayHeader:nth-child(n + 5) {
-    border-top: 1px solid var(--card-border, #333);
+@media (max-width: 900px) {
+  .headerRow,
+  .trainingRow {
+    grid-template-columns: 60px repeat(3, 1fr);
   }
 
+  .dayHeader:nth-child(n + 5),
   .dayCell:nth-child(n + 5) {
-    border-top: 1px solid var(--card-border, #333);
+    display: none;
   }
 
   .dayCell {
-    width: 100px;
-    min-width: 100px;
-    max-width: 100px;
-    height: 110px;
-    min-height: 110px;
-    max-height: 110px;
+    width: 90px;
+    min-width: 90px;
+    max-width: 90px;
+    height: 100px;
+    min-height: 100px;
+    max-height: 100px;
     padding: 8px 4px;
   }
 
-  .cellDate {
-    margin-bottom: 12px;
+  .workoutType {
+    font-size: 11px;
+  }
+
+  .distance {
+    font-size: 13px;
+  }
+
+  .duration {
+    font-size: 10px;
+  }
+
+  .pace {
+    font-size: 9px;
   }
 }
 
 @media (max-width: 768px) {
   .container {
-    padding: 16px;
+    padding: 12px;
   }
 
   .header {
     flex-direction: column;
     align-items: flex-start;
     gap: 16px;
+    margin-bottom: 24px;
   }
 
   .title {
     font-size: 24px;
   }
 
+  .subtitle {
+    font-size: 14px;
+  }
+
   .monthNavigation {
     flex-direction: column;
-    gap: 16px;
-    text-align: center;
+    gap: 12px;
+    align-items: center;
   }
 
   .monthTitle {
@@ -686,75 +934,450 @@
   }
 
   .navigationButtons {
-    gap: 12px;
+    gap: 8px;
   }
 
-  .headerRow,
+  .navArrow {
+    width: 28px;
+    height: 28px;
+    font-size: 16px;
+  }
+
+  .todayButton {
+    padding: 4px 10px;
+    font-size: 12px;
+  }
+
+  /* Mobile Calendar Layout - Vertical Stack */
+  .calendarContainer {
+    border-radius: 12px;
+  }
+
+  .weekHeader {
+    padding: 16px;
+  }
+
+  .calendarTable {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .headerRow {
+    display: none; /* Hide the header row on mobile */
+  }
+
   .trainingRow {
-    grid-template-columns: 50px 1fr;
-    grid-template-rows: auto repeat(7, 1fr);
+    display: flex;
+    flex-direction: column;
+    border-bottom: 2px solid var(--card-border, #333);
+    min-height: auto;
+  }
+
+  .trainingRow:last-child {
+    border-bottom: none;
   }
 
   .weekColumnHeader,
   .weekColumn {
-    grid-row: 1 / -1;
-    writing-mode: vertical-lr;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    border-right: none;
+    border-bottom: 1px solid var(--card-border, #333);
+    background: var(--background-main, #181818);
+    writing-mode: horizontal-tb;
     text-orientation: mixed;
-    padding: 8px 4px;
   }
 
   .weekNumber {
-    font-size: 10px;
+    font-size: 14px;
+    font-weight: 700;
+  }
+
+  .weekDateRange {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
   }
 
   .dateRange {
-    font-size: 8px;
-    margin-top: 4px;
+    font-size: 12px;
+    margin-top: 0;
   }
 
   .monthName {
-    font-size: 7px;
-    margin-top: 2px;
+    font-size: 11px;
+    margin-top: 0;
+  }
+
+  /* Days container */
+  .daysContainer {
+    display: flex;
+    flex-direction: column;
   }
 
   .dayHeader {
-    border-right: none;
-    border-bottom: 1px solid var(--card-border, #333);
-    grid-column: 2;
+    display: none; /* Hide individual day headers */
   }
 
   .dayCell {
     border-right: none;
     border-bottom: 1px solid var(--card-border, #333);
-    min-height: 100px;
-    grid-column: 2;
-    width: 80px;
-    min-width: 80px;
-    max-width: 80px;
-    height: 85px;
-    min-height: 85px;
-    max-height: 85px;
-    padding: 4px 2px;
+    width: auto;
+    min-width: auto;
+    max-width: none;
+    height: auto;
+    min-height: 80px;
+    max-height: none;
+    padding: 12px 16px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .dayCell:last-child {
+    border-bottom: none;
+  }
+
+  .cellDate {
+    position: relative;
+    top: auto;
+    left: auto;
+    margin-bottom: 0;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+    min-width: 60px;
+  }
+
+  .dayName {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-primary, #fff);
+  }
+
+  .dateNumber {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--primary-color, #ee681a);
+  }
+
+  .dayContent {
+    margin-top: 0;
+    gap: 8px;
+    flex: 1;
   }
 
   .workoutType {
+    font-size: 14px;
+    margin-bottom: 6px;
+  }
+
+  .workoutIcon {
+    font-size: 16px;
+  }
+
+  .distance {
+    font-size: 16px;
+  }
+
+  .duration {
+    font-size: 12px;
+  }
+
+  .pace {
+    font-size: 11px;
+  }
+
+  /* Mobile Modal */
+  .modal {
+    padding: 8px;
+  }
+
+  .modalContent {
+    max-height: 95vh;
+    max-width: 95vw;
+  }
+
+  .modalHeader {
+    padding: 16px;
+  }
+
+  .modalHeader h3 {
+    font-size: 18px;
+  }
+
+  .modalDate {
+    font-size: 12px;
+    margin-left: 28px;
+  }
+
+  .modalBody {
+    padding: 16px;
+  }
+
+  .modalStats {
+    gap: 12px;
+  }
+
+  .modalStat {
+    font-size: 13px;
+  }
+
+  .modalActions {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .intensityBadge {
+    align-self: center;
+  }
+
+  .completedButton {
+    width: 100%;
+    justify-content: center;
+  }
+
+  /* Mobile Strava Section */
+  .stravaSection {
+    padding: 16px;
+  }
+
+  .stravaHeader {
+    flex-direction: column;
+    gap: 12px;
+    align-items: flex-start;
+  }
+
+  .activityStats {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .activityStat {
+    padding: 10px;
+  }
+
+  .statValue {
+    font-size: 14px;
+  }
+
+  .stravaButton {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .container {
+    padding: 8px;
+  }
+
+  .header {
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  .title {
+    font-size: 20px;
+  }
+
+  .subtitle {
+    font-size: 13px;
+  }
+
+  .weekHeader {
+    padding: 12px;
+  }
+
+  .monthTitle {
+    font-size: 18px;
+  }
+
+  .headerRow,
+  .trainingRow {
+    grid-template-columns: 50px 1fr;
+  }
+
+  .weekColumnHeader,
+  .weekColumn {
+    padding: 6px 2px;
+  }
+
+  .weekNumber {
+    font-size: 9px;
+  }
+
+  .dateRange {
+    font-size: 7px;
+  }
+
+  .monthName {
+    font-size: 6px;
+  }
+
+  .dayHeader {
+    padding: 8px 6px;
+    font-size: 11px;
+  }
+
+  .dayCell {
+    padding: 6px 4px;
+    min-height: 70px;
+  }
+
+  .cellDate {
+    gap: 6px;
+  }
+
+  .dayName {
+    font-size: 9px;
+  }
+
+  .dateNumber {
+    font-size: 11px;
+  }
+
+  .workoutType {
+    font-size: 10px;
+  }
+
+  .workoutIcon {
     font-size: 12px;
   }
 
   .distance {
-    font-size: 14px;
+    font-size: 12px;
   }
 
+  .duration {
+    font-size: 9px;
+  }
+
+  .pace {
+    font-size: 8px;
+  }
+
+  /* Small Mobile Modal */
   .modal {
-    padding: 10px;
+    padding: 4px;
   }
 
   .modalContent {
-    max-height: 90vh;
+    max-height: 98vh;
+    max-width: 98vw;
   }
 
-  .cellDate {
-    margin-bottom: 8px;
+  .modalHeader {
+    padding: 12px;
+  }
+
+  .modalHeader h3 {
+    font-size: 16px;
+  }
+
+  .modalDate {
+    font-size: 11px;
+    margin-left: 24px;
+  }
+
+  .modalBody {
+    padding: 12px;
+  }
+
+  .modalStats {
+    gap: 10px;
+  }
+
+  .modalStat {
+    font-size: 12px;
+  }
+
+  .stravaSection {
+    padding: 12px;
+  }
+
+  .activityStat {
+    padding: 8px;
+  }
+
+  .statValue {
+    font-size: 13px;
+  }
+
+  .stravaButton {
+    padding: 10px 16px;
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 360px) {
+  .container {
+    padding: 6px;
+  }
+
+  .title {
+    font-size: 18px;
+  }
+
+  .subtitle {
+    font-size: 12px;
+  }
+
+  .headerRow,
+  .trainingRow {
+    grid-template-columns: 45px 1fr;
+  }
+
+  .weekColumnHeader,
+  .weekColumn {
+    padding: 4px 1px;
+  }
+
+  .weekNumber {
+    font-size: 8px;
+  }
+
+  .dateRange {
+    font-size: 6px;
+  }
+
+  .monthName {
+    font-size: 5px;
+  }
+
+  .dayHeader {
+    padding: 6px 4px;
+    font-size: 10px;
+  }
+
+  .dayCell {
+    padding: 4px 2px;
+    min-height: 60px;
+  }
+
+  .workoutType {
+    font-size: 9px;
+  }
+
+  .workoutIcon {
+    font-size: 11px;
+  }
+
+  .distance {
+    font-size: 11px;
+  }
+
+  .duration {
+    font-size: 8px;
+  }
+
+  .pace {
+    font-size: 7px;
   }
 }
 
@@ -1097,6 +1720,120 @@
   .stravaDuration,
   .stravaPace {
     font-size: 10px;
+  }
+
+  /* Mobile Training Details */
+  .modalDetails {
+    margin: 16px 0;
+  }
+
+  .trainingSection {
+    padding: 12px;
+    margin-bottom: 16px;
+  }
+
+  .sectionTitle {
+    font-size: 13px;
+  }
+
+  .sectionContent {
+    font-size: 13px;
+  }
+
+  .intervalItem {
+    padding: 6px 8px;
+  }
+
+  .intervalDistance {
+    font-size: 12px;
+    min-width: 50px;
+  }
+
+  .intervalPace {
+    font-size: 11px;
+  }
+
+  .intervalReps {
+    font-size: 11px;
+    padding: 1px 6px;
+  }
+
+  .restItem {
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 480px) {
+  .activityStats {
+    grid-template-columns: 1fr;
+    gap: 6px;
+  }
+
+  .activityStat {
+    padding: 8px;
+  }
+
+  .statValue {
+    font-size: 13px;
+  }
+
+  .stravaCell {
+    gap: 3px;
+    padding: 5px;
+  }
+
+  .stravaActivityName {
+    font-size: 10px;
+  }
+
+  .stravaTime {
+    font-size: 8px;
+  }
+
+  .stravaDistance,
+  .stravaDuration,
+  .stravaPace {
+    font-size: 9px;
+  }
+
+  /* Small Mobile Training Details */
+  .modalDetails {
+    margin: 12px 0;
+  }
+
+  .trainingSection {
+    padding: 10px;
+    margin-bottom: 12px;
+  }
+
+  .sectionTitle {
+    font-size: 12px;
+  }
+
+  .sectionContent {
+    font-size: 12px;
+  }
+
+  .intervalItem {
+    padding: 5px 6px;
+  }
+
+  .intervalDistance {
+    font-size: 11px;
+    min-width: 45px;
+  }
+
+  .intervalPace {
+    font-size: 10px;
+  }
+
+  .intervalReps {
+    font-size: 10px;
+    padding: 1px 4px;
+  }
+
+  .restItem {
+    font-size: 12px;
   }
 }
 
