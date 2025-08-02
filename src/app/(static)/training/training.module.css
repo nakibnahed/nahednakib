@@ -781,6 +781,7 @@
 @media (max-width: 1200px) {
   .container {
     padding: 20px;
+    padding-bottom: 32px; /* Extra bottom padding for tablets */
   }
 
   .dayCell {
@@ -814,6 +815,7 @@
   .container {
     padding: 16px;
     width: 100%;
+    padding-bottom: 28px; /* Extra bottom padding for smaller tablets */
   }
 
   .headerRow,
@@ -906,6 +908,9 @@
 @media (max-width: 768px) {
   .container {
     padding: 12px;
+    width: 100%;
+    min-height: auto;
+    padding-bottom: 40px; /* More bottom padding */
   }
 
   .header {
@@ -951,6 +956,9 @@
   /* Mobile Calendar Layout - Vertical Stack */
   .calendarContainer {
     border-radius: 12px;
+    height: auto;
+    min-height: auto;
+    overflow: visible;
   }
 
   .weekHeader {
@@ -960,6 +968,9 @@
   .calendarTable {
     display: flex;
     flex-direction: column;
+    height: auto;
+    min-height: auto;
+    overflow: visible;
   }
 
   .headerRow {
@@ -971,10 +982,13 @@
     flex-direction: column;
     border-bottom: 2px solid var(--card-border, #333);
     min-height: auto;
+    height: auto;
+    overflow: visible;
   }
 
   .trainingRow:last-child {
     border-bottom: none;
+    margin-bottom: 0;
   }
 
   .weekColumnHeader,
@@ -1013,14 +1027,23 @@
     margin-top: 0;
   }
 
-  /* Days container */
+  /* Days container - Show ALL 7 days on mobile */
   .daysContainer {
     display: flex;
     flex-direction: column;
+    height: auto;
+    min-height: auto;
+    overflow: visible;
   }
 
   .dayHeader {
     display: none; /* Hide individual day headers */
+  }
+
+  /* Override the display:none rules from larger breakpoints to show ALL days */
+  .dayCell:nth-child(n + 6),
+  .dayCell:nth-child(n + 5) {
+    display: flex !important;
   }
 
   .dayCell {
@@ -1041,6 +1064,7 @@
 
   .dayCell:last-child {
     border-bottom: none;
+    margin-bottom: 0;
   }
 
   .cellDate {
@@ -1093,18 +1117,25 @@
     font-size: 11px;
   }
 
-  /* Mobile Modal */
+  /* Mobile Modal - Better sizing */
   .modal {
-    padding: 8px;
+    padding: 16px;
   }
 
   .modalContent {
-    max-height: 95vh;
-    max-width: 95vw;
+    max-height: 85vh;
+    max-width: 90vw;
+    width: 100%;
+    margin: auto;
   }
 
   .modalHeader {
     padding: 16px;
+    position: sticky;
+    top: 0;
+    background: var(--card-bg, #1a1a1a);
+    z-index: 10;
+    border-bottom: 1px solid var(--card-border, #333);
   }
 
   .modalHeader h3 {
@@ -1118,6 +1149,8 @@
 
   .modalBody {
     padding: 16px;
+    max-height: calc(85vh - 80px);
+    overflow-y: auto;
   }
 
   .modalStats {
@@ -1131,6 +1164,76 @@
   .modalActions {
     flex-direction: column;
     gap: 12px;
+    position: sticky;
+    bottom: 0;
+    background: var(--card-bg, #1a1a1a);
+    padding: 16px;
+    margin: 16px -16px -16px -16px;
+    border-top: 1px solid var(--card-border, #333);
+  }
+
+  .intensityBadge {
+    align-self: center;
+  }
+
+  .completedButton {
+    width: 100%;
+    justify-content: center;
+  }
+
+  /* Mobile Modal - Better sizing */
+  .modal {
+    padding: 16px;
+  }
+
+  .modalContent {
+    max-height: 85vh;
+    max-width: 90vw;
+    width: 100%;
+    margin: auto;
+  }
+
+  .modalHeader {
+    padding: 16px;
+    position: sticky;
+    top: 0;
+    background: var(--card-bg, #1a1a1a);
+    z-index: 10;
+    border-bottom: 1px solid var(--card-border, #333);
+  }
+
+  .modalHeader h3 {
+    font-size: 18px;
+  }
+
+  .modalDate {
+    font-size: 12px;
+    margin-left: 28px;
+  }
+
+  .modalBody {
+    padding: 16px;
+    max-height: calc(85vh - 80px);
+    overflow-y: auto;
+  }
+
+  .modalStats {
+    gap: 12px;
+  }
+
+  .modalStat {
+    font-size: 13px;
+  }
+
+  .modalActions {
+    flex-direction: column;
+    gap: 12px;
+    position: sticky;
+    bottom: 0;
+    background: var(--card-bg, #1a1a1a);
+    padding: 16px;
+    margin: 16px -16px -16px -16px;
+    border-top: 1px solid var(--card-border, #333);
   }
 
   .intensityBadge {
@@ -1175,6 +1278,7 @@
 @media (max-width: 480px) {
   .container {
     padding: 8px;
+    padding-bottom: 32px; /* Extra bottom padding for small screens */
   }
 
   .header {
@@ -1318,6 +1422,7 @@
 @media (max-width: 360px) {
   .container {
     padding: 6px;
+    padding-bottom: 28px; /* Extra bottom padding for very small screens */
   }
 
   .title {
