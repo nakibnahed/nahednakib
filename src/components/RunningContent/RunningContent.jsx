@@ -604,9 +604,9 @@ export default function RunningContent() {
               share my complete training methodology and current training cycle.
             </p>
             <br />
-            <Link href="/training" className={styles.trainingButton}>
+            {/* <Link href="/training" className={styles.trainingButton}>
               🏃‍♂️ View Training Plan
-            </Link>
+            </Link> */}
           </>
         }
       />
