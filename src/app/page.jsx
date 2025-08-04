@@ -15,19 +15,21 @@ export default function Home() {
       <div className={styles.col}>
         <h1 className={styles.title}>Welcome to Nahed</h1>
         <p className={styles.description}>
-          We create high-quality, scalable, and innovative websites to help
-          businesses thrive in the digital world.
+          Web developer and distance runner.
+          <br />
+          Clean code. Clear goals. Whether on the web or on the track, I bring
+          discipline and precision to every step.
         </p>
         <div className={styles.heroButtons}>
-          <Link href="/portfolio" className={styles.button}>
+          <Link href="/about" className={styles.button}>
             <span>Explore More</span>
             <span className={styles.arrow}>→</span>
           </Link>
           <Link
-            href="/contact"
+            href="/portfolio"
             className={`${styles.button} ${styles.aboutButton}`}
           >
-            <span>Get Started</span>
+            <span>My Work</span>
             <span className={styles.arrow}>→</span>
           </Link>
         </div>
