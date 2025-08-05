@@ -3,13 +3,7 @@
   display: inline-block;
 }
 
-.popupContainer {
-  position: absolute;
-  top: 100%;
-  right: 0;
-  z-index: 10000;
-  margin-top: 8px;
-}
+/* Popup container styles removed - now using React Portal */
 
 .iconButton {
   display: inline-flex;
@@ -159,13 +153,5 @@
     font-size: 9px;
   }
 
-  .popupContainer {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    margin-top: 0;
-    z-index: 10000;
-  }
+  /* Mobile popup container styles removed - now using React Portal */
 }

@@ -15,7 +15,12 @@ import {
 import styles from "./NotificationPopup.module.css";
 import NotificationItem from "../NotificationItem/NotificationItem";
 
-const NotificationPopup = ({ onClose, onNotificationRead, refreshKey = 0 }) => {
+const NotificationPopup = ({
+  onClose,
+  onNotificationRead,
+  refreshKey = 0,
+  buttonPosition = { top: 60, right: 20 },
+}) => {
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -56,23 +61,46 @@ const NotificationPopup = ({ onClose, onNotificationRead, refreshKey = 0 }) => {
     fetchNotifications();
   }, [refreshKey]); // Re-fetch when refreshKey changes (popup opens)
 
+  // Lock background scroll when popup is open
+  useEffect(() => {
+    // Store current scroll position
+    const scrollY = window.scrollY;
+
+    // Add modal class to body and set scroll position
+    document.body.classList.add("modal-open");
+    document.body.style.top = `-${scrollY}px`;
+
+    return () => {
+      // Remove modal class and restore scroll position
+      document.body.classList.remove("modal-open");
+      document.body.style.top = "";
+
+      // Restore scroll position
+      window.scrollTo(0, scrollY);
+    };
+  }, []);
+
   useEffect(() => {
     const handleClickOutside = (event) => {
-      // On mobile, only close if clicking the overlay background, not the popup itself
-      if (window.innerWidth <= 768) {
-        if (event.target.classList.contains(styles.overlay)) {
-          onClose();
-        }
-      } else {
-        // Desktop behavior - close when clicking outside the popup
-        if (popupRef.current && !popupRef.current.contains(event.target)) {
-          onClose();
-        }
+      // Close popup when clicking outside the popup content
+      if (popupRef.current && !popupRef.current.contains(event.target)) {
+        onClose();
+      }
+    };
+
+    const handleEscapeKey = (event) => {
+      if (event.key === "Escape") {
+        onClose();
       }
     };
 
     document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+    document.addEventListener("keydown", handleEscapeKey);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("keydown", handleEscapeKey);
+    };
   }, [onClose]);
 
   const handleMarkAllRead = async () => {
@@ -217,8 +245,14 @@ const NotificationPopup = ({ onClose, onNotificationRead, refreshKey = 0 }) => {
     }
   };
 
+  // Create dynamic styles for desktop positioning
+  const overlayStyle = {
+    "--popup-top": `${buttonPosition.top}px`,
+    "--popup-right": `${buttonPosition.right}px`,
+  };
+
   return (
-    <div className={styles.overlay}>
+    <div className={styles.overlay} style={overlayStyle}>
       <div ref={popupRef} className={styles.popup}>
         <div className={styles.header}>
           <h3>Notifications</h3>

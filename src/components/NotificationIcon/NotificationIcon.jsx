@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
+import { createPortal } from "react-dom";
 import { Bell } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import styles from "./NotificationIcon.module.css";
@@ -16,6 +17,8 @@ const NotificationIcon = () => {
   const [realtimeStatus, setRealtimeStatus] = useState("disconnected");
   const [popupRefreshKey, setPopupRefreshKey] = useState(0);
   const [forceUpdate, setForceUpdate] = useState(0);
+  const [buttonPosition, setButtonPosition] = useState({ top: 0, right: 0 });
+  const buttonRef = useRef(null);
 
   // Check if user is authenticated
   useEffect(() => {
@@ -261,8 +264,20 @@ const NotificationIcon = () => {
     }
   }, [isAuthenticated]);
 
+  const calculateButtonPosition = () => {
+    if (buttonRef.current) {
+      const rect = buttonRef.current.getBoundingClientRect();
+      setButtonPosition({
+        top: rect.bottom + 8, // 8px gap below button
+        right: window.innerWidth - rect.right, // Distance from right edge
+      });
+    }
+  };
+
   const handleIconClick = () => {
     if (isAuthenticated) {
+      // Calculate button position before opening popup
+      calculateButtonPosition();
       setShowPopup(true);
       setPopupRefreshKey((prev) => prev + 1); // Force refresh when popup opens
     }
@@ -283,6 +298,7 @@ const NotificationIcon = () => {
   return (
     <div className={styles.notificationIcon}>
       <button
+        ref={buttonRef}
         onClick={handleIconClick}
         className={styles.iconButton}
         disabled={isLoading}
@@ -312,8 +328,9 @@ const NotificationIcon = () => {
         />
       </button>
 
-      {showPopup && (
-        <div className={styles.popupContainer}>
+      {showPopup &&
+        typeof document !== "undefined" &&
+        createPortal(
           <NotificationPopup
             onClose={handlePopupClose}
             onNotificationRead={(type = "single") => {
@@ -330,9 +347,10 @@ const NotificationIcon = () => {
               }
             }}
             refreshKey={popupRefreshKey}
-          />
-        </div>
-      )}
+            buttonPosition={buttonPosition}
+          />,
+          document.body
+        )}
     </div>
   );
 };
