@@ -91,29 +91,31 @@ export default function Blog() {
         <h1 className={styles.pageTitle}>Blog</h1>
 
         {/* Category Navigation */}
-        <div className={styles.categoryNav}>
-          <button
-            className={`${styles.categoryButton} ${
-              selectedCategory === "all" ? styles.active : ""
-            }`}
-            onClick={() => setSelectedCategory("all")}
-          >
-            All Posts
-          </button>
-          {categories.map((category) => (
+        <div className={styles.categoryNavWrapper}>
+          <div className={styles.categoryNav}>
             <button
-              key={category.id}
               className={`${styles.categoryButton} ${
-                selectedCategory === category.slug ? styles.active : ""
+                selectedCategory === "all" ? styles.active : ""
               }`}
-              onClick={() => setSelectedCategory(category.slug)}
-              style={{
-                "--category-color": category.color,
-              }}
+              onClick={() => setSelectedCategory("all")}
             >
-              {category.name}
+              All Posts
             </button>
-          ))}
+            {categories.map((category) => (
+              <button
+                key={category.id}
+                className={`${styles.categoryButton} ${
+                  selectedCategory === category.slug ? styles.active : ""
+                }`}
+                onClick={() => setSelectedCategory(category.slug)}
+                style={{
+                  "--category-color": category.color,
+                }}
+              >
+                {category.name}
+              </button>
+            ))}
+          </div>
         </div>
 
         {/* Category Header */}
