@@ -1,4 +1,6 @@
 import { createClient } from "@supabase/supabase-js";
+import { NextResponse } from "next/server";
+import { createClient as createServerClient } from "@/lib/supabase/server";
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL,
@@ -10,15 +12,57 @@ const fallbackStore = {};
 
 export async function GET(request) {
   const { searchParams } = new URL(request.url);
-  const activity_id = searchParams.get("activity_id");
 
-  if (!activity_id) {
-    return new Response(JSON.stringify({ error: "Missing activity_id" }), {
-      status: 400,
-      headers: { "Content-Type": "application/json" },
-    });
+  // Check if this is for running activities (activity_id) or portfolio/blog (contentType + contentId)
+  const activity_id = searchParams.get("activity_id");
+  const contentType = searchParams.get("contentType");
+  const contentId = searchParams.get("contentId");
+  const userId = searchParams.get("userId");
+
+  // Handle running activity likes
+  if (activity_id) {
+    return handleActivityLikesGet(activity_id);
   }
 
+  // Handle portfolio/blog likes
+  if (contentType && contentId) {
+    return handleContentLikesGet(contentType, contentId, userId);
+  }
+
+  return new Response(
+    JSON.stringify({ error: "Missing required parameters" }),
+    {
+      status: 400,
+      headers: { "Content-Type": "application/json" },
+    }
+  );
+}
+
+export async function POST(request) {
+  const body = await request.json();
+  const { activity_id, contentType, contentId } = body;
+
+  // Handle running activity likes
+  if (activity_id) {
+    return handleActivityLikesPost(activity_id, request);
+  }
+
+  // Handle portfolio/blog likes
+  if (contentType && contentId) {
+    return handleContentLikesPost(contentType, contentId, request);
+  }
+
+  return new Response(
+    JSON.stringify({ error: "Missing required parameters" }),
+    {
+      status: 400,
+      headers: { "Content-Type": "application/json" },
+    }
+  );
+}
+
+// Handle running activity likes GET
+async function handleActivityLikesGet(activity_id) {
   try {
     console.log(`Fetching like count for activity_id: ${activity_id}`);
 
@@ -64,16 +108,54 @@ export async function GET(request) {
   }
 }
 
-export async function POST(request) {
-  const { activity_id } = await request.json();
+// Handle portfolio/blog likes GET
+async function handleContentLikesGet(contentType, contentId, userId) {
+  try {
+    const serverSupabase = await createServerClient();
 
-  if (!activity_id) {
-    return new Response(JSON.stringify({ error: "Missing activity_id" }), {
-      status: 400,
-      headers: { "Content-Type": "application/json" },
+    if (!["portfolio", "blog"].includes(contentType)) {
+      return NextResponse.json(
+        { error: "Invalid content type" },
+        { status: 400 }
+      );
+    }
+
+    // Get total likes count
+    const { count: likesCount } = await serverSupabase
+      .from("user_likes")
+      .select("*", { count: "exact", head: true })
+      .eq("content_type", contentType)
+      .eq("content_id", contentId);
+
+    // Check if specific user liked this content
+    let userLiked = false;
+    if (userId) {
+      const { data: userLike } = await serverSupabase
+        .from("user_likes")
+        .select("id")
+        .eq("user_id", userId)
+        .eq("content_type", contentType)
+        .eq("content_id", contentId)
+        .single();
+
+      userLiked = !!userLike;
+    }
+
+    return NextResponse.json({
+      likesCount: likesCount || 0,
+      userLiked,
     });
+  } catch (error) {
+    console.error("Error fetching content likes:", error);
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 }
+    );
   }
+}
 
+// Handle running activity likes POST
+async function handleActivityLikesPost(activity_id, request) {
   // Get client IP and user agent for anonymous tracking
   const forwarded = request.headers.get("x-forwarded-for");
   const ip = forwarded ? forwarded.split(",")[0] : "unknown";
@@ -163,5 +245,79 @@ export async function POST(request) {
       status: 200,
       headers: { "Content-Type": "application/json" },
     });
+  }
+}
+
+// Handle portfolio/blog likes POST
+async function handleContentLikesPost(contentType, contentId, request) {
+  try {
+    const serverSupabase = await createServerClient();
+    const {
+      data: { session },
+    } = await serverSupabase.auth.getSession();
+
+    if (!session) {
+      return NextResponse.json(
+        { error: "Authentication required" },
+        { status: 401 }
+      );
+    }
+
+    if (!["portfolio", "blog"].includes(contentType)) {
+      return NextResponse.json(
+        { error: "Invalid content type" },
+        { status: 400 }
+      );
+    }
+
+    // Check if user already liked this content
+    const { data: existingLike } = await serverSupabase
+      .from("user_likes")
+      .select("id")
+      .eq("user_id", session.user.id)
+      .eq("content_type", contentType)
+      .eq("content_id", contentId)
+      .single();
+
+    if (existingLike) {
+      // Remove like
+      const { error } = await serverSupabase
+        .from("user_likes")
+        .delete()
+        .eq("user_id", session.user.id)
+        .eq("content_type", contentType)
+        .eq("content_id", contentId);
+
+      if (error) {
+        return NextResponse.json({ error: error.message }, { status: 500 });
+      }
+
+      return NextResponse.json({
+        liked: false,
+        message: "Like removed",
+      });
+    } else {
+      // Add like
+      const { error } = await serverSupabase.from("user_likes").insert({
+        user_id: session.user.id,
+        content_type: contentType,
+        content_id: contentId,
+      });
+
+      if (error) {
+        return NextResponse.json({ error: error.message }, { status: 500 });
+      }
+
+      return NextResponse.json({
+        liked: true,
+        message: "Content liked",
+      });
+    }
+  } catch (error) {
+    console.error("Error processing content like:", error);
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 }
+    );
   }
 }
