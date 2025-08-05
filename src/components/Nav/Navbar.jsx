@@ -6,15 +6,25 @@ import Logo from "@/elements/Logo/Logo";
 import DarkMoodToggle from "../DarkMoodToggle/DarkMoodToggle";
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
-import { User, Menu, X } from "lucide-react";
+import {
+  User,
+  Menu,
+  X,
+  Info,
+  Briefcase,
+  FileText,
+  Mail,
+  Activity,
+} from "lucide-react";
 import { useRouter } from "next/navigation";
 import NotificationIcon from "../NotificationIcon/NotificationIcon";
 
 const navLinks = [
-  { id: 1, url: "/about", title: "About" },
-  { id: 2, url: "/portfolio", title: "Portfolio" },
-  { id: 3, url: "/blog", title: "Blog" },
-  { id: 4, url: "/contact", title: "Contact" },
+  { id: 1, url: "/info", title: "Running", icon: Activity },
+  { id: 2, url: "/portfolio", title: "Portfolio", icon: Briefcase },
+  { id: 3, url: "/blog", title: "Blog", icon: FileText },
+  { id: 4, url: "/about", title: "About", icon: Info },
+  { id: 5, url: "/contact", title: "Contact", icon: Mail },
 ];
 
 export default function Navbar() {
@@ -172,39 +182,49 @@ export default function Navbar() {
             menuOpen ? styles.mobileMenuOpen : ""
           }`}
         >
-          <button
-            className={styles.closeMenu}
-            onClick={() => setMenuOpen(false)}
-            aria-label="Close menu"
-            type="button"
-          >
-            <X size={32} />
-          </button>
-          <div className={styles.MenuLinks}>
-            {navLinks.map((link) => (
-              <Link
-                key={link.id}
-                href={link.url}
-                className={styles.mobileMenuLink}
-                onClick={() => setMenuOpen(false)}
-              >
-                {link.title}
-              </Link>
-            ))}
+          {/* Menu Header */}
+          <div className={styles.mobileMenuHeader}>
             <button
-              className={styles.mobileMenuLink}
+              className={styles.profileButton}
               onClick={async (e) => {
                 await handleUserIconClick(e);
                 setMenuOpen(false);
               }}
               type="button"
             >
-              <span>User</span>
+              <User size={20} />
+              <span>Profile</span>
             </button>
+
+            <div className={styles.mobileMenuHeaderRight}>
+              <DarkMoodToggle />
+              <button
+                className={styles.closeMenu}
+                onClick={() => setMenuOpen(false)}
+                aria-label="Close menu"
+                type="button"
+              >
+                <X size={20} />
+              </button>
+            </div>
           </div>
-          <div className={styles.mobileMenuDarkToggle}>
-            <DarkMoodToggle />
-            <span className={styles.mobileMenuLink}></span>
+
+          {/* Menu Links */}
+          <div className={styles.MenuLinks}>
+            {navLinks.map((link) => {
+              const IconComponent = link.icon;
+              return (
+                <Link
+                  key={link.id}
+                  href={link.url}
+                  className={styles.mobileMenuLink}
+                  onClick={() => setMenuOpen(false)}
+                >
+                  <IconComponent size={20} />
+                  <span>{link.title}</span>
+                </Link>
+              );
+            })}
           </div>
         </div>
       </div>

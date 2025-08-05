@@ -105,31 +105,40 @@
     display: flex;
     align-items: center;
     margin-left: auto;
-    gap: 0;
-    height: 40px;
+    gap: 8px;
+    height: 44px;
   }
   .userMobileIcon,
   .menuIcon {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 40px;
-    height: 40px;
+    width: 44px;
+    height: 44px;
     padding: 0;
     margin: 0;
-    background: none;
+    background: rgba(255, 255, 255, 0.05);
     border: none;
+    border-radius: 12px;
     color: var(--text-dark);
     cursor: pointer;
-    font-size: 26px;
+    font-size: 24px;
     line-height: 1;
     box-sizing: border-box;
+    transition: all 0.2s ease;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
   }
-  .userMobileIcon {
-    margin-right: 0;
+
+  .userMobileIcon:hover,
+  .menuIcon:hover {
+    background: rgba(255, 255, 255, 0.1);
+    transform: translateY(-1px);
   }
-  .menuIcon {
-    margin-left: 0;
+
+  .userMobileIcon:active,
+  .menuIcon:active {
+    transform: translateY(0);
   }
 }
 
@@ -148,44 +157,146 @@
 @media (max-width: 768px) {
   .mobileMenu {
     flex-direction: column;
-    gap: 10px;
-    background: color-mix(in srgb, var(--background-main) 90%, transparent 10%);
-    backdrop-filter: blur(60px) saturate(180%);
-    -webkit-backdrop-filter: blur(48px) saturate(180%);
+    gap: 0;
+    background: color-mix(in srgb, var(--background-main) 95%, transparent 5%);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
     position: fixed;
     top: 0;
     left: 0;
     width: 100vw;
     height: 100vh;
-    padding: 80px 0 0 0;
-    align-items: center;
+    padding: 0;
+    align-items: stretch;
     justify-content: flex-start;
     z-index: 9999;
     display: none;
+    animation: slideInFromTop 0.3s ease-out;
+  }
+
+  @keyframes slideInFromTop {
+    from {
+      opacity: 0;
+      transform: translateY(-20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
   .mobileMenuOpen {
     display: flex;
+    flex-direction: column;
+  }
+
+  /* Mobile Menu Header */
+  .mobileMenuHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 24px;
+    border-bottom: 1px solid var(--card-border);
+    background: color-mix(in srgb, var(--background-main) 98%, transparent 2%);
+  }
+
+  .profileButton {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: none;
+    border: none;
+    color: var(--text-dark);
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    padding: 8px 12px;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+  }
+
+  .profileButton:hover {
+    background: color-mix(in srgb, var(--text-dark) 5%, transparent 95%);
+  }
+
+  .profileButton:active {
+    background: color-mix(in srgb, var(--text-dark) 10%, transparent 90%);
+  }
+
+  .mobileMenuHeaderRight {
+    display: flex;
+    align-items: center;
+    gap: 12px;
   }
   .MenuLinks {
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
+    align-items: stretch;
     justify-content: flex-start;
-    padding: 0 20px;
-    margin: 0 auto;
+    padding: 0;
+    margin: 0;
+    width: 100%;
   }
   .mobileMenuLink {
     display: flex;
     align-items: center;
     justify-content: flex-start;
-    font-size: 20px;
-    color: var(--text-dark);
-    background: none;
-    -webkit-text-fill-color: unset;
-    margin-top: 10px;
-    margin-bottom: 10px;
+    gap: 12px;
+    font-size: 18px;
+    background: var(--gradient-typography-secondery);
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    border: none;
+    margin: 0;
+    padding: 20px 24px;
     text-decoration: none;
     font-weight: 600;
+    transition: all 0.2s ease;
+    border-bottom: 1px solid var(--card-border);
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .mobileMenuLink svg {
+    color: var(--text-dark);
+    -webkit-text-fill-color: unset;
+    background: none;
+    background-clip: unset;
+  }
+
+  .mobileMenuLink::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      color-mix(in srgb, var(--text-dark) 5%, transparent 95%),
+      transparent
+    );
+    transition: left 0.5s ease;
+    pointer-events: none;
+  }
+
+  .mobileMenuLink:hover::before {
+    left: 100%;
+  }
+
+  .mobileMenuLink:hover {
+    background: var(--gradient-typography-secondery);
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    transform: translateX(4px);
+  }
+
+  .mobileMenuLink:active {
+    background: var(--gradient-typography-secondery);
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    transform: translateX(2px);
   }
   .mobileMenuIcon {
     margin-right: 10px;
@@ -193,24 +304,29 @@
     align-items: flex-start;
   }
 
-  .mobileMenuDarkToggle {
+  /* Mobile menu dark toggle moved to header */
+
+  .closeMenu {
+    background: color-mix(in srgb, var(--text-dark) 5%, transparent 95%);
+    border: none;
+    border-radius: 8px;
+    width: 36px;
+    height: 36px;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 6px;
+    color: var(--text-dark);
+    cursor: pointer;
+    transition: all 0.2s ease;
   }
 
-  .closeMenu {
-    position: absolute;
-    top: 24px;
-    right: 24px;
-    background: none;
-    border: none;
-    font-size: 2rem;
-    color: var(--text-dark);
-    z-index: 10001;
-    cursor: pointer;
-    display: block;
+  .closeMenu:hover {
+    background: color-mix(in srgb, var(--text-dark) 10%, transparent 90%);
+    transform: translateY(-1px);
+  }
+
+  .closeMenu:active {
+    transform: translateY(0);
   }
 }
 
