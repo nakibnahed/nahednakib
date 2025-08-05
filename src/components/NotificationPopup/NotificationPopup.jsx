@@ -58,8 +58,16 @@ const NotificationPopup = ({ onClose, onNotificationRead, refreshKey = 0 }) => {
 
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (popupRef.current && !popupRef.current.contains(event.target)) {
-        onClose();
+      // On mobile, only close if clicking the overlay background, not the popup itself
+      if (window.innerWidth <= 768) {
+        if (event.target.classList.contains(styles.overlay)) {
+          onClose();
+        }
+      } else {
+        // Desktop behavior - close when clicking outside the popup
+        if (popupRef.current && !popupRef.current.contains(event.target)) {
+          onClose();
+        }
       }
     };
 
@@ -80,7 +88,7 @@ const NotificationPopup = ({ onClose, onNotificationRead, refreshKey = 0 }) => {
         setNotifications((prev) =>
           prev.map((notification) => ({ ...notification, is_read: true }))
         );
-        onNotificationRead();
+        onNotificationRead("mark-all-read");
       }
     } catch (error) {
       console.error("Error marking all as read:", error);
@@ -89,6 +97,8 @@ const NotificationPopup = ({ onClose, onNotificationRead, refreshKey = 0 }) => {
 
   const handleClearAll = async () => {
     try {
+      console.log("🗑️ Clearing all notifications...");
+
       const response = await fetch("/api/notifications/clear-all", {
         method: "DELETE",
         headers: {
@@ -97,11 +107,37 @@ const NotificationPopup = ({ onClose, onNotificationRead, refreshKey = 0 }) => {
       });
 
       if (response.ok) {
-        setNotifications([]);
-        onNotificationRead();
+        const result = await response.json();
+        console.log("🗑️ Clear All API Response:", result);
+        console.log(
+          `📊 Expected: ${result.expectedCount}, Deleted: ${result.actualDeletedCount}, Remaining: ${result.remainingCount}`
+        );
+
+        if (result.fullyCleared) {
+          console.log(
+            "✅ All notifications successfully cleared from database"
+          );
+          // Clear notifications locally - this will show "No notifications" immediately
+          setNotifications([]);
+          // Trigger parent to set unread count to 0
+          onNotificationRead("clear-all");
+          console.log("✅ Popup should now show 'No notifications'");
+        } else {
+          console.warn(
+            "⚠️ Not all notifications were cleared! Remaining:",
+            result.remainingCount
+          );
+          // Still clear locally but warn about database state
+          setNotifications([]);
+          onNotificationRead("clear-all");
+        }
+      } else {
+        console.error("❌ Failed to clear notifications:", response.status);
+        const errorData = await response.json();
+        console.error("Error details:", errorData);
       }
     } catch (error) {
-      console.error("Error clearing all notifications:", error);
+      console.error("❌ Error clearing all notifications:", error);
     }
   };
 
@@ -164,7 +200,7 @@ const NotificationPopup = ({ onClose, onNotificationRead, refreshKey = 0 }) => {
               : notification
           )
         );
-        onNotificationRead();
+        onNotificationRead("single");
 
         // Navigate to related content if it exists
         if (

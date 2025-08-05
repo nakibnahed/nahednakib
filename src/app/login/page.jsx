@@ -33,7 +33,7 @@ export default function LoginPage() {
       return;
     }
 
-    // Send welcome notification for ALL users (including admins)
+    // Send welcome notification for authenticated users
     try {
       console.log("Sending welcome notification for user:", data.user.email);
       const welcomeResponse = await fetch("/api/notifications/send-welcome", {

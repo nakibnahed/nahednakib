@@ -8,9 +8,21 @@ export default function PortfolioStats({ portfolioId }) {
   const [viewsCount, setViewsCount] = useState(0);
 
   useEffect(() => {
-    // Generate random numbers for views only
-    const randomViews = Math.floor(Math.random() * 500) + 50; // 50-550 views
-    setViewsCount(randomViews);
+    const fetchViews = async () => {
+      try {
+        const response = await fetch(
+          `/api/engagement/views?contentType=portfolio&contentId=${portfolioId}`
+        );
+        if (response.ok) {
+          const data = await response.json();
+          setViewsCount(data.viewsCount || 0);
+        }
+      } catch (error) {
+        console.error("Error fetching views:", error);
+      }
+    };
+
+    fetchViews();
   }, [portfolioId]);
 
   return (

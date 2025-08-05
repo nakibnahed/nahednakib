@@ -80,19 +80,27 @@ const NotificationIcon = () => {
             (payload) => {
               console.log("🎉 New notification received:", payload);
 
-              // Immediately update the unread count
-              setUnreadCount((prev) => {
-                const newCount = prev + 1;
-                console.log(`📊 Updating unread count: ${prev} → ${newCount}`);
-                return newCount;
-              });
+              // Only update unread count if the notification is actually unread
+              if (!payload.new.is_read) {
+                setUnreadCount((prev) => {
+                  const newCount = prev + 1;
+                  console.log(
+                    `📊 Updating unread count: ${prev} → ${newCount}`
+                  );
+                  return newCount;
+                });
+
+                // Trigger animation only for unread notifications
+                setIsNewNotification(true);
+                setTimeout(() => setIsNewNotification(false), 600);
+              } else {
+                console.log(
+                  "📝 New notification is already read, not updating count"
+                );
+              }
 
               // Force a re-render to ensure the badge shows up
               setForceUpdate((prev) => prev + 1);
-
-              // Trigger animation
-              setIsNewNotification(true);
-              setTimeout(() => setIsNewNotification(false), 600);
 
               // If popup is open, refresh it to show new notification
               setTimeout(() => {
@@ -115,6 +123,42 @@ const NotificationIcon = () => {
               // Refresh count when notification is marked as read
               if (payload.new.is_read && !payload.old.is_read) {
                 setUnreadCount((prev) => Math.max(0, prev - 1));
+              }
+            }
+          )
+          .on(
+            "postgres_changes",
+            {
+              event: "DELETE",
+              schema: "public",
+              table: "notifications",
+              filter: `recipient_id=eq.${user.id}`,
+            },
+            (payload) => {
+              console.log("🗑️ Notification deleted:", payload);
+              console.log(
+                "🗑️ Deleted notification was read:",
+                payload.old.is_read
+              );
+
+              // Decrease unread count if deleted notification was unread
+              if (!payload.old.is_read) {
+                setUnreadCount((prev) => {
+                  const newCount = Math.max(0, prev - 1);
+                  console.log(
+                    `🗑️ Decreasing unread count: ${prev} → ${newCount}`
+                  );
+                  return newCount;
+                });
+              } else {
+                console.log(
+                  "🗑️ Deleted notification was already read, no count change"
+                );
+              }
+
+              // If popup is open, refresh it to remove deleted notification
+              if (showPopup) {
+                setPopupRefreshKey((prev) => prev + 1);
               }
             }
           )
@@ -272,8 +316,18 @@ const NotificationIcon = () => {
         <div className={styles.popupContainer}>
           <NotificationPopup
             onClose={handlePopupClose}
-            onNotificationRead={() => {
-              setUnreadCount((prev) => Math.max(0, prev - 1));
+            onNotificationRead={(type = "single") => {
+              if (type === "clear-all") {
+                setUnreadCount(0);
+                // Force refresh count from server after clear-all to ensure accuracy
+                setTimeout(() => {
+                  fetchUnreadCount();
+                }, 1000);
+              } else if (type === "mark-all-read") {
+                setUnreadCount(0);
+              } else {
+                setUnreadCount((prev) => Math.max(0, prev - 1));
+              }
             }}
             refreshKey={popupRefreshKey}
           />

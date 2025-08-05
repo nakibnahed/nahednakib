@@ -8,30 +8,13 @@ import styles from "./page.module.css";
 import { Calendar, Clock, ArrowRight, Eye } from "lucide-react";
 import { useViews } from "@/hooks/useViews";
 import { calculateReadTime, formatReadTime } from "@/lib/utils/readTime";
+import BlogViews from "./BlogViews";
 
 export default function Blog() {
   const [blogs, setBlogs] = useState([]);
   const [categories, setCategories] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [loading, setLoading] = useState(true);
-
-  // Blog Views Component
-  function BlogViews({ blogId }) {
-    const [viewsCount, setViewsCount] = useState(0);
-
-    useEffect(() => {
-      // Generate random numbers for views only
-      const randomViews = Math.floor(Math.random() * 500) + 50; // 50-550 views
-      setViewsCount(randomViews);
-    }, [blogId]);
-
-    return (
-      <div className={styles.icon}>
-        <Eye size={20} strokeWidth={2} />
-        <span className={styles.iconText}>{viewsCount}</span>
-      </div>
-    );
-  }
 
   useEffect(() => {
     fetchData();

@@ -23,11 +23,23 @@ export async function DELETE() {
 
     console.log("✅ User authenticated:", session.user.id);
 
+    // First count how many notifications will be deleted
+    const { count: notificationCount } = await supabase
+      .from("notifications")
+      .select("*", { count: "exact", head: true })
+      .eq("recipient_id", session.user.id);
+
+    console.log(
+      `📊 Found ${notificationCount || 0} notifications to delete for user:`,
+      session.user.id
+    );
+
     // Delete all notifications for the current user
-    const { error: deleteError } = await supabase
+    const { data: deletedData, error: deleteError } = await supabase
       .from("notifications")
       .delete()
-      .eq("recipient_id", session.user.id);
+      .eq("recipient_id", session.user.id)
+      .select();
 
     if (deleteError) {
       console.error("❌ Error clearing notifications:", deleteError);
@@ -37,11 +49,30 @@ export async function DELETE() {
       );
     }
 
+    const actualDeletedCount = deletedData ? deletedData.length : 0;
     console.log(
-      "✅ Successfully cleared all notifications for user:",
+      `✅ Successfully deleted ${actualDeletedCount} notifications for user:`,
       session.user.id
     );
-    return NextResponse.json({ success: true });
+    console.log("Deleted notifications:", deletedData);
+
+    // Verify deletion by counting remaining notifications
+    const { count: remainingCount } = await supabase
+      .from("notifications")
+      .select("*", { count: "exact", head: true })
+      .eq("recipient_id", session.user.id);
+
+    console.log(
+      `🔍 Verification: ${remainingCount || 0} notifications remaining for user`
+    );
+
+    return NextResponse.json({
+      success: true,
+      expectedCount: notificationCount || 0,
+      actualDeletedCount: actualDeletedCount,
+      remainingCount: remainingCount || 0,
+      fullyCleared: (remainingCount || 0) === 0,
+    });
   } catch (error) {
     console.error("Error in clear-all notifications route:", error);
     return NextResponse.json(

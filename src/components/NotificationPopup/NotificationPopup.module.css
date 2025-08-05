@@ -235,24 +235,114 @@
 /* Mobile responsiveness */
 @media (max-width: 768px) {
   .overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
+    z-index: 1000;
+    padding: 20px;
+    align-items: flex-start;
+    justify-content: center;
     padding-top: 60px;
   }
 
   .popup {
-    width: 95%;
-    max-height: 70vh;
+    width: 100%;
+    max-width: 400px;
+    max-height: 500px;
+    margin: 0 auto;
+    border-radius: 16px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.7);
   }
 
   .header {
-    padding: 12px 16px;
+    padding: 16px 20px;
+    border-radius: 16px 16px 0 0;
   }
 
-  .title {
+  .header h3 {
+    font-size: 18px;
+    font-weight: 600;
+  }
+
+  .actions {
+    padding: 12px 20px;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .clearAllButton,
+  .markAllReadButton {
+    padding: 8px 12px;
+    font-size: 12px;
+    border-radius: 8px;
+    min-width: 100px;
+    white-space: nowrap;
+  }
+
+  .notificationsList {
+    padding: 0 0 12px 0;
+    max-height: 350px;
+  }
+
+  .loading,
+  .error,
+  .empty {
+    padding: 60px 20px;
+    font-size: 16px;
+  }
+}
+
+/* Smaller mobile devices */
+@media (max-width: 480px) {
+  .overlay {
+    padding: 16px;
+    padding-top: 50px;
+  }
+
+  .popup {
+    width: 100%;
+    max-width: none;
+    max-height: 500px;
+    border-radius: 12px;
+  }
+
+  .header {
+    padding: 14px 16px;
+    border-radius: 12px 12px 0 0;
+  }
+
+  .header h3 {
     font-size: 16px;
   }
 
+  .actions {
+    padding: 10px 16px;
+    gap: 8px;
+    justify-content: center;
+  }
+
+  .clearAllButton,
   .markAllReadButton {
-    padding: 4px 8px;
+    padding: 6px 10px;
     font-size: 11px;
+    min-width: 80px;
+    flex: 1;
+    max-width: 120px;
+  }
+
+  .notificationsList {
+    padding: 0 0 8px 0;
+    max-height: 350px;
+  }
+
+  .loading,
+  .error,
+  .empty {
+    padding: 40px 16px;
+    font-size: 14px;
   }
 }

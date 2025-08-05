@@ -3,6 +3,7 @@ import Link from "next/link";
 import styles from "./page.module.css";
 import ActionBar from "@/components/ActionBar/ActionBar";
 import EngagementSection from "@/components/EngagementSection/EngagementSection";
+import ViewTracker from "./ViewTracker";
 import { supabase } from "@/services/supabaseClient";
 import { calculateReadTime, formatReadTime } from "@/lib/utils/readTime";
 
@@ -197,6 +198,7 @@ export default async function Post({ params }) {
 
   return (
     <div className={styles.container}>
+      <ViewTracker blogId={blog.id} />
       <section className={styles.metaSection}>
         <div className={styles.breadcrumbRow}>
           <Link href="/blog" className={styles.breadcrumbLink}>

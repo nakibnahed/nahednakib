@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from "react";
 
-export default function ViewTracker({ portfolioId }) {
+export default function ViewTracker({ blogId }) {
   const hasTracked = useRef(false);
 
   useEffect(() => {
@@ -16,8 +16,8 @@ export default function ViewTracker({ portfolioId }) {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            contentType: "portfolio",
-            contentId: portfolioId,
+            contentType: "blog",
+            contentId: blogId,
           }),
         });
       } catch (error) {
@@ -27,7 +27,7 @@ export default function ViewTracker({ portfolioId }) {
     };
 
     recordView();
-  }, [portfolioId]);
+  }, [blogId]);
 
   return null; // This component doesn't render anything
 }
