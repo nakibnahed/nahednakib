@@ -375,3 +375,10 @@
 .metaSection {
   margin-bottom: 18px;
 }
+
+.engagementLoading {
+  padding: 2rem;
+  text-align: center;
+  color: var(--text-dark);
+  font-style: italic;
+}

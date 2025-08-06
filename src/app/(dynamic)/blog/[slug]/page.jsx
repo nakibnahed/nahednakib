@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { Suspense } from "react";
 import styles from "./page.module.css";
 import ActionBar from "@/components/ActionBar/ActionBar";
 import EngagementSection from "@/components/EngagementSection/EngagementSection";
@@ -184,7 +185,7 @@ export default async function Post({ params }) {
       )
       .neq("id", blog.id)
       .order("created_at", { ascending: false })
-      .limit(20); // Get more posts to filter from
+      .limit(10); // Get fewer posts for faster query
 
     if (!relatedError && allRelatedPosts) {
       // Priority 1: Same category
@@ -296,12 +297,18 @@ export default async function Post({ params }) {
           dangerouslySetInnerHTML={{ __html: blog.content }}
         />
       </main>
-      <EngagementSection
-        contentType="blog"
-        contentId={blog.id}
-        title={blog.title}
-        id="comments-section"
-      />
+      <Suspense
+        fallback={
+          <div className={styles.engagementLoading}>Loading engagement...</div>
+        }
+      >
+        <EngagementSection
+          contentType="blog"
+          contentId={blog.id}
+          title={blog.title}
+          id="comments-section"
+        />
+      </Suspense>
       {relatedPosts.length > 0 && (
         <section className={styles.relatedSection}>
           <h2>Related Posts</h2>
