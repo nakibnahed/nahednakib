@@ -23,7 +23,7 @@ export default function BlogListPage() {
     const { data, error } = await supabase
       .from("blogs")
       .select("*")
-      .order("date", { ascending: false });
+      .order("created_at", { ascending: false });
 
     if (error) {
       console.error("Error fetching blogs:", error);

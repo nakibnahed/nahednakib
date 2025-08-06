@@ -214,6 +214,75 @@
   padding: 0;
   color: var(--primary-color);
 }
+
+/* Table Styles */
+.prose table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.5rem 0;
+  background: var(--card-background);
+  border-radius: 16px;
+  border: 1px solid var(--card-border);
+  overflow: hidden;
+}
+
+.prose thead {
+  background: color-mix(in srgb, var(--background-main) 90%, transparent 10%);
+}
+
+.prose thead th {
+  color: var(--text-dark);
+  font-weight: 700;
+  text-align: left;
+  padding: 1rem;
+  font-size: 0.95rem;
+  letter-spacing: 0.025em;
+  font-family: var(--font-heading);
+  border-bottom: 1px solid var(--card-border);
+}
+
+.prose thead th:not(:last-child) {
+  border-right: 1px solid var(--card-border);
+}
+
+.prose tbody tr {
+  border-bottom: 1px solid var(--card-border);
+}
+
+.prose tbody tr:last-child {
+  border-bottom: none;
+}
+
+.prose td:not(:last-child) {
+  border-right: 1px solid var(--card-border);
+}
+
+.prose td {
+  padding: 0.875rem 1rem;
+  color: var(--primary-color);
+  font-size: 0.95rem;
+  vertical-align: top;
+}
+
+.prose th {
+  font-family: var(--font-heading);
+}
+
+/* Responsive table */
+@media (max-width: 768px) {
+  .prose table {
+    font-size: 0.875rem;
+  }
+
+  .prose th,
+  .prose td {
+    padding: 0.75rem 0.5rem;
+  }
+
+  .prose thead th {
+    font-size: 0.875rem;
+  }
+}
 .relatedSection {
   margin-top: 32px;
   padding-top: 18px;

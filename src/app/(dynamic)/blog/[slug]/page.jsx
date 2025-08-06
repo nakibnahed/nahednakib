@@ -82,12 +82,15 @@ export default async function Post({ params }) {
   // Fetch related posts with improved logic
   let relatedPosts = [];
 
-  console.log("Current blog ID:", blog.id);
-  console.log("Current blog category:", blog.category_id);
-  console.log("Current blog tags:", tags);
+  console.log("🔍 Current blog:", {
+    id: blog.id,
+    category_id: blog.category_id,
+    tags,
+  });
 
-  // First, try to get posts from the same category
+  // Strategy 1: Same category posts (highest priority)
   if (blog.category_id) {
+    console.log("🎯 Searching for posts in same category:", blog.category_id);
     const { data: categoryPosts, error: categoryError } = await supabase
       .from("blogs")
       .select(
@@ -98,6 +101,8 @@ export default async function Post({ params }) {
         description,
         image,
         created_at,
+        category_id,
+        tags,
         categories (
           id,
           name,
@@ -111,60 +116,149 @@ export default async function Post({ params }) {
       .limit(3);
 
     if (categoryError) {
-      console.error("Error fetching category posts:", categoryError);
+      console.error("❌ Error fetching category posts:", categoryError);
     } else if (categoryPosts && categoryPosts.length > 0) {
-      console.log("Found category posts:", categoryPosts.length);
+      console.log("✅ Found category posts:", categoryPosts.length);
       relatedPosts = categoryPosts;
+    } else {
+      console.log("⚠️ No posts found in same category");
     }
   }
 
-  // If we don't have enough posts from same category, try posts with similar tags
+  // Strategy 2: Tag-based matching (if we need more posts)
   if (relatedPosts.length < 3 && tags.length > 0) {
+    console.log("🏷️ Searching for posts with similar tags:", tags);
     const remainingCount = 3 - relatedPosts.length;
     const excludeIds = relatedPosts.map((p) => p.id);
 
-    // Build tag conditions
-    const tagConditions = tags.map((tag) => `tags.ilike.%${tag.trim()}%`);
+    // Create a more flexible tag search
+    let tagPosts = [];
 
-    const { data: tagPosts, error: tagError } = await supabase
-      .from("blogs")
-      .select(
-        `
-        id,
-        title,
-        slug,
-        description,
-        image,
-        created_at,
-        categories (
+    for (const tag of tags) {
+      if (tagPosts.length >= remainingCount) break;
+
+      const { data: posts, error } = await supabase
+        .from("blogs")
+        .select(
+          `
           id,
-          name,
-          color
+          title,
+          slug,
+          description,
+          image,
+          created_at,
+          category_id,
+          tags,
+          categories (
+            id,
+            name,
+            color
+          )
+        `
         )
-      `
-      )
-      .neq("id", blog.id)
-      .not(
-        "id",
-        "in",
-        excludeIds.length > 0
-          ? `(${excludeIds.map((id) => `'${id}'`).join(",")})`
-          : "('')"
-      )
-      .or(tagConditions.join(","))
-      .order("created_at", { ascending: false })
-      .limit(remainingCount);
+        .neq("id", blog.id)
+        .not(
+          "id",
+          "in",
+          `(${
+            [...excludeIds, ...tagPosts.map((p) => p.id)]
+              .map((id) => `'${id}'`)
+              .join(",") || "''"
+          })`
+        )
+        .ilike("tags", `%${tag.trim()}%`)
+        .order("created_at", { ascending: false })
+        .limit(remainingCount - tagPosts.length);
 
-    if (tagError) {
-      console.error("Error fetching tag posts:", tagError);
-    } else if (tagPosts && tagPosts.length > 0) {
-      console.log("Found tag posts:", tagPosts.length);
-      relatedPosts = [...relatedPosts, ...tagPosts];
+      if (!error && posts && posts.length > 0) {
+        console.log(`✅ Found ${posts.length} posts for tag "${tag}"`);
+        tagPosts = [...tagPosts, ...posts];
+      }
+    }
+
+    if (tagPosts.length > 0) {
+      relatedPosts = [...relatedPosts, ...tagPosts.slice(0, remainingCount)];
+      console.log("✅ Added tag-based posts:", tagPosts.length);
     }
   }
 
-  // If still no related posts, get recent posts from any category
+  // Strategy 3: Title similarity (if still need more)
+  if (relatedPosts.length < 3) {
+    console.log("📝 Searching for posts with similar titles");
+    const remainingCount = 3 - relatedPosts.length;
+    const excludeIds = relatedPosts.map((p) => p.id);
+
+    // Extract key words from current title (exclude common words)
+    const titleWords = blog.title
+      .toLowerCase()
+      .split(/\s+/)
+      .filter(
+        (word) =>
+          word.length > 3 &&
+          ![
+            "the",
+            "and",
+            "for",
+            "with",
+            "that",
+            "this",
+            "from",
+            "they",
+            "have",
+            "been",
+            "will",
+            "your",
+            "what",
+            "when",
+            "where",
+            "how",
+          ].includes(word)
+      );
+
+    if (titleWords.length > 0) {
+      const titleConditions = titleWords
+        .slice(0, 3)
+        .map((word) => `title.ilike.%${word}%`);
+
+      const { data: titlePosts, error: titleError } = await supabase
+        .from("blogs")
+        .select(
+          `
+          id,
+          title,
+          slug,
+          description,
+          image,
+          created_at,
+          category_id,
+          tags,
+          categories (
+            id,
+            name,
+            color
+          )
+        `
+        )
+        .neq("id", blog.id)
+        .not(
+          "id",
+          "in",
+          `(${excludeIds.map((id) => `'${id}'`).join(",") || "''"})`
+        )
+        .or(titleConditions.join(","))
+        .order("created_at", { ascending: false })
+        .limit(remainingCount);
+
+      if (!titleError && titlePosts && titlePosts.length > 0) {
+        console.log("✅ Found title-similar posts:", titlePosts.length);
+        relatedPosts = [...relatedPosts, ...titlePosts];
+      }
+    }
+  }
+
+  // Strategy 4: Recent posts (last resort, but only if we have NO related posts)
   if (relatedPosts.length === 0) {
+    console.log("📅 Falling back to recent posts");
     const { data: recentPosts, error: recentError } = await supabase
       .from("blogs")
       .select(
@@ -187,14 +281,20 @@ export default async function Post({ params }) {
       .limit(3);
 
     if (recentError) {
-      console.error("Error fetching recent posts:", recentError);
+      console.error("❌ Error fetching recent posts:", recentError);
     } else if (recentPosts && recentPosts.length > 0) {
-      console.log("Found recent posts:", recentPosts.length);
+      console.log("✅ Found recent posts:", recentPosts.length);
       relatedPosts = recentPosts;
     }
   }
 
-  console.log("Total related posts found:", relatedPosts.length);
+  // Limit to 3 posts maximum
+  relatedPosts = relatedPosts.slice(0, 3);
+  console.log(
+    "🎯 Final related posts:",
+    relatedPosts.length,
+    relatedPosts.map((p) => ({ title: p.title, category: p.categories?.name }))
+  );
 
   return (
     <div className={styles.container}>
