@@ -10,10 +10,19 @@ import { calculateReadTime, formatReadTime } from "@/lib/utils/readTime";
 export async function generateMetadata({ params }) {
   const { slug } = await params;
 
-  // Fetch the blog post for metadata
+  // Optimized: Fetch blog post with author in single query
   const { data: blog, error } = await supabase
     .from("blogs")
-    .select("*")
+    .select(
+      `
+      *,
+      profiles:author_id (
+        full_name,
+        first_name,
+        last_name
+      )
+    `
+    )
     .eq("slug", slug)
     .single();
 
@@ -25,22 +34,14 @@ export async function generateMetadata({ params }) {
     };
   }
 
-  // Get author info if available
+  // Get author name from joined data
   let authorName = "Nahed Nakib";
-  if (blog.author_id) {
-    const { data: author } = await supabase
-      .from("profiles")
-      .select("full_name, first_name, last_name")
-      .eq("id", blog.author_id)
-      .single();
-
-    if (author) {
-      authorName =
-        author.full_name ||
-        (author.first_name && author.last_name
-          ? `${author.first_name} ${author.last_name}`
-          : "Nahed Nakib");
-    }
+  if (blog.profiles) {
+    authorName =
+      blog.profiles.full_name ||
+      (blog.profiles.first_name && blog.profiles.last_name
+        ? `${blog.profiles.first_name} ${blog.profiles.last_name}`
+        : "Nahed Nakib");
   }
 
   // Clean description from HTML content
@@ -93,10 +94,24 @@ export async function generateMetadata({ params }) {
 export default async function Post({ params }) {
   const { slug } = await params;
 
-  // First get the blog post
+  // Optimized: Get blog post with author in single query
   const { data: blog, error } = await supabase
     .from("blogs")
-    .select("*")
+    .select(
+      `
+      *,
+      profiles:author_id (
+        id,
+        full_name,
+        first_name,
+        last_name,
+        avatar_url,
+        email,
+        bio,
+        professional_role
+      )
+    `
+    )
     .eq("slug", slug)
     .single();
 
@@ -127,27 +142,8 @@ export default async function Post({ params }) {
     );
   }
 
-  // Then get the author profile if author_id exists
-  let authorProfile = null;
-  if (blog.author_id) {
-    console.log("Looking for author with ID:", blog.author_id);
-    const { data: author, error: authorError } = await supabase
-      .from("profiles")
-      .select(
-        "id, full_name, first_name, last_name, avatar_url, email, bio, professional_role"
-      )
-      .eq("id", blog.author_id)
-      .single();
-
-    if (!authorError) {
-      authorProfile = author;
-      console.log("Found author:", authorProfile);
-    } else {
-      console.error("Author error:", authorError);
-    }
-  } else {
-    console.log("No author_id found in blog");
-  }
+  // Author profile from joined data
+  const authorProfile = blog.profiles;
 
   const formattedDate = new Date(blog.created_at).toLocaleDateString(
     undefined,
@@ -162,19 +158,12 @@ export default async function Post({ params }) {
           .filter((t) => t.length > 0)
       : [];
 
-  // Fetch related posts with improved logic
+  // Optimized: Get related posts with single query
   let relatedPosts = [];
 
-  console.log("🔍 Current blog:", {
-    id: blog.id,
-    category_id: blog.category_id,
-    tags,
-  });
-
-  // Strategy 1: Same category posts (highest priority)
-  if (blog.category_id) {
-    console.log("🎯 Searching for posts in same category:", blog.category_id);
-    const { data: categoryPosts, error: categoryError } = await supabase
+  try {
+    // Single optimized query for related posts
+    const { data: allRelatedPosts, error: relatedError } = await supabase
       .from("blogs")
       .select(
         `
@@ -194,190 +183,48 @@ export default async function Post({ params }) {
       `
       )
       .neq("id", blog.id)
-      .eq("category_id", blog.category_id)
       .order("created_at", { ascending: false })
-      .limit(3);
+      .limit(20); // Get more posts to filter from
 
-    if (categoryError) {
-      console.error("❌ Error fetching category posts:", categoryError);
-    } else if (categoryPosts && categoryPosts.length > 0) {
-      console.log("✅ Found category posts:", categoryPosts.length);
-      relatedPosts = categoryPosts;
-    } else {
-      console.log("⚠️ No posts found in same category");
-    }
-  }
-
-  // Strategy 2: Tag-based matching (if we need more posts)
-  if (relatedPosts.length < 3 && tags.length > 0) {
-    console.log("🏷️ Searching for posts with similar tags:", tags);
-    const remainingCount = 3 - relatedPosts.length;
-    const excludeIds = relatedPosts.map((p) => p.id);
-
-    // Create a more flexible tag search
-    let tagPosts = [];
-
-    for (const tag of tags) {
-      if (tagPosts.length >= remainingCount) break;
-
-      const { data: posts, error } = await supabase
-        .from("blogs")
-        .select(
-          `
-          id,
-          title,
-          slug,
-          description,
-          image,
-          created_at,
-          category_id,
-          tags,
-          categories (
-            id,
-            name,
-            color
-          )
-        `
-        )
-        .neq("id", blog.id)
-        .not(
-          "id",
-          "in",
-          `(${
-            [...excludeIds, ...tagPosts.map((p) => p.id)]
-              .map((id) => `'${id}'`)
-              .join(",") || "''"
-          })`
-        )
-        .ilike("tags", `%${tag.trim()}%`)
-        .order("created_at", { ascending: false })
-        .limit(remainingCount - tagPosts.length);
-
-      if (!error && posts && posts.length > 0) {
-        console.log(`✅ Found ${posts.length} posts for tag "${tag}"`);
-        tagPosts = [...tagPosts, ...posts];
-      }
-    }
-
-    if (tagPosts.length > 0) {
-      relatedPosts = [...relatedPosts, ...tagPosts.slice(0, remainingCount)];
-      console.log("✅ Added tag-based posts:", tagPosts.length);
-    }
-  }
-
-  // Strategy 3: Title similarity (if still need more)
-  if (relatedPosts.length < 3) {
-    console.log("📝 Searching for posts with similar titles");
-    const remainingCount = 3 - relatedPosts.length;
-    const excludeIds = relatedPosts.map((p) => p.id);
-
-    // Extract key words from current title (exclude common words)
-    const titleWords = blog.title
-      .toLowerCase()
-      .split(/\s+/)
-      .filter(
-        (word) =>
-          word.length > 3 &&
-          ![
-            "the",
-            "and",
-            "for",
-            "with",
-            "that",
-            "this",
-            "from",
-            "they",
-            "have",
-            "been",
-            "will",
-            "your",
-            "what",
-            "when",
-            "where",
-            "how",
-          ].includes(word)
+    if (!relatedError && allRelatedPosts) {
+      // Priority 1: Same category
+      const categoryPosts = allRelatedPosts.filter(
+        (post) => post.category_id === blog.category_id
       );
 
-    if (titleWords.length > 0) {
-      const titleConditions = titleWords
-        .slice(0, 3)
-        .map((word) => `title.ilike.%${word}%`);
+      // Priority 2: Similar tags
+      const tagPosts = allRelatedPosts.filter((post) => {
+        if (!post.tags || !tags.length) return false;
+        const postTags = post.tags.toLowerCase();
+        return tags.some((tag) => postTags.includes(tag.toLowerCase()));
+      });
 
-      const { data: titlePosts, error: titleError } = await supabase
-        .from("blogs")
-        .select(
-          `
-          id,
-          title,
-          slug,
-          description,
-          image,
-          created_at,
-          category_id,
-          tags,
-          categories (
-            id,
-            name,
-            color
-          )
-        `
-        )
-        .neq("id", blog.id)
-        .not(
-          "id",
-          "in",
-          `(${excludeIds.map((id) => `'${id}'`).join(",") || "''"})`
-        )
-        .or(titleConditions.join(","))
-        .order("created_at", { ascending: false })
-        .limit(remainingCount);
+      // Combine and deduplicate
+      const combined = [...categoryPosts];
 
-      if (!titleError && titlePosts && titlePosts.length > 0) {
-        console.log("✅ Found title-similar posts:", titlePosts.length);
-        relatedPosts = [...relatedPosts, ...titlePosts];
+      // Add tag posts that aren't already included
+      tagPosts.forEach((post) => {
+        if (!combined.find((p) => p.id === post.id)) {
+          combined.push(post);
+        }
+      });
+
+      // Add other recent posts if still need more
+      if (combined.length < 3) {
+        allRelatedPosts.forEach((post) => {
+          if (combined.length >= 3) return;
+          if (!combined.find((p) => p.id === post.id)) {
+            combined.push(post);
+          }
+        });
       }
+
+      relatedPosts = combined.slice(0, 3);
     }
+  } catch (error) {
+    console.error("Error fetching related posts:", error);
+    relatedPosts = [];
   }
-
-  // Strategy 4: Recent posts (last resort, but only if we have NO related posts)
-  if (relatedPosts.length === 0) {
-    console.log("📅 Falling back to recent posts");
-    const { data: recentPosts, error: recentError } = await supabase
-      .from("blogs")
-      .select(
-        `
-        id,
-        title,
-        slug,
-        description,
-        image,
-        created_at,
-        categories (
-          id,
-          name,
-          color
-        )
-      `
-      )
-      .neq("id", blog.id)
-      .order("created_at", { ascending: false })
-      .limit(3);
-
-    if (recentError) {
-      console.error("❌ Error fetching recent posts:", recentError);
-    } else if (recentPosts && recentPosts.length > 0) {
-      console.log("✅ Found recent posts:", recentPosts.length);
-      relatedPosts = recentPosts;
-    }
-  }
-
-  // Limit to 3 posts maximum
-  relatedPosts = relatedPosts.slice(0, 3);
-  console.log(
-    "🎯 Final related posts:",
-    relatedPosts.length,
-    relatedPosts.map((p) => ({ title: p.title, category: p.categories?.name }))
-  );
 
   return (
     <div className={styles.container}>
