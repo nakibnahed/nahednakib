@@ -7,6 +7,89 @@ import ViewTracker from "./ViewTracker";
 import { supabase } from "@/services/supabaseClient";
 import { calculateReadTime, formatReadTime } from "@/lib/utils/readTime";
 
+export async function generateMetadata({ params }) {
+  const { slug } = await params;
+
+  // Fetch the blog post for metadata
+  const { data: blog, error } = await supabase
+    .from("blogs")
+    .select("*")
+    .eq("slug", slug)
+    .single();
+
+  if (error || !blog) {
+    return {
+      title: "Blog Post Not Found",
+      description:
+        "The blog post you're looking for doesn't exist or has been moved.",
+    };
+  }
+
+  // Get author info if available
+  let authorName = "Nahed Nakib";
+  if (blog.author_id) {
+    const { data: author } = await supabase
+      .from("profiles")
+      .select("full_name, first_name, last_name")
+      .eq("id", blog.author_id)
+      .single();
+
+    if (author) {
+      authorName =
+        author.full_name ||
+        (author.first_name && author.last_name
+          ? `${author.first_name} ${author.last_name}`
+          : "Nahed Nakib");
+    }
+  }
+
+  // Clean description from HTML content
+  const cleanDescription =
+    blog.description ||
+    blog.content?.replace(/<[^>]*>/g, "").substring(0, 160) + "..." ||
+    "Read this amazing blog post about web development, technology, and more.";
+
+  const baseUrl =
+    process.env.NEXT_PUBLIC_SITE_URL || "https://nahednakib.vercel.app";
+  const postUrl = `${baseUrl}/blog/${blog.slug}`;
+  const imageUrl = blog.image || `${baseUrl}/images/portfolio.jpg`;
+
+  return {
+    title: blog.title,
+    description: cleanDescription,
+    authors: [{ name: authorName }],
+    openGraph: {
+      title: blog.title,
+      description: cleanDescription,
+      url: postUrl,
+      siteName: "Nahed Nakib Blog",
+      images: [
+        {
+          url: imageUrl,
+          width: 1200,
+          height: 630,
+          alt: blog.title,
+        },
+      ],
+      locale: "en_US",
+      type: "article",
+      publishedTime: blog.created_at,
+      authors: [authorName],
+      tags: blog.tags ? blog.tags.split(",").map((tag) => tag.trim()) : [],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: blog.title,
+      description: cleanDescription,
+      images: [imageUrl],
+      creator: "@your_twitter_handle", // Replace with your actual Twitter handle
+    },
+    alternates: {
+      canonical: postUrl,
+    },
+  };
+}
+
 export default async function Post({ params }) {
   const { slug } = await params;
 
