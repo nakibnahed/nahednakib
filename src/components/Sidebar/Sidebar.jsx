@@ -82,16 +82,17 @@ export default function Sidebar({ activeTab }) {
               heavily in:
             </p>
             <ul className={styles.supportList}>
-              <li>🏃‍♂️ Race entry fees and travel</li>
+              <li>🏃‍♂️ Race entry fees</li>
               <li>👟 Running shoes</li>
               <li>💊 Nutrition and supplements</li>
-              <li>🏋️‍♂️ Training tools and recovery gear</li>
+              <li>🏋️‍♂️ Training tools</li>
+              <li>👨‍⚕️ Physiotherapy sessions</li>
+              <li>🦵 Massage sessions</li>
             </ul>
             <p className={styles.supportMessage}>
               Every contribution — big or small — helps me move forward and stay
               consistent. If you believe in supporting independent athletes, I'd
-              truly appreciate your help. You're not just donating — you're
-              becoming part of the journey.
+              truly appreciate your help.
             </p>
             <a
               href="https://www.paypal.com/paypalme/nahednakib/25"
