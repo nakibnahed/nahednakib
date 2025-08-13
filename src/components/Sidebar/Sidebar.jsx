@@ -82,7 +82,6 @@ export default function Sidebar({ activeTab }) {
               heavily in:
             </p>
             <ul className={styles.supportList}>
-              <li>🏃‍♂️ Race entry fees</li>
               <li>👟 Running shoes</li>
               <li>💊 Nutrition and supplements</li>
               <li>🏋️‍♂️ Training tools</li>
