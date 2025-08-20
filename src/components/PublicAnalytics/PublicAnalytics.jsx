@@ -197,9 +197,16 @@ export default function PublicAnalytics() {
         borderWidth: 1,
         cornerRadius: 12,
         displayColors: true,
-        titleFont: { size: 14, weight: "600", family: "Montserrat" },
-        bodyFont: { size: 13, family: "Montserrat" },
-        padding: 12,
+        titleFont: {
+          size: window.innerWidth < 768 ? 12 : 14,
+          weight: "600",
+          family: "Montserrat",
+        },
+        bodyFont: {
+          size: window.innerWidth < 768 ? 11 : 13,
+          family: "Montserrat",
+        },
+        padding: window.innerWidth < 768 ? 8 : 12,
         callbacks: {
           title: function (context) {
             return `${context[0].label} 2024`;
@@ -217,7 +224,11 @@ export default function PublicAnalytics() {
         },
         ticks: {
           color: "#aaaaaa",
-          font: { size: 12, family: "Montserrat" },
+          font: {
+            size: window.innerWidth < 768 ? 10 : 12,
+            family: "Montserrat",
+          },
+          maxRotation: window.innerWidth < 768 ? 45 : 0,
         },
         border: { display: false },
       },
@@ -228,7 +239,10 @@ export default function PublicAnalytics() {
         },
         ticks: {
           color: "#aaaaaa",
-          font: { size: 12, family: "Montserrat" },
+          font: {
+            size: window.innerWidth < 768 ? 10 : 12,
+            family: "Montserrat",
+          },
           callback: function (value) {
             return value.toLocaleString();
           },
@@ -238,8 +252,8 @@ export default function PublicAnalytics() {
     },
     elements: {
       point: {
-        radius: 6,
-        hoverRadius: 10,
+        radius: window.innerWidth < 768 ? 4 : 6,
+        hoverRadius: window.innerWidth < 768 ? 8 : 10,
         backgroundColor: "#ee681a",
         borderColor: "#ffffff",
         borderWidth: 2,
@@ -371,12 +385,15 @@ export default function PublicAnalytics() {
       legend: {
         position: "bottom",
         labels: {
-          padding: 16,
+          padding: window.innerWidth < 768 ? 12 : 16,
           usePointStyle: true,
-          font: { size: 12, family: "Montserrat" },
+          font: {
+            size: window.innerWidth < 768 ? 10 : 12,
+            family: "Montserrat",
+          },
           color: "#aaaaaa",
-          boxWidth: 12,
-          boxHeight: 12,
+          boxWidth: window.innerWidth < 768 ? 10 : 12,
+          boxHeight: window.innerWidth < 768 ? 10 : 12,
         },
         onClick: (event, legendItem) => {
           console.log("Legend clicked, segment:", legendItem.index);
@@ -390,7 +407,15 @@ export default function PublicAnalytics() {
         borderColor: "#ee681a",
         borderWidth: 1,
         cornerRadius: 12,
-        padding: 12,
+        padding: window.innerWidth < 768 ? 8 : 12,
+        titleFont: {
+          size: window.innerWidth < 768 ? 11 : 13,
+          family: "Montserrat",
+        },
+        bodyFont: {
+          size: window.innerWidth < 768 ? 10 : 12,
+          family: "Montserrat",
+        },
         callbacks: {
           label: function (context) {
             const label = context.label || "";

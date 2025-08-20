@@ -470,68 +470,301 @@
 
 /* Responsive Design */
 @media (max-width: 1024px) {
-  .chartsSection {
+  .chartsGrid {
     grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .chartContainer {
+    height: 300px;
   }
 }
 
 @media (max-width: 768px) {
   .container {
-    padding: 16px;
+    padding: 16px 12px;
   }
 
   .header {
-    padding: 30px 0;
+    margin-bottom: 30px;
+    padding-bottom: 24px;
   }
 
-  .title {
-    font-size: 2rem;
+  .headerContent {
+    flex-direction: column;
+    gap: 20px;
+    align-items: flex-start;
   }
 
-  .description {
-    font-size: 1rem;
+  .titleSection h1.pageTitle {
+    font-size: 32px;
+    margin-bottom: 6px;
   }
 
+  .pageSubtitle {
+    font-size: 16px;
+  }
+
+  .headerActions {
+    justify-content: flex-start;
+  }
+
+  .lastUpdated {
+    font-size: 13px;
+  }
+
+  /* KPI Grid - 2 columns on tablet */
   .kpiGrid {
     grid-template-columns: repeat(2, 1fr);
     gap: 16px;
+    margin-bottom: 30px;
   }
 
   .kpiCard {
-    padding: 20px;
+    padding: 18px;
   }
 
-  .kpiValue {
-    font-size: 1.5rem;
+  .kpiContent h3.kpiValue {
+    font-size: 24px;
+  }
+
+  .kpiTitle {
+    font-size: 12px;
+  }
+
+  .kpiChange {
+    font-size: 10px;
+  }
+
+  /* Charts */
+  .chartsGrid {
+    gap: 16px;
+    margin-bottom: 30px;
   }
 
   .chartCard {
     padding: 20px;
+  }
+
+  .chartHeader {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  .chartTitle {
+    font-size: 20px;
+  }
+
+  .chartSubtitle {
+    font-size: 13px;
   }
 
   .chartContainer {
     height: 250px;
   }
+
+  /* Detailed Stats */
+  .detailedStats {
+    padding: 20px;
+  }
+
+  .sectionTitle {
+    font-size: 20px;
+    margin-bottom: 20px;
+  }
+
+  .statRow {
+    padding: 16px 0;
+  }
+
+  .statLabel {
+    font-size: 14px;
+    gap: 10px;
+  }
+
+  .statsTable .statValue {
+    font-size: 15px;
+  }
 }
 
 @media (max-width: 480px) {
-  .kpiGrid {
-    grid-template-columns: 1fr;
+  .container {
+    padding: 12px 8px;
   }
 
-  .title {
-    font-size: 1.8rem;
+  .header {
+    margin-bottom: 24px;
+    padding-bottom: 20px;
+  }
+
+  .titleSection h1.pageTitle {
+    font-size: 28px;
+    margin-bottom: 4px;
+  }
+
+  .pageSubtitle {
+    font-size: 15px;
+  }
+
+  .lastUpdated {
+    font-size: 12px;
+  }
+
+  /* KPI Grid - 1 column on mobile */
+  .kpiGrid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+    margin-bottom: 24px;
   }
 
   .kpiCard {
     padding: 16px;
   }
 
+  .kpiHeader {
+    margin-bottom: 10px;
+    gap: 10px;
+  }
+
+  .kpiIcon {
+    width: 32px;
+    height: 32px;
+  }
+
+  .kpiContent h3.kpiValue {
+    font-size: 22px;
+    margin-bottom: 3px;
+  }
+
+  .kpiTitle {
+    font-size: 11px;
+  }
+
+  .kpiChange {
+    font-size: 9px;
+  }
+
+  /* Charts */
+  .chartsGrid {
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+
   .chartCard {
     padding: 16px;
   }
 
+  .chartHeader {
+    margin-bottom: 16px;
+    gap: 8px;
+  }
+
+  .chartTitle {
+    font-size: 18px;
+    margin-bottom: 2px;
+  }
+
+  .chartSubtitle {
+    font-size: 12px;
+  }
+
   .chartContainer {
     height: 200px;
+  }
+
+  /* Chart legend adjustments */
+  .chartLegend {
+    gap: 12px;
+  }
+
+  .legendItem {
+    font-size: 12px;
+    gap: 6px;
+  }
+
+  .legendDot {
+    width: 10px;
+    height: 10px;
+  }
+
+  /* Detailed Stats */
+  .detailedStats {
+    padding: 16px;
+  }
+
+  .sectionTitle {
+    font-size: 18px;
+    margin-bottom: 16px;
+  }
+
+  .statRow {
+    padding: 12px 0;
+  }
+
+  .statRow:hover {
+    margin: 0 -8px;
+    padding: 12px 8px;
+  }
+
+  .statLabel {
+    font-size: 13px;
+    gap: 8px;
+  }
+
+  .statLabel svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  .statsTable .statValue {
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 360px) {
+  .container {
+    padding: 8px 6px;
+  }
+
+  .titleSection h1.pageTitle {
+    font-size: 24px;
+  }
+
+  .pageSubtitle {
+    font-size: 14px;
+  }
+
+  .kpiCard {
+    padding: 14px;
+  }
+
+  .kpiContent h3.kpiValue {
+    font-size: 20px;
+  }
+
+  .chartCard {
+    padding: 14px;
+  }
+
+  .chartContainer {
+    height: 180px;
+  }
+
+  .detailedStats {
+    padding: 14px;
+  }
+
+  .statRow {
+    padding: 10px 0;
+  }
+
+  .statLabel {
+    font-size: 12px;
+  }
+
+  .statsTable .statValue {
+    font-size: 13px;
   }
 }
