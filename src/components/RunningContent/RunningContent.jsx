@@ -40,134 +40,185 @@ export default function RunningContent() {
   const [loadingWeekly, setLoadingWeekly] = useState(true);
   const [likeCounts, setLikeCounts] = useState({});
   const [likedActivities, setLikedActivities] = useState({});
+  const [weekOffset, setWeekOffset] = useState(0); // 0 = current week, -1 = last week, etc.
 
+  // Function to calculate weekly stats for any week offset
+  const calculateWeeklyStats = (activities, weekOffset) => {
+    const now = new Date();
+    const currentDay = now.getDay(); // 0 = Sunday, 1 = Monday, etc.
+
+    // Calculate Monday of the target week
+    const mondayOfWeek = new Date(now);
+    const daysFromMonday = currentDay === 0 ? 6 : currentDay - 1; // If Sunday, go back 6 days
+    mondayOfWeek.setDate(now.getDate() - daysFromMonday + weekOffset * 7);
+    mondayOfWeek.setHours(0, 0, 0, 0);
+
+    // Calculate Sunday of the target week
+    const sundayOfWeek = new Date(mondayOfWeek);
+    sundayOfWeek.setDate(mondayOfWeek.getDate() + 6);
+    sundayOfWeek.setHours(23, 59, 59, 999);
+
+    console.log(`🗓️ Week calculation for offset ${weekOffset}:`, {
+      now: now.toLocaleDateString(),
+      currentDay: currentDay,
+      daysFromMonday: daysFromMonday,
+      mondayOfWeek: mondayOfWeek.toLocaleDateString(),
+      sundayOfWeek: sundayOfWeek.toLocaleDateString(),
+    });
+
+    // Filter activities for target week only (Monday to Sunday)
+    const weekActivities = activities.filter((a) => {
+      if (a.type !== "Run") return false;
+      const actDate = new Date(a.start_date_local);
+      return actDate >= mondayOfWeek && actDate <= sundayOfWeek;
+    });
+
+    // Calculate stats
+    const totalDistance = weekActivities.reduce(
+      (sum, a) => sum + (a.distance || 0),
+      0
+    ); // meters
+    const totalTime = weekActivities.reduce(
+      (sum, a) => sum + (a.moving_time || 0),
+      0
+    ); // seconds
+    const numRuns = weekActivities.length;
+    const avgPace = totalDistance > 0 ? totalTime / (totalDistance / 1000) : 0; // sec/km
+
+    // Best day
+    const days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+    const runsPerDay = [0, 0, 0, 0, 0, 0, 0];
+    weekActivities.forEach((a) => {
+      const d = new Date(a.start_date_local);
+      let dayIdx = d.getDay() - 1;
+      if (dayIdx < 0) dayIdx = 6;
+      runsPerDay[dayIdx]++;
+    });
+    const maxRuns = Math.max(...runsPerDay);
+    const bestDay = maxRuns > 0 ? days[runsPerDay.indexOf(maxRuns)] : "-";
+
+    // Longest run
+    let longestRun = null;
+    weekActivities.forEach((a) => {
+      if (!longestRun || (a.distance || 0) > (longestRun.distance || 0))
+        longestRun = a;
+    });
+    const longestRunDist =
+      longestRun && longestRun.distance
+        ? (longestRun.distance / 1000).toFixed(2)
+        : "-";
+
+    // Avg run distance
+    const avgRunDist =
+      numRuns > 0 && totalDistance > 0
+        ? (totalDistance / 1000 / numRuns).toFixed(2)
+        : "-";
+
+    // Total elevation gain
+    const totalElevation = weekActivities.reduce(
+      (sum, a) => sum + (a.total_elevation_gain || 0),
+      0
+    );
+
+    // Avg run time
+    const avgRunTime =
+      numRuns > 0 ? formatTime(Math.round(totalTime / numRuns)) : "-";
+
+    // Avg heart rate
+    const heartRates = weekActivities
+      .map((a) => a.average_heartrate)
+      .filter(Boolean);
+    const avgHeartRate =
+      heartRates.length > 0
+        ? Math.round(heartRates.reduce((a, b) => a + b, 0) / heartRates.length)
+        : 0;
+
+    // Total calories
+    const totalCalories = weekActivities.reduce(
+      (sum, a) => sum + (a.calories || 0),
+      0
+    );
+
+    // Avg daily run (total distance / number of days with at least one run)
+    const daysWithRun = new Set();
+    weekActivities.forEach((a) => {
+      if (a.type !== "Run") return;
+      const d = new Date(a.start_date_local);
+      let dayIdx = d.getDay() - 1;
+      if (dayIdx < 0) dayIdx = 6;
+      daysWithRun.add(dayIdx);
+    });
+    const avgDailyRun =
+      daysWithRun.size > 0
+        ? (totalDistance / 1000 / daysWithRun.size).toFixed(2)
+        : "-";
+
+    return {
+      totalDistance,
+      totalTime,
+      avgPace,
+      numRuns,
+      weekActivities,
+      bestDay,
+      longestRunDist,
+      avgDailyRun,
+      totalElevation: Math.round(totalElevation),
+      avgRunTime,
+      avgHeartRate,
+      totalCalories: Math.round(totalCalories),
+      mondayOfWeek,
+      sundayOfWeek,
+    };
+  };
+
+  // Initial data fetch
   useEffect(() => {
-    fetch("/api/strava?per_page=50")
+    fetch("/api/strava?per_page=200") // Increased to get more historical data
       .then((res) => res.json())
       .then((data) => {
         const arr = Array.isArray(data) ? data : [data];
-        // Remove the filter for !a.private so private activities are included
-        // const publicActivities = arr.filter((a) => !a.private);
         setActivities(arr.filter((a) => !a.private).slice(0, 5)); // keep public for Last Activities card
-
-        // --- Weekly Stats Calculation (Current Week: Monday to Sunday) ---
-        const now = new Date();
-        const currentDay = now.getDay(); // 0 = Sunday, 1 = Monday, etc.
-
-        // Calculate Monday of current week
-        const mondayOfWeek = new Date(now);
-        const daysFromMonday = currentDay === 0 ? 6 : currentDay - 1; // If Sunday, go back 6 days
-        mondayOfWeek.setDate(now.getDate() - daysFromMonday);
-        mondayOfWeek.setHours(0, 0, 0, 0);
-
-        // Calculate Sunday of current week
-        const sundayOfWeek = new Date(mondayOfWeek);
-        sundayOfWeek.setDate(mondayOfWeek.getDate() + 6);
-        sundayOfWeek.setHours(23, 59, 59, 999);
-
-        // Filter activities for current week only (Monday to Sunday)
-        const weekActivities = arr.filter((a) => {
-          if (a.type !== "Run") return false;
-          const actDate = new Date(a.start_date_local);
-          return actDate >= mondayOfWeek && actDate <= sundayOfWeek;
+        // Calculate weekly stats for current week offset
+        const stats = calculateWeeklyStats(arr, weekOffset);
+        console.log(`📊 Week ${weekOffset} stats:`, {
+          dateRange: `${stats.mondayOfWeek?.toLocaleDateString()} - ${stats.sundayOfWeek?.toLocaleDateString()}`,
+          totalActivities: arr.length,
+          weekActivities: stats.weekActivities.length,
+          totalDistance: stats.totalDistance,
+          numRuns: stats.numRuns,
         });
-
-        // Calculate stats
-        const totalDistance = weekActivities.reduce(
-          (sum, a) => sum + (a.distance || 0),
-          0
-        ); // meters
-        const totalTime = weekActivities.reduce(
-          (sum, a) => sum + (a.moving_time || 0),
-          0
-        ); // seconds
-        const numRuns = weekActivities.length;
-        const avgPace =
-          totalDistance > 0 ? totalTime / (totalDistance / 1000) : 0; // sec/km
-
-        // Best day
-        const days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
-        const runsPerDay = [0, 0, 0, 0, 0, 0, 0];
-        weekActivities.forEach((a) => {
-          const d = new Date(a.start_date_local);
-          let dayIdx = d.getDay() - 1;
-          if (dayIdx < 0) dayIdx = 6;
-          runsPerDay[dayIdx]++;
-        });
-        const maxRuns = Math.max(...runsPerDay);
-        const bestDay = maxRuns > 0 ? days[runsPerDay.indexOf(maxRuns)] : "-";
-        // Longest run
-        let longestRun = null;
-        weekActivities.forEach((a) => {
-          if (!longestRun || (a.distance || 0) > (longestRun.distance || 0))
-            longestRun = a;
-        });
-        const longestRunDist =
-          longestRun && longestRun.distance
-            ? (longestRun.distance / 1000).toFixed(2)
-            : "-";
-        const longestRunDate =
-          longestRun && longestRun.start_date_local
-            ? new Date(longestRun.start_date_local).toLocaleDateString()
-            : "-";
-        // Avg run distance
-        const avgRunDist =
-          numRuns > 0 && totalDistance > 0
-            ? (totalDistance / 1000 / numRuns).toFixed(2)
-            : "-";
-        // Total elevation gain
-        const totalElevation = weekActivities.reduce(
-          (sum, a) => sum + (a.total_elevation_gain || 0),
-          0
-        );
-        // Avg run time
-        const avgRunTime =
-          numRuns > 0 ? formatTime(Math.round(totalTime / numRuns)) : "-";
-        // Avg heart rate
-        const heartRates = weekActivities
-          .map((a) => a.average_heartrate)
-          .filter(Boolean);
-        const avgHeartRate =
-          heartRates.length > 0
-            ? Math.round(
-                heartRates.reduce((a, b) => a + b, 0) / heartRates.length
-              )
-            : 0;
-        // Total calories
-        const totalCalories = weekActivities.reduce(
-          (sum, a) => sum + (a.calories || 0),
-          0
-        );
-        // Avg daily run (total distance / number of days with at least one run)
-        const daysWithRun = new Set();
-        weekActivities.forEach((a) => {
-          if (a.type !== "Run") return;
-          const d = new Date(a.start_date_local);
-          let dayIdx = d.getDay() - 1;
-          if (dayIdx < 0) dayIdx = 6;
-          daysWithRun.add(dayIdx);
-        });
-        const avgDailyRun =
-          daysWithRun.size > 0
-            ? (totalDistance / 1000 / daysWithRun.size).toFixed(2)
-            : "-";
-        setWeeklyStats({
-          totalDistance,
-          totalTime,
-          avgPace,
-          numRuns,
-          weekActivities,
-          bestDay,
-          longestRunDist,
-          avgDailyRun,
-          totalElevation: Math.round(totalElevation),
-          avgRunTime,
-          avgHeartRate,
-          totalCalories: Math.round(totalCalories),
-        });
+        setWeeklyStats(stats);
         setLoadingWeekly(false);
       });
   }, []);
+
+  // Recalculate weekly stats when week offset changes
+  useEffect(() => {
+    if (activities.length === 0) return;
+    setLoadingWeekly(true);
+    // Re-fetch all activities to ensure we have data for previous weeks
+    fetch("/api/strava?per_page=200") // Increased to get more historical data
+      .then((res) => res.json())
+      .then((data) => {
+        const arr = Array.isArray(data) ? data : [data];
+        const stats = calculateWeeklyStats(arr, weekOffset);
+        console.log(`📊 Week ${weekOffset} stats:`, {
+          dateRange: `${stats.mondayOfWeek?.toLocaleDateString()} - ${stats.sundayOfWeek?.toLocaleDateString()}`,
+          totalActivities: arr.length,
+          weekActivities: stats.weekActivities.length,
+          weekActivitiesDetails: stats.weekActivities.map((a) => ({
+            name: a.name,
+            date: a.start_date_local,
+            distance: a.distance,
+            type: a.type,
+          })),
+          totalDistance: stats.totalDistance,
+          numRuns: stats.numRuns,
+        });
+        setWeeklyStats(stats);
+        setLoadingWeekly(false);
+      });
+  }, [weekOffset]);
 
   // Fetch like counts for all activities when they load
   useEffect(() => {
@@ -297,6 +348,43 @@ export default function RunningContent() {
     }
   }
 
+  // Week navigation functions
+  const goToPreviousWeek = () => {
+    if (weekOffset > -4) {
+      // Limit to 5 weeks back (0 to -4)
+      setWeekOffset(weekOffset - 1);
+    }
+  };
+
+  const goToNextWeek = () => {
+    if (weekOffset < 0) {
+      // Can't go beyond current week
+      setWeekOffset(weekOffset + 1);
+    }
+  };
+
+  // Get week title based on offset
+  const getWeekTitle = () => {
+    if (weekOffset === 0) return "Current Week";
+    if (weekOffset === -1) return "Last Week";
+    return `${Math.abs(weekOffset)} Weeks Ago`;
+  };
+
+  // Get week date range
+  const getWeekDateRange = () => {
+    if (!weeklyStats || !weeklyStats.mondayOfWeek || !weeklyStats.sundayOfWeek)
+      return "";
+    const monday = weeklyStats.mondayOfWeek.toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+    });
+    const sunday = weeklyStats.sundayOfWeek.toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+    });
+    return `${monday} - ${sunday}`;
+  };
+
   // Swipe handlers for activity card
   const swipeHandlers = useSwipeable({
     onSwipedLeft: () => setCurrent((current + 1) % activities.length),
@@ -386,7 +474,7 @@ export default function RunningContent() {
                 </div>
               </div>
               {/* Carousel Arrows */}
-              <div className={styles.carouselArrows}>
+              <div className={styles.activityArrowsContainer}>
                 <button
                   onClick={() =>
                     setCurrent(
@@ -394,10 +482,10 @@ export default function RunningContent() {
                     )
                   }
                   disabled={activities.length < 2}
-                  className={styles.carouselButton}
+                  className={styles.weekNavBtn}
                   aria-label="Previous activity"
                 >
-                  <FiChevronLeft size={24} />
+                  <FiChevronLeft size={14} />
                 </button>
                 <span className={styles.carouselCounter}>
                   {current + 1} / {activities.length}
@@ -405,10 +493,10 @@ export default function RunningContent() {
                 <button
                   onClick={() => setCurrent((current + 1) % activities.length)}
                   disabled={activities.length < 2}
-                  className={styles.carouselButton}
+                  className={styles.weekNavBtn}
                   aria-label="Next activity"
                 >
-                  <FiChevronRight size={24} />
+                  <FiChevronRight size={14} />
                 </button>
               </div>
             </div>
@@ -421,7 +509,16 @@ export default function RunningContent() {
         }
       />
       <InfoCard
-        title="Current Week"
+        title={
+          <div className={styles.weekTitleWithDate}>
+            <div className={styles.weekTitle}>{getWeekTitle()}</div>
+            {getWeekDateRange() && (
+              <div className={styles.weekDateUnderTitle}>
+                {getWeekDateRange()}
+              </div>
+            )}
+          </div>
+        }
         size="medium"
         Icon={BarChartIcon}
         details={
@@ -431,62 +528,85 @@ export default function RunningContent() {
               <div className={styles.loadingText}>Loading weekly stats…</div>
             </div>
           ) : weeklyStats ? (
-            <div className={styles.statsGrid}>
-              <div className={styles.statItem}>
-                <span className={styles.statIcon}>
-                  <Flag size={18} />
-                </span>
-                <span className={styles.statLabel}>Distance:</span>
-                <span className={styles.statValue}>
-                  {(weeklyStats.totalDistance / 1000).toFixed(2)} km
-                </span>
+            <div>
+              {/* Week Navigation Arrows */}
+              <div className={styles.weekArrowsContainer}>
+                <button
+                  onClick={goToPreviousWeek}
+                  disabled={weekOffset <= -4}
+                  className={styles.weekNavBtn}
+                  title="Previous week"
+                >
+                  <FiChevronLeft size={14} />
+                </button>
+                <button
+                  onClick={goToNextWeek}
+                  disabled={weekOffset >= 0}
+                  className={styles.weekNavBtn}
+                  title="Next week"
+                >
+                  <FiChevronRight size={14} />
+                </button>
               </div>
-              <div className={styles.statItem}>
-                <span className={styles.statIcon}>
-                  <Clock size={18} />
-                </span>
-                <span className={styles.statLabel}>Time:</span>
-                <span className={styles.statValue}>
-                  {formatTime(weeklyStats.totalTime)}
-                </span>
-              </div>
-              <div className={styles.statItem}>
-                <span className={styles.statIcon}>
-                  <ActivityIcon size={18} />
-                </span>
-                <span className={styles.statLabel}>Avg Pace:</span>
-                <span className={styles.statValue}>
-                  {formatPaceFromSecondsPerKm(weeklyStats.avgPace)}
-                </span>
-              </div>
-              {weeklyStats.avgHeartRate > 0 && (
+              <div className={styles.statsGrid}>
                 <div className={styles.statItem}>
                   <span className={styles.statIcon}>
-                    <HeartIcon size={18} />
+                    <Flag size={18} />
                   </span>
-                  <span className={styles.statLabel}>Avg HR:</span>
+                  <span className={styles.statLabel}>Distance:</span>
                   <span className={styles.statValue}>
-                    {weeklyStats.avgHeartRate} bpm
+                    {(weeklyStats.totalDistance / 1000).toFixed(2)} km
                   </span>
                 </div>
-              )}
-              {weeklyStats.totalElevation > 0 && (
                 <div className={styles.statItem}>
                   <span className={styles.statIcon}>
-                    <Mountain size={18} />
+                    <Clock size={18} />
                   </span>
-                  <span className={styles.statLabel}>Elevation Gain:</span>
+                  <span className={styles.statLabel}>Time:</span>
                   <span className={styles.statValue}>
-                    {weeklyStats.totalElevation} m
+                    {formatTime(weeklyStats.totalTime)}
                   </span>
                 </div>
-              )}
-              <div className={styles.statItem}>
-                <span className={styles.statIcon}>
-                  <ListChecks size={18} />
-                </span>
-                <span className={styles.statLabel}>Runs:</span>
-                <span className={styles.statValue}>{weeklyStats.numRuns}</span>
+                <div className={styles.statItem}>
+                  <span className={styles.statIcon}>
+                    <ActivityIcon size={18} />
+                  </span>
+                  <span className={styles.statLabel}>Avg Pace:</span>
+                  <span className={styles.statValue}>
+                    {formatPaceFromSecondsPerKm(weeklyStats.avgPace)}
+                  </span>
+                </div>
+                {weeklyStats.avgHeartRate > 0 && (
+                  <div className={styles.statItem}>
+                    <span className={styles.statIcon}>
+                      <HeartIcon size={18} />
+                    </span>
+                    <span className={styles.statLabel}>Avg HR:</span>
+                    <span className={styles.statValue}>
+                      {weeklyStats.avgHeartRate} bpm
+                    </span>
+                  </div>
+                )}
+                {weeklyStats.totalElevation > 0 && (
+                  <div className={styles.statItem}>
+                    <span className={styles.statIcon}>
+                      <Mountain size={18} />
+                    </span>
+                    <span className={styles.statLabel}>Elevation Gain:</span>
+                    <span className={styles.statValue}>
+                      {weeklyStats.totalElevation} m
+                    </span>
+                  </div>
+                )}
+                <div className={styles.statItem}>
+                  <span className={styles.statIcon}>
+                    <ListChecks size={18} />
+                  </span>
+                  <span className={styles.statLabel}>Runs:</span>
+                  <span className={styles.statValue}>
+                    {weeklyStats.numRuns}
+                  </span>
+                </div>
               </div>
             </div>
           ) : null
@@ -646,7 +766,7 @@ function getWeeklyChartData(weekActivities) {
   const data = days.map((day, i) => ({
     day,
     distance: 0,
-    avgPace: null,
+    avgDistance: 0,
     avgHR: null,
     runs: 0,
   }));
@@ -657,12 +777,6 @@ function getWeeklyChartData(weekActivities) {
     if (dayIdx < 0) dayIdx = 6;
     data[dayIdx].distance += (a.distance || 0) / 1000; // km
     data[dayIdx].runs += 1;
-    if (a.average_speed) {
-      // Convert m/s to min/km
-      const pace = 1000 / a.average_speed / 60;
-      if (!data[dayIdx].paceSum) data[dayIdx].paceSum = 0;
-      data[dayIdx].paceSum += pace;
-    }
     if (a.average_heartrate) {
       if (!data[dayIdx].hrSum) data[dayIdx].hrSum = 0;
       if (!data[dayIdx].hrCount) data[dayIdx].hrCount = 0;
@@ -670,14 +784,10 @@ function getWeeklyChartData(weekActivities) {
       data[dayIdx].hrCount += 1;
     }
   });
-  // Calculate avgPace and avgHR
+  // Set distance line and avgHR
   data.forEach((d) => {
-    d.avgPace =
-      d.runs > 0 && d.paceSum
-        ? parseFloat((d.paceSum / d.runs).toFixed(2))
-        : null;
+    d.avgDistance = d.distance; // Line shows each day's total distance
     d.avgHR = d.hrCount > 0 ? Math.round(d.hrSum / d.hrCount) : null;
-    delete d.paceSum;
     delete d.hrSum;
     delete d.hrCount;
   });
@@ -691,6 +801,7 @@ function WeeklyAnalysisChart({ weekActivities }) {
     if (active && payload && payload.length) {
       const distance = payload[0]?.value || 0;
       const runs = payload[0]?.payload?.runs || 0;
+      const avgDistance = payload[0]?.payload?.avgDistance || 0;
 
       return (
         <div
@@ -756,12 +867,11 @@ function WeeklyAnalysisChart({ weekActivities }) {
           <Line
             yAxisId="left"
             type="monotone"
-            dataKey="avgPace"
-            name="Avg Pace"
+            dataKey="avgDistance"
+            name="Distance Line"
             stroke="#8884d8"
             strokeWidth={2}
             dot={{ r: 3 }}
-            activeDot={{ r: 5 }}
           />
         </BarChart>
       </ResponsiveContainer>

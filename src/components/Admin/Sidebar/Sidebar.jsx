@@ -18,6 +18,7 @@ import {
   Bell,
   Tag,
   User,
+  Settings,
 } from "lucide-react";
 
 export default function Sidebar({ adminData }) {
@@ -105,6 +106,12 @@ export default function Sidebar({ adminData }) {
               <User size={12} style={{ color: "var(--primary-color)" }} />
               {getAdminRole()}
             </p>
+          </div>
+          <div className={styles.settingsFloating}>
+            <Link href="/users/profile" className={styles.settingsIcon}>
+              <Settings size={14} />
+            </Link>
+            <div className={styles.tooltip}>Edit your profile</div>
           </div>
         </div>
 

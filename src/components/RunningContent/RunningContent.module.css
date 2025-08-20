@@ -350,3 +350,75 @@
 .trainingButton:hover {
   opacity: 0.9;
 }
+
+/* Week navigation arrows container */
+.weekArrowsContainer {
+  position: absolute;
+  top: 0;
+  right: 0;
+  margin: 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  z-index: 2;
+}
+
+/* Activity arrows container (Latest Runs card) */
+.activityArrowsContainer {
+  position: absolute;
+  top: 0;
+  right: 0;
+  margin: 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  z-index: 2;
+}
+
+/* Week navigation buttons */
+.weekNavBtn {
+  margin: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px;
+  border-radius: 50px;
+  font-weight: 700;
+  cursor: pointer;
+  text-decoration: none;
+  background: var(--button-bg-no-active);
+  border: 1px solid var(--card-border);
+  color: var(--button-text-no-activ);
+  transition: all 0.2s ease;
+  min-width: 28px;
+  height: 28px;
+}
+
+.weekNavBtn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.weekNavBtn:not(:disabled):hover {
+  background: var(--button-bg);
+  color: var(--button-text);
+}
+
+/* Week title with date container */
+.weekTitleWithDate {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.weekTitle {
+  /* Use default card title styling - no custom font size */
+  line-height: 1.2;
+}
+
+.weekDateUnderTitle {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  font-weight: 400;
+  line-height: 1.2;
+}

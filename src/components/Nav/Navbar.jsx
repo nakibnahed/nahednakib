@@ -15,6 +15,7 @@ import {
   FileText,
   Mail,
   Activity,
+  BarChart,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import NotificationIcon from "../NotificationIcon/NotificationIcon";
@@ -137,7 +138,7 @@ export default function Navbar() {
           </div>
         </nav>
 
-        {/* Right section: Notifications, User, Dark mode */}
+        {/* Right section: Notifications, User, Chart, Dark mode */}
         <div className={styles.rightSection}>
           {user && <NotificationIcon />}
           <button
@@ -148,10 +149,16 @@ export default function Navbar() {
           >
             <User size={26} strokeWidth={3} />
           </button>
+          <div className={styles.chartIconWrapper}>
+            <Link href="/analytics" className={styles.chartIcon}>
+              <BarChart size={26} strokeWidth={3} />
+            </Link>
+            <div className={styles.tooltip}>Site Analytics</div>
+          </div>
           <DarkMoodToggle />
         </div>
 
-        {/* Mobile right: notifications, user icon, burger */}
+        {/* Mobile right: notifications, user icon, chart, burger */}
         <div className={styles.mobileRight}>
           {user && <NotificationIcon />}
           <button
@@ -162,6 +169,12 @@ export default function Navbar() {
           >
             <User size={26} strokeWidth={3} />
           </button>
+          <div className={styles.chartIconWrapper}>
+            <Link href="/analytics" className={styles.chartMobileIcon}>
+              <BarChart size={26} strokeWidth={3} />
+            </Link>
+            <div className={styles.tooltip}>Site Analytics</div>
+          </div>
           <button
             className={styles.menuIcon}
             onClick={toggleMenu}

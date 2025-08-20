@@ -39,7 +39,7 @@
 .rightSection {
   display: flex;
   align-items: center;
-  gap: 18px;
+  gap: 8px;
 }
 
 /* Desktop links */
@@ -58,12 +58,73 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  margin-left: 10px;
   color: var(--text-dark);
   font-size: 26px;
   background: transparent;
   border: none;
   cursor: pointer;
+  transition: all 0.2s ease;
+  padding: 8px;
+  border-radius: 8px;
+}
+
+.dashboardIconOnly:hover {
+  background: rgba(255, 255, 255, 0.1);
+  transform: translateY(-1px);
+}
+
+.dashboardIconOnly:active {
+  transform: translateY(0);
+}
+
+.chartIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-dark);
+  font-size: 26px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  padding: 8px;
+  border-radius: 8px;
+}
+
+.chartIcon:hover {
+  background: rgba(255, 255, 255, 0.1);
+  transform: translateY(-1px);
+}
+
+.chartIcon:active {
+  transform: translateY(0);
+}
+
+.chartIconWrapper {
+  position: relative;
+  display: inline-flex;
+}
+
+.tooltip {
+  position: absolute;
+  bottom: -40px;
+  left: 50%;
+  transform: translateX(-50%);
+  color: var(--text-dark);
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.2s ease;
+  z-index: 99999999;
+}
+
+.chartIconWrapper:hover .tooltip {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) translateY(-2px);
 }
 
 /* Test button for notifications */
@@ -109,7 +170,8 @@
     height: 44px;
   }
   .userMobileIcon,
-  .menuIcon {
+  .menuIcon,
+  .chartMobileIcon {
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -131,13 +193,15 @@
   }
 
   .userMobileIcon:hover,
-  .menuIcon:hover {
+  .menuIcon:hover,
+  .chartMobileIcon:hover {
     background: rgba(255, 255, 255, 0.1);
     transform: translateY(-1px);
   }
 
   .userMobileIcon:active,
-  .menuIcon:active {
+  .menuIcon:active,
+  .chartMobileIcon:active {
     transform: translateY(0);
   }
 }

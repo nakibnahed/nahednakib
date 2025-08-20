@@ -304,7 +304,7 @@ const NotificationIcon = () => {
         disabled={isLoading}
         title={`Notifications (Real-time: ${realtimeStatus})`}
       >
-        <Bell size={20} />
+        <Bell size={26} />
         {unreadCount > 0 && (
           <span
             className={`${styles.badge} ${

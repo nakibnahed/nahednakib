@@ -45,12 +45,63 @@
 }
 
 .adminInfo {
+  position: relative;
   display: flex;
   align-items: center;
-  gap: 15px;
+  gap: 12px;
   margin-bottom: 20px;
   padding-bottom: 20px;
   border-bottom: 1px solid var(--card-border, rgba(255, 255, 255, 0.14));
+}
+
+/* Floating settings icon in top-right of the admin info row */
+.settingsFloating {
+  position: absolute;
+  top: 0;
+  right: 0;
+  display: inline-flex;
+  align-items: center;
+}
+
+/* Reuse icon styles */
+.settingsIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-secondary, #aaa);
+  transition: all 0.2s ease;
+  padding: 4px;
+  border-radius: 4px;
+  text-decoration: none;
+}
+
+.settingsIcon:hover {
+  color: var(--primary-color, #ee681a);
+  background: rgba(238, 104, 26, 0.1);
+  transform: translateY(-1px);
+}
+
+/* Tooltip same as navbar version (text only, no bg) */
+.tooltip {
+  position: absolute;
+  top: -16px;
+  right: -20px;
+  transform: translateY(30%);
+  color: var(--text-dark);
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.2s ease;
+  z-index: 1000;
+  pointer-events: none;
+}
+
+.settingsFloating:hover .tooltip {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(-2px);
 }
 
 .adminAvatar {
@@ -75,6 +126,60 @@
 
 .adminDetails {
   flex: 1;
+}
+
+.adminNameRow {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 6px;
+}
+
+.settingsIconWrapper {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  margin-left: 4px;
+}
+
+.settingsIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-secondary, #aaa);
+  transition: all 0.2s ease;
+  padding: 2px;
+  border-radius: 4px;
+  text-decoration: none;
+}
+
+.settingsIcon:hover {
+  color: var(--primary-color, #ee681a);
+  background: rgba(238, 104, 26, 0.1);
+  transform: rotate(40deg);
+}
+
+/* Tooltip same as navbar version (text only, no bg) */
+.tooltip {
+  position: absolute;
+  top: -13px;
+  left: -75px;
+  transform: translateX(-50%);
+  color: var(--text-dark);
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.2s ease;
+  z-index: 1000;
+  pointer-events: none;
+}
+
+.settingsIconWrapper:hover .tooltip {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) translateY(-2px);
 }
 
 .adminName {
