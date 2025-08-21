@@ -77,6 +77,14 @@
   transform: translateY(0);
 }
 
+/* User avatar styling */
+.userAvatar {
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--primary-color, #ee681a);
+  background: #222;
+}
+
 .chartIcon {
   display: inline-flex;
   align-items: center;

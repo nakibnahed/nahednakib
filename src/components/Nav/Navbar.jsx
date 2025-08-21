@@ -5,7 +5,7 @@ import styles from "./Navbar.module.css";
 import Logo from "@/elements/Logo/Logo";
 import DarkMoodToggle from "../DarkMoodToggle/DarkMoodToggle";
 import { useEffect, useState } from "react";
-import { createClient } from "@/lib/supabase/client";
+import { supabase } from "@/services/supabaseClient";
 import {
   User,
   Menu,
@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import NotificationIcon from "../NotificationIcon/NotificationIcon";
+import Image from "next/image";
 
 const navLinks = [
   { id: 1, url: "/info", title: "Running", icon: Activity },
@@ -31,28 +32,35 @@ const navLinks = [
 export default function Navbar() {
   const [user, setUser] = useState(null);
   const [userRole, setUserRole] = useState(null);
+  const [userProfile, setUserProfile] = useState(null);
   const [menuOpen, setMenuOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const router = useRouter();
 
   useEffect(() => {
+    let mounted = true;
+    let profileFetchTimeout;
+
     const getSession = async () => {
       try {
+        if (!mounted) return;
         setLoading(true);
         setError(null);
 
-        const supabase = createClient();
         const {
           data: { session },
           error,
         } = await supabase.auth.getSession();
+
+        if (!mounted) return;
 
         if (error) {
           console.error("Session error:", error);
           setError(error.message);
           setUser(null);
           setUserRole(null);
+          setUserProfile(null);
         } else {
           setUser(session?.user || null);
 
@@ -67,25 +75,57 @@ export default function Navbar() {
             } else {
               setUserRole("user");
             }
+
+            // Fetch user profile data with delay to avoid conflicts
+            profileFetchTimeout = setTimeout(async () => {
+              if (!mounted) return;
+
+              try {
+                const { data: profile, error: profileError } = await supabase
+                  .from("profiles")
+                  .select("*")
+                  .eq("id", session.user.id)
+                  .single();
+
+                if (!mounted) return;
+
+                if (profileError) {
+                  console.error("Profile fetch error:", profileError);
+                  setUserProfile(null);
+                } else {
+                  setUserProfile(profile);
+                }
+              } catch (err) {
+                if (!mounted) return;
+                console.error("Profile fetch error:", err);
+                setUserProfile(null);
+              }
+            }, 100); // Small delay to avoid conflicts
           } else {
             setUserRole(null);
+            setUserProfile(null);
           }
         }
       } catch (error) {
+        if (!mounted) return;
         console.error("Session initialization error:", error);
         setError(error.message);
         setUser(null);
         setUserRole(null);
+        setUserProfile(null);
       } finally {
-        setLoading(false);
+        if (mounted) {
+          setLoading(false);
+        }
       }
     };
 
     getSession();
 
-    const supabase = createClient();
     const { data: listener } = supabase.auth.onAuthStateChange(
       async (_event, session) => {
+        if (!mounted) return;
+
         setUser(session?.user ?? null);
         if (session?.user) {
           const adminEmails = ["admin@example.com", "nahednakibyos@gmail.com"];
@@ -94,32 +134,70 @@ export default function Navbar() {
           } else {
             setUserRole("user");
           }
+
+          // Fetch user profile data with delay to avoid conflicts
+          profileFetchTimeout = setTimeout(async () => {
+            if (!mounted) return;
+
+            try {
+              const { data: profile, error: profileError } = await supabase
+                .from("profiles")
+                .select("*")
+                .eq("id", session.user.id)
+                .single();
+
+              if (!mounted) return;
+
+              if (profileError) {
+                console.error("Profile fetch error:", profileError);
+                setUserProfile(null);
+              } else {
+                setUserProfile(profile);
+              }
+            } catch (err) {
+              if (!mounted) return;
+              console.error("Profile fetch error:", err);
+              setUserProfile(null);
+            }
+          }, 100); // Small delay to avoid conflicts
         } else {
           setUserRole(null);
+          setUserProfile(null);
         }
       }
     );
 
-    return () => listener?.subscription?.unsubscribe();
+    return () => {
+      mounted = false;
+      if (profileFetchTimeout) {
+        clearTimeout(profileFetchTimeout);
+      }
+      listener?.subscription?.unsubscribe();
+    };
   }, []);
 
   const toggleMenu = () => setMenuOpen((open) => !open);
 
-  // Simple user icon click handler
-  const handleUserIconClick = async (e) => {
-    e.preventDefault();
+  // Get the correct profile URL based on user role
+  const getProfileUrl = () => {
+    if (!user) return "/login";
+    return userRole === "admin" ? "/admin/" : "/users/profile";
+  };
 
-    if (!user) {
-      router.push("/login");
-      return;
+  // Render user avatar or icon
+  const renderUserIcon = () => {
+    if (user && userProfile?.avatar_url) {
+      return (
+        <Image
+          src={userProfile.avatar_url}
+          alt="User Avatar"
+          width={32}
+          height={32}
+          className={styles.userAvatar}
+        />
+      );
     }
-
-    // Navigate based on role
-    if (userRole === "admin") {
-      router.push("/admin/");
-    } else {
-      router.push("/users/profile");
-    }
+    return <User size={32} strokeWidth={3} />;
   };
 
   return (
@@ -141,14 +219,13 @@ export default function Navbar() {
         {/* Right section: Notifications, User, Chart, Dark mode */}
         <div className={styles.rightSection}>
           {user && <NotificationIcon />}
-          <button
+          <Link
+            href={getProfileUrl()}
             className={styles.dashboardIconOnly}
             aria-label="User"
-            onClick={handleUserIconClick}
-            type="button"
           >
-            <User size={26} strokeWidth={3} />
-          </button>
+            {renderUserIcon()}
+          </Link>
           <div className={styles.chartIconWrapper}>
             <Link href="/analytics" className={styles.chartIcon}>
               <BarChart size={26} strokeWidth={3} />
@@ -161,14 +238,13 @@ export default function Navbar() {
         {/* Mobile right: notifications, user icon, chart, burger */}
         <div className={styles.mobileRight}>
           {user && <NotificationIcon />}
-          <button
+          <Link
+            href={getProfileUrl()}
             className={styles.userMobileIcon}
             aria-label="User"
-            onClick={handleUserIconClick}
-            type="button"
           >
-            <User size={26} strokeWidth={3} />
-          </button>
+            {renderUserIcon()}
+          </Link>
           <div className={styles.chartIconWrapper}>
             <Link href="/analytics" className={styles.chartMobileIcon}>
               <BarChart size={26} strokeWidth={3} />
@@ -197,17 +273,24 @@ export default function Navbar() {
         >
           {/* Menu Header */}
           <div className={styles.mobileMenuHeader}>
-            <button
+            <Link
+              href={getProfileUrl()}
               className={styles.profileButton}
-              onClick={async (e) => {
-                await handleUserIconClick(e);
-                setMenuOpen(false);
-              }}
-              type="button"
+              onClick={() => setMenuOpen(false)}
             >
-              <User size={20} />
+              {user && userProfile?.avatar_url ? (
+                <Image
+                  src={userProfile.avatar_url}
+                  alt="User Avatar"
+                  width={24}
+                  height={24}
+                  className={styles.userAvatar}
+                />
+              ) : (
+                <User size={24} />
+              )}
               <span>Profile</span>
-            </button>
+            </Link>
 
             <div className={styles.mobileMenuHeaderRight}>
               <DarkMoodToggle />
