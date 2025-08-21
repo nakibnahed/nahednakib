@@ -21,7 +21,7 @@ export default function Home() {
           discipline and precision to every step.
         </p>
         <div className={styles.heroButtons}>
-          <Link href="/about" className={styles.button}>
+          <Link href="/info" className={styles.button}>
             <span>Explore More</span>
             <span className={styles.arrow}>→</span>
           </Link>
