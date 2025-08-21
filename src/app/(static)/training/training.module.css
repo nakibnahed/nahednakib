@@ -1,7 +1,7 @@
 .container {
   max-width: 1400px;
   margin: 0 auto;
-  padding: 24px;
+  padding: 48px 20px 80px 20px;
   min-height: 100vh;
 }
 
@@ -11,13 +11,13 @@
   align-items: center;
   justify-content: center;
   min-height: 400px;
-  color: var(--text-dark);
+  color: var(--text-secondary, #aaa);
 }
 
 .loader {
   width: 40px;
   height: 40px;
-  border: 3px solid var(--card-border, #333);
+  border: 3px solid var(--card-border, rgba(255, 255, 255, 0.14));
   border-top: 3px solid var(--primary-color, #ee681a);
   border-radius: 50%;
   animation: spin 1s linear infinite;
@@ -35,71 +35,107 @@
 
 .header {
   display: flex;
-  align-items: center;
-  gap: 24px;
+  align-items: flex-start;
+  justify-content: flex-start;
   margin-bottom: 32px;
   padding-bottom: 24px;
-  border-bottom: 1px solid var(--card-border, #333);
+  border-bottom: 1px solid var(--card-border, rgba(255, 255, 255, 0.14));
 }
 
 .backButton {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 8px 16px;
-  background: var(--card-bg, #1a1a1a);
-  border: 1px solid var(--card-border, #333);
-  border-radius: 8px;
-  color: var(--text-dark);
+  padding: 12px 20px;
+  background: color-mix(
+    in srgb,
+    var(--background-main, #0a0a0a) 80%,
+    transparent 15%
+  );
+  border: 1px solid var(--card-border, rgba(255, 255, 255, 0.14));
+  border-radius: var(--card-border-radius);
+  color: var(--text-secondary, #aaa);
   text-decoration: none;
-  transition: all 0.2s ease;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(16px) saturate(160%);
+  -webkit-backdrop-filter: blur(16px) saturate(160%);
+  opacity: 0.98;
 }
 
 .backButton:hover {
   background: var(--primary-color, #ee681a);
   color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+  border-color: var(--primary-color, #ee681a);
 }
 
 .titleSection {
-  flex: 1;
+  text-align: left;
 }
 
 .title {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  font-size: 32px;
-  font-family: "Unbounded", sans-serif;
-  background: linear-gradient(to bottom, #ee681a, rgb(76, 40, 23));
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
+  font-size: 48px;
   font-weight: 700;
   margin: 0 0 8px 0;
+  letter-spacing: -0.025em;
+  background: var(--gradient-typography-primary);
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-family: var(--font-heading);
 }
 
 .subtitle {
+  font-size: 18px;
   color: var(--text-dark);
-  font-size: 16px;
   margin: 0;
+  line-height: 1.5;
 }
 
 .monthNavigation {
-  display: flex;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
   align-items: center;
   width: 100%;
 }
 
+.headerLeft {
+  display: flex;
+  align-items: center;
+}
+
+.headerCenter {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.calendarTitle {
+  margin: 0;
+  color: var(--text-dark) !important;
+  background: var(--gradient-typography-primary);
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-size: 24px;
+  font-weight: 700;
+  font-family: var(--font-heading);
+}
+
 .monthTitle {
   margin: 0;
-  color: var(--text-primary, #fff);
+  color: var(--text-dark) !important;
+  background: var(--gradient-typography-primary);
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
   font-size: 24px;
   font-weight: 600;
+  font-family: var(--font-heading);
 }
 
 .navigationButtons {
   display: flex;
   align-items: center;
+  justify-content: flex-end;
   gap: 8px;
 }
 
@@ -107,20 +143,28 @@
   width: 32px;
   height: 32px;
   border: none;
-  background: var(--card-background, #1a1a1a);
-  color: var(--text-muted);
-  border-radius: 6px;
+  background: color-mix(
+    in srgb,
+    var(--background-main, #0a0a0a) 80%,
+    transparent 15%
+  );
+  color: var(--text-secondary, #aaa);
+  border-radius: var(--card-border-radius);
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 18px;
-  transition: all 0.2s ease;
+  /* Removed transition */
+  backdrop-filter: blur(16px) saturate(160%);
+  -webkit-backdrop-filter: blur(16px) saturate(160%);
+  opacity: 0.98;
+  border: 1px solid var(--card-border, rgba(255, 255, 255, 0.14));
 }
 
 .navArrow:hover:not(:disabled) {
-  background: var(--card-border, #333);
-  color: var(--text-primary, #fff);
+  background: var(--button-bg);
+  color: var(--button-text);
 }
 
 .navArrow:disabled {
@@ -129,37 +173,42 @@
 }
 
 .todayButton {
-  padding: 6px 12px;
-  border: 1px solid var(--card-border, #333);
-  background: var(--card-background, #1a1a1a);
-  color: var(--text-dark);
-  border-radius: 6px;
+  padding: 8px 16px;
+  border: 1px solid var(--card-border, rgba(255, 255, 255, 0.14));
+  background: color-mix(
+    in srgb,
+    var(--background-main, #0a0a0a) 80%,
+    transparent 15%
+  );
+  color: var(--text-secondary, #aaa);
+  border-radius: var(--card-border-radius);
   cursor: pointer;
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 500;
-  transition: all 0.2s ease;
+  /* Removed transition */
+  backdrop-filter: blur(16px) saturate(160%);
+  -webkit-backdrop-filter: blur(16px) saturate(160%);
+  opacity: 0.98;
 }
 
 .todayButton:hover {
-  background: var(--primary-color, #ee681a);
-  color: white;
-  border-color: var(--primary-color, #ee681a);
+  background: var(--button-bg);
+  color: var(--button-text);
 }
 
 .navButton {
   padding: 8px 16px;
   background: transparent;
-  border: 1px solid var(--card-border, #333);
-  border-radius: 6px;
-  color: var(--text-dark);
+  border: 1px solid var(--card-border, rgba(255, 255, 255, 0.14));
+  border-radius: var(--card-border-radius);
+  color: var(--text-secondary, #aaa);
   cursor: pointer;
-  transition: all 0.2s ease;
+  /* Removed transition */
 }
 
 .navButton:hover:not(:disabled) {
-  background: var(--primary-color, #ee681a);
-  color: white;
-  border-color: var(--primary-color, #ee681a);
+  background: var(--button-bg);
+  color: var(--button-text);
 }
 
 .navButton:disabled {
@@ -174,16 +223,28 @@
 }
 
 .calendarContainer {
-  background: var(--card-bg, #1a1a1a);
-  border: 1px solid var(--card-border, #333);
-  border-radius: 16px;
+  background: color-mix(
+    in srgb,
+    var(--background-main, #0a0a0a) 80%,
+    transparent 15%
+  );
+  border: 1px solid var(--card-border, rgba(255, 255, 255, 0.14));
+  border-radius: var(--card-border-radius);
   overflow: hidden;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  backdrop-filter: blur(16px) saturate(160%);
+  -webkit-backdrop-filter: blur(16px) saturate(160%);
+  opacity: 0.98;
 }
 
 .weekHeader {
   padding: 24px;
-  border-bottom: 1px solid var(--card-border, #333);
-  background: var(--background-main, #181818);
+  border-bottom: 1px solid var(--card-border, rgba(255, 255, 255, 0.14));
+  background: color-mix(
+    in srgb,
+    var(--background-main, #0a0a0a) 85%,
+    transparent 15%
+  );
 }
 
 .calendarTable {
@@ -194,31 +255,39 @@
 .headerRow {
   display: grid;
   grid-template-columns: 80px repeat(7, 1fr);
-  background: var(--background-main, #181818);
-  border-bottom: 2px solid var(--card-border, #333);
+  background: color-mix(
+    in srgb,
+    var(--background-main, #0a0a0a) 85%,
+    transparent 15%
+  );
+  border-bottom: 2px solid var(--card-border, rgba(255, 255, 255, 0.14));
 }
 
 .weekColumnHeader {
   padding: 12px 8px;
   text-align: center;
   font-weight: 600;
-  color: var(--text-dark);
+  color: var(--text-secondary, #aaa);
   font-size: 14px;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  border-right: 2px solid var(--card-border, #333);
-  background: var(--background-main, #181818);
+  border-right: 2px solid var(--card-border, rgba(255, 255, 255, 0.14));
+  background: color-mix(
+    in srgb,
+    var(--background-main, #0a0a0a) 85%,
+    transparent 15%
+  );
 }
 
 .dayHeader {
   padding: 16px 12px;
   text-align: center;
   font-weight: 600;
-  color: var(--text-dark);
+  color: var(--text-secondary, #aaa);
   font-size: 14px;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  border-right: 1px solid var(--card-border, #333);
+  border-right: 1px solid var(--card-border, rgba(255, 255, 255, 0.14));
 }
 
 .dayHeader:last-child {
@@ -229,7 +298,7 @@
   display: grid;
   grid-template-columns: 80px repeat(7, 1fr);
   min-height: 120px;
-  border-bottom: 1px solid var(--card-border, #333);
+  border-bottom: 1px solid var(--card-border, rgba(255, 255, 255, 0.14));
 }
 
 .trainingRow:last-child {
@@ -238,8 +307,12 @@
 
 .weekColumn {
   padding: 12px 8px;
-  border-right: 2px solid var(--card-border, #333);
-  background: var(--background-main, #181818);
+  border-right: 2px solid var(--card-border, rgba(255, 255, 255, 0.14));
+  background: color-mix(
+    in srgb,
+    var(--background-main, #0a0a0a) 85%,
+    transparent 15%
+  );
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -250,7 +323,7 @@
 
 .weekNumber {
   font-weight: 700;
-  color: var(--text-primary, #fff);
+  color: var(--text-dark);
   font-size: 14px;
   line-height: 1.2;
 }
@@ -263,7 +336,7 @@
 }
 
 .dateRange {
-  color: var(--text-dark);
+  color: var(--text-secondary, #aaa);
   font-size: 12px;
   font-weight: 500;
   line-height: 1;
@@ -285,37 +358,37 @@
   max-height: 150px;
   box-sizing: border-box;
   padding: 14px 10px;
-  border-right: 1px solid var(--card-border, #333);
+  border-right: 1px solid var(--card-border, rgba(255, 255, 255, 0.14));
   border-left: 4px solid transparent;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.3s ease;
   display: flex;
   flex-direction: column;
   position: relative;
   justify-content: flex-start;
   align-items: stretch;
   overflow: hidden;
+  background: color-mix(
+    in srgb,
+    var(--background-main, #0a0a0a) 80%,
+    transparent 15%
+  );
 }
 
 .dayCell:hover {
-  background: rgba(238, 104, 26, 0.05);
+  background: rgba(255, 255, 255, 0.05);
+  border-color: var(--primary-color, #ee681a);
 }
 
-.dayCell.completed {
-  background: rgba(16, 185, 129, 0.08);
-}
-
-.dayCell.completed:hover {
-  background: rgba(16, 185, 129, 0.12);
-}
+/* Removed completed background styles - completion is now based on Strava data */
 
 .dayCell.today {
-  background: rgba(239, 68, 68, 0.08);
+  background: color-mix(in srgb, rgba(239, 68, 68, 0.1) 80%, transparent 15%);
   position: relative;
 }
 
 .dayCell.today:hover {
-  background: rgba(239, 68, 68, 0.12);
+  background: color-mix(in srgb, rgba(239, 68, 68, 0.15) 85%, transparent 15%);
 }
 
 .todayIndicator {
@@ -328,6 +401,16 @@
   border-radius: 50%;
   z-index: 2;
   animation: pulse 2s infinite;
+}
+
+.todayText {
+  position: absolute;
+  top: 8px;
+  right: 24px;
+  color: var(--text-dark);
+  font-size: 10px;
+  font-weight: 600;
+  z-index: 2;
 }
 
 @keyframes pulse {
@@ -370,7 +453,7 @@
 
 .dateNumber {
   font-size: 11px;
-  color: var(--text-dark);
+  color: var(--text-secondary, #aaa);
   font-weight: 600;
   line-height: 1;
   margin-top: 1px;
@@ -400,7 +483,7 @@
   align-items: center;
   gap: 8px;
   font-weight: 600;
-  color: var(--text-primary, #fff);
+  color: var(--text-dark) !important;
   font-size: 14px;
   margin-bottom: 6px;
   position: relative;
@@ -422,6 +505,16 @@
   font-weight: 700;
 }
 
+.stravaCompletedBadge {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  color: #10b981;
+  font-weight: 700;
+  font-size: 16px;
+  z-index: 3;
+}
+
 .workoutIcon {
   font-size: 16px;
 }
@@ -440,7 +533,7 @@
 }
 
 .duration {
-  color: var(--text-dark);
+  color: var(--text-secondary, #aaa);
   font-size: 13px;
 }
 
@@ -461,25 +554,33 @@
   align-items: center;
   justify-content: center;
   z-index: 1000;
-  padding: 20px;
+  padding: 80px 20px 20px 20px;
 }
 
 .modalContent {
-  background: var(--card-bg, #1a1a1a);
-  border: 1px solid var(--card-border, #333);
-  border-radius: 16px;
-  max-width: 500px;
+  background: color-mix(
+    in srgb,
+    var(--background-main, #0a0a0a) 80%,
+    transparent 15%
+  );
+  border: 1px solid var(--card-border, rgba(255, 255, 255, 0.14));
+  border-radius: 24px;
+  max-width: 600px;
   width: 100%;
-  max-height: 80vh;
+  max-height: calc(100vh - 100px);
   overflow-y: auto;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  backdrop-filter: blur(16px) saturate(160%);
+  -webkit-backdrop-filter: blur(16px) saturate(160%);
+  opacity: 0.98;
 }
 
 .modalHeader {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  padding: 24px;
-  border-bottom: 1px solid var(--card-border, #333);
+  align-items: flex-start;
+  padding: 22px 20px 15px 20px;
+  border-bottom: 1px solid var(--card-border, rgba(255, 255, 255, 0.14));
 }
 
 .modalTitle {
@@ -492,9 +593,10 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  color: var(--text-primary, #fff);
-  font-size: 20px;
+  color: var(--text-dark);
+  font-size: 18px;
   margin: 0;
+  font-weight: 600;
 }
 
 .modalDate {
@@ -506,6 +608,7 @@
 
 .modalIcon {
   font-size: 24px;
+  color: var(--primary-color, #ee681a);
 }
 
 .closeButton {
@@ -516,29 +619,26 @@
   cursor: pointer;
   padding: 4px;
   border-radius: 4px;
-  transition: all 0.2s ease;
-}
-
-.closeButton:hover {
-  background: var(--card-border, #333);
-  color: var(--text-primary, #fff);
 }
 
 .modalBody {
-  padding: 24px;
+  padding: 22px 20px 15px 20px;
 }
 
 .modalStats {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 12px;
   margin-bottom: 24px;
 }
 
 .modalStat {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 12px;
+  padding: 12px 16px;
   color: var(--text-dark);
   font-size: 14px;
 }
@@ -553,15 +653,17 @@
 }
 
 .modalNotes h4 {
-  color: var(--text-primary, #fff);
+  color: var(--text-dark);
   font-size: 16px;
   margin: 0 0 12px 0;
+  font-weight: 600;
 }
 
 .modalNotes p {
   color: var(--text-dark);
   line-height: 1.6;
   margin: 0;
+  font-size: 14px;
 }
 
 .modalActions {
@@ -570,6 +672,7 @@
   align-items: center;
   gap: 16px;
   flex-wrap: wrap;
+  margin-top: 24px;
 }
 
 .intensityBadge {
@@ -586,32 +689,24 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 10px 20px;
-  background: transparent;
-  border: 2px solid var(--card-border, #333);
-  border-radius: 8px;
-  color: var(--text-dark);
+  padding: 12px 20px;
+  background: var(--button-bg-no-activ);
+  border: 1px solid var(--card-border, rgba(255, 255, 255, 0.14));
+  border-radius: 50px;
+  color: var(--button-text-no-activ);
   cursor: pointer;
-  font-weight: 500;
+  font-weight: 700;
   font-size: 14px;
-  transition: all 0.2s ease;
 }
 
-.completedButton:hover {
-  border-color: var(--primary-color, #ee681a);
-  color: var(--primary-color, #ee681a);
+.completedButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background: var(--button-bg-no-activ);
+  color: var(--button-text-no-activ);
 }
 
-.completedButton.completed {
-  background: #10b981;
-  border-color: #10b981;
-  color: white;
-}
-
-.completedButton.completed:hover {
-  background: #059669;
-  border-color: #059669;
-}
+/* Removed completed button background changes - completion is now based on Strava data */
 
 /* Responsive Design */
 /* Desktop styles - keep original layout */
@@ -641,8 +736,12 @@
     text-align: center;
     gap: 4px;
     padding: 12px 8px;
-    border-right: 2px solid var(--card-border, #333);
-    background: var(--background-main, #181818);
+    border-right: 2px solid var(--card-border, rgba(255, 255, 255, 0.14));
+    background: color-mix(
+      in srgb,
+      var(--background-main, #0a0a0a) 85%,
+      transparent 15%
+    );
   }
 
   .weekDateRange {
@@ -675,11 +774,11 @@
     padding: 16px 12px;
     text-align: center;
     font-weight: 600;
-    color: var(--text-dark);
+    color: var(--text-secondary, #aaa);
     font-size: 14px;
     text-transform: uppercase;
     letter-spacing: 0.5px;
-    border-right: 1px solid var(--card-border, #333);
+    border-right: 1px solid var(--card-border, rgba(255, 255, 255, 0.14));
   }
 
   .dayCell {
@@ -690,9 +789,9 @@
     min-height: 150px;
     max-height: 150px;
     padding: 14px 10px;
-    border-right: 1px solid var(--card-border, #333);
+    border-right: 1px solid var(--card-border, rgba(255, 255, 255, 0.14));
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: all 0.3s ease;
     display: flex;
     flex-direction: column;
     position: relative;
@@ -722,7 +821,7 @@
 
   .dateNumber {
     font-size: 11px;
-    color: var(--text-dark);
+    color: var(--text-secondary, #aaa);
     font-weight: 600;
     line-height: 1;
     margin-top: 1px;
@@ -768,7 +867,7 @@
   }
 
   .duration {
-    color: var(--text-dark);
+    color: var(--text-secondary, #aaa);
     font-size: 13px;
   }
 
@@ -781,7 +880,7 @@
 @media (max-width: 1200px) {
   .container {
     padding: 20px;
-    padding-bottom: 32px; /* Extra bottom padding for tablets */
+    padding-bottom: 60px; /* Extra bottom padding for tablets */
   }
 
   .dayCell {
@@ -815,7 +914,7 @@
   .container {
     padding: 16px;
     width: 100%;
-    padding-bottom: 28px; /* Extra bottom padding for smaller tablets */
+    padding-bottom: 50px; /* Extra bottom padding for smaller tablets */
   }
 
   .headerRow,
@@ -907,25 +1006,100 @@
 
 @media (max-width: 768px) {
   .container {
-    padding: 12px;
-    width: 100%;
-    min-height: auto;
-    padding-bottom: 40px; /* More bottom padding */
+    padding: 16px 12px 40px 12px;
   }
 
   .header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 16px;
-    margin-bottom: 24px;
+    margin-bottom: 30px;
+    padding-bottom: 24px;
   }
 
   .title {
-    font-size: 24px;
+    font-size: 32px;
+    margin-bottom: 6px;
   }
 
   .subtitle {
-    font-size: 14px;
+    font-size: 16px;
+  }
+
+  /* Mobile Modal Styles */
+  .modal {
+    padding: 100px 12px 20px 12px;
+  }
+
+  .modalContent {
+    max-width: 100%;
+    max-height: calc(100vh - 120px);
+    border-radius: 16px;
+    position: relative;
+  }
+
+  .modalHeader {
+    padding: 16px;
+  }
+
+  .modalHeader h3 {
+    font-size: 16px;
+  }
+
+  .modalBody {
+    padding: 16px;
+  }
+
+  .modalStats {
+    gap: 8px;
+  }
+
+  .modalStat {
+    padding: 10px 12px;
+    font-size: 13px;
+  }
+
+  .modalDetails {
+    margin: 16px 0;
+  }
+
+  .trainingSection {
+    padding: 12px;
+    margin-bottom: 12px;
+  }
+
+  .sectionTitle {
+    font-size: 13px;
+  }
+
+  .sectionContent {
+    font-size: 13px;
+  }
+
+  .intervalItem {
+    padding: 8px 10px;
+  }
+
+  .stravaSection {
+    padding: 16px;
+    margin-bottom: 16px;
+  }
+
+  .activityStats {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .activityStat {
+    padding: 10px;
+  }
+
+  .modalActions {
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 24px;
+  }
+
+  .completedButton {
+    width: 100%;
+    justify-content: center;
   }
 
   .monthNavigation {
@@ -980,7 +1154,7 @@
   .trainingRow {
     display: flex;
     flex-direction: column;
-    border-bottom: 2px solid var(--card-border, #333);
+    border-bottom: 2px solid var(--card-border, rgba(255, 255, 255, 0.14));
     min-height: auto;
     height: auto;
     overflow: visible;
@@ -999,8 +1173,12 @@
     align-items: center;
     padding: 12px 16px;
     border-right: none;
-    border-bottom: 1px solid var(--card-border, #333);
-    background: var(--background-main, #181818);
+    border-bottom: 1px solid var(--card-border, rgba(255, 255, 255, 0.14));
+    background: color-mix(
+      in srgb,
+      var(--background-main, #0a0a0a) 85%,
+      transparent 15%
+    );
     writing-mode: horizontal-tb;
     text-orientation: mixed;
   }
@@ -1048,7 +1226,7 @@
 
   .dayCell {
     border-right: none;
-    border-bottom: 1px solid var(--card-border, #333);
+    border-bottom: 1px solid var(--card-border, rgba(255, 255, 255, 0.14));
     width: auto;
     min-width: auto;
     max-width: none;
@@ -1133,9 +1311,13 @@
     padding: 16px;
     position: sticky;
     top: 0;
-    background: var(--card-bg, #1a1a1a);
+    background: color-mix(
+      in srgb,
+      var(--background-main, #0a0a0a) 80%,
+      transparent 15%
+    );
     z-index: 10;
-    border-bottom: 1px solid var(--card-border, #333);
+    border-bottom: 1px solid var(--card-border, rgba(255, 255, 255, 0.14));
   }
 
   .modalHeader h3 {
@@ -1166,10 +1348,14 @@
     gap: 12px;
     position: sticky;
     bottom: 0;
-    background: var(--card-bg, #1a1a1a);
+    background: color-mix(
+      in srgb,
+      var(--background-main, #0a0a0a) 80%,
+      transparent 15%
+    );
     padding: 16px;
     margin: 16px -16px -16px -16px;
-    border-top: 1px solid var(--card-border, #333);
+    border-top: 1px solid var(--card-border, rgba(255, 255, 255, 0.14));
   }
 
   .intensityBadge {
@@ -1197,9 +1383,13 @@
     padding: 16px;
     position: sticky;
     top: 0;
-    background: var(--card-bg, #1a1a1a);
+    background: color-mix(
+      in srgb,
+      var(--background-main, #0a0a0a) 80%,
+      transparent 15%
+    );
     z-index: 10;
-    border-bottom: 1px solid var(--card-border, #333);
+    border-bottom: 1px solid var(--card-border, rgba(255, 255, 255, 0.14));
   }
 
   .modalHeader h3 {
@@ -1230,10 +1420,14 @@
     gap: 12px;
     position: sticky;
     bottom: 0;
-    background: var(--card-bg, #1a1a1a);
+    background: color-mix(
+      in srgb,
+      var(--background-main, #0a0a0a) 80%,
+      transparent 15%
+    );
     padding: 16px;
     margin: 16px -16px -16px -16px;
-    border-top: 1px solid var(--card-border, #333);
+    border-top: 1px solid var(--card-border, rgba(255, 255, 255, 0.14));
   }
 
   .intensityBadge {
@@ -1277,21 +1471,90 @@
 
 @media (max-width: 480px) {
   .container {
-    padding: 8px;
-    padding-bottom: 32px; /* Extra bottom padding for small screens */
+    padding: 12px 8px 30px 8px;
   }
 
   .header {
-    gap: 12px;
-    margin-bottom: 20px;
+    margin-bottom: 24px;
+    padding-bottom: 20px;
   }
 
   .title {
-    font-size: 20px;
+    font-size: 28px;
+    margin-bottom: 4px;
   }
 
   .subtitle {
-    font-size: 13px;
+    font-size: 15px;
+  }
+
+  /* Small Mobile Modal Styles */
+  .modal {
+    padding: 80px 8px 16px 8px;
+  }
+
+  .modalContent {
+    max-height: calc(100vh - 100px);
+    border-radius: 12px;
+    position: relative;
+  }
+
+  .modalHeader {
+    padding: 12px;
+  }
+
+  .modalHeader h3 {
+    font-size: 15px;
+  }
+
+  .modalBody {
+    padding: 12px;
+  }
+
+  .modalStats {
+    gap: 6px;
+  }
+
+  .modalStat {
+    padding: 8px 10px;
+    font-size: 12px;
+  }
+
+  .trainingSection {
+    padding: 10px;
+    margin-bottom: 10px;
+  }
+
+  .sectionTitle {
+    font-size: 12px;
+  }
+
+  .sectionContent {
+    font-size: 12px;
+  }
+
+  .stravaSection {
+    padding: 12px;
+    margin-bottom: 12px;
+  }
+
+  .activityStat {
+    padding: 8px;
+  }
+
+  .statValue {
+    font-size: 14px;
+  }
+
+  .modalActions {
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 20px;
+  }
+
+  .completedButton {
+    width: 100%;
+    justify-content: center;
   }
 
   .weekHeader {
@@ -1421,16 +1684,15 @@
 
 @media (max-width: 360px) {
   .container {
-    padding: 6px;
-    padding-bottom: 28px; /* Extra bottom padding for very small screens */
+    padding: 8px 6px;
   }
 
   .title {
-    font-size: 18px;
+    font-size: 24px;
   }
 
   .subtitle {
-    font-size: 12px;
+    font-size: 14px;
   }
 
   .headerRow,
@@ -1492,25 +1754,25 @@
 }
 
 .modalDetails h4 {
-  color: var(--text-primary, #fff);
+  color: var(--text-dark);
   font-size: 16px;
   margin: 0 0 16px 0;
   font-weight: 600;
 }
 
 .trainingSection {
-  margin-bottom: 20px;
+  margin-bottom: 16px;
   padding: 16px;
-  background: var(--card-background, #1a1a1a);
-  border-radius: 8px;
-  border: 1px solid var(--card-border, #333);
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 12px;
+  border: 1px solid var(--card-border, rgba(255, 255, 255, 0.14));
 }
 
 .sectionTitle {
   display: flex;
   align-items: center;
   gap: 8px;
-  color: var(--text-primary, #fff);
+  color: var(--text-dark);
   font-weight: 600;
   font-size: 14px;
   margin-bottom: 8px;
@@ -1518,6 +1780,7 @@
 
 .sectionIcon {
   font-size: 16px;
+  color: var(--primary-color, #ee681a);
 }
 
 .sectionContent {
@@ -1538,14 +1801,14 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 8px 12px;
-  background: var(--background-dark, #0a0a0a);
-  border-radius: 6px;
+  padding: 10px 14px;
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 8px;
   border-left: 3px solid var(--primary-color, #ee681a);
 }
 
 .intervalDistance {
-  color: var(--text-primary, #fff);
+  color: var(--text-dark);
   font-weight: 600;
   font-size: 14px;
   min-width: 60px;
@@ -1561,8 +1824,8 @@
   color: var(--primary-color, #ee681a);
   font-weight: 600;
   font-size: 13px;
-  background: var(--card-background, #1a1a1a);
-  padding: 2px 8px;
+  background: rgba(255, 255, 255, 0.05);
+  padding: 4px 10px;
   border-radius: 12px;
   border: 1px solid var(--primary-color, #ee681a);
 }
@@ -1581,16 +1844,16 @@
 }
 
 .restItem strong {
-  color: var(--text-primary, #fff);
+  color: var(--text-dark);
 }
 
 /* Strava Activity Styles */
 .stravaSection {
   margin-bottom: 24px;
   padding: 20px;
-  background: var(--card-background, #1a1a1a);
+  background: rgba(255, 255, 255, 0.03);
   border-radius: 12px;
-  border: 1px solid var(--card-border, #333);
+  border: 1px solid var(--card-border, rgba(255, 255, 255, 0.14));
 }
 
 .stravaHeader {
@@ -1601,7 +1864,7 @@
 }
 
 .stravaSection h4 {
-  color: var(--text-primary, #fff);
+  color: var(--text-dark);
   font-size: 16px;
   margin: 0;
   font-weight: 600;
@@ -1617,20 +1880,22 @@
   width: 28px;
   height: 28px;
   border: none;
-  background: var(--card-border, #333);
-  color: var(--text-muted);
-  border-radius: 4px;
+  background: color-mix(
+    in srgb,
+    var(--background-main, #0a0a0a) 80%,
+    transparent 15%
+  );
+  color: var(--text-secondary, #aaa);
+  border-radius: var(--card-border-radius);
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 16px;
-  transition: all 0.2s ease;
-}
-
-.navActivityButton:hover:not(:disabled) {
-  background: var(--primary-color, #ee681a);
-  color: white;
+  backdrop-filter: blur(16px) saturate(160%);
+  -webkit-backdrop-filter: blur(16px) saturate(160%);
+  opacity: 0.98;
+  border: 1px solid var(--card-border, rgba(255, 255, 255, 0.14));
 }
 
 .navActivityButton:disabled {
@@ -1671,7 +1936,7 @@
 }
 
 .activityTime {
-  color: var(--text-primary, #fff);
+  color: var(--text-dark);
   font-weight: 600;
   font-size: 15px;
   margin-bottom: 4px;
@@ -1694,7 +1959,7 @@
   flex-direction: column;
   gap: 4px;
   padding: 12px;
-  background: var(--background-dark, #0a0a0a);
+  background: rgba(255, 255, 255, 0.02);
   border-radius: 8px;
   border-left: 3px solid var(--primary-color, #ee681a);
 }
@@ -1708,31 +1973,25 @@
 }
 
 .statValue {
-  color: var(--text-primary, #fff);
+  color: var(--text-dark);
   font-size: 16px;
   font-weight: 600;
 }
 
 .stravaButton {
+  margin: 0;
   display: inline-flex;
   align-items: center;
-  justify-content: center;
   gap: 8px;
   padding: 12px 20px;
-  background: var(--primary-color, #ee681a);
-  color: white;
+  border-radius: 50px;
+  font-weight: 700;
+  cursor: pointer;
   text-decoration: none;
-  border-radius: 8px;
-  font-weight: 600;
-  font-size: 14px;
-  transition: all 0.2s ease;
+  background: var(--button-bg);
+  border: 1px solid var(--card-border);
+  color: var(--button-text);
   align-self: flex-start;
-}
-
-.stravaButton:hover {
-  background: var(--primary-hover, #d55a15);
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(238, 104, 26, 0.3);
 }
 
 /* Strava Cell Styles for Empty Days */
@@ -1741,9 +2000,16 @@
   flex-direction: column;
   gap: 6px;
   padding: 10px;
-  background: var(--background-dark, #0a0a0a);
-  border-radius: 6px;
+  background: color-mix(
+    in srgb,
+    var(--background-main, #0a0a0a) 90%,
+    transparent 15%
+  );
+  border-radius: var(--card-border-radius);
   border-left: 3px solid var(--primary-color, #ee681a);
+  backdrop-filter: blur(16px) saturate(160%);
+  -webkit-backdrop-filter: blur(16px) saturate(160%);
+  opacity: 0.98;
 }
 
 .stravaCellHeader {
@@ -1758,7 +2024,7 @@
 }
 
 .stravaActivityName {
-  color: var(--text-primary, #fff);
+  color: var(--text-dark) !important;
   font-size: 12px;
   font-weight: 600;
   line-height: 1.2;
@@ -1790,7 +2056,7 @@
 }
 
 .stravaDistance {
-  color: var(--text-primary, #fff);
+  color: var(--text-dark);
   font-weight: 600;
 }
 
@@ -1951,5 +2217,75 @@
 @media (max-width: 768px) {
   .dayContent {
     margin-top: 24px;
+  }
+}
+
+.backNav {
+  display: flex;
+  justify-content: flex-start;
+  margin-bottom: 12px;
+}
+
+.backNavButton {
+  margin: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50px;
+  background: color-mix(
+    in srgb,
+    var(--background-main, #0a0a0a) 80%,
+    transparent 15%
+  );
+  border: 1px solid var(--card-border);
+  color: var(--text-secondary, #aaa);
+  text-decoration: none;
+}
+
+.backNavButton:hover {
+  background: var(--button-bg);
+  color: var(--button-text);
+}
+
+@media (max-width: 768px) {
+  .monthNavigation {
+    grid-template-columns: 1fr;
+    row-gap: 8px;
+    justify-items: center;
+  }
+  .headerLeft {
+    justify-content: center;
+  }
+  .navigationButtons {
+    justify-content: center;
+  }
+  .calendarTitle,
+  .monthTitle {
+    font-size: 20px;
+    text-align: center;
+  }
+}
+
+.monthGroup {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+}
+
+.monthLabel {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+@media (max-width: 768px) {
+  .monthGroup {
+    align-items: center;
+  }
+  .monthLabel {
+    text-align: center;
   }
 }

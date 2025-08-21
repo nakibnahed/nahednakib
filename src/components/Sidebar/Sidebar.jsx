@@ -1,11 +1,12 @@
 import Image from "next/image";
 import styles from "./Sidebar.module.css";
 import InfoCard from "../InfoCard/InfoCard";
+import Link from "next/link";
 
 import { social_media } from "./data";
 import myImage from "/public/images/me.jpg";
 import runningImage from "/public/images/run2.jpg";
-import { Globe, Star, Phone } from "lucide-react";
+import { Globe, Star, Phone, Calendar as CalendarIcon } from "lucide-react";
 import SocialLinks from "@/components/SocialLinks/SocialLinks";
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
@@ -73,70 +74,88 @@ export default function Sidebar({ activeTab }) {
           </ul>
         </div>
       ) : (
-        /* Support Running Section for Running tab */
-        <div className={styles.card}>
-          <div className={styles.cardHeader}>
-            <h3 className={styles.title}>
-              <Star size={20} className={styles.icon} /> Why I Need Support
-            </h3>
+        <>
+          {/* Support Running Section for Running tab */}
+          <div className={styles.card}>
+            <div className={styles.cardHeader}>
+              <h3 className={styles.title}>
+                <Star size={20} className={styles.icon} /> Why I Need Support
+              </h3>
+            </div>
+            <div className={styles.supportContent}>
+              <p className={styles.supportDescription}>
+                To sustain this level of training and compete at my best, I
+                invest heavily in:
+              </p>
+              <ul className={styles.supportList}>
+                <li>👟 Running shoes</li>
+                <li>💊 Nutrition and supplements</li>
+                <li>🏋️‍♂️ Training tools</li>
+                <li>👨‍⚕️ Physiotherapy sessions</li>
+                <li>🦵 Massage sessions</li>
+              </ul>
+              <p className={styles.supportMessage}>
+                Every contribution — big or small — helps me move forward and
+                stay consistent. If you believe in supporting independent
+                athletes, I'd truly appreciate your help.
+              </p>
+              <a
+                href="https://www.paypal.com/paypalme/nahednakib/25"
+                target="_blank"
+                rel="noopener noreferrer"
+                className={styles.donateButton}
+              >
+                {" "}
+                Support via
+                <img
+                  src="https://www.paypalobjects.com/webstatic/de_DE/i/de-pp-logo-100px.png"
+                  alt="PayPal"
+                  className={styles.paypalLogo}
+                />
+              </a>
+              <p className={styles.thankYouMessage}>
+                Thank you for being part of my running story. 🙏
+              </p>
+            </div>
           </div>
-          <div className={styles.supportContent}>
+
+          {/* Training Calendar Card */}
+          <div className={styles.card}>
+            <div className={styles.cardHeader}>
+              <h3 className={styles.title}>
+                <CalendarIcon size={20} className={styles.icon} /> Training
+                Calendar
+              </h3>
+            </div>
             <p className={styles.supportDescription}>
-              To sustain this level of training and compete at my best, I invest
-              heavily in:
+              View my weekly training plan.
             </p>
-            <ul className={styles.supportList}>
-              <li>👟 Running shoes</li>
-              <li>💊 Nutrition and supplements</li>
-              <li>🏋️‍♂️ Training tools</li>
-              <li>👨‍⚕️ Physiotherapy sessions</li>
-              <li>🦵 Massage sessions</li>
-            </ul>
-            <p className={styles.supportMessage}>
-              Every contribution — big or small — helps me move forward and stay
-              consistent. If you believe in supporting independent athletes, I'd
-              truly appreciate your help.
-            </p>
-            <a
-              href="https://www.paypal.com/paypalme/nahednakib/25"
-              target="_blank"
-              rel="noopener noreferrer"
-              className={styles.donateButton}
-            >
-              {" "}
-              Support via
-              <img
-                src="https://www.paypalobjects.com/webstatic/de_DE/i/de-pp-logo-100px.png"
-                alt="PayPal"
-                className={styles.paypalLogo}
-              />
-            </a>
-            <p className={styles.thankYouMessage}>
-              Thank you for being part of my running story. 🙏
-            </p>
+            <Link href="/training" className={styles.donateButton}>
+              View Training Calendar
+            </Link>
           </div>
-        </div>
+        </>
       )}
       {/* Hobbies Section */}
       {/* <div className={styles.card}>
-        <div className={styles.cardHeader}>
-          <h3 className={styles.title}>
-            <Star size={20} className={styles.icon} /> Hobbies
-          </h3>
-        </div>
-        <ul
-          style={{
-            paddingLeft: "1.2rem",
-            lineHeight: "1.6",
-            listStyleType: "none",
-          }}
-        >
-          <li>🏃‍♂️ Running</li>
-          <li>💻 Web Development</li>
-          <li>📚 Reading</li>
-          <li>🎶 Music</li>
-        </ul>
-      </div> */}
+				<div className={styles.cardHeader}>
+					<h3 className={styles.title}>
+						<Star size={20} className={styles.icon} /> Hobbies
+					</h3>
+				</div>
+				<ul
+					style={{
+						paddingLeft: "1.2rem",
+						lineHeight: "1.6",
+						listStyleType: "none",
+					}}
+				>
+					<li>🏃‍♂️ Running</li>
+					<li>💻 Web Development</li>
+					<li>📚 Reading</li>
+					<li>🎶 Music</li>
+				</ul>
+			</div> */}
 
       {/* Contact Section */}
       <div className={styles.card}>

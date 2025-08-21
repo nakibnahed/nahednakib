@@ -465,39 +465,7 @@ export default function PublicAnalytics() {
         </div>
       </div>
 
-      {/* KPI Cards */}
-      <div className={styles.kpiGrid}>
-        {kpiCards.map((kpi, index) => (
-          <motion.div
-            key={index}
-            className={styles.kpiCard}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: index * 0.1 }}
-          >
-            <div className={styles.kpiHeader}>
-              <div className={styles.kpiIcon} style={{ color: kpi.color }}>
-                {kpi.icon}
-              </div>
-              <div className={styles.kpiTrend}>
-                {kpi.change !== null && kpi.change > 0 && (
-                  <>
-                    <ArrowUpRight size={16} className={styles.trendIcon} />
-                    <span className={styles.trendValue}>+{kpi.change}</span>
-                  </>
-                )}
-              </div>
-            </div>
-            <div className={styles.kpiContent}>
-              <h3 className={styles.kpiValue}>{formatNumber(kpi.value)}</h3>
-              <p className={styles.kpiTitle}>{kpi.title}</p>
-              <span className={styles.kpiChange}>{kpi.changeLabel}</span>
-            </div>
-          </motion.div>
-        ))}
-      </div>
-
-      {/* Charts Section */}
+      {/* Charts Section (moved above KPI grid) */}
       <div className={styles.chartsGrid}>
         <motion.div
           className={styles.chartCard}
@@ -539,13 +507,45 @@ export default function PublicAnalytics() {
           </div>
           <div className={styles.chartContainer}>
             <Doughnut
-              key={`${selectedSegment}-${biggestSegmentIndex}`} // Force re-render when segment changes
+              key={`${selectedSegment}-${biggestSegmentIndex}`}
               data={contentData}
               options={doughnutOptions}
               plugins={[centerTextPlugin]}
             />
           </div>
         </motion.div>
+      </div>
+
+      {/* KPI Cards (moved below charts) */}
+      <div className={styles.kpiGrid}>
+        {kpiCards.map((kpi, index) => (
+          <motion.div
+            key={index}
+            className={styles.kpiCard}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: index * 0.1 }}
+          >
+            <div className={styles.kpiHeader}>
+              <div className={styles.kpiIcon} style={{ color: kpi.color }}>
+                {kpi.icon}
+              </div>
+              <div className={styles.kpiTrend}>
+                {kpi.change !== null && kpi.change > 0 && (
+                  <>
+                    <ArrowUpRight size={16} className={styles.trendIcon} />
+                    <span className={styles.trendValue}>+{kpi.change}</span>
+                  </>
+                )}
+              </div>
+            </div>
+            <div className={styles.kpiContent}>
+              <h3 className={styles.kpiValue}>{formatNumber(kpi.value)}</h3>
+              <p className={styles.kpiTitle}>{kpi.title}</p>
+              <span className={styles.kpiChange}>{kpi.changeLabel}</span>
+            </div>
+          </motion.div>
+        ))}
       </div>
 
       {/* Detailed Stats */}
