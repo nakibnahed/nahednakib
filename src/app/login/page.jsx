@@ -54,11 +54,24 @@ export default function LoginPage() {
       console.error("Error sending welcome notification:", error);
     }
 
-    // Simple admin check for routing
-    const adminEmails = ["admin@example.com", "nahednakibyos@gmail.com"];
-    if (adminEmails.includes(data.user.email)) {
-      router.push("/admin/");
-    } else {
+    // Check user role for routing
+    try {
+      const { data: profile, error: profileError } = await supabase
+        .from("profiles")
+        .select("role")
+        .eq("id", data.user.id)
+        .single();
+
+      if (profileError) {
+        console.error("Error fetching profile:", profileError);
+        router.push("/users/profile");
+      } else if (profile?.role === "admin") {
+        router.push("/admin/");
+      } else {
+        router.push("/users/profile");
+      }
+    } catch (error) {
+      console.error("Error checking user role:", error);
       router.push("/users/profile");
     }
     setLoading(false);

@@ -71,7 +71,8 @@ export default function UserSidebar({
                 : profileData?.full_name || "User"}
             </h4>
             <p className={styles.userRole}>
-              {profileData?.professional_role || "User"}
+              {profileData?.professional_role ||
+                (profileData?.role === "admin" ? "Administrator" : "User")}
             </p>
           </div>
         </div>

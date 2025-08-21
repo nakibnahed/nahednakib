@@ -70,7 +70,7 @@ export default function Sidebar({ adminData }) {
     if (adminData?.profile?.avatar_url) {
       return adminData.profile.avatar_url;
     }
-    return "/images/me.jpg"; // fallback
+    return "/default-avatar.svg"; // fallback to generic avatar
   };
 
   // Get admin role

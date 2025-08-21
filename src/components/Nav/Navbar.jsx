@@ -64,17 +64,9 @@ export default function Navbar() {
         } else {
           setUser(session?.user || null);
 
-          // Simple admin check
+          // Admin check will be done after profile fetch
           if (session?.user) {
-            const adminEmails = [
-              "admin@example.com",
-              "nahednakibyos@gmail.com",
-            ];
-            if (adminEmails.includes(session.user.email)) {
-              setUserRole("admin");
-            } else {
-              setUserRole("user");
-            }
+            setUserRole("user"); // Default to user, will update after profile fetch
 
             // Fetch user profile data with delay to avoid conflicts
             profileFetchTimeout = setTimeout(async () => {
@@ -94,6 +86,10 @@ export default function Navbar() {
                   setUserProfile(null);
                 } else {
                   setUserProfile(profile);
+                  // Set role based on profile data
+                  if (profile?.role === "admin") {
+                    setUserRole("admin");
+                  }
                 }
               } catch (err) {
                 if (!mounted) return;
@@ -128,12 +124,7 @@ export default function Navbar() {
 
         setUser(session?.user ?? null);
         if (session?.user) {
-          const adminEmails = ["admin@example.com", "nahednakibyos@gmail.com"];
-          if (adminEmails.includes(session.user.email)) {
-            setUserRole("admin");
-          } else {
-            setUserRole("user");
-          }
+          setUserRole("user"); // Default to user, will update after profile fetch
 
           // Fetch user profile data with delay to avoid conflicts
           profileFetchTimeout = setTimeout(async () => {
@@ -153,6 +144,10 @@ export default function Navbar() {
                 setUserProfile(null);
               } else {
                 setUserProfile(profile);
+                // Set role based on profile data
+                if (profile?.role === "admin") {
+                  setUserRole("admin");
+                }
               }
             } catch (err) {
               if (!mounted) return;
