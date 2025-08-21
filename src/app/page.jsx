@@ -15,10 +15,11 @@ export default function Home() {
       <div className={styles.col}>
         <h1 className={styles.title}>Welcome to Nahed</h1>
         <p className={styles.description}>
-          Web developer and distance runner.
+          Professional distance runner and web developer.
           <br />
           Clean code. Clear goals. Whether on the web or on the track, I bring
-          discipline and precision to every step.
+          discipline and precision to every step. As a running programmer, I
+          combine athletic excellence with coding expertise.
         </p>
         <div className={styles.heroButtons}>
           <Link href="/info" className={styles.button}>

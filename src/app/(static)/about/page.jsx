@@ -12,14 +12,16 @@ export default function About() {
       <div className={`${styles.col} ${styles.about_text}`}>
         <h1 className={`${styles.title} ${logoFont.className}`}>About Nahed</h1>
         <p className={styles.description}>
-          I am a professional distance runner and web developer, passionate
-          about both sports and technology. From pushing my limits on the track
-          to building high-performance websites, I bring dedication, focus, and
-          precision to everything I do.
+          I am Nahed Nakib, a professional distance runner and web developer,
+          passionate about both sports and technology. As a running programmer,
+          I bring the same dedication, focus, and precision from the track to
+          building high-performance websites.
         </p>
         <p className={styles.description}>
           Whether it's designing seamless digital experiences or training for my
-          next race, I thrive on challenges and continuous improvement.
+          next race, I thrive on challenges and continuous improvement. My
+          unique combination of athletic discipline and coding expertise sets me
+          apart as a developer who understands both performance and precision.
         </p>
         <Link href="/info" className={styles.button}>
           <span>More Info</span>
@@ -32,7 +34,7 @@ export default function About() {
         <div className={styles.imageGrid}>
           <Image
             src={BlogImage2}
-            alt="Nahed portrait"
+            alt="Nahed Nakib - Running Programmer"
             className={styles.image}
             width={800}
             height={500}

@@ -66,20 +66,24 @@ const structuredData = {
     "https://linkedin.com/in/nahednakib",
     "https://twitter.com/nahednakib",
   ],
-  jobTitle: "Web Developer",
+  jobTitle: "Running Programmer & Web Developer",
   worksFor: {
     "@type": "Organization",
     name: "Freelance",
   },
   description:
-    "Web developer and distance runner passionate about creating modern web applications",
+    "Nahed Nakib is a professional distance runner and web developer who combines athletic excellence with coding expertise. As a running programmer, I bring discipline and precision to both sports and technology.",
   knowsAbout: [
     "Web Development",
     "React",
     "Next.js",
     "JavaScript",
-    "Running",
     "Distance Running",
+    "Marathon Running",
+    "Running Programming",
+    "Athlete Developer",
+    "Professional Running",
+    "Software Development",
   ],
   address: {
     "@type": "PostalAddress",
