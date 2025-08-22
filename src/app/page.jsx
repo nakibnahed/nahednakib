@@ -18,8 +18,7 @@ export default function Home() {
           Professional distance runner and web developer.
           <br />
           Clean code. Clear goals. Whether on the web or on the track, I bring
-          discipline and precision to every step. As a running programmer, I
-          combine athletic excellence with coding expertise.
+          discipline and precision to every step.
         </p>
         <div className={styles.heroButtons}>
           <Link href="/info" className={styles.button}>
