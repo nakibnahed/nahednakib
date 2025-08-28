@@ -18,7 +18,6 @@ export default function TrainingPage() {
   const [currentWeek, setCurrentWeek] = useState(0);
   const [selectedDay, setSelectedDay] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [completedWorkouts, setCompletedWorkouts] = useState({});
   const [dayActivities, setDayActivities] = useState([]);
   const [currentActivityIndex, setCurrentActivityIndex] = useState(0);
   const [loadingActivity, setLoadingActivity] = useState(false);
@@ -29,1326 +28,106 @@ export default function TrainingPage() {
   // Function to find today's month and week in the training data
   const findTodayInCalendar = (data = trainingData) => {
     const todayDate = new Date();
-    const todayYear = todayDate.getFullYear();
-    const todayMonth = todayDate.getMonth();
-    const todayDay = todayDate.getDate();
 
-    // Check if today is within the training data range (July 2025 onwards)
-    if (todayYear < 2025 || (todayYear === 2025 && todayMonth < 6)) {
-      // Today is before July 2025, go to first month
-      return { month: 0, week: 0 };
+    if (!data || data.length === 0) {
+      return { month: 6, week: 0 }; // Current month is at index 6
     }
 
-    // Calculate which month index today falls in
-    let monthIndex = 0; // July 2025 = 0
-    if (todayYear === 2025) {
-      monthIndex = todayMonth - 6; // July = 0, August = 1, etc.
-    } else {
-      // For years after 2025
-      monthIndex = (todayYear - 2025) * 12 + (todayMonth - 6);
-    }
+    // Check all months to find today
+    for (let monthIndex = 0; monthIndex < data.length; monthIndex++) {
+      const monthData = data[monthIndex];
+      if (!monthData) continue;
 
-    // Ensure month index is within bounds
-    if (monthIndex < 0) monthIndex = 0;
-    if (monthIndex >= data.length) monthIndex = data.length - 1;
+      for (let weekIndex = 0; weekIndex < monthData.weeks.length; weekIndex++) {
+        const weekData = monthData.weeks[weekIndex];
+        const [year, monthNum, day] = weekData.weekStart.split("-").map(Number);
+        const weekStart = new Date(year, monthNum - 1, day);
+        const weekEnd = new Date(weekStart);
+        weekEnd.setDate(weekStart.getDate() + 6);
 
-    // Find which week contains today
-    const monthData = data[monthIndex];
-    if (!monthData) return { month: 0, week: 0 };
-
-    for (let weekIndex = 0; weekIndex < monthData.weeks.length; weekIndex++) {
-      const weekData = monthData.weeks[weekIndex];
-      const weekStart = new Date(weekData.weekStart);
-      const weekEnd = new Date(weekStart);
-      weekEnd.setDate(weekStart.getDate() + 6);
-
-      if (todayDate >= weekStart && todayDate <= weekEnd) {
-        return { month: monthIndex, week: weekIndex };
+        if (todayDate >= weekStart && todayDate <= weekEnd) {
+          return { month: monthIndex, week: weekIndex };
+        }
       }
     }
 
-    // If not found, return first week of current month
-    return { month: monthIndex, week: 0 };
+    // If not found anywhere, return current month (index 6)
+    return { month: 6, week: 0 };
   };
 
   // Generate real-time training data starting from current month
   const generateTrainingData = () => {
     const months = [];
+    const today = new Date();
+    const currentYear = today.getFullYear();
+    const currentMonth = today.getMonth();
 
-    // July 2025 - Your real training program + empty weeks
-    const julyWeeks = [
-      {
-        week: 1,
-        weekStart: "2025-06-30", // Monday June 30 (covers July 1-6)
-        days: generateEmptyWeekData(new Date("2025-06-30T00:00:00")),
-      },
-      {
-        week: 2,
-        weekStart: "2025-07-07", // Monday July 7-13
-        days: generateEmptyWeekData(new Date("2025-07-07T00:00:00")),
-      },
-      {
-        week: 3,
-        weekStart: "2025-07-14", // Monday July 14 (Week 1: 14-20 July) - YOUR PROGRAM
-        days: generateRealWeekData(new Date("2025-07-14T00:00:00"), 1),
-      },
-      {
-        week: 4,
-        weekStart: "2025-07-21", // Monday July 21 (Week 2: 21-27 July) - YOUR PROGRAM
-        days: generateRealWeekData(new Date("2025-07-21T00:00:00"), 2),
-      },
-      {
-        week: 5,
-        weekStart: "2025-07-28", // Monday July 28 (Week 4: 28 July - 3 August) - YOUR PROGRAM
-        days: generateRealWeekData(new Date("2025-07-28T00:00:00"), 4),
-      },
-    ];
+    // Generate 18 months: 6 months back + current + 11 months forward
+    for (let i = -6; i < 12; i++) {
+      const monthDate = new Date(currentYear, currentMonth + i, 1);
+      const monthName = monthDate.toLocaleDateString("en-US", {
+        month: "long",
+        year: "numeric",
+      });
 
-    months.push({
-      month: 0,
-      monthName: "July 2025",
-      weeks: julyWeeks,
-    });
+      // Generate weeks for this month - always start with Monday and show complete month
+      const weeks = [];
+      const firstDay = new Date(
+        monthDate.getFullYear(),
+        monthDate.getMonth(),
+        1
+      );
+      const lastDay = new Date(
+        monthDate.getFullYear(),
+        monthDate.getMonth() + 1,
+        0
+      );
 
-    // August 2025 - Your real training program continues + new weeks
-    const augustWeeks = [
-      {
-        week: 6,
-        weekStart: "2025-08-04", // Monday August 4 (Week 5: 4-10 August) - YOUR PROGRAM
-        days: generateRealWeekData(new Date("2025-08-04T00:00:00"), 5),
-      },
-      {
-        week: 7,
-        weekStart: "2025-08-11", // Monday August 11-17 - NEW PROGRAM
-        days: generateRealWeekData(new Date("2025-08-11T00:00:00"), 6),
-      },
-      {
-        week: 8,
-        weekStart: "2025-08-18", // Monday August 18-24 - NEW PROGRAM
-        days: generateRealWeekData(new Date("2025-08-18T00:00:00"), 7),
-      },
-      {
-        week: 9,
-        weekStart: "2025-08-25", // Monday August 25-31 - NEW PROGRAM
-        days: generateRealWeekData(new Date("2025-08-25T00:00:00"), 8),
-      },
-    ];
+      // Find the Monday of the first week (may be from previous month)
+      const startOfFirstWeek = new Date(firstDay);
+      const dayOfWeek = firstDay.getDay();
+      const mondayOffset = dayOfWeek === 0 ? -6 : 1 - dayOfWeek; // Handle Sunday (0) as well
+      startOfFirstWeek.setDate(firstDay.getDate() + mondayOffset);
 
-    months.push({
-      month: 1,
-      monthName: "August 2025",
-      weeks: augustWeeks,
-    });
+      // Find the Sunday of the last week (may be from next month)
+      const endOfLastWeek = new Date(lastDay);
+      const lastDayOfWeek = lastDay.getDay();
+      const sundayOffset = lastDayOfWeek === 0 ? 0 : 7 - lastDayOfWeek;
+      endOfLastWeek.setDate(lastDay.getDate() + sundayOffset);
 
-    // September 2025 - empty weeks (no training yet)
-    const septemberWeeks = [
-      {
-        week: 10,
-        weekStart: "2025-09-01", // Monday September 1-7
-        days: generateEmptyWeekData(new Date("2025-09-01T00:00:00")),
-      },
-      {
-        week: 11,
-        weekStart: "2025-09-08", // Monday September 8-14
-        days: generateEmptyWeekData(new Date("2025-09-08T00:00:00")),
-      },
-      {
-        week: 12,
-        weekStart: "2025-09-15", // Monday September 15-21
-        days: generateEmptyWeekData(new Date("2025-09-15T00:00:00")),
-      },
-      {
-        week: 13,
-        weekStart: "2025-09-22", // Monday September 22-28
-        days: generateEmptyWeekData(new Date("2025-09-22T00:00:00")),
-      },
-      {
-        week: 14,
-        weekStart: "2025-09-29", // Monday September 29 - October 5
-        days: generateEmptyWeekData(new Date("2025-09-29T00:00:00")),
-      },
-    ];
+      let weekStart = new Date(startOfFirstWeek);
+      let weekNumber =
+        Math.floor(
+          (weekStart.getTime() - new Date(2025, 0, 6).getTime()) /
+            (7 * 24 * 60 * 60 * 1000)
+        ) + 1;
 
-    months.push({
-      month: 2,
-      monthName: "September 2025",
-      weeks: septemberWeeks,
-    });
+      // Generate all weeks from first Monday to last Sunday of the month
+      while (weekStart <= endOfLastWeek) {
+        // Store weekStart as YYYY-MM-DD format (avoiding timezone issues)
+        const year = weekStart.getFullYear();
+        const month = String(weekStart.getMonth() + 1).padStart(2, "0");
+        const day = String(weekStart.getDate()).padStart(2, "0");
+        const weekStartString = `${year}-${month}-${day}`;
 
-    // October 2025 - empty weeks (no training yet)
-    const octoberWeeks = [
-      {
-        week: 15,
-        weekStart: "2025-10-06", // Monday October 6-12
-        days: generateEmptyWeekData(new Date("2025-10-06T00:00:00")),
-      },
-      {
-        week: 16,
-        weekStart: "2025-10-13", // Monday October 13-19
-        days: generateEmptyWeekData(new Date("2025-10-13T00:00:00")),
-      },
-      {
-        week: 17,
-        weekStart: "2025-10-20", // Monday October 20-26
-        days: generateEmptyWeekData(new Date("2025-10-20T00:00:00")),
-      },
-      {
-        week: 18,
-        weekStart: "2025-10-27", // Monday October 27 - November 2
-        days: generateEmptyWeekData(new Date("2025-10-27T00:00:00")),
-      },
-    ];
+        weeks.push({
+          week: weekNumber,
+          weekStart: weekStartString,
+          days: generateEmptyWeekData(new Date(weekStart)),
+        });
 
-    months.push({
-      month: 3,
-      monthName: "October 2025",
-      weeks: octoberWeeks,
-    });
+        weekStart.setDate(weekStart.getDate() + 7);
+        weekNumber++;
+      }
 
-    // November 2025 - empty weeks (no training yet)
-    const novemberWeeks = [
-      {
-        week: 19,
-        weekStart: "2025-11-03", // Monday November 3-9
-        days: generateEmptyWeekData(new Date("2025-11-03T00:00:00")),
-      },
-      {
-        week: 20,
-        weekStart: "2025-11-10", // Monday November 10-16
-        days: generateEmptyWeekData(new Date("2025-11-10T00:00:00")),
-      },
-      {
-        week: 21,
-        weekStart: "2025-11-17", // Monday November 17-23
-        days: generateEmptyWeekData(new Date("2025-11-17T00:00:00")),
-      },
-      {
-        week: 22,
-        weekStart: "2025-11-24", // Monday November 24-30
-        days: generateEmptyWeekData(new Date("2025-11-24T00:00:00")),
-      },
-    ];
-
-    months.push({
-      month: 4,
-      monthName: "November 2025",
-      weeks: novemberWeeks,
-    });
-
-    // December 2025 - empty weeks (no training yet)
-    const decemberWeeks = [
-      {
-        week: 23,
-        weekStart: "2025-12-01", // Monday December 1-7
-        days: generateEmptyWeekData(new Date("2025-12-01T00:00:00")),
-      },
-      {
-        week: 24,
-        weekStart: "2025-12-08", // Monday December 8-14
-        days: generateEmptyWeekData(new Date("2025-12-08T00:00:00")),
-      },
-      {
-        week: 25,
-        weekStart: "2025-12-15", // Monday December 15-21
-        days: generateEmptyWeekData(new Date("2025-12-15T00:00:00")),
-      },
-      {
-        week: 26,
-        weekStart: "2025-12-22", // Monday December 22-28
-        days: generateEmptyWeekData(new Date("2025-12-22T00:00:00")),
-      },
-      {
-        week: 27,
-        weekStart: "2025-12-29", // Monday December 29 - January 4
-        days: generateEmptyWeekData(new Date("2025-12-29T00:00:00")),
-      },
-    ];
-
-    months.push({
-      month: 5,
-      monthName: "December 2025",
-      weeks: decemberWeeks,
-    });
-
-    return months;
-  };
-
-  // Generate your real training data
-  const generateRealWeekData = (weekStart, weekNumber) => {
-    const days = {};
-    const dayKeys = [
-      "monday",
-      "tuesday",
-      "wednesday",
-      "thursday",
-      "friday",
-      "saturday",
-      "sunday",
-    ];
-
-    // Your real training program data
-    const realTrainingData = {
-      1: {
-        // Week 1: 14-20 July 2025
-        monday: {
-          type: "Easy Run + Core",
-          distance: "14 km",
-          duration: "60-70 min",
-          pace: "Easy pace",
-          notes: "14km jog with core work",
-          intensity: "low",
-          location: "Streets",
-          details: {
-            warmup: "10min easy jog",
-            mainSet: "14km easy jog + core work",
-            intervals: [
-              { distance: "14km", pace: "Easy conversational pace", reps: 1 },
-            ],
-            rest: {
-              betweenReps: null,
-              betweenSets: null,
-            },
-            cooldown: "Core strengthening exercises",
-          },
-        },
-        tuesday: {
-          type: "Threshold Intervals",
-          distance: "15 km",
-          duration: "60-70 min",
-          pace: "Threshold pace",
-          notes: "6x1km threshold intervals",
-          intensity: "high",
-          location: "Track",
-          details: {
-            warmup: "2-3km easy jog",
-            mainSet: "6x1km threshold intervals",
-            intervals: [{ distance: "1km", pace: "Threshold pace", reps: 6 }],
-            rest: {
-              betweenReps: "200m jog recovery",
-              betweenSets: null,
-            },
-            cooldown: "2-3km easy jog + stretching",
-          },
-        },
-        wednesday: {
-          type: "Easy Run + Gymnastics",
-          distance: "15 km",
-          duration: "70-80 min",
-          pace: "Easy pace",
-          notes: "15km jog with gymnastics work",
-          intensity: "low",
-          location: "Park",
-          details: {
-            warmup: "10min easy jog",
-            mainSet: "15km easy jog + gymnastics",
-            intervals: [
-              { distance: "15km", pace: "Easy conversational pace", reps: 1 },
-            ],
-            rest: {
-              betweenReps: null,
-              betweenSets: null,
-            },
-            cooldown: "Gymnastics and flexibility work",
-          },
-        },
-        thursday: {
-          type: "Easy Run + Fitness",
-          distance: "12 km",
-          duration: "55-65 min",
-          pace: "Easy pace",
-          notes: "12km jog with fitness work",
-          intensity: "low",
-          location: "Streets",
-          details: {
-            warmup: "10min easy jog",
-            mainSet: "12km easy jog + fitness",
-            intervals: [
-              { distance: "12km", pace: "Easy conversational pace", reps: 1 },
-            ],
-            rest: {
-              betweenReps: null,
-              betweenSets: null,
-            },
-            cooldown: "Fitness and strength work",
-          },
-        },
-        friday: {
-          type: "Threshold Intervals",
-          distance: "13.4 km",
-          duration: "55-65 min",
-          pace: "Threshold pace",
-          notes: "15x300m threshold intervals",
-          intensity: "medium",
-          location: "Track",
-          details: {
-            warmup: "2-3km easy jog + strides",
-            mainSet: "15x300m threshold intervals",
-            intervals: [{ distance: "300m", pace: "Threshold pace", reps: 15 }],
-            rest: {
-              betweenReps: "100m jog (45-60 seconds)",
-              betweenSets: null,
-            },
-            cooldown: "2-3km easy jog + stretching",
-          },
-        },
-        saturday: {
-          type: "Easy Run + Gymnastics",
-          distance: "15.5 km",
-          duration: "75-85 min",
-          pace: "Easy pace",
-          notes: "15.5km jog with gymnastics work",
-          intensity: "low",
-          location: "Park",
-          details: {
-            warmup: "10min easy jog",
-            mainSet: "15.5km easy jog + gymnastics",
-            intervals: [
-              { distance: "15.5km", pace: "Easy conversational pace", reps: 1 },
-            ],
-            rest: {
-              betweenReps: null,
-              betweenSets: null,
-            },
-            cooldown: "Gymnastics and flexibility work",
-          },
-        },
-        sunday: {
-          type: "Easy Run",
-          distance: "13.5 km",
-          duration: "60-70 min",
-          pace: "Easy pace",
-          notes: "Easy recovery run",
-          intensity: "low",
-          location: "Park",
-          details: {
-            warmup: "10min easy jog",
-            mainSet: "13.5km easy recovery run",
-            intervals: [
-              { distance: "13.5km", pace: "Easy recovery pace", reps: 1 },
-            ],
-            rest: {
-              betweenReps: null,
-              betweenSets: null,
-            },
-            cooldown: "Light stretching",
-          },
-        },
-      },
-      2: {
-        // Week 2: 21-27 July 2025
-        monday: {
-          type: "Easy Long Run",
-          distance: "21-23 km",
-          duration: "100-120 min",
-          pace: "Easy pace",
-          notes: "Easy long run",
-          intensity: "medium",
-          location: "Long route",
-          details: {
-            warmup: "10min easy jog",
-            mainSet: "Long run 21-23km",
-            intervals: [
-              {
-                distance: "21-23km",
-                pace: "Easy conversational pace",
-                reps: 1,
-              },
-            ],
-            rest: {
-              betweenReps: null,
-              betweenSets: null,
-            },
-            cooldown: "Stretching and recovery",
-          },
-        },
-        tuesday: {
-          type: "Recovery Run",
-          distance: "14 km",
-          duration: "65-75 min",
-          pace: "Recovery pace",
-          notes: "14km recovery run",
-          intensity: "low",
-          location: "Park",
-          details: {
-            warmup: "10min easy jog",
-            mainSet: "14km easy recovery run",
-            intervals: [
-              { distance: "14km", pace: "Very easy recovery pace", reps: 1 },
-            ],
-            rest: {
-              betweenReps: null,
-              betweenSets: null,
-            },
-            cooldown: "Light stretching",
-          },
-        },
-        wednesday: {
-          type: "Easy Run + Core",
-          distance: "14 km",
-          duration: "60-70 min",
-          pace: "Easy pace",
-          notes: "Jog with core work",
-          intensity: "low",
-          location: "Streets",
-          details: {
-            warmup: "10min easy jog",
-            mainSet: "14km easy jog + core work",
-            intervals: [
-              { distance: "14km", pace: "Easy conversational pace", reps: 1 },
-            ],
-            rest: {
-              betweenReps: null,
-              betweenSets: null,
-            },
-            cooldown: "Core strengthening exercises",
-          },
-        },
-        thursday: {
-          type: "Mixed Intervals",
-          distance: "8-10 km",
-          duration: "50-60 min",
-          pace: "5K-Mile pace",
-          notes: "5x800m / 400m intervals",
-          intensity: "high",
-          location: "Track",
-          details: {
-            warmup: "2-3km easy jog + strides",
-            mainSet: "5x800m / 400m intervals",
-            intervals: [
-              { distance: "800m", pace: "5K pace", reps: 5 },
-              { distance: "400m", pace: "Mile pace", reps: 5 },
-            ],
-            rest: {
-              betweenReps: "2.5min between reps",
-              betweenSets: "Full lap between sets",
-            },
-            cooldown: "2-3km easy jog + stretching",
-          },
-        },
-        friday: {
-          type: "Easy Run + Training",
-          distance: "10-12 km",
-          duration: "50 min",
-          pace: "Easy pace",
-          notes: "Easy jog with full training session",
-          intensity: "low",
-          location: "Streets",
-          details: {
-            warmup: "10min easy jog",
-            mainSet: "50min easy jog + training",
-            intervals: [
-              {
-                distance: "10-12km",
-                pace: "Easy conversational pace",
-                reps: 1,
-              },
-            ],
-            rest: {
-              betweenReps: null,
-              betweenSets: null,
-            },
-            cooldown: "Gymnastics + Fitness + Core work",
-          },
-        },
-        saturday: {
-          type: "Easy Run + Strides",
-          distance: "14 km",
-          duration: "60-70 min",
-          pace: "Easy pace",
-          notes: "Easy jog with strides",
-          intensity: "low",
-          location: "Streets",
-          details: {
-            warmup: "10min easy jog",
-            mainSet: "14km easy jog + 5x100m strides",
-            intervals: [
-              { distance: "14km", pace: "Easy conversational pace", reps: 1 },
-              { distance: "100m", pace: "Stride pace", reps: 5 },
-            ],
-            rest: {
-              betweenReps: "Full recovery between strides",
-              betweenSets: null,
-            },
-            cooldown: "Light stretching",
-          },
-        },
-        sunday: {
-          type: "Speed Session",
-          distance: "8-10 km",
-          duration: "45-55 min",
-          pace: "Fast pace",
-          notes: "10x200m speed intervals",
-          intensity: "high",
-          location: "Track",
-          details: {
-            warmup: "2-3km easy jog + strides",
-            mainSet: "10x200m speed intervals",
-            intervals: [{ distance: "200m", pace: "Fast pace", reps: 10 }],
-            rest: {
-              betweenReps: "200m jog recovery",
-              betweenSets: null,
-            },
-            cooldown: "2-3km easy jog + stretching",
-          },
-        },
-      },
-      4: {
-        // Week 4: 28 July - 3 August 2025
-        monday: {
-          type: "Easy Run + Core",
-          distance: "8-10 km",
-          duration: "40 min",
-          pace: "Easy pace",
-          notes: "Easy run with core work",
-          intensity: "low",
-          location: "Streets",
-          details: {
-            warmup: "5min easy jog",
-            mainSet: "40min easy run + core work",
-            intervals: [
-              { distance: "8-10km", pace: "Easy conversational pace", reps: 1 },
-            ],
-            rest: {
-              betweenReps: null,
-              betweenSets: null,
-            },
-            cooldown: "Core strengthening exercises",
-          },
-        },
-        tuesday: {
-          type: "Tempo + Hills",
-          distance: "12-14 km",
-          duration: "55-65 min",
-          pace: "Tempo pace",
-          notes: "8km tempo + 8-10x100m hills",
-          intensity: "medium",
-          location: "Road + Hills",
-          details: {
-            warmup: "2km easy jog",
-            mainSet: "8km tempo + 8-10x100m hills",
-            intervals: [
-              { distance: "8km", pace: "Tempo pace", reps: 1 },
-              { distance: "100m", pace: "Hill sprint", reps: 10 },
-            ],
-            rest: {
-              betweenReps: "Walk down recovery for hills",
-              betweenSets: "5min easy jog between tempo and hills",
-            },
-            cooldown: "2km easy jog + stretching",
-          },
-        },
-        wednesday: {
-          type: "Easy Run",
-          distance: "8-10 km",
-          duration: "40-50 min",
-          pace: "Easy pace",
-          notes: "Easy recovery run",
-          intensity: "low",
-          location: "Park",
-          details: {
-            warmup: "5min easy jog",
-            mainSet: "Easy recovery run",
-            intervals: [
-              { distance: "8-10km", pace: "Easy recovery pace", reps: 1 },
-            ],
-            rest: {
-              betweenReps: null,
-              betweenSets: null,
-            },
-            cooldown: "Light stretching",
-          },
-        },
-        thursday: {
-          type: "Easy Run + Gymnastics",
-          distance: "12 km",
-          duration: "50-60 min",
-          pace: "Easy pace",
-          notes: "Easy jog with gymnastics work",
-          intensity: "low",
-          location: "Park",
-          details: {
-            warmup: "10min easy jog",
-            mainSet: "12km easy jog + gymnastics",
-            intervals: [
-              { distance: "12km", pace: "Easy conversational pace", reps: 1 },
-            ],
-            rest: {
-              betweenReps: null,
-              betweenSets: null,
-            },
-            cooldown: "Gymnastics and flexibility work",
-          },
-        },
-        friday: {
-          type: "400m Intervals",
-          distance: "8-10 km",
-          duration: "45-50 min",
-          pace: "Mile pace",
-          notes: "10x400m intervals (90sec rest)",
-          intensity: "high",
-          location: "Track",
-          details: {
-            warmup: "2-3km easy jog + strides",
-            mainSet: "10x400m intervals",
-            intervals: [{ distance: "400m", pace: "Mile pace", reps: 10 }],
-            rest: {
-              betweenReps: "90 seconds rest",
-              betweenSets: null,
-            },
-            cooldown: "2-3km easy jog + stretching",
-          },
-        },
-        saturday: {
-          type: "Easy Run",
-          distance: "8-10 km",
-          duration: "40-50 min",
-          pace: "Easy pace",
-          notes: "Easy recovery run",
-          intensity: "low",
-          location: "Park",
-          details: {
-            warmup: "5min easy jog",
-            mainSet: "Easy recovery run",
-            intervals: [
-              { distance: "8-10km", pace: "Easy recovery pace", reps: 1 },
-            ],
-            rest: {
-              betweenReps: null,
-              betweenSets: null,
-            },
-            cooldown: "Light stretching",
-          },
-        },
-        sunday: {
-          type: "Long Run",
-          distance: "21-25 km",
-          duration: "100-130 min",
-          pace: "Easy-Moderate pace",
-          notes: "Long run",
-          intensity: "medium",
-          location: "Long route",
-          details: {
-            warmup: "10min easy jog",
-            mainSet: "Long run 21-25km",
-            intervals: [
-              { distance: "21-25km", pace: "Easy to moderate pace", reps: 1 },
-            ],
-            rest: {
-              betweenReps: null,
-              betweenSets: null,
-            },
-            cooldown: "Stretching and recovery",
-          },
-        },
-      },
-      5: {
-        // Week 5: 4-10 August 2025
-        monday: {
-          type: "Easy Run",
-          distance: "8-10 km",
-          duration: "40-50 min",
-          pace: "Easy pace",
-          notes: "Easy recovery run",
-          intensity: "low",
-          location: "Park",
-          details: {
-            warmup: "5min easy jog",
-            mainSet: "Easy recovery run",
-            intervals: [
-              { distance: "8-10km", pace: "Easy recovery pace", reps: 1 },
-            ],
-            rest: {
-              betweenReps: null,
-              betweenSets: null,
-            },
-            cooldown: "Light stretching",
-          },
-        },
-        tuesday: {
-          type: "Easy Run",
-          distance: "8-10 km",
-          duration: "40-50 min",
-          pace: "Easy pace",
-          notes: "Easy recovery run",
-          intensity: "low",
-          location: "Park",
-          details: {
-            warmup: "5min easy jog",
-            mainSet: "Easy recovery run",
-            intervals: [
-              { distance: "8-10km", pace: "Easy recovery pace", reps: 1 },
-            ],
-            rest: {
-              betweenReps: null,
-              betweenSets: null,
-            },
-            cooldown: "Light stretching",
-          },
-        },
-        wednesday: {
-          type: "Complex Intervals",
-          distance: "10-12 km",
-          duration: "60-70 min",
-          pace: "Mixed paces",
-          notes: "Complex pyramid interval session",
-          intensity: "high",
-          location: "Track",
-          details: {
-            warmup: "15min easy jog + strides",
-            mainSet: "4x(600m + 400m + 300m + 200m)",
-            intervals: [
-              { distance: "600m", pace: "5K pace", reps: 4 },
-              { distance: "400m", pace: "3K pace", reps: 4 },
-              { distance: "300m", pace: "Mile pace", reps: 4 },
-              { distance: "200m", pace: "800m pace", reps: 4 },
-            ],
-            rest: {
-              betweenReps: "2.5min between reps",
-              betweenSets: "4min between sets",
-            },
-            cooldown: "15min easy jog + stretching",
-          },
-        },
-        thursday: {
-          type: "Easy Run",
-          distance: "8-10 km",
-          duration: "40-50 min",
-          pace: "Easy pace",
-          notes: "Easy recovery run",
-          intensity: "low",
-          location: "Park",
-          details: {
-            warmup: "5min easy jog",
-            mainSet: "Easy recovery run",
-            intervals: [
-              { distance: "8-10km", pace: "Easy recovery pace", reps: 1 },
-            ],
-            rest: {
-              betweenReps: null,
-              betweenSets: null,
-            },
-            cooldown: "Light stretching",
-          },
-        },
-        friday: {
-          type: "Easy Run",
-          distance: "8-10 km",
-          duration: "40-50 min",
-          pace: "Easy pace",
-          notes: "Easy recovery run",
-          intensity: "low",
-          location: "Park",
-          details: {
-            warmup: "5min easy jog",
-            mainSet: "Easy recovery run",
-            intervals: [
-              { distance: "8-10km", pace: "Easy recovery pace", reps: 1 },
-            ],
-            rest: {
-              betweenReps: null,
-              betweenSets: null,
-            },
-            cooldown: "Light stretching",
-          },
-        },
-        saturday: {
-          type: "1600m Intervals",
-          distance: "12-15 km",
-          duration: "70-80 min",
-          pace: "10K pace",
-          notes: "Long intervals with jog recovery",
-          intensity: "medium",
-          location: "Track",
-          details: {
-            warmup: "20min easy jog + strides",
-            mainSet: "4x1600m intervals",
-            intervals: [{ distance: "1600m", pace: "10K pace", reps: 4 }],
-            rest: {
-              betweenReps: "400m jog recovery",
-              betweenSets: null,
-            },
-            cooldown: "15min easy jog + stretching",
-          },
-        },
-        sunday: {
-          type: "Easy Run",
-          distance: "8-10 km",
-          duration: "40-50 min",
-          pace: "Easy pace",
-          notes: "Easy recovery run",
-          intensity: "low",
-          location: "Park",
-          details: {
-            warmup: "5min easy jog",
-            mainSet: "Easy recovery run",
-            intervals: [
-              { distance: "8-10km", pace: "Easy recovery pace", reps: 1 },
-            ],
-            rest: {
-              betweenReps: null,
-              betweenSets: null,
-            },
-            cooldown: "Light stretching",
-          },
-        },
-      },
-      6: {
-        // Week 6: 11-17 August 2025
-        monday: {
-          type: "Easy Run",
-          distance: "10-12 km",
-          duration: "50-60 min",
-          pace: "Easy pace",
-          notes: "Easy run",
-          intensity: "low",
-          location: "Streets",
-          details: {
-            warmup: "10min easy jog",
-            mainSet: "10-12km easy run",
-            intervals: [
-              {
-                distance: "10-12km",
-                pace: "Easy conversational pace",
-                reps: 1,
-              },
-            ],
-            rest: {
-              betweenReps: null,
-              betweenSets: null,
-            },
-            cooldown: "Light stretching",
-          },
-        },
-        tuesday: {
-          type: "Tempo Run",
-          distance: "10 km",
-          duration: "45-50 min",
-          pace: "Tempo pace",
-          notes:
-            "10km tempo (avg pace 5-10s slower than last tempo) Around 3:40-3:45",
-          intensity: "high",
-          location: "Track",
-          details: {
-            warmup: "15min easy jog + strides",
-            mainSet: "10km tempo run",
-            intervals: [
-              { distance: "10km", pace: "3:40-3:45/km tempo pace", reps: 1 },
-            ],
-            rest: {
-              betweenReps: null,
-              betweenSets: null,
-            },
-            cooldown: "10min easy jog + stretching",
-          },
-        },
-        wednesday: {
-          type: "Recovery Run",
-          distance: "8-10 km",
-          duration: "40-50 min",
-          pace: "Recovery pace",
-          notes: "Recovery run",
-          intensity: "low",
-          location: "Park",
-          details: {
-            warmup: "5min easy jog",
-            mainSet: "8-10km recovery run",
-            intervals: [{ distance: "8-10km", pace: "Recovery pace", reps: 1 }],
-            rest: {
-              betweenReps: null,
-              betweenSets: null,
-            },
-            cooldown: "Light stretching",
-          },
-        },
-        thursday: {
-          type: "Easy Run",
-          distance: "10-12 km",
-          duration: "50-60 min",
-          pace: "Easy pace",
-          notes: "Easy run",
-          intensity: "low",
-          location: "Streets",
-          details: {
-            warmup: "10min easy jog",
-            mainSet: "10-12km easy run",
-            intervals: [
-              {
-                distance: "10-12km",
-                pace: "Easy conversational pace",
-                reps: 1,
-              },
-            ],
-            rest: {
-              betweenReps: null,
-              betweenSets: null,
-            },
-            cooldown: "Light stretching",
-          },
-        },
-        friday: {
-          type: "Interval Training",
-          distance: "8-10 km",
-          duration: "60-70 min",
-          pace: "Mixed paces",
-          notes: "10x300m rest 2.5min pace 50-52",
-          intensity: "high",
-          location: "Track",
-          details: {
-            warmup: "15min easy jog + strides",
-            mainSet: "10x300m intervals",
-            intervals: [{ distance: "300m", pace: "50-52 seconds", reps: 10 }],
-            rest: {
-              betweenReps: "2.5min rest between reps",
-              betweenSets: null,
-            },
-            cooldown: "15min easy jog + stretching",
-          },
-        },
-        saturday: {
-          type: "Recovery Run",
-          distance: "8-10 km",
-          duration: "40-50 min",
-          pace: "Recovery pace",
-          notes: "Recovery run",
-          intensity: "low",
-          location: "Park",
-          details: {
-            warmup: "5min easy jog",
-            mainSet: "8-10km recovery run",
-            intervals: [{ distance: "8-10km", pace: "Recovery pace", reps: 1 }],
-            rest: {
-              betweenReps: null,
-              betweenSets: null,
-            },
-            cooldown: "Light stretching",
-          },
-        },
-        sunday: {
-          type: "Long Run",
-          distance: "16-18 km",
-          duration: "70-80 min",
-          pace: "Long run pace",
-          notes: "Long run around 4:10-4:15 pace (this is last long run)",
-          intensity: "medium",
-          location: "Streets",
-          details: {
-            warmup: "10min easy jog",
-            mainSet: "16-18km long run",
-            intervals: [
-              {
-                distance: "16-18km",
-                pace: "4:10-4:15/km long run pace",
-                reps: 1,
-              },
-            ],
-            rest: {
-              betweenReps: null,
-              betweenSets: null,
-            },
-            cooldown: "10min easy jog + stretching",
-          },
-        },
-      },
-      7: {
-        // Week 7: 18-24 August 2025
-        monday: {
-          type: "Rest",
-          distance: "",
-          duration: "",
-          pace: "",
-          notes: "Rest day",
-          intensity: "rest",
-          location: "",
-          details: {
-            warmup: "",
-            mainSet: "Complete rest day",
-            intervals: [],
-            rest: {
-              betweenReps: null,
-              betweenSets: null,
-            },
-            cooldown: "",
-          },
-        },
-        tuesday: {
-          type: "Easy Run",
-          distance: "8-10 km",
-          duration: "40-50 min",
-          pace: "Easy pace",
-          notes: "Easy run",
-          intensity: "low",
-          location: "Park",
-          details: {
-            warmup: "10min easy jog",
-            mainSet: "8-10km easy run",
-            intervals: [
-              { distance: "8-10km", pace: "Easy conversational pace", reps: 1 },
-            ],
-            rest: {
-              betweenReps: null,
-              betweenSets: null,
-            },
-            cooldown: "Light stretching",
-          },
-        },
-        wednesday: {
-          type: "Interval Training",
-          distance: "8-10 km",
-          duration: "60-70 min",
-          pace: "Mixed paces",
-          notes: "6x400m pace 62-60 the rest 4-5min",
-          intensity: "high",
-          location: "Track",
-          details: {
-            warmup: "15min easy jog + strides",
-            mainSet: "6x400m intervals",
-            intervals: [{ distance: "400m", pace: "62-60 seconds", reps: 6 }],
-            rest: {
-              betweenReps: "4-5min rest between reps",
-              betweenSets: null,
-            },
-            cooldown: "15min easy jog + stretching",
-          },
-        },
-        thursday: {
-          type: "Easy Run",
-          distance: "8-10 km",
-          duration: "40-50 min",
-          pace: "Easy pace",
-          notes: "Easy run",
-          intensity: "low",
-          location: "Park",
-          details: {
-            warmup: "10min easy jog",
-            mainSet: "8-10km easy run",
-            intervals: [
-              { distance: "8-10km", pace: "Easy conversational pace", reps: 1 },
-            ],
-            rest: {
-              betweenReps: null,
-              betweenSets: null,
-            },
-            cooldown: "Light stretching",
-          },
-        },
-        friday: {
-          type: "Recovery Run",
-          distance: "6-8 km",
-          duration: "30-40 min",
-          pace: "Recovery pace",
-          notes: "Recovery run",
-          intensity: "low",
-          location: "Park",
-          details: {
-            warmup: "5min easy jog",
-            mainSet: "6-8km recovery run",
-            intervals: [{ distance: "6-8km", pace: "Recovery pace", reps: 1 }],
-            rest: {
-              betweenReps: null,
-              betweenSets: null,
-            },
-            cooldown: "Light stretching",
-          },
-        },
-        saturday: {
-          type: "Complex Intervals",
-          distance: "12-15 km",
-          duration: "80-90 min",
-          pace: "Mixed paces",
-          notes: "4x(1600m - 400m) pace (3:20 - 72) rest 4min then 5min",
-          intensity: "high",
-          location: "Track",
-          details: {
-            warmup: "20min easy jog + strides",
-            mainSet: "4x(1600m - 400m) complex intervals",
-            intervals: [
-              { distance: "1600m", pace: "3:20/km", reps: 4 },
-              { distance: "400m", pace: "72 seconds", reps: 4 },
-            ],
-            rest: {
-              betweenReps: "4min rest between 1600m and 400m",
-              betweenSets: "5min rest between sets",
-            },
-            cooldown: "15min easy jog + stretching",
-          },
-        },
-        sunday: {
-          type: "Recovery Run",
-          distance: "6-8 km",
-          duration: "30-40 min",
-          pace: "Recovery pace",
-          notes: "Recovery run",
-          intensity: "low",
-          location: "Park",
-          details: {
-            warmup: "5min easy jog",
-            mainSet: "6-8km recovery run",
-            intervals: [{ distance: "6-8km", pace: "Recovery pace", reps: 1 }],
-            rest: {
-              betweenReps: null,
-              betweenSets: null,
-            },
-            cooldown: "Light stretching",
-          },
-        },
-      },
-      8: {
-        // Week 8: 25-31 August 2025
-        monday: {
-          type: "Recovery Run",
-          distance: "6-8 km",
-          duration: "30-40 min",
-          pace: "Recovery pace",
-          notes: "Recovery run",
-          intensity: "low",
-          location: "Park",
-          details: {
-            warmup: "5min easy jog",
-            mainSet: "6-8km recovery run",
-            intervals: [{ distance: "6-8km", pace: "Recovery pace", reps: 1 }],
-            rest: {
-              betweenReps: null,
-              betweenSets: null,
-            },
-            cooldown: "Light stretching",
-          },
-        },
-        tuesday: {
-          type: "Complex Intervals",
-          distance: "8-10 km",
-          duration: "70-80 min",
-          pace: "Mixed paces",
-          notes:
-            "4x(400m - 200m) (pace 68-32) rest 2.5min then 200m pace 32 then full rest 4-5min",
-          intensity: "high",
-          location: "Track",
-          details: {
-            warmup: "15min easy jog + strides",
-            mainSet: "4x(400m - 200m) complex intervals",
-            intervals: [
-              { distance: "400m", pace: "68 seconds", reps: 4 },
-              { distance: "200m", pace: "32 seconds", reps: 4 },
-            ],
-            rest: {
-              betweenReps: "2.5min rest between 400m and 200m",
-              betweenSets: "4-5min full rest between sets",
-            },
-            cooldown: "15min easy jog + stretching",
-          },
-        },
-        wednesday: {
-          type: "Easy Run",
-          distance: "8-10 km",
-          duration: "40-50 min",
-          pace: "Easy pace",
-          notes: "Easy run",
-          intensity: "low",
-          location: "Park",
-          details: {
-            warmup: "10min easy jog",
-            mainSet: "8-10km easy run",
-            intervals: [
-              { distance: "8-10km", pace: "Easy conversational pace", reps: 1 },
-            ],
-            rest: {
-              betweenReps: null,
-              betweenSets: null,
-            },
-            cooldown: "Light stretching",
-          },
-        },
-        thursday: {
-          type: "Interval Training",
-          distance: "6-8 km",
-          duration: "50-60 min",
-          pace: "Mixed paces",
-          notes: "6x200m pace 35-36",
-          intensity: "high",
-          location: "Track",
-          details: {
-            warmup: "15min easy jog + strides",
-            mainSet: "6x200m intervals",
-            intervals: [{ distance: "200m", pace: "35-36 seconds", reps: 6 }],
-            rest: {
-              betweenReps: "2-3min rest between reps",
-              betweenSets: null,
-            },
-            cooldown: "15min easy jog + stretching",
-          },
-        },
-        friday: {
-          type: "Easy Run or Rest",
-          distance: "6-8 km",
-          duration: "30-40 min",
-          pace: "Easy pace",
-          notes: "Easy run or rest",
-          intensity: "low",
-          location: "Park",
-          details: {
-            warmup: "5min easy jog",
-            mainSet: "6-8km easy run or complete rest",
-            intervals: [
-              { distance: "6-8km", pace: "Easy conversational pace", reps: 1 },
-            ],
-            rest: {
-              betweenReps: null,
-              betweenSets: null,
-            },
-            cooldown: "Light stretching",
-          },
-        },
-        saturday: {
-          type: "Easy Run",
-          distance: "6-8 km",
-          duration: "30-40 min",
-          pace: "Easy pace",
-          notes: "Easy run",
-          intensity: "low",
-          location: "Park",
-          details: {
-            warmup: "5min easy jog",
-            mainSet: "6-8km easy run",
-            intervals: [
-              { distance: "6-8km", pace: "Easy conversational pace", reps: 1 },
-            ],
-            rest: {
-              betweenReps: null,
-              betweenSets: null,
-            },
-            cooldown: "Light stretching",
-          },
-        },
-        sunday: {
-          type: "Race Day",
-          distance: "10 km",
-          duration: "30-35 min",
-          pace: "Race pace",
-          notes: "DO IT FAST DORTMUND 10KM",
-          intensity: "race",
-          location: "Dortmund",
-          details: {
-            warmup: "20min easy jog + strides + drills",
-            mainSet: "10km race - DO IT FAST DORTMUND",
-            intervals: [{ distance: "10km", pace: "Race pace", reps: 1 }],
-            rest: {
-              betweenReps: null,
-              betweenSets: null,
-            },
-            cooldown: "10min easy jog + stretching",
-          },
-        },
-      },
-    };
-
-    // Get the training data for this week
-    const weekData = realTrainingData[weekNumber];
-    if (weekData) {
-      dayKeys.forEach((dayKey) => {
-        days[dayKey] = { ...weekData[dayKey] };
+      months.push({
+        month: i + 6, // Adjust index since we start from -6
+        monthName: monthName,
+        weeks: weeks,
       });
     }
 
-    return days;
+    return months;
   };
 
   // Generate empty week data (just dates, no training) - will be populated with Strava data
@@ -1380,218 +159,12 @@ export default function TrainingPage() {
     return days;
   };
 
-  const generateWeekData = (weekStart) => {
-    const days = {};
-    const dayKeys = [
-      "monday",
-      "tuesday",
-      "wednesday",
-      "thursday",
-      "friday",
-      "saturday",
-      "sunday",
-    ];
-
-    // Training templates that rotate
-    const trainingTemplates = [
-      {
-        monday: {
-          type: "Easy Run",
-          distance: "8 km",
-          duration: "35-40 min",
-          pace: "4:30-5:00 /km",
-          notes: "Recovery pace, focus on form",
-          intensity: "low",
-          location: "Park loop",
-        },
-        tuesday: {
-          type: "Interval Training",
-          distance: "10 km",
-          duration: "45 min",
-          pace: "3:20-3:40 /km",
-          notes: "Complex pyramid interval session",
-          intensity: "high",
-          location: "Track",
-          details: {
-            warmup: "2km easy jog + 6x100m strides",
-            mainSet: "4x(600m + 400m + 300m + 200m)",
-            intervals: [
-              { distance: "600m", pace: "3:20 /km", reps: 4 },
-              { distance: "400m", pace: "3:15 /km", reps: 4 },
-              { distance: "300m", pace: "3:10 /km", reps: 4 },
-              { distance: "200m", pace: "3:05 /km", reps: 4 },
-            ],
-            rest: {
-              betweenReps: "2.5min between reps",
-              betweenSets: "4min between sets",
-            },
-            cooldown: "2km easy jog + 15min stretching",
-          },
-        },
-        wednesday: {
-          type: "Easy Run",
-          distance: "6 km",
-          duration: "28-32 min",
-          pace: "4:40-5:10 /km",
-          notes: "Active recovery",
-          intensity: "low",
-          location: "Streets",
-        },
-        thursday: {
-          type: "Tempo Run",
-          distance: "12 km",
-          duration: "50 min",
-          pace: "3:50-4:10 /km",
-          notes: "Progressive tempo run with build-up",
-          intensity: "medium",
-          location: "River path",
-          details: {
-            warmup: "3km easy pace + 4x100m accelerations",
-            mainSet: "3x(2km tempo + 1km recovery)",
-            intervals: [
-              { distance: "2km", pace: "3:50-4:00 /km", reps: 3 },
-              { distance: "1km", pace: "4:30-5:00 /km", reps: 3 },
-            ],
-            rest: {
-              betweenReps: "1km easy recovery jog",
-              betweenSets: null,
-            },
-            cooldown: "2km easy + dynamic stretching",
-          },
-        },
-        friday: {
-          type: "Rest Day",
-          distance: "-",
-          duration: "-",
-          pace: "-",
-          notes: "Complete rest or light stretching",
-          intensity: "rest",
-          location: "-",
-        },
-        saturday: {
-          type: "Long Run",
-          distance: "18 km",
-          duration: "80-90 min",
-          pace: "4:20-4:50 /km",
-          notes: "Steady effort, practice race nutrition",
-          intensity: "medium",
-          location: "Long route",
-        },
-        sunday: {
-          type: "Recovery Run",
-          distance: "5 km",
-          duration: "25 min",
-          pace: "5:00-5:30 /km",
-          notes: "Very easy pace, shake out legs",
-          intensity: "low",
-          location: "Park",
-        },
-      },
-      {
-        monday: {
-          type: "Easy Run",
-          distance: "9 km",
-          duration: "38-42 min",
-          pace: "4:20-4:50 /km",
-          notes: "Comfortable effort",
-          intensity: "low",
-          location: "Park loop",
-        },
-        tuesday: {
-          type: "Speed Work",
-          distance: "8 km",
-          duration: "40 min",
-          pace: "3:10-3:30 /km",
-          notes: "High intensity interval session",
-          intensity: "high",
-          location: "Track",
-          details: {
-            warmup: "15min easy jog + dynamic stretching",
-            mainSet: "8x400m at mile pace",
-            intervals: [{ distance: "400m", pace: "3:10-3:30 /km", reps: 8 }],
-            rest: {
-              betweenReps: "90 seconds walking recovery",
-              betweenSets: null,
-            },
-            cooldown: "10min easy jog + stretching",
-          },
-        },
-        wednesday: {
-          type: "Easy Run",
-          distance: "7 km",
-          duration: "32-36 min",
-          pace: "4:35-5:00 /km",
-          notes: "Recovery run",
-          intensity: "low",
-          location: "Streets",
-        },
-        thursday: {
-          type: "Threshold Run",
-          distance: "10 km",
-          duration: "42 min",
-          pace: "3:45-4:00 /km",
-          notes: "Sustained threshold effort",
-          intensity: "medium",
-          location: "River path",
-          details: {
-            warmup: "2km easy + 4x100m strides",
-            mainSet: "6km threshold run",
-            intervals: [{ distance: "6km", pace: "3:45-4:00 /km", reps: 1 }],
-            rest: {
-              betweenReps: null,
-              betweenSets: null,
-            },
-            cooldown: "2km easy + stretching",
-          },
-        },
-        friday: {
-          type: "Rest Day",
-          distance: "-",
-          duration: "-",
-          pace: "-",
-          notes: "Complete rest",
-          intensity: "rest",
-          location: "-",
-        },
-        saturday: {
-          type: "Long Run",
-          distance: "20 km",
-          duration: "85-95 min",
-          pace: "4:15-4:45 /km",
-          notes: "Progressive run, negative split",
-          intensity: "medium",
-          location: "Long route",
-        },
-        sunday: {
-          type: "Recovery Run",
-          distance: "6 km",
-          duration: "28 min",
-          pace: "4:50-5:20 /km",
-          notes: "Easy shakeout",
-          intensity: "low",
-          location: "Park",
-        },
-      },
-    ];
-
-    // Get week number to determine which template to use
-    const weekNumber = Math.floor(
-      weekStart.getTime() / (7 * 24 * 60 * 60 * 1000)
-    );
-    const template = trainingTemplates[weekNumber % trainingTemplates.length];
-
-    dayKeys.forEach((dayKey, index) => {
-      days[dayKey] = { ...template[dayKey] };
-    });
-
-    return days;
-  };
-
   const isToday = (monthIndex, weekIndex, dayKey) => {
     if (!trainingData[monthIndex]?.weeks[weekIndex]) return false;
 
     const weekData = trainingData[monthIndex].weeks[weekIndex];
-    const weekStart = new Date(weekData.weekStart);
+    const [year, monthNum, day] = weekData.weekStart.split("-").map(Number);
+    const weekStart = new Date(year, monthNum - 1, day);
     const dayKeys = [
       "monday",
       "tuesday",
@@ -1613,6 +186,8 @@ export default function TrainingPage() {
   useEffect(() => {
     // Generate real-time training data
     const realTimeData = generateTrainingData();
+
+    // console.log("Generated training data:", realTimeData);
 
     // Debug: Log the first week to see what's happening
     if (realTimeData.length > 0 && realTimeData[0].weeks.length > 0) {
@@ -1641,7 +216,8 @@ export default function TrainingPage() {
         console.log(
           `${dayKey} (index ${index}):`,
           cellDate.getDay(),
-          cellDate.toDateString()
+          cellDate.toDateString(),
+          `-> key: ${cellDate.getFullYear()}-${cellDate.getMonth()}-${cellDate.getDate()}`
         );
       });
     }
@@ -1652,6 +228,7 @@ export default function TrainingPage() {
     const todayLocation = findTodayInCalendar(realTimeData);
     console.log("Today's location:", todayLocation);
     console.log("Current date:", new Date().toDateString());
+    console.log("Setting current month to:", todayLocation.month);
     setCurrentMonth(todayLocation.month);
     setCurrentWeek(todayLocation.week);
 
@@ -1660,11 +237,17 @@ export default function TrainingPage() {
 
     setLoading(false);
 
-    // Load completed workouts from localStorage
-    const saved = localStorage.getItem("completedWorkouts");
-    if (saved) {
-      setCompletedWorkouts(JSON.parse(saved));
-    }
+    // Auto-scroll to today's week on page load
+    setTimeout(() => {
+      const weekKey = `${todayLocation.month}-${todayLocation.week}`;
+      const weekElement = weekRefs.current[weekKey];
+      if (weekElement) {
+        weekElement.scrollIntoView({
+          behavior: "smooth",
+          block: "center",
+        });
+      }
+    }, 100);
 
     // Update today's date every minute
     const interval = setInterval(() => {
@@ -1673,8 +256,6 @@ export default function TrainingPage() {
 
     return () => clearInterval(interval);
   }, []);
-
-  // Removed auto-scroll on page load - only scroll when "Today" button is pressed
 
   // Control body scroll when modal opens/closes
   useEffect(() => {
@@ -1743,11 +324,7 @@ export default function TrainingPage() {
     return "🏃";
   };
 
-  const getWorkoutKey = (monthIndex, weekIndex, dayKey) => {
-    return `${monthIndex}-${weekIndex}-${dayKey}`;
-  };
-
-  const isWorkoutCompleted = (monthIndex, weekIndex, dayKey) => {
+  const hasStravaActivity = (monthIndex, weekIndex, dayKey) => {
     // Check if there's Strava activity for this day
     const dayKeys = [
       "monday",
@@ -1762,50 +339,16 @@ export default function TrainingPage() {
     const weekData = trainingData[monthIndex]?.weeks[weekIndex];
 
     if (weekData) {
-      const weekStartDate = new Date(weekData.weekStart + "T00:00:00");
+      const [year, monthNum, day] = weekData.weekStart.split("-").map(Number);
+      const weekStartDate = new Date(year, monthNum - 1, day);
       const cellDate = new Date(weekStartDate);
       cellDate.setDate(weekStartDate.getDate() + dayIndex);
 
       const stravaData = getStravaDataForDate(cellDate);
-      const hasStrava = !!stravaData;
-
-      // Check manual completion if no Strava data
-      if (!hasStrava) {
-        const key = getWorkoutKey(monthIndex, weekIndex, dayKey);
-        return completedWorkouts[key] || false;
-      }
-
-      return true; // Strava activity exists
+      return !!stravaData;
     }
 
     return false;
-  };
-
-  const toggleWorkoutCompletion = (monthIndex, weekIndex, dayKey) => {
-    const key = getWorkoutKey(monthIndex, weekIndex, dayKey);
-    const newCompletedWorkouts = {
-      ...completedWorkouts,
-      [key]: !completedWorkouts[key],
-    };
-
-    setCompletedWorkouts(newCompletedWorkouts);
-    localStorage.setItem(
-      "completedWorkouts",
-      JSON.stringify(newCompletedWorkouts)
-    );
-
-    // Update selectedDay if it's currently open
-    if (
-      selectedDay &&
-      selectedDay.month === monthIndex &&
-      selectedDay.week === weekIndex + 1 &&
-      selectedDay.day === dayKey
-    ) {
-      setSelectedDay({
-        ...selectedDay,
-        completed: newCompletedWorkouts[key],
-      });
-    }
   };
 
   const openDayDetails = (monthIndex, weekIndex, dayKey) => {
@@ -1824,7 +367,8 @@ export default function TrainingPage() {
         "sunday",
       ];
       const dayIndex = dayKeys.indexOf(dayKey);
-      const weekStartDate = new Date(weekData.weekStart + "T00:00:00");
+      const [year, monthNum, day] = weekData.weekStart.split("-").map(Number);
+      const weekStartDate = new Date(year, monthNum - 1, day);
       const cellDate = new Date(weekStartDate);
       cellDate.setDate(weekStartDate.getDate() + dayIndex);
 
@@ -1832,8 +376,8 @@ export default function TrainingPage() {
       const stravaData = getStravaDataForDate(cellDate);
       const hasStrava = !!stravaData;
 
-      // Check completion status (Strava or manual)
-      const completed = isWorkoutCompleted(monthIndex, weekIndex, dayKey);
+      // Check if has Strava activity
+      const hasActivity = hasStravaActivity(monthIndex, weekIndex, dayKey);
 
       // Format the full date
       const fullDayName = cellDate.toLocaleDateString("en-US", {
@@ -1846,19 +390,13 @@ export default function TrainingPage() {
       });
 
       // Set title based on available data
-      let title = dayData.type;
-      let intensity = dayData.intensity;
+      let title = "Rest Day";
+      let intensity = "rest";
 
-      // If no training data but has Strava data, use Strava activity name
-      if (dayData.isEmpty && hasStrava) {
+      // If has Strava data, use Strava activity name
+      if (hasStrava) {
         title = stravaData.name || "Strava Activity";
         intensity = "strava";
-      }
-
-      // If no training data and no Strava data, use a fallback
-      if (dayData.isEmpty && !hasStrava) {
-        title = "Rest Day";
-        intensity = "rest";
       }
 
       setSelectedDay({
@@ -1868,7 +406,7 @@ export default function TrainingPage() {
         month: monthIndex,
         week: weekIndex + 1,
         day: dayKey,
-        completed: completed,
+        hasActivity: hasActivity,
         monthIndex: monthIndex,
         weekIndex: weekIndex,
         fullDayName: fullDayName,
@@ -1898,31 +436,19 @@ export default function TrainingPage() {
       const activities = await response.json();
 
       if (Array.isArray(activities) && activities.length > 0) {
-        // Filter out private activities first
-        const publicActivities = activities.filter(
-          (activity) => !activity.private
-        );
-
         // Find all activities for the specific date using proper date comparison
         const targetDate = new Date(date);
         const targetYear = targetDate.getFullYear();
         const targetMonth = targetDate.getMonth();
         const targetDay = targetDate.getDate();
 
-        const dayActivities = publicActivities.filter((activity) => {
-          // Parse start_date_local properly to avoid timezone issues
+        // Get all activities for this date (public and private)
+        const allDayActivities = activities.filter((activity) => {
           const activityDate = new Date(activity.start_date_local);
           const activityYear = activityDate.getFullYear();
           const activityMonth = activityDate.getMonth();
           const activityDay = activityDate.getDate();
 
-          console.log(
-            `Comparing: Target ${targetYear}-${
-              targetMonth + 1
-            }-${targetDay} vs Activity ${activityYear}-${
-              activityMonth + 1
-            }-${activityDay} (${activity.name})`
-          );
           return (
             activityYear === targetYear &&
             activityMonth === targetMonth &&
@@ -1930,12 +456,54 @@ export default function TrainingPage() {
           );
         });
 
-        console.log(
-          `Found ${dayActivities.length} public activities for ${targetYear}-${
-            targetMonth + 1
-          }-${targetDay}`
+        // Get public activities for this date
+        const publicDayActivities = allDayActivities.filter(
+          (activity) => !activity.private
         );
-        setDayActivities(dayActivities);
+
+        console.log(
+          `Found ${publicDayActivities.length} public activities and ${
+            allDayActivities.length
+          } total activities for ${targetYear}-${targetMonth + 1}-${targetDay}`
+        );
+
+        if (publicDayActivities.length > 0) {
+          // Show public activities
+          setDayActivities(publicDayActivities);
+        } else if (allDayActivities.length > 0) {
+          // Only private activities - create a summary
+          const totalDistance = allDayActivities.reduce(
+            (sum, activity) => sum + (activity.distance || 0),
+            0
+          );
+          const totalTime = allDayActivities.reduce(
+            (sum, activity) => sum + (activity.moving_time || 0),
+            0
+          );
+          const activityCount = allDayActivities.length;
+
+          // Calculate average pace (only if we have both distance and time)
+          const avgSpeed =
+            totalDistance > 0 && totalTime > 0 ? totalDistance / totalTime : 0;
+
+          // Create a summary activity for the modal
+          const summaryActivity = {
+            name: activityCount === 1 ? "Activity" : "Activities",
+            distance: totalDistance,
+            moving_time: totalTime,
+            average_speed: avgSpeed,
+            type: "training_summary",
+            start_date_local: allDayActivities[0].start_date_local,
+            isPrivateSummary: true,
+            // Add some additional fields that might be expected
+            id: "private_summary",
+            private: false,
+          };
+
+          setDayActivities([summaryActivity]);
+        } else {
+          setDayActivities([]);
+        }
       } else {
         setDayActivities([]);
       }
@@ -1962,8 +530,11 @@ export default function TrainingPage() {
   // Fetch Strava data for calendar cells
   const fetchCellStravaData = async () => {
     try {
+      console.log("Fetching Strava data...");
       const response = await fetch("/api/strava?per_page=200");
       const activities = await response.json();
+
+      console.log("Raw activities:", activities.length);
 
       if (Array.isArray(activities) && activities.length > 0) {
         const publicActivities = activities.filter(
@@ -1971,16 +542,71 @@ export default function TrainingPage() {
         );
         const stravaDataMap = {};
 
-        publicActivities.forEach((activity) => {
+        // Group all activities by date to calculate totals for private-only days
+        const activitiesByDate = {};
+
+        activities.forEach((activity) => {
           const activityDate = new Date(activity.start_date_local);
           const dateKey = `${activityDate.getFullYear()}-${activityDate.getMonth()}-${activityDate.getDate()}`;
 
-          // Store the first (most recent) activity for each date
-          if (!stravaDataMap[dateKey]) {
-            stravaDataMap[dateKey] = activity;
+          if (!activitiesByDate[dateKey]) {
+            activitiesByDate[dateKey] = [];
+          }
+          activitiesByDate[dateKey].push(activity);
+        });
+
+        // Process each date
+        Object.keys(activitiesByDate).forEach((dateKey) => {
+          const dayActivities = activitiesByDate[dateKey];
+          const publicDayActivities = dayActivities.filter(
+            (activity) => !activity.private
+          );
+
+          if (publicDayActivities.length > 0) {
+            // Has public activities - show the first public one
+            console.log(
+              `Public activity: ${publicDayActivities[0].name} on ${dateKey}`
+            );
+            stravaDataMap[dateKey] = publicDayActivities[0];
+          } else if (dayActivities.length > 0) {
+            // Only private activities - create a totals summary
+            const totalDistance = dayActivities.reduce(
+              (sum, activity) => sum + (activity.distance || 0),
+              0
+            );
+            const totalTime = dayActivities.reduce(
+              (sum, activity) => sum + (activity.moving_time || 0),
+              0
+            );
+            const activityCount = dayActivities.length;
+
+            // Calculate average pace (only if we have both distance and time)
+            const avgSpeed =
+              totalDistance > 0 && totalTime > 0
+                ? totalDistance / totalTime
+                : 0;
+
+            console.log(
+              `Private activities total on ${dateKey}: ${activityCount} activities, ${(
+                totalDistance / 1000
+              ).toFixed(2)}km`
+            );
+
+            // Create a summary object that looks like a normal activity
+            stravaDataMap[dateKey] = {
+              name: activityCount === 1 ? "Activity" : "Activities",
+              distance: totalDistance,
+              moving_time: totalTime,
+              average_speed: avgSpeed,
+              type: "training_summary",
+              private: false, // Mark as not private so it shows up
+              start_date_local: dayActivities[0].start_date_local,
+              isPrivateSummary: true, // Flag to identify this as a summary
+            };
           }
         });
 
+        console.log("Strava data map:", stravaDataMap);
         setCellStravaData(stravaDataMap);
       }
     } catch (error) {
@@ -1991,7 +617,18 @@ export default function TrainingPage() {
   // Get Strava data for a specific date
   const getStravaDataForDate = (date) => {
     const dateKey = `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`;
-    return cellStravaData[dateKey];
+    const data = cellStravaData[dateKey];
+
+    // Debug logs removed
+
+    if (data) {
+      console.log(
+        `Found Strava data for ${date.toDateString()} (key: ${dateKey}):`,
+        data.name
+      );
+    }
+
+    return data;
   };
 
   // Format time for display
@@ -2152,12 +789,14 @@ export default function TrainingPage() {
                   weekRefs.current[weekKey] = el;
                 }}
               >
-                {/* Week Number Column */}
+                {/* Week Date Range Column */}
                 <div className={styles.weekColumn}>
-                  <div className={styles.weekNumber}>Week {weekData.week}</div>
                   <div className={styles.weekDateRange}>
                     {(() => {
-                      const startDate = new Date(weekData.weekStart); // This is always Monday
+                      const [year, monthNum, day] = weekData.weekStart
+                        .split("-")
+                        .map(Number);
+                      const startDate = new Date(year, monthNum - 1, day); // This is always Monday
                       const endDate = new Date(startDate);
                       endDate.setDate(startDate.getDate() + 6); // Sunday
 
@@ -2185,7 +824,7 @@ export default function TrainingPage() {
                 <div className={styles.daysContainer}>
                   {dayKeys.map((dayKey, index) => {
                     const dayData = weekData.days[dayKey];
-                    const isCompleted = isWorkoutCompleted(
+                    const hasActivity = hasStravaActivity(
                       currentMonth,
                       weekIndex,
                       dayKey
@@ -2198,9 +837,10 @@ export default function TrainingPage() {
 
                     // Calculate actual date for this cell
                     // weekStart should be Monday, so we add index days to get the correct day
-                    const weekStartDate = new Date(
-                      weekData.weekStart + "T00:00:00"
-                    ); // Add time to avoid timezone issues
+                    const [year, monthNum, day] = weekData.weekStart
+                      .split("-")
+                      .map(Number);
+                    const weekStartDate = new Date(year, monthNum - 1, day); // month is 0-indexed
                     const cellDate = new Date(weekStartDate);
                     cellDate.setDate(weekStartDate.getDate() + index);
 
@@ -2209,28 +849,40 @@ export default function TrainingPage() {
                     });
                     const dateNumber = cellDate.getDate();
 
-                    // Debug log for first few cells
-                    if (weekIndex === 0 && index < 3) {
-                      console.log(
-                        `Cell ${index} (${dayKey}): ${dayName} ${dateNumber}, expected day ${
-                          index + 1
-                        }, actual day ${cellDate.getDay()}`
-                      );
-                    }
+                    // Check if this date belongs to the current month
+                    const currentMonthData = trainingData[currentMonth];
+                    const isCurrentMonth =
+                      cellDate.getMonth() ===
+                      new Date(
+                        currentMonthData.monthName +
+                          " 1, " +
+                          cellDate.getFullYear()
+                      ).getMonth();
+
+                    // Check if this is the first day of any month
+                    const isFirstDayOfMonth = cellDate.getDate() === 1;
 
                     return (
                       <div
                         key={dayKey}
                         className={`${styles.dayCell} ${
                           isTodayCell ? styles.today : ""
+                        } ${!isCurrentMonth ? styles.otherMonth : ""} ${
+                          isFirstDayOfMonth && isCurrentMonth
+                            ? styles.firstDayOfMonth
+                            : ""
                         }`}
                         onClick={() =>
-                          openDayDetails(currentMonth, weekIndex, dayKey)
+                          isCurrentMonth
+                            ? openDayDetails(currentMonth, weekIndex, dayKey)
+                            : null
                         }
                         style={{
                           borderLeft: `4px solid ${getIntensityColor(
                             dayData.intensity
                           )}`,
+                          opacity: isCurrentMonth ? 1 : 0.3,
+                          cursor: isCurrentMonth ? "pointer" : "default",
                         }}
                       >
                         {isTodayCell && (
@@ -2239,17 +891,16 @@ export default function TrainingPage() {
                             <span className={styles.todayText}>Today</span>
                           </>
                         )}
-                        {dayData.isEmpty &&
-                          (getStravaDataForDate(cellDate) ||
-                            isWorkoutCompleted(
-                              currentMonth,
-                              weekIndex,
-                              dayKey
-                            )) && (
-                            <span className={styles.stravaCompletedBadge}>
-                              ✓
-                            </span>
+                        {isFirstDayOfMonth &&
+                          isCurrentMonth &&
+                          !isTodayCell && (
+                            <div className={styles.firstDayIndicator}>
+                              <span className={styles.firstDayDot}></span>
+                            </div>
                           )}
+                        {getStravaDataForDate(cellDate) && (
+                          <span className={styles.stravaCompletedBadge}>✓</span>
+                        )}
                         <div className={styles.cellDate}>
                           <span className={styles.dayName}>{dayName}</span>
                           <span className={styles.dateNumber}>
@@ -2258,11 +909,43 @@ export default function TrainingPage() {
                         </div>
                         <div className={styles.dayContent}>
                           {(() => {
-                            // Check if this is an empty cell and has Strava data
-                            if (dayData.isEmpty) {
-                              const stravaData = getStravaDataForDate(cellDate);
-                              if (stravaData) {
-                                // Show Strava data instead of empty content
+                            // Check for Strava data for this date
+                            const stravaData = getStravaDataForDate(cellDate);
+                            if (stravaData) {
+                              if (stravaData.isPrivateSummary) {
+                                // Show training summary (looks like normal activity)
+                                return (
+                                  <div className={styles.stravaCell}>
+                                    <div className={styles.stravaCellHeader}>
+                                      <span className={styles.stravaIcon}>
+                                        🏃
+                                      </span>
+                                      <span
+                                        className={styles.stravaActivityName}
+                                      >
+                                        {stravaData.name}
+                                      </span>
+                                    </div>
+                                    <div className={styles.stravaStats}>
+                                      <div className={styles.stravaDistance}>
+                                        {(stravaData.distance / 1000).toFixed(
+                                          2
+                                        )}{" "}
+                                        km
+                                      </div>
+                                      <div className={styles.stravaDuration}>
+                                        {formatTime(stravaData.moving_time)}
+                                      </div>
+                                      {stravaData.average_speed > 0 && (
+                                        <div className={styles.stravaPace}>
+                                          {formatPace(stravaData.average_speed)}
+                                        </div>
+                                      )}
+                                    </div>
+                                  </div>
+                                );
+                              } else {
+                                // Show regular public Strava data
                                 const activityTime = new Date(
                                   stravaData.start_date_local
                                 );
@@ -2307,42 +990,9 @@ export default function TrainingPage() {
                                   </div>
                                 );
                               }
-                              // Empty cell with no Strava data - show nothing
-                              return null;
                             }
-
-                            // Regular training data display
-                            const stravaData = getStravaDataForDate(cellDate);
-                            const hasStravaActivity = !!stravaData;
-
-                            return (
-                              <>
-                                {(hasStravaActivity || isCompleted) && (
-                                  <span className={styles.stravaCompletedBadge}>
-                                    ✓
-                                  </span>
-                                )}
-                                <div className={styles.workoutType}>
-                                  <span className={styles.workoutIcon}>
-                                    {getIntensityIcon(dayData.type)}
-                                  </span>
-                                  {dayData.type}
-                                </div>
-                                <div className={styles.workoutDetails}>
-                                  <div className={styles.distance}>
-                                    {dayData.distance}
-                                  </div>
-                                  <div className={styles.duration}>
-                                    {dayData.duration}
-                                  </div>
-                                  {dayData.pace !== "-" && (
-                                    <div className={styles.pace}>
-                                      {dayData.pace}
-                                    </div>
-                                  )}
-                                </div>
-                              </>
-                            );
+                            // Empty cell with no Strava data - show nothing
+                            return null;
                           })()}
                         </div>
                       </div>
@@ -2490,133 +1140,28 @@ export default function TrainingPage() {
                   </div>
                 )}
 
-              <div className={styles.modalStats}>
-                <div className={styles.modalStat}>
-                  <Target size={18} />
-                  <span>Distance: {selectedDay.distance}</span>
-                </div>
-                <div className={styles.modalStat}>
-                  <Clock size={18} />
-                  <span>Duration: {selectedDay.duration}</span>
-                </div>
-                <div className={styles.modalStat}>
-                  <Activity size={18} />
-                  <span>Pace: {selectedDay.pace}</span>
-                </div>
-                {/* Removed location field - not needed */}
-              </div>
-
-              {/* Detailed Training Instructions */}
-              {selectedDay.details && (
-                <div className={styles.modalDetails}>
-                  <h4>Training Details:</h4>
-
-                  <div className={styles.trainingSection}>
-                    <div className={styles.sectionTitle}>
-                      <span className={styles.sectionIcon}>🏃‍♂️</span>
-                      Warm-up:
-                    </div>
-                    <p className={styles.sectionContent}>
-                      {selectedDay.details.warmup}
-                    </p>
-                  </div>
-
-                  <div className={styles.trainingSection}>
-                    <div className={styles.sectionTitle}>
-                      <span className={styles.sectionIcon}>🎯</span>
-                      Main Set:
-                    </div>
-                    <p className={styles.sectionContent}>
-                      {selectedDay.details.mainSet}
-                    </p>
-
-                    {selectedDay.details.intervals &&
-                      selectedDay.details.intervals.length > 0 && (
-                        <div className={styles.intervalDetails}>
-                          {selectedDay.details.intervals.map(
-                            (interval, index) => (
-                              <div key={index} className={styles.intervalItem}>
-                                <span className={styles.intervalDistance}>
-                                  {interval.distance}
-                                </span>
-                                <span className={styles.intervalPace}>
-                                  @ {interval.pace}
-                                </span>
-                                <span className={styles.intervalReps}>
-                                  x{interval.reps}
-                                </span>
-                              </div>
-                            )
-                          )}
-                        </div>
-                      )}
-                  </div>
-
-                  {(selectedDay.details.rest.betweenReps ||
-                    selectedDay.details.rest.betweenSets) && (
-                    <div className={styles.trainingSection}>
-                      <div className={styles.sectionTitle}>
-                        <span className={styles.sectionIcon}>⏱️</span>
-                        Rest Periods:
-                      </div>
-                      <div className={styles.restDetails}>
-                        {selectedDay.details.rest.betweenReps && (
-                          <p className={styles.restItem}>
-                            <strong>Between reps:</strong>{" "}
-                            {selectedDay.details.rest.betweenReps}
-                          </p>
-                        )}
-                        {selectedDay.details.rest.betweenSets && (
-                          <p className={styles.restItem}>
-                            <strong>Between sets:</strong>{" "}
-                            {selectedDay.details.rest.betweenSets}
-                          </p>
-                        )}
-                      </div>
-                    </div>
-                  )}
-
-                  <div className={styles.trainingSection}>
-                    <div className={styles.sectionTitle}>
-                      <span className={styles.sectionIcon}>🧘‍♂️</span>
-                      Cool-down:
-                    </div>
-                    <p className={styles.sectionContent}>
-                      {selectedDay.details.cooldown}
-                    </p>
-                  </div>
+              {/* Only show notes if it's a rest day without Strava activity */}
+              {!dayActivities.length && selectedDay.intensity === "rest" && (
+                <div className={styles.modalNotes}>
+                  <h4>Notes:</h4>
+                  <p>No activity recorded for this day.</p>
                 </div>
               )}
 
-              <div className={styles.modalNotes}>
-                <h4>Training Notes:</h4>
-                <p>{selectedDay.notes}</p>
-              </div>
-
               <div className={styles.modalActions}>
-                <div
-                  className={styles.intensityBadge}
-                  style={{
-                    backgroundColor: getIntensityColor(selectedDay.intensity),
-                    color: "white",
-                  }}
-                >
-                  {selectedDay.intensity.toUpperCase()} INTENSITY
-                </div>
-
-                <button
-                  className={styles.completedButton}
-                  onClick={() =>
-                    toggleWorkoutCompletion(
-                      selectedDay.monthIndex,
-                      selectedDay.weekIndex,
-                      selectedDay.day
-                    )
-                  }
-                  disabled={!!getStravaDataForDate(selectedDay.actualDate)}
-                >
-                  {selectedDay.completed ? "✓✓ Completed" : "Mark as Done"}
-                </button>
+                {selectedDay.intensity !== "rest" && (
+                  <div
+                    className={styles.intensityBadge}
+                    style={{
+                      backgroundColor: getIntensityColor(selectedDay.intensity),
+                      color: "white",
+                    }}
+                  >
+                    {selectedDay.intensity === "strava"
+                      ? "ACTIVITY"
+                      : selectedDay.intensity.toUpperCase()}
+                  </div>
+                )}
               </div>
             </div>
           </div>

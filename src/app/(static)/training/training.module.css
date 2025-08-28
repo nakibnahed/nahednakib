@@ -380,6 +380,20 @@
   border-color: var(--primary-color, #ee681a);
 }
 
+.dayCell.otherMonth {
+  opacity: 0.3;
+  cursor: default;
+}
+
+.dayCell.otherMonth:hover {
+  background: color-mix(
+    in srgb,
+    var(--background-main, #0a0a0a) 80%,
+    transparent 15%
+  );
+  border-color: transparent;
+}
+
 /* Removed completed background styles - completion is now based on Strava data */
 
 .dayCell.today {
@@ -411,6 +425,33 @@
   font-size: 10px;
   font-weight: 600;
   z-index: 2;
+}
+
+/* First day of month indicator */
+.dayCell.firstDayOfMonth {
+  position: relative;
+}
+
+.firstDayIndicator {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  z-index: 1;
+}
+
+.firstDayDot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  background: var(--primary-color, #ee681a);
+  border-radius: 50%;
+  opacity: 0.8;
+  box-shadow: 0 0 6px rgba(238, 104, 26, 0.4);
+}
+
+.dayCell.firstDayOfMonth .dateNumber {
+  font-size: 28px;
+  font-weight: 800;
 }
 
 @keyframes pulse {
@@ -2059,6 +2100,8 @@
   color: var(--text-dark);
   font-weight: 600;
 }
+
+/* Private summary styles removed - now uses regular stravaCell styling */
 
 @media (max-width: 768px) {
   .activityStats {
