@@ -393,18 +393,23 @@
   border-color: var(--primary-color, #ee681a);
 }
 
+/* Other month cells - visual distinction only, still clickable */
 .dayCell.otherMonth {
-  opacity: 0.3;
-  cursor: default;
+  opacity: 0.6;
+  background: color-mix(
+    in srgb,
+    var(--background-main, #0a0a0a) 85%,
+    transparent 20%
+  );
 }
 
 .dayCell.otherMonth:hover {
+  opacity: 0.8;
   background: color-mix(
     in srgb,
     var(--background-main, #0a0a0a) 80%,
     transparent 15%
   );
-  border-color: transparent;
 }
 
 /* Removed completed background styles - completion is now based on Strava data */
