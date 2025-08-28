@@ -877,11 +877,91 @@ export default function TrainingPage() {
                             ? openDayDetails(currentMonth, weekIndex, dayKey)
                             : null
                         }
-                        onTouchEnd={(e) => {
-                          e.preventDefault();
+                        onMouseDown={(e) => {
+                          // Fallback for Chrome iOS - sometimes mousedown works better
                           if (isCurrentMonth) {
+                            e.currentTarget.mouseDownStarted = true;
+                            console.log("Mouse down on:", dayKey, dateNumber);
+                          }
+                        }}
+                        onMouseUp={(e) => {
+                          // Fallback mouse handling for Chrome iOS
+                          if (
+                            e.currentTarget.mouseDownStarted &&
+                            isCurrentMonth
+                          ) {
+                            e.currentTarget.mouseDownStarted = false;
+                            console.log(
+                              "Mouse up - opening modal for:",
+                              dayKey,
+                              dateNumber
+                            );
                             openDayDetails(currentMonth, weekIndex, dayKey);
                           }
+                        }}
+                        onTouchStart={(e) => {
+                          // Chrome iOS fix - don't prevent default on touchstart
+                          e.currentTarget.touchStarted = true;
+                          e.currentTarget.touchStartTime = Date.now();
+                          console.log("Touch start on:", dayKey, dateNumber);
+                        }}
+                        onTouchMove={(e) => {
+                          // If user moves too much, cancel the touch
+                          const touch = e.touches[0];
+                          const rect = e.currentTarget.getBoundingClientRect();
+                          const x = touch.clientX - rect.left;
+                          const y = touch.clientY - rect.top;
+
+                          if (
+                            x < 0 ||
+                            x > rect.width ||
+                            y < 0 ||
+                            y > rect.height
+                          ) {
+                            e.currentTarget.touchStarted = false;
+                          }
+                        }}
+                        onTouchEnd={(e) => {
+                          console.log(
+                            "Touch end on:",
+                            dayKey,
+                            dateNumber,
+                            "isCurrentMonth:",
+                            isCurrentMonth
+                          );
+
+                          // Chrome iOS specific handling
+                          if (e.currentTarget.touchStarted && isCurrentMonth) {
+                            const touchDuration =
+                              Date.now() -
+                              (e.currentTarget.touchStartTime || 0);
+
+                            // Only handle quick taps (not long presses)
+                            if (touchDuration < 500) {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              e.currentTarget.touchStarted = false;
+
+                              console.log(
+                                "Opening modal for:",
+                                dayKey,
+                                dateNumber
+                              );
+
+                              // Visual feedback for Chrome iOS
+                              const element = e.currentTarget;
+                              element.style.backgroundColor =
+                                "rgba(238, 104, 26, 0.1)";
+
+                              setTimeout(() => {
+                                element.style.backgroundColor = "";
+                                openDayDetails(currentMonth, weekIndex, dayKey);
+                              }, 100);
+                            }
+                          }
+                        }}
+                        onTouchCancel={(e) => {
+                          e.currentTarget.touchStarted = false;
                         }}
                         style={{
                           borderLeft: `4px solid ${getIntensityColor(

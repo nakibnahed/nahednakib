@@ -361,7 +361,7 @@
   border-right: 1px solid var(--card-border, rgba(255, 255, 255, 0.14));
   border-left: 4px solid transparent;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.3s ease, transform 0.1s ease;
   display: flex;
   flex-direction: column;
   position: relative;
@@ -375,9 +375,17 @@
   );
   /* Mobile touch optimizations */
   touch-action: manipulation;
-  -webkit-tap-highlight-color: rgba(238, 104, 26, 0.1);
+  -webkit-tap-highlight-color: rgba(238, 104, 26, 0.2);
   user-select: none;
   z-index: 1;
+  /* iOS Safari specific fixes */
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -webkit-appearance: none;
+  outline: none;
+  /* Chrome iOS specific fixes */
+  -webkit-font-smoothing: antialiased;
+  will-change: background-color;
 }
 
 .dayCell:hover {
@@ -1035,6 +1043,11 @@
     touch-action: manipulation;
     -webkit-tap-highlight-color: rgba(238, 104, 26, 0.2);
     cursor: pointer;
+    /* iOS Safari specific fixes */
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -webkit-appearance: none;
+    outline: none;
   }
 
   .workoutType {
