@@ -877,6 +877,12 @@ export default function TrainingPage() {
                             ? openDayDetails(currentMonth, weekIndex, dayKey)
                             : null
                         }
+                        onTouchEnd={(e) => {
+                          e.preventDefault();
+                          if (isCurrentMonth) {
+                            openDayDetails(currentMonth, weekIndex, dayKey);
+                          }
+                        }}
                         style={{
                           borderLeft: `4px solid ${getIntensityColor(
                             dayData.intensity

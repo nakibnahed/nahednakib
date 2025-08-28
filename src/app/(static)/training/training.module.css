@@ -373,6 +373,11 @@
     var(--background-main, #0a0a0a) 80%,
     transparent 15%
   );
+  /* Mobile touch optimizations */
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: rgba(238, 104, 26, 0.1);
+  user-select: none;
+  z-index: 1;
 }
 
 .dayCell:hover {
@@ -1026,6 +1031,10 @@
     min-height: 100px;
     max-height: 100px;
     padding: 8px 4px;
+    /* Ensure mobile clickability */
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: rgba(238, 104, 26, 0.2);
+    cursor: pointer;
   }
 
   .workoutType {
