@@ -1,5 +1,11 @@
-import { supabase } from "@/services/supabaseClient";
+import { createClient as createSupabaseClient } from "@supabase/supabase-js";
 import { sendNewsletterWelcomeEmail } from "@/services/mailer";
+
+// Server-side admin client (bypasses RLS). Ensure SUPABASE_SERVICE_ROLE_KEY is set in env.
+const supabaseAdmin = createSupabaseClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL,
+  process.env.SUPABASE_SERVICE_ROLE_KEY
+);
 
 export async function POST(req) {
   try {
@@ -28,7 +34,7 @@ export async function POST(req) {
     console.log("Checking if newsletter_subscribers table exists...");
 
     // Check if email already exists
-    const { data: existing, error: selectError } = await supabase
+    const { data: existing, error: selectError } = await supabaseAdmin
       .from("newsletter_subscribers")
       .select("email, subscribed")
       .eq("email", email.toLowerCase())
@@ -78,7 +84,7 @@ export async function POST(req) {
         );
       } else {
         // Reactivate subscription
-        const { error: updateError } = await supabase
+        const { error: updateError } = await supabaseAdmin
           .from("newsletter_subscribers")
           .update({
             subscribed: true,
@@ -97,7 +103,7 @@ export async function POST(req) {
 
         try {
           // Get the updated record to get the unsubscribe token
-          const { data: updatedRecord } = await supabase
+          const { data: updatedRecord } = await supabaseAdmin
             .from("newsletter_subscribers")
             .select("unsubscribe_token")
             .eq("email", email.toLowerCase())
@@ -126,7 +132,7 @@ export async function POST(req) {
 
     // Insert new subscriber
     console.log("Inserting new subscriber...");
-    const { data: newSubscriber, error: insertError } = await supabase
+    const { data: newSubscriber, error: insertError } = await supabaseAdmin
       .from("newsletter_subscribers")
       .insert([
         {
@@ -190,7 +196,7 @@ export async function POST(req) {
 // GET endpoint to retrieve newsletter subscribers (admin only)
 export async function GET(req) {
   try {
-    const { data: subscribers, error } = await supabase
+    const { data: subscribers, error } = await supabaseAdmin
       .from("newsletter_subscribers")
       .select("*")
       .order("created_at", { ascending: false });
@@ -231,7 +237,7 @@ export async function DELETE(req) {
       );
     }
 
-    const { error } = await supabase
+    const { error } = await supabaseAdmin
       .from("newsletter_subscribers")
       .delete()
       .eq("id", subscriberId);
