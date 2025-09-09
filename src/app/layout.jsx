@@ -50,7 +50,7 @@ export const metadata = {
     site: "@nahednakib",
   },
   other: {
-    "google-site-verification": "your-verification-code-here", // Add your Google Search Console verification code
+    "google-site-verification": "TjhZIjz2wD1E1YklsGme_WWNAz097JPRQi55wg9ldxk",
   },
 };
 
