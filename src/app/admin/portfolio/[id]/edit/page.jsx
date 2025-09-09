@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { supabase } from "@/services/supabaseClient";
+import ConfirmationModal from "@/components/ConfirmationModal/ConfirmationModal";
 import styles from "./EditPortfolio.module.css";
 
 const CATEGORY_OPTIONS = [
@@ -38,6 +39,7 @@ export default function EditPortfolioPage() {
   const [saving, setSaving] = useState(false);
   const [errorMsg, setErrorMsg] = useState(null);
   const [uploading, setUploading] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   useEffect(() => {
     async function fetchPortfolio() {
@@ -121,6 +123,50 @@ export default function EditPortfolioPage() {
     setUploading(false);
   }
 
+  function handleDeleteImage() {
+    setShowDeleteConfirm(true);
+  }
+
+  async function confirmDeleteImage() {
+    if (!formData.image) return;
+
+    setUploading(true);
+    setErrorMsg(null);
+
+    try {
+      // Check if the image is from Supabase storage
+      const isSupabaseImage =
+        formData.image.includes("supabase.co") &&
+        formData.image.includes("portfolio-images");
+
+      if (isSupabaseImage) {
+        // Extract filename from URL
+        const urlParts = formData.image.split("/");
+        const fileName = urlParts[urlParts.length - 1];
+
+        // Delete from storage
+        const { error: deleteError } = await supabase.storage
+          .from("portfolio-images")
+          .remove([fileName]);
+
+        if (deleteError) {
+          console.log(
+            "Storage deletion failed, but continuing with form update:",
+            deleteError.message
+          );
+        }
+      }
+
+      // Clear image from form (regardless of storage deletion result)
+      setFormData((prev) => ({ ...prev, image: "" }));
+    } catch (error) {
+      setErrorMsg("Error deleting image: " + error.message);
+    }
+
+    setUploading(false);
+    setShowDeleteConfirm(false);
+  }
+
   async function handleSubmit(e) {
     e.preventDefault();
     setSaving(true);
@@ -177,15 +223,25 @@ export default function EditPortfolioPage() {
         <div className={styles.formGroup}>
           <label className={styles.label}>Current Image:</label>
           {formData.image ? (
-            <img
-              src={formData.image}
-              alt="Portfolio image"
-              style={{
-                maxWidth: "200px",
-                display: "block",
-                marginBottom: "10px",
-              }}
-            />
+            <div style={{ marginBottom: "10px" }}>
+              <img
+                src={formData.image}
+                alt="Portfolio image"
+                style={{
+                  maxWidth: "200px",
+                  display: "block",
+                  marginBottom: "10px",
+                }}
+              />
+              <button
+                type="button"
+                onClick={handleDeleteImage}
+                disabled={uploading}
+                className={styles.deleteBtn}
+              >
+                {uploading ? "Deleting..." : "Delete Image"}
+              </button>
+            </div>
           ) : (
             <p>No image uploaded yet</p>
           )}
@@ -319,6 +375,18 @@ export default function EditPortfolioPage() {
           {saving ? "Saving..." : "Save Changes"}
         </button>
       </form>
+
+      {/* Delete Image Confirmation Modal */}
+      <ConfirmationModal
+        isOpen={showDeleteConfirm}
+        onClose={() => setShowDeleteConfirm(false)}
+        onConfirm={confirmDeleteImage}
+        title="Delete Image"
+        message="Are you sure you want to delete this image? This action cannot be undone and the image will be permanently removed from storage."
+        confirmText="Delete"
+        cancelText="Cancel"
+        type="danger"
+      />
     </div>
   );
 }

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/services/supabaseClient";
+import ConfirmationModal from "@/components/ConfirmationModal/ConfirmationModal";
 import styles from "./NewPortfolio.module.css";
 
 const CATEGORY_OPTIONS = [
@@ -34,6 +35,7 @@ export default function NewPortfolioPage() {
 
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState(null);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   function handleChange(e) {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -41,6 +43,15 @@ export default function NewPortfolioPage() {
 
   function handleFileChange(e) {
     setFormData({ ...formData, imageFile: e.target.files[0] || null });
+  }
+
+  function handleDeleteImage() {
+    setShowDeleteConfirm(true);
+  }
+
+  function confirmDeleteImage() {
+    setFormData({ ...formData, imageFile: null });
+    setShowDeleteConfirm(false);
   }
 
   function handleCategoryChange(e) {
@@ -174,6 +185,18 @@ export default function NewPortfolioPage() {
             onChange={handleFileChange}
             className={styles.input}
           />
+          {formData.imageFile && (
+            <div className={styles.imagePreview}>
+              <p>Selected: {formData.imageFile.name}</p>
+              <button
+                type="button"
+                onClick={handleDeleteImage}
+                className={styles.deleteBtn}
+              >
+                Remove Image
+              </button>
+            </div>
+          )}
         </div>
 
         <div className={styles.formGroup}>
@@ -292,6 +315,18 @@ export default function NewPortfolioPage() {
           {loading ? "Saving..." : "Create"}
         </button>
       </form>
+
+      {/* Delete Image Confirmation Modal */}
+      <ConfirmationModal
+        isOpen={showDeleteConfirm}
+        onClose={() => setShowDeleteConfirm(false)}
+        onConfirm={confirmDeleteImage}
+        title="Remove Image"
+        message="Are you sure you want to remove this image? This action cannot be undone."
+        confirmText="Remove"
+        cancelText="Cancel"
+        type="warning"
+      />
     </div>
   );
 }

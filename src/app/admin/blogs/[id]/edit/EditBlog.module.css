@@ -84,3 +84,34 @@
   margin-top: 4px;
   font-style: italic;
 }
+
+.deleteBtn {
+  background: #dc2626;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: background-color 0.3s ease;
+}
+
+.deleteBtn:hover {
+  background: #b91c1c;
+}
+
+.deleteBtn:disabled {
+  background: #6b7280;
+  cursor: not-allowed;
+}
+
+.imageContainer {
+  margin-bottom: 10px;
+}
+
+.imageContainer img {
+  max-width: 200px;
+  display: block;
+  margin-bottom: 10px;
+}

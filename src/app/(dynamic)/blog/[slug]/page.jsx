@@ -311,7 +311,7 @@ export default async function Post({ params }) {
       </Suspense>
       {relatedPosts.length > 0 && (
         <section className={styles.relatedSection}>
-          <h2>Related Posts</h2>
+          <h2>You May Also Be Interested In:</h2>
           <ul className={styles.relatedList}>
             {relatedPosts.map((post) => (
               <li key={post.id}>

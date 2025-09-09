@@ -514,6 +514,29 @@
   background: #555;
 }
 
+.deleteButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #dc2626;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: background 0.3s ease;
+}
+
+.deleteButton:hover:not(:disabled) {
+  background: #b91c1c;
+}
+
+.deleteButton:disabled {
+  background: #6b7280;
+  cursor: not-allowed;
+}
+
 .fileInfo {
   color: rgba(255, 255, 255, 0.7);
   font-size: 0.85rem;
@@ -538,7 +561,8 @@
   }
 
   .uploadButton,
-  .removeButton {
+  .removeButton,
+  .deleteButton {
     width: 100%;
     justify-content: center;
   }

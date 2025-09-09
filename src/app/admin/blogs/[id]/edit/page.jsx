@@ -5,6 +5,7 @@ import { useRouter, useParams } from "next/navigation";
 import { supabase } from "@/services/supabaseClient";
 import { Editor } from "@tinymce/tinymce-react";
 import { slugify, generateUniqueSlug } from "@/lib/utils/slugify";
+import ConfirmationModal from "@/components/ConfirmationModal/ConfirmationModal";
 import styles from "./EditBlog.module.css";
 
 export default function EditBlogPage() {
@@ -29,6 +30,7 @@ export default function EditBlogPage() {
   const [saving, setSaving] = useState(false);
   const [errorMsg, setErrorMsg] = useState(null);
   const [uploading, setUploading] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   useEffect(() => {
     fetchCategories();
@@ -133,6 +135,40 @@ export default function EditBlogPage() {
 
     setFormData((prev) => ({ ...prev, image: data.publicUrl }));
     setUploading(false);
+  }
+
+  function handleDeleteImage() {
+    setShowDeleteConfirm(true);
+  }
+
+  async function confirmDeleteImage() {
+    if (!formData.image) return;
+
+    setUploading(true);
+    setErrorMsg(null);
+
+    try {
+      // Extract filename from URL
+      const urlParts = formData.image.split("/");
+      const fileName = urlParts[urlParts.length - 1];
+
+      // Delete from storage
+      const { error: deleteError } = await supabase.storage
+        .from("blog-images")
+        .remove([fileName]);
+
+      if (deleteError) {
+        setErrorMsg("Error deleting image: " + deleteError.message);
+      } else {
+        // Clear image from form
+        setFormData((prev) => ({ ...prev, image: "" }));
+      }
+    } catch (error) {
+      setErrorMsg("Error deleting image: " + error.message);
+    }
+
+    setUploading(false);
+    setShowDeleteConfirm(false);
   }
 
   async function handleSubmit(e) {
@@ -258,15 +294,17 @@ export default function EditBlogPage() {
         <div className={styles.formGroup}>
           <label className={styles.label}>Current Image:</label>
           {formData.image ? (
-            <img
-              src={formData.image}
-              alt="Blog image"
-              style={{
-                maxWidth: "200px",
-                display: "block",
-                marginBottom: "10px",
-              }}
-            />
+            <div className={styles.imageContainer}>
+              <img src={formData.image} alt="Blog image" />
+              <button
+                type="button"
+                onClick={handleDeleteImage}
+                disabled={uploading}
+                className={styles.deleteBtn}
+              >
+                {uploading ? "Deleting..." : "Delete Image"}
+              </button>
+            </div>
           ) : (
             <p>No image uploaded yet</p>
           )}
@@ -425,6 +463,18 @@ export default function EditBlogPage() {
           {saving ? "Saving..." : "Save Changes"}
         </button>
       </form>
+
+      {/* Delete Image Confirmation Modal */}
+      <ConfirmationModal
+        isOpen={showDeleteConfirm}
+        onClose={() => setShowDeleteConfirm(false)}
+        onConfirm={confirmDeleteImage}
+        title="Delete Image"
+        message="Are you sure you want to delete this image? This action cannot be undone and the image will be permanently removed from storage."
+        confirmText="Delete"
+        cancelText="Cancel"
+        type="danger"
+      />
     </div>
   );
 }

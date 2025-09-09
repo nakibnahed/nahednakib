@@ -3,7 +3,8 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/services/supabaseClient";
 import styles from "../../../../app/users/profile/Profile.module.css";
 import Image from "next/image";
-import { Upload, X, User } from "lucide-react";
+import { Upload, X, User, Trash2 } from "lucide-react";
+import ConfirmationModal from "@/components/ConfirmationModal/ConfirmationModal";
 
 export default function SettingsContent({ user }) {
   const [loading, setLoading] = useState(true);
@@ -21,6 +22,8 @@ export default function SettingsContent({ user }) {
   const [previewUrl, setPreviewUrl] = useState("");
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState("");
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
     async function loadProfileData() {
@@ -97,6 +100,68 @@ export default function SettingsContent({ user }) {
     setSelectedFile(null);
     setPreviewUrl(formData.avatar_url || "");
     setError("");
+  };
+
+  const handleDeleteAvatar = () => {
+    setShowDeleteConfirm(true);
+  };
+
+  const confirmDeleteAvatar = async () => {
+    if (!formData.avatar_url) return;
+
+    setDeleting(true);
+    setError("");
+    setSuccess("");
+
+    try {
+      // Check if the avatar is from Supabase storage
+      const isSupabaseAvatar =
+        formData.avatar_url.includes("supabase.co") &&
+        formData.avatar_url.includes("avatars");
+
+      if (isSupabaseAvatar) {
+        // Extract filename from URL
+        const urlParts = formData.avatar_url.split("/");
+        const fileName = urlParts[urlParts.length - 1];
+
+        // Delete from storage
+        const { error: deleteError } = await supabase.storage
+          .from("avatars")
+          .remove([fileName]);
+
+        if (deleteError) {
+          console.log(
+            "Storage deletion failed, but continuing with profile update:",
+            deleteError.message
+          );
+        }
+      }
+
+      // Clear avatar from form and profile (regardless of storage deletion result)
+      const updateData = {
+        avatar_url: "",
+        updated_at: new Date().toISOString(),
+      };
+
+      const { error: updateError } = await supabase
+        .from("profiles")
+        .update(updateData)
+        .eq("id", user.id);
+
+      if (updateError) {
+        setError("Error updating profile: " + updateError.message);
+      } else {
+        setFormData((prev) => ({ ...prev, avatar_url: "" }));
+        setPreviewUrl("");
+        setSuccess("Avatar deleted successfully!");
+        setProfileData((prev) => ({ ...prev, avatar_url: "" }));
+      }
+    } catch (error) {
+      setError("Error deleting avatar: " + error.message);
+    }
+
+    setDeleting(false);
+    setShowDeleteConfirm(false);
   };
 
   const uploadImage = async (file) => {
@@ -259,6 +324,18 @@ export default function SettingsContent({ user }) {
                   </button>
                 )}
 
+                {formData.avatar_url && !selectedFile && (
+                  <button
+                    type="button"
+                    onClick={handleDeleteAvatar}
+                    disabled={deleting}
+                    className={styles.deleteButton}
+                  >
+                    <Trash2 size={16} />
+                    {deleting ? "Deleting..." : "Delete Avatar"}
+                  </button>
+                )}
+
                 {selectedFile && (
                   <p className={styles.fileInfo}>
                     Selected: {selectedFile.name}
@@ -366,6 +443,18 @@ export default function SettingsContent({ user }) {
           </button>
         </form>
       </div>
+
+      {/* Delete Avatar Confirmation Modal */}
+      <ConfirmationModal
+        isOpen={showDeleteConfirm}
+        onClose={() => setShowDeleteConfirm(false)}
+        onConfirm={confirmDeleteAvatar}
+        title="Delete Avatar"
+        message="Are you sure you want to delete your avatar? This action cannot be undone and the image will be permanently removed."
+        confirmText="Delete"
+        cancelText="Cancel"
+        type="danger"
+      />
     </div>
   );
 }

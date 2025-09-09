@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { supabase } from "@/services/supabaseClient";
 import { Editor } from "@tinymce/tinymce-react";
 import { slugify, generateUniqueSlug } from "@/lib/utils/slugify";
+import ConfirmationModal from "@/components/ConfirmationModal/ConfirmationModal";
 import styles from "./NewBlog.module.css";
 
 export default function NewBlogPage() {
@@ -25,6 +26,7 @@ export default function NewBlogPage() {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState(null);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   useEffect(() => {
     fetchCategories();
@@ -72,6 +74,15 @@ export default function NewBlogPage() {
 
   function handleFileChange(e) {
     setFormData({ ...formData, imageFile: e.target.files[0] || null });
+  }
+
+  function handleDeleteImage() {
+    setShowDeleteConfirm(true);
+  }
+
+  function confirmDeleteImage() {
+    setFormData({ ...formData, imageFile: null });
+    setShowDeleteConfirm(false);
   }
 
   async function handleSubmit(e) {
@@ -246,6 +257,18 @@ export default function NewBlogPage() {
             onChange={handleFileChange}
             className={styles.input}
           />
+          {formData.imageFile && (
+            <div className={styles.imagePreview}>
+              <p>Selected: {formData.imageFile.name}</p>
+              <button
+                type="button"
+                onClick={handleDeleteImage}
+                className={styles.deleteBtn}
+              >
+                Remove Image
+              </button>
+            </div>
+          )}
         </div>
 
         <div className={styles.formGroup}>
@@ -385,6 +408,18 @@ export default function NewBlogPage() {
           {loading ? "Saving..." : "Create"}
         </button>
       </form>
+
+      {/* Delete Image Confirmation Modal */}
+      <ConfirmationModal
+        isOpen={showDeleteConfirm}
+        onClose={() => setShowDeleteConfirm(false)}
+        onConfirm={confirmDeleteImage}
+        title="Remove Image"
+        message="Are you sure you want to remove this image? This action cannot be undone."
+        confirmText="Remove"
+        cancelText="Cancel"
+        type="warning"
+      />
     </div>
   );
 }

@@ -289,10 +289,13 @@
   border-top: 1px solid var(--card-border);
 }
 .relatedSection h2 {
-  font-size: 1.1rem;
   font-weight: 600;
-  margin-bottom: 12px;
+  margin-bottom: 14px;
   color: var(--primary-color);
+  background: var(--gradient-typography-primary);
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-size: 1.2rem;
 }
 .relatedList {
   list-style: none;
@@ -300,53 +303,65 @@
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 10px;
+}
+.relatedList li {
+  position: relative;
+  padding-left: 16px;
+}
+
+.relatedList li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--primary-color);
 }
 .relatedListItem {
   display: flex;
   align-items: center;
-  gap: 14px;
-  padding: 12px;
-  border: 1px solid var(--card-border);
-  border-radius: 26px;
-
+  gap: 10px;
+  padding: 16px 0;
+  border: none;
+  border-bottom: 1px solid var(--card-border);
+  border-radius: 0;
   text-decoration: none;
-  transition: border-color 0.18s;
+  transition: opacity 0.18s;
+  background: transparent;
+}
+.relatedListItem + .relatedListItem {
+  border-top: none;
+}
+.relatedListItem:hover {
+  opacity: 0.92;
 }
 .relatedPostThumb {
-  width: 75px;
-  height: 60px;
-  border-radius: 16px;
-  object-fit: cover;
-  background: #eee;
-  flex-shrink: 0;
+  display: none;
 }
 .relatedPostInfo {
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 4px;
+  min-width: 0;
 }
 .relatedPostTitle {
-  font-size: 1.02rem;
   font-weight: 700;
   color: var(--text-dark);
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 .relatedPostDesc {
-  color: var(--text-dark);
-  font-size: 16px;
-  opacity: 0.85;
+  display: none;
 }
 .relatedReadMore {
-  color: var(--primary-color);
-  font-weight: 600;
-  font-size: 1rem;
-  text-decoration: none;
-  margin-left: 12px;
-  white-space: nowrap;
-  display: flex;
-  align-items: center;
-  gap: 4px;
+  display: none;
 }
 .arrow {
   display: inline-block;
@@ -366,10 +381,49 @@
     height: 250px;
   }
   .relatedListItem {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 6px;
-    padding: 20px;
+    display: block;
+    align-items: initial;
+    gap: 0;
+    padding: 12px 0;
+  }
+  .relatedList li {
+    padding-left: 14px;
+  }
+  .relatedList li::before {
+    width: 5px;
+    height: 5px;
+  }
+  .relatedPostThumb {
+    display: none;
+  }
+  .relatedPostInfo {
+    gap: 4px;
+    min-width: 0;
+  }
+  .relatedPostTitle {
+    -webkit-line-clamp: 2;
+  }
+  .relatedReadMore {
+    margin-left: 0;
+    margin-top: 6px;
+  }
+}
+@media (max-width: 380px) {
+  .relatedListItem {
+    grid-template-columns: 48px 1fr;
+    gap: 8px;
+    padding: 10px 0;
+  }
+  .relatedPostThumb {
+    width: 48px;
+    height: 48px;
+    border-radius: 8px;
+  }
+  .relatedPostTitle {
+    -webkit-line-clamp: 2;
+  }
+  .relatedReadMore {
+    display: none;
   }
 }
 .metaSection {
