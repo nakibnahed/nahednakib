@@ -15,6 +15,7 @@ export const metadata = {
   creator: siteMetadata.author,
   publisher: siteMetadata.author,
   robots: siteMetadata.robots,
+  viewport: siteMetadata.viewport,
   manifest: "/manifest.json",
   icons: {
     icon: siteMetadata.icons.icon,
@@ -49,13 +50,8 @@ export const metadata = {
     site: "@nahednakib",
   },
   other: {
-    "google-site-verification": "5zi1LXSp9ABxohGs7sj86y3W9GCCwuo2erxRAbMzmNM",
+    "google-site-verification": "TjhZIjz2wD1E1YklsGme_WWNAz097JPRQi55wg9ldxk",
   },
-};
-
-export const viewport = {
-  width: "device-width",
-  initialScale: 1,
 };
 
 // Structured data for better SEO
