@@ -1032,7 +1032,7 @@
   border-radius: 16px;
   padding: 1.5rem;
   margin-bottom: 1.5rem;
-  transition: background-color 0.2s ease;
+  /* transition: background-color 0.2s ease; */
 }
 
 .sidebarCard:last-child {
@@ -1164,7 +1164,7 @@
   color: var(--text-dark);
   text-decoration: none;
   font-weight: 500;
-  transition: all 0.2s ease;
+  /* transition: all 0.2s ease; */
 }
 
 .linkButton:hover {

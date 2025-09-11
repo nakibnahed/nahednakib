@@ -10,6 +10,7 @@ export default function LikesPage() {
   const [user, setUser] = useState(null);
   const [profileData, setProfileData] = useState(null);
   const [likes, setLikes] = useState([]);
+  const [blogIdToSlug, setBlogIdToSlug] = useState({});
   const [error, setError] = useState(null);
   const router = useRouter();
 
@@ -55,8 +56,31 @@ export default function LikesPage() {
         if (likesError) {
           console.error("Error fetching likes:", likesError);
           setError("Could not load liked posts");
+          setLikes([]);
         } else {
-          setLikes(userLikes || []);
+          const fetchedLikes = userLikes || [];
+          setLikes(fetchedLikes);
+
+          // Build mapping of blog ID -> slug for liked blogs
+          const blogIds = fetchedLikes
+            .filter((l) => l.content_type === "blog" && l.content_id)
+            .map((l) => l.content_id);
+
+          const uniqueBlogIds = Array.from(new Set(blogIds));
+          if (uniqueBlogIds.length > 0) {
+            const { data: blogs, error: blogsError } = await supabase
+              .from("blogs")
+              .select("id, slug")
+              .in("id", uniqueBlogIds);
+
+            if (!blogsError && blogs) {
+              const map = {};
+              for (const b of blogs) {
+                if (b?.id && b?.slug) map[b.id] = b.slug;
+              }
+              setBlogIdToSlug(map);
+            }
+          }
         }
       } catch (err) {
         console.error("Error loading user data:", err);
@@ -77,45 +101,28 @@ export default function LikesPage() {
         .eq("id", likeId);
 
       if (error) {
-        console.error("Error removing like:", error);
-        alert("Failed to remove like");
-      } else {
-        setLikes(likes.filter((like) => like.id !== likeId));
+        console.error("Error unliking post:", error);
+        return;
       }
+
+      setLikes((prev) => prev.filter((l) => l.id !== likeId));
     } catch (err) {
-      console.error("Error removing like:", err);
-      alert("An error occurred while removing the like");
+      console.error("Error:", err);
     }
   };
 
   if (loading) {
     return (
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          minHeight: "60vh",
-          color: "#fff",
-        }}
-      >
-        <p>Loading your liked posts...</p>
+      <div className={styles.profileContent}>
+        <p>Loading...</p>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          minHeight: "60vh",
-          color: "#ff6b6b",
-        }}
-      >
-        <p>{error}</p>
+      <div className={styles.profileContent}>
+        <p className={styles.error}>{error}</p>
       </div>
     );
   }
@@ -134,55 +141,52 @@ export default function LikesPage() {
           </div>
         ) : (
           <div className={styles.contentList}>
-            {likes.map((like) => (
-              <div key={like.id} className={styles.likeItem}>
-                <div className={styles.likeHeader}>
-                  <div className={styles.postInfo}>
-                    <h3>
-                      Liked{" "}
-                      {like.content_type === "blog"
-                        ? "Blog Post"
-                        : "Portfolio Item"}
-                    </h3>
-                    <span className={styles.likeDate}>
-                      Liked on {new Date(like.created_at).toLocaleDateString()}
-                    </span>
+            {likes.map((like) => {
+              const isBlog = like.content_type === "blog";
+              const href = isBlog
+                ? `/blog/${blogIdToSlug[like.content_id] || ""}`
+                : `/portfolio/${like.content_id}`;
+              const isDisabled = isBlog && !blogIdToSlug[like.content_id];
+
+              return (
+                <div key={like.id} className={styles.likeItem}>
+                  <div className={styles.likeHeader}>
+                    <div className={styles.postInfo}>
+                      <h3>Liked {isBlog ? "Blog Post" : "Portfolio Item"}</h3>
+                      <span className={styles.likeDate}>
+                        Liked on{" "}
+                        {new Date(like.created_at).toLocaleDateString()}
+                      </span>
+                    </div>
+                    <button
+                      onClick={() => handleUnlike(like.id)}
+                      className={styles.unlikeButton}
+                    >
+                      Unlike
+                    </button>
                   </div>
-                  <button
-                    onClick={() => handleUnlike(like.id)}
-                    className={styles.unlikeButton}
-                  >
-                    Unlike
-                  </button>
+                  <div className={styles.likeContent}>
+                    <p>
+                      You liked this {isBlog ? "blog post" : "portfolio item"}.
+                    </p>
+                  </div>
+                  <div className={styles.likeFooter}>
+                    <span className={styles.postType}>
+                      {isBlog ? "Blog Post" : "Portfolio Item"}
+                    </span>
+                    {isDisabled ? (
+                      <span className={styles.viewPostLink} aria-disabled>
+                        Loading link...
+                      </span>
+                    ) : (
+                      <a href={href} className={styles.viewPostLink}>
+                        View Post
+                      </a>
+                    )}
+                  </div>
                 </div>
-                <div className={styles.likeContent}>
-                  <p>
-                    You liked this{" "}
-                    {like.content_type === "blog"
-                      ? "blog post"
-                      : "portfolio item"}
-                    .
-                  </p>
-                </div>
-                <div className={styles.likeFooter}>
-                  <span className={styles.postType}>
-                    {like.content_type === "blog"
-                      ? "Blog Post"
-                      : "Portfolio Item"}
-                  </span>
-                  <a
-                    href={
-                      like.content_type === "blog"
-                        ? `/blog/${like.content_id}`
-                        : `/portfolio/${like.content_id}`
-                    }
-                    className={styles.viewPostLink}
-                  >
-                    View Post
-                  </a>
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </div>

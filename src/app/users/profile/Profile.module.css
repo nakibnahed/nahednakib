@@ -53,7 +53,6 @@
   font-weight: 500;
   padding: 8px 12px;
   border-radius: 6px;
-  transition: background 0.2s;
 }
 
 .menuItem:hover {
@@ -78,7 +77,6 @@
   padding: 6px 12px;
   margin-bottom: 24px;
   cursor: pointer;
-  transition: background 0.2s;
 }
 
 .main {
@@ -110,9 +108,9 @@
 .input {
   padding: 10px;
   border-radius: 6px;
-  border: 1px solid var(--card-border, #333);
+  border: 1px solid var(--card-border);
   background: #232323;
-  color: #fff;
+  color: var(--text-dark);
   font-size: 16px;
   outline: none;
   margin-bottom: 8px;
@@ -120,14 +118,13 @@
 
 .button {
   background: var(--primary-color, #ee681a);
-  color: #fff;
+  color: var(--text-dark);
   border: none;
   border-radius: 6px;
   padding: 10px 0;
   font-weight: bold;
   cursor: pointer;
   margin-top: 12px;
-  transition: background 0.2s;
 }
 
 .deleteButton {
@@ -196,15 +193,12 @@
 
 /* Comment Item Styles */
 .commentItem {
-  background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 8px;
   padding: 20px;
-  transition: all 0.3s ease;
 }
 
 .commentItem:hover {
-  background: rgba(255, 255, 255, 0.08);
   border-color: rgba(255, 255, 255, 0.2);
 }
 
@@ -243,12 +237,11 @@
 
 .deleteButton {
   background: #ff4444;
-  color: white;
+  color: var(--text-dark);
   border: none;
   padding: 8px 16px;
   border-radius: 4px;
   cursor: pointer;
-  transition: background 0.3s ease;
 }
 
 .deleteButton:hover {
@@ -259,7 +252,6 @@
   color: var(--primary-color, #ee681a);
   text-decoration: none;
   font-weight: 500;
-  transition: color 0.3s ease;
 }
 
 .viewPostLink:hover {
@@ -269,16 +261,14 @@
 /* Like/Favorite Item Styles */
 .likeItem,
 .favoriteItem {
-  background: rgba(255, 255, 255, 0.05);
+  background: transparent;
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 8px;
   padding: 20px;
-  transition: all 0.3s ease;
 }
 
 .likeItem:hover,
 .favoriteItem:hover {
-  background: rgba(255, 255, 255, 0.08);
   border-color: rgba(255, 255, 255, 0.2);
 }
 
@@ -326,12 +316,11 @@
 .unlikeButton,
 .removeButton {
   background: #666;
-  color: white;
+  color: var(--text-dark);
   border: none;
   padding: 8px 16px;
   border-radius: 4px;
   cursor: pointer;
-  transition: background 0.3s ease;
 }
 
 .unlikeButton:hover,
@@ -351,7 +340,7 @@
 .formGroup label {
   display: block;
   margin-bottom: 8px;
-  color: rgba(255, 255, 255, 0.9);
+  color: var(--text-dark);
   font-weight: 500;
 }
 
@@ -359,12 +348,11 @@
 .formTextarea {
   width: 100%;
   padding: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 1px solid var(--card-border);
   border-radius: 6px;
   background: rgba(255, 255, 255, 0.05);
-  color: white;
+  color: var(--text-dark);
   font-size: 1rem;
-  transition: all 0.3s ease;
 }
 
 .formInput:focus,
@@ -381,14 +369,13 @@
 
 .saveButton {
   background: var(--primary-color, #ee681a);
-  color: white;
+  color: var(--button-text);
   border: none;
   padding: 12px 24px;
   border-radius: 6px;
   cursor: pointer;
   font-size: 1rem;
   font-weight: 500;
-  transition: background 0.3s ease;
 }
 
 .saveButton:hover {
@@ -421,16 +408,16 @@
 .readOnlyField {
   width: 100%;
   padding: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 1px solid var(--card-border);
   border-radius: 6px;
   background: rgba(255, 255, 255, 0.03);
-  color: rgba(255, 255, 255, 0.7);
+  color: var(--text-dark);
   font-size: 1rem;
   cursor: not-allowed;
 }
 
 .fieldNote {
-  color: rgba(255, 255, 255, 0.5);
+  color: var(--text-dark);
   font-size: 0.85rem;
   margin-top: 4px;
   display: block;
@@ -481,14 +468,15 @@
   align-items: center;
   gap: 8px;
   background: var(--primary-color, #ee681a);
-  color: white;
+  color: var(--button-text) !important;
+
   border: none;
   padding: 10px 16px;
   border-radius: 6px;
   cursor: pointer;
   font-size: 0.9rem;
   font-weight: 500;
-  transition: background 0.3s ease;
+
   text-decoration: none;
 }
 
@@ -501,13 +489,13 @@
   align-items: center;
   gap: 8px;
   background: #666;
-  color: white;
+  color: var(--button-text);
+
   border: none;
   padding: 8px 12px;
   border-radius: 6px;
   cursor: pointer;
   font-size: 0.85rem;
-  transition: background 0.3s ease;
 }
 
 .removeButton:hover {
@@ -519,13 +507,13 @@
   align-items: center;
   gap: 8px;
   background: #dc2626;
-  color: white;
+  color: var(--button-text);
+
   border: none;
   padding: 8px 12px;
   border-radius: 6px;
   cursor: pointer;
   font-size: 0.85rem;
-  transition: background 0.3s ease;
 }
 
 .deleteButton:hover:not(:disabled) {
@@ -538,7 +526,7 @@
 }
 
 .fileInfo {
-  color: rgba(255, 255, 255, 0.7);
+  color: var(--text-dark);
   font-size: 0.85rem;
   margin: 0;
   padding: 8px 12px;

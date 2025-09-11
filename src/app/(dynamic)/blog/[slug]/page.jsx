@@ -12,7 +12,7 @@ export async function generateMetadata({ params }) {
   const { slug } = await params;
 
   // Optimized: Fetch blog post with author in single query
-  const { data: blog, error } = await supabase
+  let { data: blog, error } = await supabase
     .from("blogs")
     .select(
       `
@@ -26,6 +26,28 @@ export async function generateMetadata({ params }) {
     )
     .eq("slug", slug)
     .single();
+
+  // Fallback: if not found by slug, try by ID (for legacy links)
+  if ((error || !blog) && slug) {
+    const { data: byId, error: idError } = await supabase
+      .from("blogs")
+      .select(
+        `
+        *,
+        profiles:author_id (
+          full_name,
+          first_name,
+          last_name
+        )
+      `
+      )
+      .eq("id", slug)
+      .single();
+    if (!idError && byId) {
+      blog = byId;
+      error = null;
+    }
+  }
 
   if (error || !blog) {
     return {
@@ -96,7 +118,7 @@ export default async function Post({ params }) {
   const { slug } = await params;
 
   // Optimized: Get blog post with author in single query
-  const { data: blog, error } = await supabase
+  let { data: blog, error } = await supabase
     .from("blogs")
     .select(
       `
@@ -115,6 +137,33 @@ export default async function Post({ params }) {
     )
     .eq("slug", slug)
     .single();
+
+  // Fallback: if not found by slug, try by ID
+  if ((error || !blog) && slug) {
+    const { data: byId, error: idError } = await supabase
+      .from("blogs")
+      .select(
+        `
+        *,
+        profiles:author_id (
+          id,
+          full_name,
+          first_name,
+          last_name,
+          avatar_url,
+          email,
+          bio,
+          professional_role
+        )
+      `
+      )
+      .eq("id", slug)
+      .single();
+    if (!idError && byId) {
+      blog = byId;
+      error = null;
+    }
+  }
 
   if (error) {
     console.error("Database error:", error);

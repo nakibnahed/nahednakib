@@ -52,7 +52,7 @@
   border-radius: 6px;
   border: 1px solid var(--card-border);
   background-color: var(--background-main);
-  color: var(--text-light);
+  color: var(--text-dark);
   font-size: 16px;
   font-family: var(--font-heading), sans-serif;
   outline-offset: 2px;
@@ -60,13 +60,13 @@
 }
 
 .searchInput::placeholder {
-  color: var(--text-muted);
+  color: var(--text-dark);
 }
 
 .searchInput:focus {
   border-color: var(--primary-color);
   background-color: var(--card-bg);
-  color: var(--text-light);
+  color: var(--text-dark);
 }
 
 .newButton {
@@ -172,7 +172,7 @@
   border: 1px solid var(--card-border);
   text-align: center;
   background-color: var(--background-main);
-  color: var(--card-text);
+  color: var(--text-dark);
   vertical-align: middle;
 }
 

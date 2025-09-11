@@ -11,6 +11,7 @@ export default function CommentsPage() {
   const [user, setUser] = useState(null);
   const [profileData, setProfileData] = useState(null);
   const [comments, setComments] = useState([]);
+  const [blogIdToSlug, setBlogIdToSlug] = useState({});
   const [error, setError] = useState(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [commentToDelete, setCommentToDelete] = useState(null);
@@ -21,7 +22,6 @@ export default function CommentsPage() {
       try {
         setLoading(true);
 
-        // Get current user
         const {
           data: { user },
           error: userError,
@@ -34,7 +34,6 @@ export default function CommentsPage() {
 
         setUser(user);
 
-        // Fetch profile data
         const { data: profile, error: profileError } = await supabase
           .from("profiles")
           .select("*")
@@ -48,7 +47,6 @@ export default function CommentsPage() {
           setProfileData(profile);
         }
 
-        // Fetch user's comments from the correct table
         const { data: userComments, error: commentsError } = await supabase
           .from("user_comments")
           .select("*")
@@ -58,8 +56,28 @@ export default function CommentsPage() {
         if (commentsError) {
           console.error("Error fetching comments:", commentsError);
           setError("Could not load comments");
+          setComments([]);
         } else {
-          setComments(userComments || []);
+          const fetched = userComments || [];
+          setComments(fetched);
+
+          const blogIds = fetched
+            .filter((c) => c.content_type === "blog" && c.content_id)
+            .map((c) => c.content_id);
+          const uniqueBlogIds = Array.from(new Set(blogIds));
+          if (uniqueBlogIds.length > 0) {
+            const { data: blogs, error: blogsError } = await supabase
+              .from("blogs")
+              .select("id, slug")
+              .in("id", uniqueBlogIds);
+            if (!blogsError && blogs) {
+              const map = {};
+              for (const b of blogs) {
+                if (b?.id && b?.slug) map[b.id] = b.slug;
+              }
+              setBlogIdToSlug(map);
+            }
+          }
         }
       } catch (err) {
         console.error("Error loading user data:", err);
@@ -90,9 +108,7 @@ export default function CommentsPage() {
         console.error("Error deleting comment:", error);
         alert("Failed to delete comment");
       } else {
-        setComments(
-          comments.filter((comment) => comment.id !== commentToDelete)
-        );
+        setComments((prev) => prev.filter((c) => c.id !== commentToDelete));
       }
     } catch (err) {
       console.error("Error deleting comment:", err);
@@ -105,32 +121,16 @@ export default function CommentsPage() {
 
   if (loading) {
     return (
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          minHeight: "60vh",
-          color: "#fff",
-        }}
-      >
-        <p>Loading your comments...</p>
+      <div className={styles.profileContent}>
+        <p>Loading...</p>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          minHeight: "60vh",
-          color: "#ff6b6b",
-        }}
-      >
-        <p>{error}</p>
+      <div className={styles.profileContent}>
+        <p className={styles.error}>{error}</p>
       </div>
     );
   }
@@ -149,49 +149,51 @@ export default function CommentsPage() {
           </div>
         ) : (
           <div className={styles.contentList}>
-            {comments.map((comment) => (
-              <div key={comment.id} className={styles.commentItem}>
-                <div className={styles.commentHeader}>
-                  <div className={styles.postInfo}>
-                    <h3>
-                      Comment on{" "}
-                      {comment.content_type === "blog"
-                        ? "Blog Post"
-                        : "Portfolio Item"}
-                    </h3>
-                    <span className={styles.commentDate}>
-                      {new Date(comment.created_at).toLocaleDateString()}
-                    </span>
+            {comments.map((comment) => {
+              const isBlog = comment.content_type === "blog";
+              const href = isBlog
+                ? `/blog/${blogIdToSlug[comment.content_id] || ""}`
+                : `/portfolio/${comment.content_id}`;
+              const isDisabled = isBlog && !blogIdToSlug[comment.content_id];
+
+              return (
+                <div key={comment.id} className={styles.commentItem}>
+                  <div className={styles.commentHeader}>
+                    <div className={styles.postInfo}>
+                      <h3>
+                        Comment on {isBlog ? "Blog Post" : "Portfolio Item"}
+                      </h3>
+                      <span className={styles.commentDate}>
+                        {new Date(comment.created_at).toLocaleDateString()}
+                      </span>
+                    </div>
+                    <button
+                      onClick={() => confirmDelete(comment.id)}
+                      className={styles.deleteButton}
+                    >
+                      Delete
+                    </button>
                   </div>
-                  <button
-                    onClick={() => confirmDelete(comment.id)}
-                    className={styles.deleteButton}
-                  >
-                    Delete
-                  </button>
+                  <div className={styles.commentContent}>
+                    <p>{comment.comment || "No content"}</p>
+                  </div>
+                  <div className={styles.commentFooter}>
+                    <span className={styles.postType}>
+                      {isBlog ? "Blog Post" : "Portfolio Item"}
+                    </span>
+                    {isDisabled ? (
+                      <span className={styles.viewPostLink} aria-disabled>
+                        Loading link...
+                      </span>
+                    ) : (
+                      <a href={href} className={styles.viewPostLink}>
+                        View Post
+                      </a>
+                    )}
+                  </div>
                 </div>
-                <div className={styles.commentContent}>
-                  <p>{comment.comment || "No content"}</p>
-                </div>
-                <div className={styles.commentFooter}>
-                  <span className={styles.postType}>
-                    {comment.content_type === "blog"
-                      ? "Blog Post"
-                      : "Portfolio Item"}
-                  </span>
-                  <a
-                    href={
-                      comment.content_type === "blog"
-                        ? `/blog/${comment.content_id}`
-                        : `/portfolio/${comment.content_id}`
-                    }
-                    className={styles.viewPostLink}
-                  >
-                    View Post
-                  </a>
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
 

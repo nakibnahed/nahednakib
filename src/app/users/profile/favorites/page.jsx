@@ -11,6 +11,7 @@ export default function FavoritesPage() {
   const [user, setUser] = useState(null);
   const [profileData, setProfileData] = useState(null);
   const [favorites, setFavorites] = useState([]);
+  const [blogIdToSlug, setBlogIdToSlug] = useState({});
   const [error, setError] = useState(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [favoriteToDelete, setFavoriteToDelete] = useState(null);
@@ -21,7 +22,6 @@ export default function FavoritesPage() {
       try {
         setLoading(true);
 
-        // Get current user
         const {
           data: { user },
           error: userError,
@@ -34,7 +34,6 @@ export default function FavoritesPage() {
 
         setUser(user);
 
-        // Fetch profile data
         const { data: profile, error: profileError } = await supabase
           .from("profiles")
           .select("*")
@@ -48,7 +47,6 @@ export default function FavoritesPage() {
           setProfileData(profile);
         }
 
-        // Fetch user's favorites from the correct table
         const { data: userFavorites, error: favoritesError } = await supabase
           .from("user_favorites")
           .select("*")
@@ -58,8 +56,28 @@ export default function FavoritesPage() {
         if (favoritesError) {
           console.error("Error fetching favorites:", favoritesError);
           setError("Could not load favorite posts");
+          setFavorites([]);
         } else {
-          setFavorites(userFavorites || []);
+          const fetched = userFavorites || [];
+          setFavorites(fetched);
+
+          const blogIds = fetched
+            .filter((f) => f.content_type === "blog" && f.content_id)
+            .map((f) => f.content_id);
+          const uniqueBlogIds = Array.from(new Set(blogIds));
+          if (uniqueBlogIds.length > 0) {
+            const { data: blogs, error: blogsError } = await supabase
+              .from("blogs")
+              .select("id, slug")
+              .in("id", uniqueBlogIds);
+            if (!blogsError && blogs) {
+              const map = {};
+              for (const b of blogs) {
+                if (b?.id && b?.slug) map[b.id] = b.slug;
+              }
+              setBlogIdToSlug(map);
+            }
+          }
         }
       } catch (err) {
         console.error("Error loading user data:", err);
@@ -90,7 +108,9 @@ export default function FavoritesPage() {
         console.error("Error removing favorite:", error);
         alert("Failed to remove favorite");
       } else {
-        setFavorites(favorites.filter((fav) => fav.id !== favoriteToDelete));
+        setFavorites((prev) =>
+          prev.filter((fav) => fav.id !== favoriteToDelete)
+        );
       }
     } catch (err) {
       console.error("Error removing favorite:", err);
@@ -103,32 +123,16 @@ export default function FavoritesPage() {
 
   if (loading) {
     return (
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          minHeight: "60vh",
-          color: "#fff",
-        }}
-      >
-        <p>Loading your favorites...</p>
+      <div className={styles.profileContent}>
+        <p>Loading...</p>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          minHeight: "60vh",
-          color: "#ff6b6b",
-        }}
-      >
-        <p>{error}</p>
+      <div className={styles.profileContent}>
+        <p className={styles.error}>{error}</p>
       </div>
     );
   }
@@ -147,56 +151,55 @@ export default function FavoritesPage() {
           </div>
         ) : (
           <div className={styles.contentList}>
-            {favorites.map((favorite) => (
-              <div key={favorite.id} className={styles.favoriteItem}>
-                <div className={styles.favoriteHeader}>
-                  <div className={styles.postInfo}>
-                    <h3>
-                      Favorite{" "}
-                      {favorite.content_type === "blog"
-                        ? "Blog Post"
-                        : "Portfolio Item"}
-                    </h3>
-                    <span className={styles.favoriteDate}>
-                      Added on{" "}
-                      {new Date(favorite.created_at).toLocaleDateString()}
-                    </span>
+            {favorites.map((favorite) => {
+              const isBlog = favorite.content_type === "blog";
+              const href = isBlog
+                ? `/blog/${blogIdToSlug[favorite.content_id] || ""}`
+                : `/portfolio/${favorite.content_id}`;
+              const isDisabled = isBlog && !blogIdToSlug[favorite.content_id];
+
+              return (
+                <div key={favorite.id} className={styles.favoriteItem}>
+                  <div className={styles.favoriteHeader}>
+                    <div className={styles.postInfo}>
+                      <h3>
+                        Favorite {isBlog ? "Blog Post" : "Portfolio Item"}
+                      </h3>
+                      <span className={styles.favoriteDate}>
+                        Added on{" "}
+                        {new Date(favorite.created_at).toLocaleDateString()}
+                      </span>
+                    </div>
+                    <button
+                      onClick={() => confirmRemoveFavorite(favorite.id)}
+                      className={styles.removeButton}
+                    >
+                      Remove
+                    </button>
                   </div>
-                  <button
-                    onClick={() => confirmRemoveFavorite(favorite.id)}
-                    className={styles.removeButton}
-                  >
-                    Remove
-                  </button>
+                  <div className={styles.favoriteContent}>
+                    <p>
+                      You added this {isBlog ? "blog post" : "portfolio item"}{" "}
+                      to your favorites.
+                    </p>
+                  </div>
+                  <div className={styles.favoriteFooter}>
+                    <span className={styles.postType}>
+                      {isBlog ? "Blog Post" : "Portfolio Item"}
+                    </span>
+                    {isDisabled ? (
+                      <span className={styles.viewPostLink} aria-disabled>
+                        Loading link...
+                      </span>
+                    ) : (
+                      <a href={href} className={styles.viewPostLink}>
+                        View Post
+                      </a>
+                    )}
+                  </div>
                 </div>
-                <div className={styles.favoriteContent}>
-                  <p>
-                    You added this{" "}
-                    {favorite.content_type === "blog"
-                      ? "blog post"
-                      : "portfolio item"}{" "}
-                    to your favorites.
-                  </p>
-                </div>
-                <div className={styles.favoriteFooter}>
-                  <span className={styles.postType}>
-                    {favorite.content_type === "blog"
-                      ? "Blog Post"
-                      : "Portfolio Item"}
-                  </span>
-                  <a
-                    href={
-                      favorite.content_type === "blog"
-                        ? `/blog/${favorite.content_id}`
-                        : `/portfolio/${favorite.content_id}`
-                    }
-                    className={styles.viewPostLink}
-                  >
-                    View Post
-                  </a>
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
 

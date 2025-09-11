@@ -44,7 +44,7 @@
   -webkit-backdrop-filter: blur(16px) saturate(160%);
   opacity: 0.98;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: transform 0.3s ease;
   display: flex;
   align-items: center;
   gap: 20px;
@@ -53,7 +53,6 @@
 .card:hover {
   transform: translateY(-2px);
   box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-  border-color: var(--primary-color, #ee681a);
 }
 
 .cardIcon {
@@ -154,13 +153,13 @@
 
 .activityText {
   margin: 0 0 4px 0;
-  color: var(--text-primary, #fff);
+  color: var(--text-dark);
   font-size: 14px;
   font-weight: 500;
 }
 
 .activityDate {
-  color: var(--text-secondary, #aaa);
+  color: var(--text-dark);
   font-size: 12px;
 }
 

@@ -222,7 +222,7 @@
   font-weight: 500;
   padding: 10px 12px;
   border-radius: 8px;
-  transition: all 0.2s ease;
+
   position: relative;
   background: color-mix(
     in srgb,

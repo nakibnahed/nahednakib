@@ -172,7 +172,7 @@
   border: 1px solid var(--card-border);
   text-align: center;
   background-color: var(--background-main);
-  color: var(--card-text);
+  color: var(--text-dark);
   vertical-align: middle;
 }
 

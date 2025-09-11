@@ -47,7 +47,6 @@
 }
 
 .formContainer {
-  background: var(--card-bg, #1a1a1a);
   border: 1px solid var(--card-border, #333);
   border-radius: 12px;
   padding: 24px;
@@ -56,7 +55,7 @@
 
 .formContainer h2 {
   margin: 0 0 20px 0;
-  color: var(--text-primary, #fff);
+  color: var(--text-dark);
   font-size: 24px;
 }
 
@@ -74,7 +73,7 @@
 
 .formGroup label {
   font-weight: 600;
-  color: var(--text-primary, #fff);
+  color: var(--text-dark);
   font-size: 16px;
 }
 
@@ -84,7 +83,7 @@
   border: 1px solid var(--card-border, #333);
   border-radius: 8px;
   background-color: var(--background-main, #181818);
-  color: var(--text-primary, #fff);
+  color: var(--text-dark);
   font-size: 16px;
 }
 
@@ -149,15 +148,13 @@
 }
 
 .categoryCard {
-  background: var(--card-bg, #1a1a1a);
   border: 1px solid var(--card-border, #333);
   border-radius: 12px;
   padding: 20px;
-  transition: all 0.3s ease;
+  transition: transform 0.3s ease;
 }
 
 .categoryCard:hover {
-  border-color: var(--primary-color, #ee681a);
   transform: translateY(-2px);
   box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
 }

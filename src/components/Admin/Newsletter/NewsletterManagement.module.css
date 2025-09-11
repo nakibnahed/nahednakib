@@ -30,7 +30,7 @@
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  background: var(--card-bg);
+
   padding: 1rem 1.5rem;
   border-radius: 8px;
   border: 1px solid var(--card-border);
@@ -44,13 +44,13 @@
 .statNumber {
   font-size: 1.5rem;
   font-weight: 700;
-  color: var(--text-light);
+  color: var(--text-dark);
   line-height: 1;
 }
 
 .statLabel {
   font-size: 0.875rem;
-  color: var(--text-muted);
+  color: var(--text-dark);
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
@@ -79,7 +79,7 @@
   border-radius: 6px;
   border: 1px solid var(--card-border);
   background-color: var(--background-main);
-  color: var(--text-light);
+  color: var(--text-dark);
   font-size: 16px;
   font-family: var(--font-heading), sans-serif;
   outline-offset: 2px;
@@ -87,13 +87,13 @@
 }
 
 .searchInput::placeholder {
-  color: var(--text-muted);
+  color: var(--text-dark);
 }
 
 .searchInput:focus {
   border-color: var(--primary-color);
   background-color: var(--card-bg);
-  color: var(--text-light);
+  color: var(--text-dark);
 }
 
 .statusFilter {
@@ -101,7 +101,7 @@
   border-radius: 6px;
   border: 1px solid var(--card-border);
   background-color: var(--background-main);
-  color: var(--text-light);
+  color: var(--text-dark);
   font-size: 16px;
   font-family: var(--font-heading), sans-serif;
   cursor: pointer;
@@ -162,7 +162,7 @@
   border: 1px solid var(--card-border);
   text-align: center;
   background-color: var(--background-main);
-  color: var(--card-text);
+  color: var(--text-dark);
   vertical-align: middle;
 }
 
