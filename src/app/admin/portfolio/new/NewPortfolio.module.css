@@ -28,7 +28,7 @@
 
 .label {
   font-weight: 600;
-  color: #ddd;
+  color: var(--text-dark);
   font-size: 16px;
 }
 
@@ -37,8 +37,8 @@
   padding: 10px;
   border: 1px solid #333;
   border-radius: 8px;
-  background-color: #1a1a1a;
-  color: #fff;
+  background-color: var(--background-main);
+  color: var(--text-dark);
   font-size: 16px;
 }
 
