@@ -2,8 +2,10 @@
 
 import { useState, useEffect, useMemo } from "react";
 import styles from "./UserManagement.module.css";
-import { Edit, Trash2, User, Shield, Eye } from "lucide-react";
+import { Edit, Trash2, User, Shield, Eye, Ban } from "lucide-react";
 import ConfirmationModal from "@/components/ConfirmationModal/ConfirmationModal";
+
+const MAIN_ADMIN_EMAIL = "nahednakibyos@gmail.com";
 
 export default function UserManagement() {
   const [users, setUsers] = useState([]);
@@ -13,9 +15,11 @@ export default function UserManagement() {
   const [searchTerm, setSearchTerm] = useState("");
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [userToDelete, setUserToDelete] = useState(null);
+  const [currentUser, setCurrentUser] = useState(null);
 
   useEffect(() => {
     fetchUsers();
+    fetchCurrentUser();
   }, []);
 
   // Filter users based on search term
@@ -51,6 +55,20 @@ export default function UserManagement() {
       console.error("Error:", error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchCurrentUser = async () => {
+    try {
+      const res = await fetch("/api/profile", { credentials: "include" });
+      const data = await res.json();
+      if (res.ok) {
+        setCurrentUser(data.user);
+      } else {
+        setCurrentUser(null);
+      }
+    } catch (e) {
+      setCurrentUser(null);
     }
   };
 
@@ -125,6 +143,8 @@ export default function UserManagement() {
     setNewRole("");
   };
 
+  const isMainAdmin = currentUser?.email === MAIN_ADMIN_EMAIL;
+
   if (loading) {
     return <div className={styles.loading}>Loading users...</div>;
   }
@@ -133,6 +153,7 @@ export default function UserManagement() {
     <div className={styles.container}>
       <div className={styles.header}>
         <h1 className={styles.title}>User Management</h1>
+        <p className={styles.subtitle}>Manage users and roles</p>
       </div>
 
       <div className={styles.controlsRow}>
@@ -158,78 +179,109 @@ export default function UserManagement() {
             </tr>
           </thead>
           <tbody>
-            {filteredUsers.map((user) => (
-              <tr key={user.id}>
-                <td className={styles.idCell} data-label="ID">
-                  {user.id.substring(0, 8)}...
-                </td>
-                <td className={styles.emailCell} data-label="Email">
-                  <div className={styles.userInfo}>
-                    <User size={16} />
-                    {user.email || "No email"}
-                  </div>
-                </td>
-                <td className={styles.roleCell} data-label="Role">
-                  {editingUser === user.id ? (
-                    <select
-                      value={newRole}
-                      onChange={(e) => setNewRole(e.target.value)}
-                      className={styles.roleSelect}
-                    >
-                      <option value="user">User</option>
-                      <option value="admin">Admin</option>
-                    </select>
-                  ) : (
-                    <span
-                      className={`${styles.roleBadge} ${styles[user.role]}`}
-                    >
-                      {user.role === "admin" && <Shield size={12} />}
-                      {user.role}
-                    </span>
-                  )}
-                </td>
-                <td className={styles.dateCell} data-label="Created">
-                  {user.created_at
-                    ? new Date(user.created_at).toLocaleDateString()
-                    : "N/A"}
-                </td>
-                <td className={styles.actionsCell} data-label="Actions">
-                  {editingUser === user.id ? (
-                    <div className={styles.editActions}>
-                      <button
-                        onClick={() => handleUpdateRole(user.id, newRole)}
-                        className={styles.saveBtn}
-                      >
-                        Save
-                      </button>
-                      <button
-                        onClick={cancelEditing}
-                        className={styles.cancelBtn}
-                      >
-                        Cancel
-                      </button>
+            {filteredUsers.map((user) => {
+              const isTargetMainAdmin = user.email === MAIN_ADMIN_EMAIL;
+              const showOwner = isTargetMainAdmin;
+              const idHiddenForViewer = isTargetMainAdmin && !isMainAdmin;
+              const createdHiddenForViewer = isTargetMainAdmin && !isMainAdmin;
+              const displayId = `${user.id.substring(0, 8)}...`;
+              const displayCreated = user.created_at
+                ? new Date(user.created_at).toLocaleDateString()
+                : "N/A";
+              return (
+                <tr key={user.id}>
+                  <td className={styles.idCell} data-label="ID">
+                    {idHiddenForViewer ? (
+                      <Ban size={16} title="Blocked" />
+                    ) : (
+                      displayId
+                    )}
+                  </td>
+                  <td className={styles.emailCell} data-label="Email">
+                    <div className={styles.userInfo}>
+                      <User size={16} />
+                      {user.email || "No email"}
                     </div>
-                  ) : (
-                    <div className={styles.actions}>
-                      <button
-                        onClick={() => startEditing(user)}
-                        className={styles.editBtn}
-                        title="Edit role"
+                  </td>
+                  <td className={styles.roleCell} data-label="Role">
+                    {editingUser === user.id ? (
+                      <select
+                        value={newRole}
+                        onChange={(e) => setNewRole(e.target.value)}
+                        className={styles.roleSelect}
+                        disabled={isTargetMainAdmin}
                       >
-                        <Edit size={16} />
-                      </button>
-                      <button
-                        onClick={() => confirmDeleteUser(user.id)}
-                        className={styles.deleteBtn}
-                        title="Delete user"
+                        <option value="user">User</option>
+                        <option value="admin">Admin</option>
+                      </select>
+                    ) : (
+                      <span
+                        className={`${styles.roleBadge} ${styles[user.role]}`}
                       >
-                        <Trash2 size={16} />
-                      </button>
-                    </div>
-                  )}
-                </td>
-              </tr>
-            ))}
+                        {user.role === "admin" && <Shield size={12} />}
+                        {isTargetMainAdmin ? "Owner" : user.role}
+                      </span>
+                    )}
+                  </td>
+                  <td className={styles.dateCell} data-label="Created">
+                    {createdHiddenForViewer ? (
+                      <Ban size={16} title="Blocked" />
+                    ) : (
+                      displayCreated
+                    )}
+                  </td>
+                  <td className={styles.actionsCell} data-label="Actions">
+                    {showOwner ? (
+                      <Ban size={16} title="Blocked" />
+                    ) : editingUser === user.id ? (
+                      <div className={styles.editActions}>
+                        <button
+                          onClick={() => handleUpdateRole(user.id, newRole)}
+                          className={styles.saveBtn}
+                        >
+                          Save
+                        </button>
+                        <button
+                          onClick={cancelEditing}
+                          className={styles.cancelBtn}
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    ) : (
+                      <div className={styles.actions}>
+                        <button
+                          onClick={() => startEditing(user)}
+                          className={styles.editBtn}
+                          title="Edit role"
+                          disabled={isTargetMainAdmin}
+                        >
+                          <Edit size={16} />
+                        </button>
+                        {isMainAdmin ? (
+                          <button
+                            onClick={() => confirmDeleteUser(user.id)}
+                            className={styles.deleteBtn}
+                            title="Delete user"
+                          >
+                            <Trash2 size={16} />
+                          </button>
+                        ) : (
+                          <div className={styles.tooltipWrapper}>
+                            <button className={styles.deleteBtn} disabled>
+                              <Trash2 size={16} />
+                            </button>
+                            <span className={styles.tooltip}>
+                              Only Owner Can Delete Users
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
 

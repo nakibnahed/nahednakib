@@ -235,6 +235,16 @@
   transform: translateY(-1px);
 }
 
+/* Disabled deletion button states */
+.deleteBtn:disabled {
+  cursor: not-allowed;
+  opacity: 0.85;
+}
+
+.deleteBtn:disabled:hover {
+  transform: none;
+}
+
 .saveBtn {
   background: #f0fdf4;
   color: #16a34a;
@@ -264,6 +274,51 @@
 .noUsers svg {
   margin-bottom: 1rem;
   opacity: 0.5;
+}
+
+/* Tooltip styles */
+.tooltipWrapper {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 99999999;
+}
+
+.tooltipWrapper .tooltip {
+  visibility: hidden;
+  opacity: 0;
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 0;
+  transform: translateX(-60%);
+  background: var(--background-main);
+  color: var(--text-light);
+  border: 1px solid var(--card-border);
+  border-radius: 6px;
+  padding: 6px 10px;
+  white-space: nowrap;
+  font-size: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transition: opacity 0.15s ease, visibility 0.15s ease;
+  z-index: 9999;
+}
+
+.tooltipWrapper:hover .tooltip {
+  visibility: visible;
+  opacity: 1;
+}
+
+/* Small arrow */
+.tooltipWrapper .tooltip::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border-width: 6px;
+  border-style: solid;
+  border-color: var(--card-border) transparent transparent transparent;
 }
 
 /* Dark mode adjustments */

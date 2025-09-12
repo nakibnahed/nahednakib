@@ -20,17 +20,39 @@ export default function BlogListPage() {
 
   async function fetchBlogs() {
     setLoading(true);
-    const { data, error } = await supabase
+
+    // Fetch blogs
+    const { data: blogsData, error: blogsError } = await supabase
       .from("blogs")
       .select("*")
       .order("created_at", { ascending: false });
 
-    if (error) {
-      console.error("Error fetching blogs:", error);
+    if (blogsError) {
+      console.error("Error fetching blogs:", blogsError);
       setBlogs([]);
-    } else {
-      setBlogs(data);
+      setLoading(false);
+      return;
     }
+
+    // Fetch categories map (id -> name)
+    const { data: categoriesData, error: categoriesError } = await supabase
+      .from("categories")
+      .select("id, name");
+
+    const categoryIdToName = new Map();
+    if (!categoriesError && categoriesData) {
+      categoriesData.forEach((c) => categoryIdToName.set(c.id, c.name));
+    }
+
+    // Attach readable category name
+    const decorated = (blogsData || []).map((b) => ({
+      ...b,
+      categoryName:
+        (b.category_id && categoryIdToName.get(b.category_id)) ||
+        "Uncategorized",
+    }));
+
+    setBlogs(decorated);
     setLoading(false);
   }
 
@@ -64,7 +86,7 @@ export default function BlogListPage() {
     return blogs.filter(
       (b) =>
         (b.title && b.title.toLowerCase().includes(lowerTerm)) ||
-        (b.category && b.category.toLowerCase().includes(lowerTerm)) ||
+        (b.categoryName && b.categoryName.toLowerCase().includes(lowerTerm)) ||
         (b.date && b.date.toLowerCase().includes(lowerTerm))
     );
   }, [blogs, searchTerm]);
@@ -109,7 +131,7 @@ export default function BlogListPage() {
                     <h4>{blog.title}</h4>
                   </td>
                   <td data-label="Date">{blog.date}</td>
-                  <td data-label="Category">{blog.category}</td>
+                  <td data-label="Category">{blog.categoryName}</td>
                   <td data-label="Image">
                     {blog.image ? (
                       <img

@@ -13,6 +13,9 @@ if (!supabaseUrl || !supabaseServiceKey) {
 // Create service role client for admin operations
 const supabaseAdmin = createAdminClient(supabaseUrl, supabaseServiceKey);
 
+// Main admin hard guard
+const MAIN_ADMIN_EMAIL = "nahednakibyos@gmail.com";
+
 export async function GET() {
   try {
     const supabase = await createClient();
@@ -146,11 +149,32 @@ export async function DELETE(request) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
+    // Only main admin can perform deletions
+    if (session.user.email !== MAIN_ADMIN_EMAIL) {
+      return NextResponse.json(
+        { error: "Only the main admin can delete users" },
+        { status: 403 }
+      );
+    }
+
     // Don't allow admin to delete themselves
     if (userId === session.user.id) {
       return NextResponse.json(
         { error: "Cannot delete your own account" },
         { status: 400 }
+      );
+    }
+
+    // Prevent deletion of the main admin account regardless of caller
+    const { data: targetUser, error: targetErr } =
+      await supabaseAdmin.auth.admin.getUserById(userId);
+    if (targetErr) {
+      return NextResponse.json({ error: targetErr.message }, { status: 500 });
+    }
+    if (targetUser?.user?.email === MAIN_ADMIN_EMAIL) {
+      return NextResponse.json(
+        { error: "Main admin account cannot be deleted" },
+        { status: 403 }
       );
     }
 
@@ -194,6 +218,27 @@ export async function PUT(request) {
 
     if (!profile || profile.role !== "admin") {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    }
+
+    // Prevent changing the main admin's role
+    const { data: targetProfile, error: fetchProfileErr } = await supabase
+      .from("profiles")
+      .select("email")
+      .eq("id", userId)
+      .single();
+
+    if (fetchProfileErr) {
+      return NextResponse.json(
+        { error: fetchProfileErr.message },
+        { status: 500 }
+      );
+    }
+
+    if (targetProfile?.email === MAIN_ADMIN_EMAIL) {
+      return NextResponse.json(
+        { error: "Main admin role cannot be changed" },
+        { status: 403 }
+      );
     }
 
     // Update user role using service role
