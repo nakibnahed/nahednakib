@@ -270,6 +270,9 @@
 
 /* Responsive table */
 @media (max-width: 768px) {
+  .container {
+    margin: 10px auto;
+  }
   .prose table {
     font-size: 0.875rem;
   }
