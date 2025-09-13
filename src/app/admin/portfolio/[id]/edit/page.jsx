@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
+import Image from "next/image";
 import { supabase } from "@/services/supabaseClient";
 import ConfirmationModal from "@/components/ConfirmationModal/ConfirmationModal";
 import styles from "./EditPortfolio.module.css";
@@ -224,9 +225,11 @@ export default function EditPortfolioPage() {
           <label className={styles.label}>Current Image:</label>
           {formData.image ? (
             <div style={{ marginBottom: "10px" }}>
-              <img
+              <Image
                 src={formData.image}
                 alt="Portfolio image"
+                width={200}
+                height={200}
                 style={{
                   maxWidth: "200px",
                   display: "block",

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
+import Image from "next/image";
 import { supabase } from "@/services/supabaseClient";
 import { Editor } from "@tinymce/tinymce-react";
 import { slugify, generateUniqueSlug } from "@/lib/utils/slugify";
@@ -295,7 +296,12 @@ export default function EditBlogPage() {
           <label className={styles.label}>Current Image:</label>
           {formData.image ? (
             <div className={styles.imageContainer}>
-              <img src={formData.image} alt="Blog image" />
+              <Image
+                src={formData.image}
+                alt="Blog image"
+                width={200}
+                height={200}
+              />
               <button
                 type="button"
                 onClick={handleDeleteImage}

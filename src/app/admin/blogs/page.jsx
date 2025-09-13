@@ -3,6 +3,7 @@
 import styles from "./BlogsList.module.css";
 import { useEffect, useState, useMemo } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { supabase } from "@/services/supabaseClient";
 import ConfirmationModal from "@/components/ConfirmationModal/ConfirmationModal";
 import { Edit, Trash2 } from "lucide-react";
@@ -134,7 +135,7 @@ export default function BlogListPage() {
                   <td data-label="Category">{blog.categoryName}</td>
                   <td data-label="Image">
                     {blog.image ? (
-                      <img
+                      <Image
                         src={blog.image}
                         alt={blog.title}
                         width={100}

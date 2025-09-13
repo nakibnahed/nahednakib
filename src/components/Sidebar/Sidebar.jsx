@@ -107,10 +107,12 @@ export default function Sidebar({ activeTab }) {
               >
                 {" "}
                 Support via
-                <img
+                <Image
                   src="https://www.paypalobjects.com/webstatic/de_DE/i/de-pp-logo-100px.png"
                   alt="PayPal"
                   className={styles.paypalLogo}
+                  width={75}
+                  height={16}
                 />
               </a>
               <p className={styles.thankYouMessage}>

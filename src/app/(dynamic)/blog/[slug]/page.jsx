@@ -368,10 +368,12 @@ export default async function Post({ params }) {
                   className={styles.relatedListItem}
                   href={`/blog/${post.slug}`}
                 >
-                  <img
+                  <Image
                     className={styles.relatedPostThumb}
                     src={post.image || "/images/portfolio.jpg"}
                     alt={post.title}
+                    width={48}
+                    height={48}
                   />
                   <div className={styles.relatedPostInfo}>
                     <span className={styles.relatedPostTitle}>

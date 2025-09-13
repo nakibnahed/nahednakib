@@ -2,6 +2,7 @@
 
 import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { supabase } from "@/services/supabaseClient";
 import LogoutButton from "@/components/Admin/LogoutButton/LogoutButton";
 import styles from "./Sidebar.module.css";
@@ -91,10 +92,12 @@ export default function Sidebar({ adminData }) {
         <div className={styles.adminInfo}>
           <Link href="/users/profile" className={styles.adminAvatarLink}>
             <div className={styles.adminAvatar}>
-              <img
+              <Image
                 src={getAdminAvatar()}
                 alt="Admin Avatar"
                 className={styles.avatarImage}
+                width={50}
+                height={50}
               />
             </div>
           </Link>

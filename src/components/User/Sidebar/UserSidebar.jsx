@@ -1,6 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import { supabase } from "@/services/supabaseClient";
 import styles from "./UserSidebar.module.css";
 import {
@@ -57,10 +58,12 @@ export default function UserSidebar({
     <div className={styles.sidebarContainer}>
       <nav className={styles.sidebar}>
         <div className={styles.userInfo}>
-          <img
+          <Image
             src={profileData?.avatar_url || "/default-avatar.svg"}
             alt="User Avatar"
             className={styles.avatar}
+            width={50}
+            height={50}
           />
           <div className={styles.userDetails}>
             <h4 className={styles.userName}>

@@ -3,6 +3,7 @@
 import styles from "./PortfolioList.module.css";
 import { useEffect, useState, useMemo } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { supabase } from "@/services/supabaseClient";
 import ConfirmationModal from "@/components/ConfirmationModal/ConfirmationModal";
 import { Edit, Trash2 } from "lucide-react";
@@ -114,7 +115,7 @@ export default function PortfolioListPage() {
                   <td data-label="Category">{portfolio.category}</td>
                   <td data-label="Image">
                     {portfolio.image ? (
-                      <img
+                      <Image
                         src={portfolio.image}
                         alt={portfolio.title}
                         width={100}

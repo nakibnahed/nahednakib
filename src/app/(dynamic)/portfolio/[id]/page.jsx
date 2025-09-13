@@ -77,10 +77,11 @@ export default async function PortfolioPage({ params }) {
       <div className={styles.sectionsGrid}>
         <section className={styles.heroSection}>
           <section className={styles.hero}>
-            <img
+            <Image
               src={portfolio.image || "/images/portfolio.jpg"}
               alt={portfolio.title}
               className={styles.heroImage}
+              fill
             />
             <div className={styles.heroOverlay}></div>
             <div className={styles.heroContent}>
