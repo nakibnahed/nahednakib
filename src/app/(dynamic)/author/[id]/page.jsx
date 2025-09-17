@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useState, useEffect, use } from "react";
+import { useState, useEffect } from "react";
 import styles from "./page.module.css";
 import { supabase } from "@/services/supabaseClient";
 import { calculateReadTime, formatReadTime } from "@/lib/utils/readTime";
@@ -15,7 +15,7 @@ export default function AuthorPage({ params }) {
   const [error, setError] = useState(null);
 
   // Unwrap params outside of try/catch
-  const { id } = use(params);
+  const { id } = params;
 
   useEffect(() => {
     async function fetchData() {
