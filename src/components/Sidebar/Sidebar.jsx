@@ -10,6 +10,7 @@ import { Globe, Star, Phone, Calendar as CalendarIcon } from "lucide-react";
 import SocialLinks from "@/components/SocialLinks/SocialLinks";
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { SiPaypal } from "react-icons/si";
 
 export default function Sidebar({ activeTab }) {
   const displayImage = activeTab === "web" ? myImage : runningImage;
@@ -107,13 +108,10 @@ export default function Sidebar({ activeTab }) {
               >
                 {" "}
                 Support via
-                <Image
-                  src="https://www.paypalobjects.com/webstatic/de_DE/i/de-pp-logo-100px.png"
-                  alt="PayPal"
-                  className={styles.paypalLogo}
-                  width={75}
-                  height={16}
-                />
+                <span className={styles.paypalLabel}>
+                  <SiPaypal className={styles.paypalLogo} aria-label="PayPal" />
+                  <span className={styles.paypalText}>PayPal</span>
+                </span>
               </a>
               <p className={styles.thankYouMessage}>
                 Thank you for being part of my running story. 🙏

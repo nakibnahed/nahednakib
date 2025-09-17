@@ -130,9 +130,18 @@
 }
 
 .paypalLogo {
-  width: 75px;
+  width: 16px;
   height: 16px;
-  margin-right: 8px;
+  margin-right: 4px;
+}
+
+.paypalLabel {
+  display: inline-flex;
+  align-items: center;
+}
+
+.paypalText {
+  margin-left: 0;
 }
 
 .thankYouMessage {
