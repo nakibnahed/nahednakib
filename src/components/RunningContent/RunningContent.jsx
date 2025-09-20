@@ -177,7 +177,9 @@ export default function RunningContent() {
       .then((res) => res.json())
       .then((data) => {
         const arr = Array.isArray(data) ? data : [data];
-        setActivities(arr.filter((a) => !a.private).slice(0, 5)); // keep public for Last Activities card
+        setActivities(arr.slice(0, 5)); // API now handles filtering based on settings
+        console.log("🏃 RunningContent - Activities loaded:", arr.length, "total, showing first 5");
+        console.log("🏃 RunningContent - Sample activities:", arr.slice(0, 3).map(a => ({ name: a.name, private: a.private })));
         // Calculate weekly stats for current week offset
         const stats = calculateWeeklyStats(arr, weekOffset);
         console.log(`📊 Week ${weekOffset} stats:`, {

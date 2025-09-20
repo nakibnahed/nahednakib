@@ -7,6 +7,7 @@ import { supabase } from "@/services/supabaseClient";
 import LogoutButton from "@/components/Admin/LogoutButton/LogoutButton";
 import styles from "./Sidebar.module.css";
 import {
+  Activity,
   LayoutDashboard,
   Briefcase,
   BookOpen,
@@ -51,6 +52,11 @@ export default function Sidebar({ adminData }) {
       label: "Notifications",
       path: "/admin/notifications",
       icon: <Bell size={18} />,
+    },
+    {
+      label: "Settings",
+      path: "/admin/running-settings",
+      icon: <Settings size={18} />,
     },
   ];
 

@@ -7,7 +7,7 @@
 
   --text-light: #ffffff;
   --text-muted: #aaaaaa;
-  --text-dark: #aaaaaa;
+  --text-dark: #aaaaaa; /* always use this for text color don't use text-light */
 
   --font-main: "Montserrat", sans-serif;
   --font-heading: "Unbounded", sans-serif;
