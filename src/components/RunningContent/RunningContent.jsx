@@ -180,49 +180,54 @@ export default function RunningContent() {
       try {
         setLoadingInitial(true);
         console.log("🚀 PROGRESSIVE: Fetching activities first...");
-        
+
         // STEP 1: Fetch activities data immediately
-        const response = await fetch("/api/strava?per_page=200");
+        const response = await fetch("/api/strava?per_page=60");
         const data = await response.json();
         const arr = Array.isArray(data) ? data : [data];
-        
+
         console.log("✅ PROGRESSIVE: Activities fetched:", arr.length, "total");
-        
+
         // STEP 2: Show activities immediately (don't wait for like counts!)
         setAllActivitiesCache(arr);
         setActivities(arr.slice(0, 5));
-        
+
         // STEP 3: Calculate and show weekly stats immediately
         const stats = calculateWeeklyStats(arr, weekOffset);
         setWeeklyStats(stats);
-        
+
         // STEP 4: Hide loading state - show data now!
         setLoadingInitial(false);
         console.log("✅ PROGRESSIVE: Activities and stats shown immediately");
-        
+
         // STEP 5: Load like counts in background (non-blocking)
         if (arr.length > 0) {
           console.log("🚀 PROGRESSIVE: Loading like counts in background...");
-          const activityIds = arr.slice(0, 5).map(a => a.id);
-          const likePromises = activityIds.map(id => 
+          const activityIds = arr.slice(0, 5).map((a) => a.id);
+          const likePromises = activityIds.map((id) =>
             fetch(`/api/engagement/likes?activity_id=${id}`)
-              .then(res => res.json())
-              .then(data => ({ id, count: data.count || 0 }))
-              .catch(error => {
-                console.error(`Error fetching like count for activity ${id}:`, error);
+              .then((res) => res.json())
+              .then((data) => ({ id, count: data.count || 0 }))
+              .catch((error) => {
+                console.error(
+                  `Error fetching like count for activity ${id}:`,
+                  error
+                );
                 return { id, count: 0 };
               })
           );
-          
+
           const likeResults = await Promise.all(likePromises);
           const newLikeCounts = {};
           likeResults.forEach(({ id, count }) => {
             newLikeCounts[id] = count;
           });
           setLikeCounts(newLikeCounts);
-          console.log("✅ PROGRESSIVE: Like counts loaded in background:", Object.keys(newLikeCounts).length);
+          console.log(
+            "✅ PROGRESSIVE: Like counts loaded in background:",
+            Object.keys(newLikeCounts).length
+          );
         }
-        
       } catch (error) {
         console.error("❌ Error fetching data:", error);
         setLoadingInitial(false);
@@ -234,18 +239,17 @@ export default function RunningContent() {
   // OPTIMIZED: Use cached data for week offset changes instead of refetching
   useEffect(() => {
     if (!allActivitiesCache) return;
-    
+
     console.log("🚀 OPTIMIZED: Using cached data for week offset:", weekOffset);
     setLoadingWeekly(true);
-    
+
     // Use cached data instead of refetching from API
     const stats = calculateWeeklyStats(allActivitiesCache, weekOffset);
     setWeeklyStats(stats);
     setLoadingWeekly(false);
-    
+
     console.log("✅ OPTIMIZED: Week stats calculated from cache");
   }, [weekOffset, allActivitiesCache]);
-
 
   // Like button handler
   const handleLike = async (activityId) => {
@@ -380,7 +384,6 @@ export default function RunningContent() {
     preventScrollOnSwipe: true,
     delta: 30,
   });
-
 
   // OPTIMIZED: Show better loading states during initial load
   if (loadingInitial) {
