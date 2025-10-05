@@ -618,11 +618,11 @@ export default function RunningContent() {
               <span className={styles.loader} />
               <div className={styles.loadingText}>Loading weekly analysis…</div>
             </div>
-          ) : weeklyStats && weeklyStats.numRuns > 0 ? (
+          ) : (
             <WeeklyAnalysisChart
-              weekActivities={weeklyStats.weekActivities || []}
+              weekActivities={weeklyStats?.weekActivities || []}
             />
-          ) : null
+          )
         }
       />
       <InfoCard
