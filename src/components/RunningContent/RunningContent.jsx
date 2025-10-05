@@ -385,35 +385,7 @@ export default function RunningContent() {
     delta: 30,
   });
 
-  // OPTIMIZED: Show better loading states during initial load
-  if (loadingInitial) {
-    return (
-      <div className={styles.container}>
-        <InfoCard
-          title="Latest Runs"
-          size="medium"
-          Icon={SiStrava}
-          details={
-            <div style={{ padding: "1.5rem 0", textAlign: "center" }}>
-              <span className={styles.loader} />
-              <div className={styles.loadingText}>Loading running data…</div>
-            </div>
-          }
-        />
-        <InfoCard
-          title="Weekly Stats"
-          size="medium"
-          Icon={BarChartIcon}
-          details={
-            <div style={{ padding: "1.5rem 0", textAlign: "center" }}>
-              <span className={styles.loader} />
-              <div className={styles.loadingText}>Loading weekly stats…</div>
-            </div>
-          }
-        />
-      </div>
-    );
-  }
+  // Always show the page content - only show loading for dynamic sections
 
   return (
     <div className={styles.container}>
@@ -422,7 +394,12 @@ export default function RunningContent() {
         size="medium"
         Icon={SiStrava}
         details={
-          activities.length ? (
+          loadingInitial ? (
+            <div style={{ padding: "1.5rem 0", textAlign: "center" }}>
+              <span className={styles.loader} />
+              <div className={styles.loadingText}>Loading activities…</div>
+            </div>
+          ) : activities.length ? (
             <div>
               {/* Activity Content */}
               <div className={styles.activityCard} {...swipeHandlers}>
@@ -522,8 +499,7 @@ export default function RunningContent() {
             </div>
           ) : (
             <div style={{ padding: "1.5rem 0", textAlign: "center" }}>
-              <span className={styles.loader} />
-              <div className={styles.loadingText}>Loading activities…</div>
+              <div className={styles.loadingText}>No activities found</div>
             </div>
           )
         }
@@ -542,7 +518,7 @@ export default function RunningContent() {
         size="medium"
         Icon={BarChartIcon}
         details={
-          loadingWeekly ? (
+          loadingInitial || loadingWeekly ? (
             <div style={{ padding: "1.5rem 0", textAlign: "center" }}>
               <span className={styles.loader} />
               <div className={styles.loadingText}>Loading weekly stats…</div>
@@ -637,10 +613,10 @@ export default function RunningContent() {
         size="large"
         Icon={BarChartIcon}
         details={
-          loadingWeekly ? (
+          loadingInitial || loadingWeekly ? (
             <div style={{ padding: "1.5rem 0", textAlign: "center" }}>
               <span className={styles.loader} />
-              <div className={styles.loadingText}>Loading weekly stats…</div>
+              <div className={styles.loadingText}>Loading weekly analysis…</div>
             </div>
           ) : weeklyStats && weeklyStats.numRuns > 0 ? (
             <WeeklyAnalysisChart
