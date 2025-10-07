@@ -6,6 +6,7 @@ import styles from "./RunningSettings.module.css";
 export default function RunningSettingsPage() {
   const [settings, setSettings] = useState({
     show_all_activities: false, // false = only public, true = all activities
+    show_support_card: true, // true = show support card, false = hide it
   });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -22,7 +23,10 @@ export default function RunningSettingsPage() {
       const data = await response.json();
 
       if (response.ok) {
-        setSettings(data);
+        setSettings({
+          show_all_activities: data.show_all_activities ?? false,
+          show_support_card: data.show_support_card ?? true,
+        });
       } else {
         console.error("Error fetching running settings:", data.error);
         setMessage("Error loading settings");
@@ -63,10 +67,10 @@ export default function RunningSettingsPage() {
     setSaving(false);
   }
 
-  function handleToggleChange() {
+  function handleToggleChange(field) {
     setSettings((prev) => ({
       ...prev,
-      show_all_activities: !prev.show_all_activities,
+      [field]: !prev[field],
     }));
   }
 
@@ -101,13 +105,39 @@ export default function RunningSettingsPage() {
               <input
                 type="checkbox"
                 checked={settings.show_all_activities}
-                onChange={handleToggleChange}
+                onChange={() => handleToggleChange("show_all_activities")}
                 className={styles.toggleInput}
               />
               <span className={styles.toggleSlider}></span>
             </label>
             <span className={styles.toggleLabel}>
               {settings.show_all_activities ? "All Activities" : "Public Only"}
+            </span>
+          </div>
+        </div>
+
+        <div className={styles.settingItem}>
+          <div className={styles.settingInfo}>
+            <h3 className={styles.settingTitle}>Support Card Visibility</h3>
+            <p className={styles.settingDescription}>
+              Choose whether to show the "Why I Need Support" card in the
+              sidebar on the running page.
+            </p>
+          </div>
+          <div className={styles.settingControl}>
+            <label className={styles.toggle}>
+              <input
+                type="checkbox"
+                checked={settings.show_support_card}
+                onChange={() => handleToggleChange("show_support_card")}
+                className={styles.toggleInput}
+              />
+              <span className={styles.toggleSlider}></span>
+            </label>
+            <span className={styles.toggleLabel}>
+              {settings.show_support_card
+                ? "Show Support Card"
+                : "Hide Support Card"}
             </span>
           </div>
         </div>
@@ -136,9 +166,16 @@ export default function RunningSettingsPage() {
       <div className={styles.infoCard}>
         <h3 className={styles.infoTitle}>Current Setting</h3>
         <p className={styles.infoText}>
+          <strong>Activity Visibility:</strong>{" "}
           {settings.show_all_activities
             ? "Your info page will display all Strava activities (both public and private)."
             : "Your info page will display only public Strava activities."}
+        </p>
+        <p className={styles.infoText}>
+          <strong>Support Card:</strong>{" "}
+          {settings.show_support_card
+            ? "The support card will be visible in the sidebar on the running page."
+            : "The support card will be hidden from the sidebar on the running page."}
         </p>
       </div>
     </div>

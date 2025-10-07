@@ -4,7 +4,7 @@ import Link from "next/link";
 import styles from "./Navbar.module.css";
 import Logo from "@/elements/Logo/Logo";
 import DarkMoodToggle from "../DarkMoodToggle/DarkMoodToggle";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { supabase } from "@/services/supabaseClient";
 import {
   User,
@@ -16,6 +16,10 @@ import {
   Mail,
   Activity,
   BarChart,
+  ChevronDown,
+  HelpCircle,
+  Shield,
+  MessageSquare,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import NotificationIcon from "../NotificationIcon/NotificationIcon";
@@ -34,9 +38,11 @@ export default function Navbar() {
   const [userRole, setUserRole] = useState(null);
   const [userProfile, setUserProfile] = useState(null);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [contactDropdownOpen, setContactDropdownOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const router = useRouter();
+  const dropdownRef = useRef(null);
 
   useEffect(() => {
     let mounted = true;
@@ -172,6 +178,24 @@ export default function Navbar() {
   }, []);
 
   const toggleMenu = () => setMenuOpen((open) => !open);
+  const toggleContactDropdown = () => setContactDropdownOpen((open) => !open);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setContactDropdownOpen(false);
+      }
+    };
+
+    if (contactDropdownOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [contactDropdownOpen]);
 
   // Get the correct profile URL based on user role
   const getProfileUrl = () => {
@@ -203,11 +227,57 @@ export default function Navbar() {
         {/* Centered menu links */}
         <nav className={styles.centerNav}>
           <div className={styles.linksWrapper}>
-            {navLinks.map((link) => (
-              <Link key={link.id} href={link.url} className={styles.link}>
-                {link.title}
-              </Link>
-            ))}
+            {navLinks.map((link) => {
+              if (link.title === "Contact") {
+                return (
+                  <div
+                    key={link.id}
+                    className={styles.dropdownContainer}
+                    ref={dropdownRef}
+                  >
+                    <button
+                      className={`${styles.link} ${styles.dropdownTrigger}`}
+                      onClick={toggleContactDropdown}
+                      aria-expanded={contactDropdownOpen}
+                      aria-haspopup="true"
+                    >
+                      {link.title}
+                      <ChevronDown
+                        size={14}
+                        className={`${styles.dropdownIcon} ${
+                          contactDropdownOpen ? styles.dropdownIconOpen : ""
+                        }`}
+                      />
+                    </button>
+                    {contactDropdownOpen && (
+                      <div className={styles.dropdownMenu}>
+                        <Link href="/contact" className={styles.dropdownItem}>
+                          <Mail size={16} />
+                          Contact Us
+                        </Link>
+                        <Link href="/feedback" className={styles.dropdownItem}>
+                          <MessageSquare size={16} />
+                          Feedback
+                        </Link>
+                        <Link href="/faq" className={styles.dropdownItem}>
+                          <HelpCircle size={16} />
+                          FAQ
+                        </Link>
+                        <Link href="/privacy" className={styles.dropdownItem}>
+                          <Shield size={16} />
+                          Privacy Policy
+                        </Link>
+                      </div>
+                    )}
+                  </div>
+                );
+              }
+              return (
+                <Link key={link.id} href={link.url} className={styles.link}>
+                  {link.title}
+                </Link>
+              );
+            })}
           </div>
         </nav>
 
@@ -304,6 +374,64 @@ export default function Navbar() {
           <div className={styles.MenuLinks}>
             {navLinks.map((link) => {
               const IconComponent = link.icon;
+              if (link.title === "Contact") {
+                return (
+                  <div key={link.id} className={styles.mobileDropdownContainer}>
+                    <button
+                      className={`${styles.mobileMenuLink} ${styles.mobileDropdownTrigger}`}
+                      onClick={toggleContactDropdown}
+                      aria-expanded={contactDropdownOpen}
+                    >
+                      <IconComponent size={20} />
+                      <span>{link.title}</span>
+                      <ChevronDown
+                        size={16}
+                        className={`${styles.mobileDropdownIcon} ${
+                          contactDropdownOpen
+                            ? styles.mobileDropdownIconOpen
+                            : ""
+                        }`}
+                      />
+                    </button>
+                    {contactDropdownOpen && (
+                      <div className={styles.mobileDropdownMenu}>
+                        <Link
+                          href="/contact"
+                          className={styles.mobileDropdownItem}
+                          onClick={() => setMenuOpen(false)}
+                        >
+                          <Mail size={18} />
+                          <span>Contact Us</span>
+                        </Link>
+                        <Link
+                          href="/feedback"
+                          className={styles.mobileDropdownItem}
+                          onClick={() => setMenuOpen(false)}
+                        >
+                          <MessageSquare size={18} />
+                          <span>Feedback</span>
+                        </Link>
+                        <Link
+                          href="/faq"
+                          className={styles.mobileDropdownItem}
+                          onClick={() => setMenuOpen(false)}
+                        >
+                          <HelpCircle size={18} />
+                          <span>FAQ</span>
+                        </Link>
+                        <Link
+                          href="/privacy"
+                          className={styles.mobileDropdownItem}
+                          onClick={() => setMenuOpen(false)}
+                        >
+                          <Shield size={18} />
+                          <span>Privacy Policy</span>
+                        </Link>
+                      </div>
+                    )}
+                  </div>
+                );
+              }
               return (
                 <Link
                   key={link.id}

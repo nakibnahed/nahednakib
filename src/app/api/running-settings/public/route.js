@@ -4,10 +4,10 @@ import { NextResponse } from "next/server";
 export async function GET() {
   try {
     const supabase = await createClient();
-    
+
     const { data: settings, error } = await supabase
       .from("running_settings")
-      .select("show_all_activities")
+      .select("show_all_activities, show_support_card")
       .single();
 
     if (error && error.code !== "PGRST116") {
@@ -18,12 +18,20 @@ export async function GET() {
       );
     }
 
-    // Return default settings if no settings found
-    const defaultSettings = {
-      show_all_activities: false,
+    // Defaults if missing
+    const response = {
+      show_all_activities: settings?.show_all_activities ?? false,
+      show_support_card: settings?.show_support_card ?? true,
     };
 
-    return NextResponse.json(settings || defaultSettings);
+    return new NextResponse(JSON.stringify(response), {
+      status: 200,
+      headers: {
+        "Content-Type": "application/json",
+        // Avoid caching so UI reflects changes immediately
+        "Cache-Control": "no-store",
+      },
+    });
   } catch (error) {
     console.error("Error:", error);
     return NextResponse.json(

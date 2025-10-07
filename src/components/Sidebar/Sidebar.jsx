@@ -15,6 +15,7 @@ import { SiPaypal } from "react-icons/si";
 export default function Sidebar({ activeTab }) {
   const displayImage = activeTab === "web" ? myImage : runningImage;
   const [user, setUser] = useState(null);
+  const [showSupportCard, setShowSupportCard] = useState(true);
 
   useEffect(() => {
     const getSession = async () => {
@@ -33,6 +34,28 @@ export default function Sidebar({ activeTab }) {
     );
     return () => listener?.subscription?.unsubscribe();
   }, []);
+
+  // Fetch running settings to check if support card should be shown
+  useEffect(() => {
+    const fetchRunningSettings = async () => {
+      try {
+        // cache-bust to ensure fresh value after admin saves
+        const response = await fetch(
+          `/api/running-settings/public?t=${Date.now()}`
+        );
+        const data = await response.json();
+        if (response.ok) {
+          setShowSupportCard(data.show_support_card !== false); // default true
+        }
+      } catch (error) {
+        console.error("Error fetching running settings:", error);
+        // Keep default value (true) on error
+      }
+    };
+
+    // Fetch on mount and whenever tab changes
+    fetchRunningSettings();
+  }, [activeTab]);
 
   const phoneNumber = "(+49) 176 63816827";
   const maskedNumber = "(+49) 176 ********";
@@ -76,48 +99,53 @@ export default function Sidebar({ activeTab }) {
         </div>
       ) : (
         <>
-          {/* Support Running Section for Running tab */}
-          <div className={styles.card}>
-            <div className={styles.cardHeader}>
-              <h3 className={styles.title}>
-                <Star size={20} className={styles.icon} /> Why I Need Support
-              </h3>
+          {/* Support Running Section for Running tab - conditionally shown */}
+          {showSupportCard && (
+            <div className={styles.card}>
+              <div className={styles.cardHeader}>
+                <h3 className={styles.title}>
+                  <Star size={20} className={styles.icon} /> Why I Need Support
+                </h3>
+              </div>
+              <div className={styles.supportContent}>
+                <p className={styles.supportDescription}>
+                  To sustain this level of training and compete at my best, I
+                  invest heavily in:
+                </p>
+                <ul className={styles.supportList}>
+                  <li>👟 Running shoes</li>
+                  <li>💊 Nutrition and supplements</li>
+                  <li>🏋️‍♂️ Training tools</li>
+                  <li>👨‍⚕️ Physiotherapy sessions</li>
+                  <li>🦵 Massage sessions</li>
+                </ul>
+                <p className={styles.supportMessage}>
+                  Every contribution — big or small — helps me move forward and
+                  stay consistent. If you believe in supporting independent
+                  athletes, I'd truly appreciate your help.
+                </p>
+                <a
+                  href="https://www.paypal.com/paypalme/nahednakib/25"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={styles.donateButton}
+                >
+                  {" "}
+                  Support via
+                  <span className={styles.paypalLabel}>
+                    <SiPaypal
+                      className={styles.paypalLogo}
+                      aria-label="PayPal"
+                    />
+                    <span className={styles.paypalText}>PayPal</span>
+                  </span>
+                </a>
+                <p className={styles.thankYouMessage}>
+                  Thank you for being part of my running story. 🙏
+                </p>
+              </div>
             </div>
-            <div className={styles.supportContent}>
-              <p className={styles.supportDescription}>
-                To sustain this level of training and compete at my best, I
-                invest heavily in:
-              </p>
-              <ul className={styles.supportList}>
-                <li>👟 Running shoes</li>
-                <li>💊 Nutrition and supplements</li>
-                <li>🏋️‍♂️ Training tools</li>
-                <li>👨‍⚕️ Physiotherapy sessions</li>
-                <li>🦵 Massage sessions</li>
-              </ul>
-              <p className={styles.supportMessage}>
-                Every contribution — big or small — helps me move forward and
-                stay consistent. If you believe in supporting independent
-                athletes, I'd truly appreciate your help.
-              </p>
-              <a
-                href="https://www.paypal.com/paypalme/nahednakib/25"
-                target="_blank"
-                rel="noopener noreferrer"
-                className={styles.donateButton}
-              >
-                {" "}
-                Support via
-                <span className={styles.paypalLabel}>
-                  <SiPaypal className={styles.paypalLogo} aria-label="PayPal" />
-                  <span className={styles.paypalText}>PayPal</span>
-                </span>
-              </a>
-              <p className={styles.thankYouMessage}>
-                Thank you for being part of my running story. 🙏
-              </p>
-            </div>
-          </div>
+          )}
 
           {/* Training Calendar Card */}
           <div className={styles.card}>
@@ -136,27 +164,6 @@ export default function Sidebar({ activeTab }) {
           </div>
         </>
       )}
-      {/* Hobbies Section */}
-      {/* <div className={styles.card}>
-				<div className={styles.cardHeader}>
-					<h3 className={styles.title}>
-						<Star size={20} className={styles.icon} /> Hobbies
-					</h3>
-				</div>
-				<ul
-					style={{
-						paddingLeft: "1.2rem",
-						lineHeight: "1.6",
-						listStyleType: "none",
-					}}
-				>
-					<li>🏃‍♂️ Running</li>
-					<li>💻 Web Development</li>
-					<li>📚 Reading</li>
-					<li>🎶 Music</li>
-				</ul>
-			</div> */}
-
       {/* Contact Section */}
       <div className={styles.card}>
         <h3 className={styles.title}>

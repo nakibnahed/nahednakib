@@ -69,7 +69,7 @@
 }
 
 .icon.info {
-  color: #3b82f6;
+  color: var(--primary-color);
 }
 
 .title {
@@ -94,8 +94,7 @@
 }
 
 .closeButton:hover {
-  background: var(--card-bg-hover);
-  color: var(--text-light);
+  opacity: 0.9;
 }
 
 .modalBody {
@@ -129,8 +128,7 @@
 }
 
 .cancelButton:hover {
-  background: var(--card-bg-hover);
-  color: var(--text-light);
+  opacity: 0.9;
 }
 
 .confirmButton {
@@ -147,9 +145,7 @@
 }
 
 .confirmButton:hover {
-  background: var(--button-bg-hover);
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(238, 104, 26, 0.2);
+  opacity: 0.9;
 }
 
 .confirmButton.danger {
@@ -157,7 +153,7 @@
 }
 
 .confirmButton.danger:hover {
-  background: linear-gradient(to bottom, #f87171, #ef4444);
+  opacity: 0.9;
 }
 
 .confirmButton.warning {
@@ -165,15 +161,16 @@
 }
 
 .confirmButton.warning:hover {
-  background: linear-gradient(to bottom, #fbbf24, #f59e0b);
+  opacity: 0.9;
 }
 
 .confirmButton.info {
-  background: linear-gradient(to bottom, #3b82f6, #2563eb);
+  background: var(--button-bg);
+  color: var(--button-text);
 }
 
 .confirmButton.info:hover {
-  background: linear-gradient(to bottom, #60a5fa, #3b82f6);
+  opacity: 0.9;
 }
 
 @media (max-width: 600px) {
