@@ -507,6 +507,7 @@
   /* Mobile Dropdown Styles */
   .mobileDropdownContainer {
     position: relative;
+    z-index: 1000;
   }
 
   .mobileDropdownTrigger {
@@ -529,6 +530,8 @@
     position: relative;
     overflow: hidden;
     width: 100%;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
   }
 
   .mobileDropdownTrigger:hover .mobileDropdownIcon {
@@ -564,6 +567,9 @@
     );
     border-top: 1px solid var(--card-border);
     animation: mobileDropdownSlideDown 0.3s ease-out;
+    position: relative;
+    z-index: 1001;
+    overflow: hidden;
   }
 
   @keyframes mobileDropdownSlideDown {
@@ -590,6 +596,9 @@
     border-bottom: 1px solid var(--card-border);
     position: relative;
     overflow: hidden;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
   }
 
   .mobileDropdownItem:last-child {

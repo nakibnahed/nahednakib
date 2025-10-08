@@ -39,10 +39,13 @@ export default function Navbar() {
   const [userProfile, setUserProfile] = useState(null);
   const [menuOpen, setMenuOpen] = useState(false);
   const [contactDropdownOpen, setContactDropdownOpen] = useState(false);
+  const [mobileContactDropdownOpen, setMobileContactDropdownOpen] =
+    useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const router = useRouter();
   const dropdownRef = useRef(null);
+  const mobileDropdownRef = useRef(null);
 
   useEffect(() => {
     let mounted = true;
@@ -179,6 +182,8 @@ export default function Navbar() {
 
   const toggleMenu = () => setMenuOpen((open) => !open);
   const toggleContactDropdown = () => setContactDropdownOpen((open) => !open);
+  const toggleMobileContactDropdown = () =>
+    setMobileContactDropdownOpen((open) => !open);
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -196,6 +201,26 @@ export default function Navbar() {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [contactDropdownOpen]);
+
+  // Close mobile dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        mobileDropdownRef.current &&
+        !mobileDropdownRef.current.contains(event.target)
+      ) {
+        setMobileContactDropdownOpen(false);
+      }
+    };
+
+    if (mobileContactDropdownOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [mobileContactDropdownOpen]);
 
   // Get the correct profile URL based on user role
   const getProfileUrl = () => {
@@ -376,29 +401,47 @@ export default function Navbar() {
               const IconComponent = link.icon;
               if (link.title === "Contact") {
                 return (
-                  <div key={link.id} className={styles.mobileDropdownContainer}>
+                  <div
+                    key={link.id}
+                    className={styles.mobileDropdownContainer}
+                    ref={mobileDropdownRef}
+                  >
                     <button
                       className={`${styles.mobileMenuLink} ${styles.mobileDropdownTrigger}`}
-                      onClick={toggleContactDropdown}
-                      aria-expanded={contactDropdownOpen}
+                      onClick={toggleMobileContactDropdown}
+                      onTouchEnd={(e) => {
+                        e.preventDefault();
+                        toggleMobileContactDropdown();
+                      }}
+                      aria-expanded={mobileContactDropdownOpen}
+                      type="button"
                     >
                       <IconComponent size={20} />
                       <span>{link.title}</span>
                       <ChevronDown
                         size={16}
                         className={`${styles.mobileDropdownIcon} ${
-                          contactDropdownOpen
+                          mobileContactDropdownOpen
                             ? styles.mobileDropdownIconOpen
                             : ""
                         }`}
                       />
                     </button>
-                    {contactDropdownOpen && (
+                    {mobileContactDropdownOpen && (
                       <div className={styles.mobileDropdownMenu}>
                         <Link
                           href="/contact"
                           className={styles.mobileDropdownItem}
-                          onClick={() => setMenuOpen(false)}
+                          onClick={() => {
+                            setMenuOpen(false);
+                            setMobileContactDropdownOpen(false);
+                          }}
+                          onTouchEnd={(e) => {
+                            e.preventDefault();
+                            setMenuOpen(false);
+                            setMobileContactDropdownOpen(false);
+                            router.push("/contact");
+                          }}
                         >
                           <Mail size={18} />
                           <span>Contact Us</span>
@@ -406,7 +449,16 @@ export default function Navbar() {
                         <Link
                           href="/feedback"
                           className={styles.mobileDropdownItem}
-                          onClick={() => setMenuOpen(false)}
+                          onClick={() => {
+                            setMenuOpen(false);
+                            setMobileContactDropdownOpen(false);
+                          }}
+                          onTouchEnd={(e) => {
+                            e.preventDefault();
+                            setMenuOpen(false);
+                            setMobileContactDropdownOpen(false);
+                            router.push("/feedback");
+                          }}
                         >
                           <MessageSquare size={18} />
                           <span>Feedback</span>
@@ -414,7 +466,16 @@ export default function Navbar() {
                         <Link
                           href="/faq"
                           className={styles.mobileDropdownItem}
-                          onClick={() => setMenuOpen(false)}
+                          onClick={() => {
+                            setMenuOpen(false);
+                            setMobileContactDropdownOpen(false);
+                          }}
+                          onTouchEnd={(e) => {
+                            e.preventDefault();
+                            setMenuOpen(false);
+                            setMobileContactDropdownOpen(false);
+                            router.push("/faq");
+                          }}
                         >
                           <HelpCircle size={18} />
                           <span>FAQ</span>
@@ -422,7 +483,16 @@ export default function Navbar() {
                         <Link
                           href="/privacy"
                           className={styles.mobileDropdownItem}
-                          onClick={() => setMenuOpen(false)}
+                          onClick={() => {
+                            setMenuOpen(false);
+                            setMobileContactDropdownOpen(false);
+                          }}
+                          onTouchEnd={(e) => {
+                            e.preventDefault();
+                            setMenuOpen(false);
+                            setMobileContactDropdownOpen(false);
+                            router.push("/privacy");
+                          }}
                         >
                           <Shield size={18} />
                           <span>Privacy Policy</span>
