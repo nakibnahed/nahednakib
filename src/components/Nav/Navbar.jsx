@@ -4,7 +4,7 @@ import Link from "next/link";
 import styles from "./Navbar.module.css";
 import Logo from "@/elements/Logo/Logo";
 import DarkMoodToggle from "../DarkMoodToggle/DarkMoodToggle";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { supabase } from "@/services/supabaseClient";
 import {
   User,
@@ -180,10 +180,15 @@ export default function Navbar() {
     };
   }, []);
 
-  const toggleMenu = () => setMenuOpen((open) => !open);
-  const toggleContactDropdown = () => setContactDropdownOpen((open) => !open);
-  const toggleMobileContactDropdown = () =>
-    setMobileContactDropdownOpen((open) => !open);
+  const toggleMenu = useCallback(() => setMenuOpen((open) => !open), []);
+  const toggleContactDropdown = useCallback(
+    () => setContactDropdownOpen((open) => !open),
+    []
+  );
+  const toggleMobileContactDropdown = useCallback(
+    () => setMobileContactDropdownOpen((open) => !open),
+    []
+  );
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -223,13 +228,13 @@ export default function Navbar() {
   }, [mobileContactDropdownOpen]);
 
   // Get the correct profile URL based on user role
-  const getProfileUrl = () => {
+  const getProfileUrl = useCallback(() => {
     if (!user) return "/login";
     return userRole === "admin" ? "/admin/" : "/users/profile";
-  };
+  }, [user, userRole]);
 
   // Render user avatar or icon
-  const renderUserIcon = () => {
+  const renderUserIcon = useCallback(() => {
     if (user && userProfile?.avatar_url) {
       return (
         <Image
@@ -242,7 +247,7 @@ export default function Navbar() {
       );
     }
     return <User size={32} strokeWidth={3} />;
-  };
+  }, [user, userProfile]);
 
   return (
     <div className={styles.navbarFixedBg}>

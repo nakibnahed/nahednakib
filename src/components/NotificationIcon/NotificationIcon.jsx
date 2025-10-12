@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { createPortal } from "react-dom";
 import { Bell } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
@@ -16,9 +16,20 @@ const NotificationIcon = () => {
   const [isNewNotification, setIsNewNotification] = useState(false);
   const [realtimeStatus, setRealtimeStatus] = useState("disconnected");
   const [popupRefreshKey, setPopupRefreshKey] = useState(0);
-  const [forceUpdate, setForceUpdate] = useState(0);
   const [buttonPosition, setButtonPosition] = useState({ top: 0, right: 0 });
   const buttonRef = useRef(null);
+  const debounceTimeoutRef = useRef(null);
+
+  // Debounced update function to prevent rapid state changes
+  const debouncedUpdateUnreadCount = useCallback((newCount) => {
+    if (debounceTimeoutRef.current) {
+      clearTimeout(debounceTimeoutRef.current);
+    }
+
+    debounceTimeoutRef.current = setTimeout(() => {
+      setUnreadCount(newCount);
+    }, 100); // 100ms debounce
+  }, []);
 
   // Check if user is authenticated
   useEffect(() => {
@@ -101,9 +112,6 @@ const NotificationIcon = () => {
                   "📝 New notification is already read, not updating count"
                 );
               }
-
-              // Force a re-render to ensure the badge shows up
-              setForceUpdate((prev) => prev + 1);
 
               // If popup is open, refresh it to show new notification
               setTimeout(() => {
@@ -221,6 +229,9 @@ const NotificationIcon = () => {
       if (subscription) {
         console.log("🧹 Cleaning up real-time subscription");
         supabase.removeChannel(subscription);
+      }
+      if (debounceTimeoutRef.current) {
+        clearTimeout(debounceTimeoutRef.current);
       }
     };
   }, [isAuthenticated]);
