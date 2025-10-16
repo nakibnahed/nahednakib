@@ -434,10 +434,6 @@ export default function PrivacyPage() {
       <div className={styles.privacyCard}>
         <div className={styles.header}>
           <h1 className={styles.title}>Privacy Policy</h1>
-          <p className={styles.description}>
-            Your privacy is important to us. This policy explains how we
-            collect, use, and protect your personal information.
-          </p>
         </div>
 
         <div className={styles.contentWrapper}>
