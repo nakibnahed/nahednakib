@@ -29,24 +29,6 @@
   overflow: hidden;
 }
 
-/* Glass effect overlay */
-.feedbackCard::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(
-    145deg,
-    rgba(255, 255, 255, 0.02) 0%,
-    rgba(255, 255, 255, 0.01) 35%,
-    rgba(255, 255, 255, 0) 65%
-  );
-  pointer-events: none;
-  border-radius: inherit;
-}
-
 /* Header Section */
 .header {
   text-align: center;
@@ -119,13 +101,7 @@
 .input:focus,
 .textarea:focus {
   outline: none;
-  border-color: var(--primary-color);
-  background: color-mix(
-    in srgb,
-    var(--background-main, #121212) 95%,
-    transparent 5%
-  );
-  box-shadow: 0 0 0 3px rgba(238, 104, 26, 0.1);
+  /* border-color: var(--primary-color); */
 }
 
 .input::placeholder,
@@ -192,7 +168,6 @@
     var(--primary-color) 15%,
     var(--background-main) 85%
   ) !important;
-  color: var(--primary-color) !important;
 }
 
 /* Rating System */
