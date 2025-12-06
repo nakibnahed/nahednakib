@@ -13,10 +13,7 @@ export default function InstagramAnalyzer() {
     following: 0,
     dataStructure: "",
   });
-  const [checkedAccounts, setCheckedAccounts] = useState(new Set());
-  const [unfollowedAccounts, setUnfollowedAccounts] = useState(new Set());
-  const [inactiveAccounts, setInactiveAccounts] = useState(new Set());
-  const [keepFollowingAccounts, setKeepFollowingAccounts] = useState(new Set());
+  const [selectedAccounts, setSelectedAccounts] = useState(new Set());
 
   const handleFileUpload = (event, type) => {
     const file = event.target.files[0];
@@ -232,39 +229,16 @@ export default function InstagramAnalyzer() {
     }
   };
 
-  const handleCheckboxChange = (username, type) => {
-    // First, remove the user from all other sets
-    const newInactive = new Set(inactiveAccounts);
-    const newUnfollowed = new Set(unfollowedAccounts);
-    const newKeepFollowing = new Set(keepFollowingAccounts);
-
-    newInactive.delete(username);
-    newUnfollowed.delete(username);
-    newKeepFollowing.delete(username);
-
-    // Then add to the selected set if it's being checked
-    switch (type) {
-      case "inactive":
-        if (!inactiveAccounts.has(username)) {
-          newInactive.add(username);
-        }
-        break;
-      case "unfollow":
-        if (!unfollowedAccounts.has(username)) {
-          newUnfollowed.add(username);
-        }
-        break;
-      case "keep":
-        if (!keepFollowingAccounts.has(username)) {
-          newKeepFollowing.add(username);
-        }
-        break;
-    }
-
-    // Update all sets
-    setInactiveAccounts(newInactive);
-    setUnfollowedAccounts(newUnfollowed);
-    setKeepFollowingAccounts(newKeepFollowing);
+  const toggleAccountSelection = (username) => {
+    setSelectedAccounts((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(username)) {
+        newSet.delete(username);
+      } else {
+        newSet.add(username);
+      }
+      return newSet;
+    });
   };
 
   const resetAnalysis = () => {
@@ -273,10 +247,7 @@ export default function InstagramAnalyzer() {
     setResults([]);
     setError("");
     setDebugInfo({ followers: 0, following: 0, dataStructure: "" });
-    setCheckedAccounts(new Set());
-    setUnfollowedAccounts(new Set());
-    setInactiveAccounts(new Set());
-    setKeepFollowingAccounts(new Set());
+    setSelectedAccounts(new Set());
     // Reset file inputs
     document.getElementById("followers-input").value = "";
     document.getElementById("following-input").value = "";
@@ -370,92 +341,43 @@ export default function InstagramAnalyzer() {
         <div className={styles.resultsSection}>
           <div className={styles.resultsHeader}>
             <h2 className={styles.resultsTitle}>
-              Accounts Not Following You Back (
-              {
-                results.filter(
-                  (username) =>
-                    !unfollowedAccounts.has(username) &&
-                    !inactiveAccounts.has(username) &&
-                    !keepFollowingAccounts.has(username)
-                ).length
-              }
-              )
+              Accounts Not Following You Back ({results.length})
             </h2>
           </div>
+
           <div className={styles.resultsList}>
             {results.map((username, index) => {
-              const isUnfollowed = unfollowedAccounts.has(username);
-              const isInactive = inactiveAccounts.has(username);
-              const isKeepFollowing = keepFollowingAccounts.has(username);
+              const isSelected = selectedAccounts.has(username);
 
               return (
-                <div
-                  key={index}
-                  className={`${styles.resultItem} ${
-                    isUnfollowed ? styles.unfollowedItem : ""
-                  } ${isInactive ? styles.inactiveItem : ""} ${
-                    isKeepFollowing ? styles.keepFollowingItem : ""
-                  }`}
-                >
-                  <div className={styles.checkboxesContainer}>
-                    <label className={styles.checkboxLabel}>
+                <div key={index} className={styles.resultItem}>
+                  <div className={styles.resultContent}>
+                    <div className={styles.leftSection}>
                       <input
                         type="checkbox"
-                        checked={isInactive}
-                        onChange={() =>
-                          handleCheckboxChange(username, "inactive")
+                        checked={isSelected}
+                        onChange={() => toggleAccountSelection(username)}
+                        onClick={(e) => e.stopPropagation()}
+                        className={styles.checkbox}
+                      />
+                      <span className={styles.itemNumber}>{index + 1}</span>
+                    </div>
+                    <a
+                      href={`https://www.instagram.com/${username}/`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={styles.usernameLink}
+                      onClick={(e) => {
+                        if (e.target.closest(`.${styles.checkbox}`)) {
+                          e.preventDefault();
                         }
-                        className={styles.checkbox}
-                      />
-                      <span className={styles.checkboxText}>Inactive</span>
-                    </label>
-
-                    <label className={styles.checkboxLabel}>
-                      <input
-                        type="checkbox"
-                        checked={isUnfollowed}
-                        onChange={() =>
-                          handleCheckboxChange(username, "unfollow")
-                        }
-                        className={styles.checkbox}
-                      />
-                      <span className={styles.checkboxText}>Unfollow</span>
-                    </label>
-
-                    <label className={styles.checkboxLabel}>
-                      <input
-                        type="checkbox"
-                        checked={isKeepFollowing}
-                        onChange={() => handleCheckboxChange(username, "keep")}
-                        className={styles.checkbox}
-                      />
-                      <span className={styles.checkboxText}>
-                        Keep Following
-                      </span>
-                    </label>
+                      }}
+                    >
+                      <span className={styles.usernameIcon}>@</span>
+                      <span className={styles.username}>{username}</span>
+                      <span className={styles.externalLink}>↗</span>
+                    </a>
                   </div>
-
-                  <a
-                    href={`https://www.instagram.com/${username}/`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className={styles.usernameLink}
-                  >
-                    <span className={styles.username}>@{username}</span>
-                    <span className={styles.arrow}>↗</span>
-                  </a>
-
-                  {isUnfollowed && (
-                    <span className={styles.unfollowedLabel}>✓ Unfollowed</span>
-                  )}
-                  {isInactive && (
-                    <span className={styles.inactiveLabel}>⚠ Inactive</span>
-                  )}
-                  {isKeepFollowing && (
-                    <span className={styles.keepFollowingLabel}>
-                      ❤ Keep Following
-                    </span>
-                  )}
                 </div>
               );
             })}

@@ -32,8 +32,22 @@
 }
 
 .instructions {
-  background: var(--card-bg);
-  border: 1px solid var(--card-border);
+  width: 100%;
+  max-width: 900px;
+  padding: 40px;
+  border-radius: var(--card-border-radius);
+  background: color-mix(
+    in srgb,
+    var(--background-main, #121212) 85%,
+    transparent 15%
+  );
+  border: 1px solid var(--card-border, rgba(255, 255, 255, 0.14));
+  color: var(--card-text, #fff);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+  backdrop-filter: blur(16px) saturate(160%);
+  -webkit-backdrop-filter: blur(16px) saturate(160%);
+  position: relative;
+  overflow: hidden;
   border-radius: 12px;
   padding: 25px;
   max-width: 600px;
@@ -71,12 +85,23 @@
 }
 
 .uploadCard {
-  background: var(--card-bg);
-  border: 1px solid var(--card-border);
-  border-radius: 16px;
-  padding: 30px;
+  width: 100%;
+  max-width: 900px;
+  padding: 40px;
+  border-radius: var(--card-border-radius);
+  background: color-mix(
+    in srgb,
+    var(--background-main, #121212) 85%,
+    transparent 15%
+  );
+  border: 1px solid var(--card-border, rgba(255, 255, 255, 0.14));
+  color: var(--card-text, #fff);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+  backdrop-filter: blur(16px) saturate(160%);
+  -webkit-backdrop-filter: blur(16px) saturate(160%);
+  position: relative;
+  overflow: hidden;
   text-align: center;
-  transition: border-color 0.3s ease;
 }
 
 .cardTitle {
@@ -90,7 +115,6 @@
 .cardDescription {
   font-size: 16px;
   color: var(--text-dark);
-
   margin-bottom: 25px;
   line-height: 1.5;
   font-family: var(--font-main);
@@ -190,7 +214,7 @@
 .secondaryButton {
   background: var(--button-bg-no-active);
   border: 1px solid var(--card-border);
-  color: var(--button-text-no-active);
+  color: var(--button-text-no-activ);
 }
 
 .button:hover {
@@ -204,8 +228,17 @@
 
 /* Results Section */
 .resultsSection {
-  background: var(--card-bg);
-  border: 1px solid var(--card-border);
+  border-radius: var(--card-border-radius);
+  background: color-mix(
+    in srgb,
+    var(--background-main, #121212) 85%,
+    transparent 15%
+  );
+  border: 1px solid var(--card-border, rgba(255, 255, 255, 0.14));
+  color: var(--card-text, #fff);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+  backdrop-filter: blur(16px) saturate(160%);
+  -webkit-backdrop-filter: blur(16px) saturate(160%);
   border-radius: 16px;
   padding: 30px;
 }
@@ -228,136 +261,148 @@
   margin: 0;
 }
 
-.markUnfollowedButton {
-  background: #10b981;
-  color: white;
-  font-size: 14px;
-  padding: 8px 16px;
-  min-width: auto;
-}
-
+/* Updated Results List as Grid */
 .resultsList {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+  grid-template-columns: repeat(3, 1fr);
   gap: 15px;
 }
 
 .resultItem {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  padding: 15px 20px;
-  background: var(--background-secondary);
-  border: 1px solid var(--card-border);
-  border-radius: 12px;
-  transition: all 0.3s ease;
+  display: block;
+  border-radius: var(--card-border-radius);
+  background: color-mix(
+    in srgb,
+    var(--background-main, #121212) 85%,
+    transparent 15%
+  );
+  border: 1px solid var(--card-border, rgba(255, 255, 255, 0.14));
+  color: var(--card-text, #fff);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+  backdrop-filter: blur(16px) saturate(160%);
+  -webkit-backdrop-filter: blur(16px) saturate(160%);
   font-family: var(--font-main);
-  position: relative;
+  overflow: hidden;
+  color: inherit;
 }
 
-.resultItem:hover {
-  border-color: var(--primary-color);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-}
-
-.unfollowedItem {
-  opacity: 0.6;
-  background: rgba(16, 185, 129, 0.1);
-  border-color: #10b981;
-}
-
-.inactiveItem {
-  opacity: 0.5;
-  background: rgba(156, 163, 175, 0.1);
-  border-color: #9ca3af;
-}
-
-.keepFollowingItem {
-  background: rgba(251, 191, 36, 0.1);
-  border-color: #fbbf24;
-}
-
-.checkboxesContainer {
-  display: flex;
-  gap: 15px;
-  flex-wrap: wrap;
-}
-
-.checkboxLabel {
+.resultContent {
   display: flex;
   align-items: center;
-  gap: 6px;
-  cursor: pointer;
-  font-size: 14px;
-  font-weight: 500;
+  justify-content: space-between;
+  padding: 16px 20px;
+  gap: 16px;
+}
+
+.leftSection {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
 }
 
 .checkbox {
-  width: 16px;
-  height: 16px;
+  width: 32px;
+  height: 32px;
   cursor: pointer;
-  accent-color: var(--primary-color);
+  flex-shrink: 0;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background: var(--background-secondary);
+  border: 1px solid var(--card-border);
+  border-radius: 8px;
+  position: relative;
+  margin: 0;
+  transition: all 0.2s ease;
 }
 
-.checkboxText {
+.checkbox:checked {
+  background: var(--primary-color);
+  border-color: var(--primary-color);
+}
+
+.checkbox:checked::after {
+  content: "✓";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: var(--button-text);
+  font-weight: 700;
+  font-size: 18px;
+  line-height: 1;
+}
+
+.checkbox:hover {
+  border-color: var(--primary-color);
+  opacity: 0.8;
+}
+
+.itemNumber {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 32px;
+  height: 32px;
+  background: var(--background-secondary);
+  border: 1px solid var(--card-border);
+  border-radius: 8px;
+  font-weight: 700;
   color: var(--text-dark);
-  user-select: none;
+  font-size: 14px;
+  flex-shrink: 0;
 }
 
 .usernameLink {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  gap: 8px;
   flex: 1;
+  min-width: 0;
   text-decoration: none;
   color: inherit;
+}
+
+.usernameIcon {
+  color: var(--text-dark);
+  font-weight: 700;
+  opacity: 0.6;
 }
 
 .username {
   font-weight: 600;
   color: var(--text-dark);
   font-size: 16px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.arrow {
+.externalLink {
   color: var(--primary-color);
-  font-size: 18px;
-  transition: transform 0.3s ease;
+  font-size: 14px;
+  opacity: 0.7;
+  flex-shrink: 0;
 }
 
-.usernameLink:hover .arrow {
-  transform: translate(3px, -3px);
+/* Responsive Grid Adjustments */
+@media (max-width: 1200px) {
+  .resultsList {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 
-.unfollowedLabel {
-  font-size: 12px;
-  font-weight: 600;
-  color: #10b981;
-  background: rgba(16, 185, 129, 0.2);
-  padding: 4px 8px;
-  border-radius: 6px;
-  margin-left: auto;
+@media (max-width: 900px) {
+  .resultsList {
+    grid-template-columns: repeat(1, 1fr);
+  }
 }
 
-.inactiveLabel {
-  font-size: 12px;
-  font-weight: 600;
-  color: #9ca3af;
-  background: rgba(156, 163, 175, 0.2);
-  padding: 4px 8px;
-  border-radius: 6px;
-  margin-left: auto;
-}
-
-.keepFollowingLabel {
-  font-size: 12px;
-  font-weight: 600;
-  color: #fbbf24;
-  background: rgba(251, 191, 36, 0.2);
-  padding: 4px 8px;
-  border-radius: 6px;
-  margin-left: auto;
+@media (max-width: 600px) {
+  .resultsList {
+    grid-template-columns: 1fr;
+  }
 }
 
 /* Responsive Design */
@@ -392,8 +437,9 @@
     align-items: center;
   }
 
-  .resultsList {
-    grid-template-columns: 1fr;
+  .resultContent {
+    flex-wrap: wrap;
+    gap: 12px;
   }
 
   .resultsTitle {
@@ -404,20 +450,6 @@
     flex-direction: column;
     align-items: center;
     text-align: center;
-  }
-
-  .markUnfollowedButton {
-    width: 100%;
-    max-width: 300px;
-  }
-
-  .checkboxesContainer {
-    flex-direction: column;
-    gap: 8px;
-  }
-
-  .checkboxLabel {
-    justify-content: flex-start;
   }
 }
 
