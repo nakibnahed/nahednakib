@@ -24,7 +24,7 @@ export default function AuthorPage({ params }) {
         const { data: authorData, error: authorError } = await supabase
           .from("profiles")
           .select(
-            "id, full_name, first_name, last_name, avatar_url, email, role, bio, professional_role"
+            "id, full_name, first_name, last_name, avatar_url, email, role, bio, professional_role",
           )
           .eq("id", id)
           .single();
@@ -49,7 +49,7 @@ export default function AuthorPage({ params }) {
               slug,
               color
             )
-          `
+          `,
           )
           .eq("author_id", id)
           .order("created_at", { ascending: false });
@@ -152,7 +152,10 @@ export default function AuthorPage({ params }) {
       {/* Author's Posts */}
       <section className={styles.postsSection}>
         <h2 className={styles.sectionTitle}>
-          Posts by {author.full_name || author.first_name || "Author"}
+          <span className={styles.sectionTitleText}> Posts by</span>{" "}
+          {author.full_name ||
+            `${author.first_name} ${author.last_name}` ||
+            "Author"}
         </h2>
 
         {posts.length === 0 ? (

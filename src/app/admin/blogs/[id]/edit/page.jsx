@@ -188,7 +188,7 @@ export default function EditBlogPage() {
       existingSlugs?.length > 0
         ? generateUniqueSlug(
             formData.title,
-            existingSlugs.map((b) => b.slug)
+            existingSlugs.map((b) => b.slug),
           )
         : formData.slug;
 

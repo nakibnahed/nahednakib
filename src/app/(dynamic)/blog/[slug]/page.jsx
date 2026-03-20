@@ -22,7 +22,7 @@ export async function generateMetadata({ params }) {
         first_name,
         last_name
       )
-    `
+    `,
     )
     .eq("slug", slug)
     .single();
@@ -39,7 +39,7 @@ export async function generateMetadata({ params }) {
           first_name,
           last_name
         )
-      `
+      `,
       )
       .eq("id", slug)
       .single();
@@ -133,7 +133,7 @@ export default async function Post({ params }) {
         bio,
         professional_role
       )
-    `
+    `,
     )
     .eq("slug", slug)
     .single();
@@ -155,7 +155,7 @@ export default async function Post({ params }) {
           bio,
           professional_role
         )
-      `
+      `,
       )
       .eq("id", slug)
       .single();
@@ -197,7 +197,7 @@ export default async function Post({ params }) {
 
   const formattedDate = new Date(blog.created_at).toLocaleDateString(
     undefined,
-    { year: "numeric", month: "short", day: "numeric" }
+    { year: "numeric", month: "short", day: "numeric" },
   );
 
   const tags =
@@ -230,7 +230,7 @@ export default async function Post({ params }) {
           name,
           color
         )
-      `
+      `,
       )
       .neq("id", blog.id)
       .order("created_at", { ascending: false })
@@ -239,7 +239,7 @@ export default async function Post({ params }) {
     if (!relatedError && allRelatedPosts) {
       // Priority 1: Same category
       const categoryPosts = allRelatedPosts.filter(
-        (post) => post.category_id === blog.category_id
+        (post) => post.category_id === blog.category_id,
       );
 
       // Priority 2: Similar tags
