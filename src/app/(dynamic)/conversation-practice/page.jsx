@@ -775,23 +775,32 @@ export default function ConversationPracticePage() {
                     </span>
                   )}
                 </div>
-                {currentUser?.id !== s.user_id ? (
-                  <button
-                    type="button"
-                    className={styles.btnRequest}
-                    onClick={() => setModalTarget(s)}
-                  >
-                    Request meeting
-                  </button>
-                ) : (
-                  <button
-                    type="button"
-                    className={`${styles.btnRequest} ${styles.btnBusy}`}
-                    disabled
-                  >
-                    Your availability card
-                  </button>
-                )}
+                {(() => {
+                  const isOwnCard =
+                    (currentUser?.id && currentUser.id === s.user_id) ||
+                    (!currentUser?.id &&
+                      guestEmail &&
+                      s.email &&
+                      guestEmail.trim().toLowerCase() ===
+                        s.email.trim().toLowerCase());
+                  return isOwnCard ? (
+                    <button
+                      type="button"
+                      className={`${styles.btnRequest} ${styles.btnBusy}`}
+                      disabled
+                    >
+                      Your availability card
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      className={styles.btnRequest}
+                      onClick={() => setModalTarget(s)}
+                    >
+                      Request meeting
+                    </button>
+                  );
+                })()}
                 {isAdmin && (
                   <button
                     type="button"
