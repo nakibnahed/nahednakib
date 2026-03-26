@@ -62,8 +62,3 @@ npm install --save-dev @types/dompurify
 - **Current**: 7/10
 - **After Fixes**: 9/10
 - **Perfect Security**: Impossible (security is ongoing)
-
-
-
-
-
