@@ -4,7 +4,7 @@ const pageTitle = `Conversation Practice | ${siteMetadata.author}`;
 const pageDescription =
   "Find a conversation practice partner at your level. Set your availability, browse classmates who are ready to practice, and schedule a live video meeting — all in one place.";
 const pageUrl = `${siteMetadata.url}/conversation-practice`;
-const pageImage = siteMetadata.image;
+const pageImage = `${siteMetadata.url}/images/conversation-practice.jpg`;
 
 export const metadata = {
   title: pageTitle,
