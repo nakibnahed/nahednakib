@@ -1,6 +1,6 @@
 import { metadata as siteMetadata } from "@/constants/metadata";
 
-const pageTitle = `Conversation Practice | ${siteMetadata.author}`;
+const pageTitle = "Conversation Practice";
 const pageDescription =
   "Find a conversation practice partner at your level. Set your availability, browse classmates who are ready to practice, and schedule a live video meeting — all in one place.";
 const pageUrl = `${siteMetadata.url}/conversation-practice`;

@@ -124,6 +124,7 @@ export default function ConversationPracticePage() {
   const [isAdmin, setIsAdmin] = useState(false);
   const [guestName, setGuestName] = useState("");
   const [guestEmail, setGuestEmail] = useState("");
+  const [guestProfileEditing, setGuestProfileEditing] = useState(false);
 
   const [regName, setRegName] = useState("");
   const today = new Date();
@@ -359,6 +360,7 @@ export default function ConversationPracticePage() {
     setGuestName(name);
     setGuestEmail(email);
     setGuestProfileHint(null);
+    setGuestProfileEditing(false);
     try {
       window.localStorage.setItem(
         GUEST_STORAGE_KEY,
@@ -368,6 +370,17 @@ export default function ConversationPracticePage() {
       // ignore local storage failure
     }
     showToast("Profile saved.");
+  }
+
+  function startEditProfile() {
+    setRegName(guestName);
+    setGuestProfileEditing(true);
+  }
+
+  function cancelEditProfile() {
+    setRegName(guestName);
+    setGuestEmail(guestEmail);
+    setGuestProfileEditing(false);
   }
 
   function ensureProfileBeforeRequest() {
@@ -874,12 +887,12 @@ export default function ConversationPracticePage() {
           <div className={styles.field}>
             <label>Your name</label>
             <input
-              value={guestProfileLocked ? guestName : regName}
+              value={guestProfileLocked && !guestProfileEditing ? guestName : regName}
               onChange={(e) => setRegName(e.target.value)}
               placeholder="e.g. Sarah Johnson"
-              readOnly={guestProfileLocked}
-              disabled={guestProfileLocked}
-              aria-readonly={guestProfileLocked}
+              readOnly={guestProfileLocked && !guestProfileEditing}
+              disabled={guestProfileLocked && !guestProfileEditing}
+              aria-readonly={guestProfileLocked && !guestProfileEditing}
             />
           </div>
           {!currentUser && (
@@ -891,9 +904,9 @@ export default function ConversationPracticePage() {
                   value={guestEmail}
                   onChange={(e) => setGuestEmail(e.target.value)}
                   placeholder="your-email@example.com"
-                  readOnly={guestProfileLocked}
-                  disabled={guestProfileLocked}
-                  aria-readonly={guestProfileLocked}
+                  readOnly={guestProfileLocked && !guestProfileEditing}
+                  disabled={guestProfileLocked && !guestProfileEditing}
+                  aria-readonly={guestProfileLocked && !guestProfileEditing}
                 />
               </div>
               {!guestProfileLocked && (
@@ -905,6 +918,37 @@ export default function ConversationPracticePage() {
                   >
                     Save profile
                   </button>
+                </div>
+              )}
+              {guestProfileLocked && !guestProfileEditing && (
+                <div className={styles.field}>
+                  <button
+                    type="button"
+                    className={styles.btnEditProfile}
+                    onClick={startEditProfile}
+                  >
+                    Edit profile
+                  </button>
+                </div>
+              )}
+              {guestProfileLocked && guestProfileEditing && (
+                <div className={styles.field}>
+                  <div className={styles.editProfileActions}>
+                    <button
+                      type="button"
+                      className={styles.btnCancel}
+                      onClick={cancelEditProfile}
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="button"
+                      className={styles.btnSubmit}
+                      onClick={saveGuestProfile}
+                    >
+                      Save changes
+                    </button>
+                  </div>
                 </div>
               )}
             </>
