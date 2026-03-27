@@ -319,7 +319,9 @@
   line-height: 1;
   color: var(--text-muted);
   font-variant-numeric: tabular-nums;
-  transition: color 0.12s, transform 0.12s;
+  transition:
+    color 0.12s,
+    transform 0.12s;
 }
 
 .drumActive {

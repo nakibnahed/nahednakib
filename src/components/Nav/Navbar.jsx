@@ -20,6 +20,7 @@ import {
   HelpCircle,
   Shield,
   MessageSquare,
+  Video,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import NotificationIcon from "../NotificationIcon/NotificationIcon";
@@ -168,7 +169,7 @@ export default function Navbar() {
           setUserRole(null);
           setUserProfile(null);
         }
-      }
+      },
     );
 
     return () => {
@@ -183,11 +184,11 @@ export default function Navbar() {
   const toggleMenu = useCallback(() => setMenuOpen((open) => !open), []);
   const toggleContactDropdown = useCallback(
     () => setContactDropdownOpen((open) => !open),
-    []
+    [],
   );
   const toggleMobileContactDropdown = useCallback(
     () => setMobileContactDropdownOpen((open) => !open),
-    []
+    [],
   );
 
   // Close dropdown when clicking outside
@@ -284,6 +285,13 @@ export default function Navbar() {
                         <Link href="/contact" className={styles.dropdownItem}>
                           <Mail size={16} />
                           Contact Us
+                        </Link>
+                        <Link
+                          href="/conversation-practice"
+                          className={styles.dropdownItem}
+                        >
+                          <Video size={16} />
+                          Meetings
                         </Link>
                         <Link href="/feedback" className={styles.dropdownItem}>
                           <MessageSquare size={16} />
@@ -450,6 +458,23 @@ export default function Navbar() {
                         >
                           <Mail size={18} />
                           <span>Contact Us</span>
+                        </Link>
+                        <Link
+                          href="/conversation-practice"
+                          className={styles.mobileDropdownItem}
+                          onClick={() => {
+                            setMenuOpen(false);
+                            setMobileContactDropdownOpen(false);
+                          }}
+                          onTouchEnd={(e) => {
+                            e.preventDefault();
+                            setMenuOpen(false);
+                            setMobileContactDropdownOpen(false);
+                            router.push("/conversation-practice");
+                          }}
+                        >
+                          <Video size={18} />
+                          <span>Meetings</span>
                         </Link>
                         <Link
                           href="/feedback"
