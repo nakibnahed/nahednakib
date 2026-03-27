@@ -14,10 +14,10 @@ export async function POST(req) {
       return new Response(JSON.stringify({ error: "requestId is required" }), { status: 400 });
     }
 
-    // Generate a unique room name tied to this request
-    // Both students get the same link → same Jitsi room
-    const roomName = `practice-${requestId.replace(/-/g, "").slice(0, 16)}`;
-    const meetLink = `https://meet.jit.si/${roomName}`;
+    // Generate a unique room name tied to this request.
+    // Using meet.ffmuc.net — free public Jitsi server, no moderator/login required.
+    const roomName = `practice${requestId.replace(/-/g, "").slice(0, 20)}`;
+    const meetLink = `https://meet.ffmuc.net/${roomName}`;
 
     const { data: requestRow, error: requestErr } = await supabaseAdmin
       .from("practice_requests")
