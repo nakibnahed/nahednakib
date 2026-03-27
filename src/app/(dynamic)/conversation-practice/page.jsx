@@ -136,7 +136,8 @@ export default function ConversationPracticePage() {
   const [cancellingRequestId, setCancellingRequestId] = useState(null);
   const [cancelModalRequest, setCancelModalRequest] = useState(null);
   const [cancelReason, setCancelReason] = useState("");
-  const [needsProfileFirst, setNeedsProfileFirst] = useState(false);
+  /** Guest must save name+email first: 'request' | 'availability' | null */
+  const [guestProfileHint, setGuestProfileHint] = useState(null);
 
   const showToast = useCallback((msg) => {
     setToast(msg);
@@ -154,6 +155,11 @@ export default function ConversationPracticePage() {
 
   const activeName = currentUser ? currentUserName : guestName;
   const activeEmail = currentUser ? currentUserEmail : guestEmail;
+
+  /** Guest: name + email saved (this session or localStorage) — no further edits */
+  const guestProfileLocked =
+    !currentUser &&
+    Boolean((guestName || "").trim() && (guestEmail || "").trim());
 
   const loadCurrentUser = useCallback(async () => {
     const {
@@ -352,7 +358,7 @@ export default function ConversationPracticePage() {
     }
     setGuestName(name);
     setGuestEmail(email);
-    setNeedsProfileFirst(false);
+    setGuestProfileHint(null);
     try {
       window.localStorage.setItem(
         GUEST_STORAGE_KEY,
@@ -369,7 +375,7 @@ export default function ConversationPracticePage() {
     const hasProfile = Boolean(guestName && guestEmail);
     if (hasProfile) return true;
 
-    setNeedsProfileFirst(true);
+    setGuestProfileHint("request");
     setTab("register");
     showToast("Please enter your name and email, then click Save profile.");
     if (typeof window !== "undefined") {
@@ -385,7 +391,18 @@ export default function ConversationPracticePage() {
   async function handleRegister(e) {
     e.preventDefault();
     if (!currentUser?.id && (!guestName || !guestEmail)) {
-      showToast("Save your profile first (name + email).");
+      setGuestProfileHint("availability");
+      setTab("register");
+      showToast(
+        "Please enter your name and email, then click Save profile before saving availability.",
+      );
+      if (typeof window !== "undefined") {
+        window.setTimeout(() => {
+          document
+            .getElementById("practice-register-form")
+            ?.scrollIntoView({ behavior: "smooth", block: "start" });
+        }, 80);
+      }
       return;
     }
 
@@ -680,7 +697,7 @@ export default function ConversationPracticePage() {
         </div>
       </header>
 
-      {!currentUser && (
+      {!currentUser && !guestProfileLocked && (
         <div className={styles.setupHint}>Enter your name and email</div>
       )}
 
@@ -839,18 +856,30 @@ export default function ConversationPracticePage() {
           onSubmit={handleRegister}
         >
           <h2 className={styles.formTitle}>Set your availability</h2>
-          {!currentUser && needsProfileFirst && (
+          {!currentUser && guestProfileHint && !guestProfileLocked && (
             <div className={`${styles.setupHint} ${styles.setupHintWarn}`}>
-              Before sending a request, save your profile first:
-              enter your name and email, then click <b>Save profile</b>.
+              {guestProfileHint === "request" ? (
+                <>
+                  Before sending a request, save your profile first: enter your
+                  name and email, then click <b>Save profile</b>.
+                </>
+              ) : (
+                <>
+                  Before saving your availability, save your profile first:
+                  enter your name and email, then click <b>Save profile</b>.
+                </>
+              )}
             </div>
           )}
           <div className={styles.field}>
             <label>Your name</label>
             <input
-              value={regName}
+              value={guestProfileLocked ? guestName : regName}
               onChange={(e) => setRegName(e.target.value)}
               placeholder="e.g. Sarah Johnson"
+              readOnly={guestProfileLocked}
+              disabled={guestProfileLocked}
+              aria-readonly={guestProfileLocked}
             />
           </div>
           {!currentUser && (
@@ -862,17 +891,22 @@ export default function ConversationPracticePage() {
                   value={guestEmail}
                   onChange={(e) => setGuestEmail(e.target.value)}
                   placeholder="your-email@example.com"
+                  readOnly={guestProfileLocked}
+                  disabled={guestProfileLocked}
+                  aria-readonly={guestProfileLocked}
                 />
               </div>
-              <div className={styles.field}>
-                <button
-                  type="button"
-                  className={styles.btnSubmit}
-                  onClick={saveGuestProfile}
-                >
-                  Save profile
-                </button>
-              </div>
+              {!guestProfileLocked && (
+                <div className={styles.field}>
+                  <button
+                    type="button"
+                    className={styles.btnSubmit}
+                    onClick={saveGuestProfile}
+                  >
+                    Save profile
+                  </button>
+                </div>
+              )}
             </>
           )}
           <div className={styles.field}>
