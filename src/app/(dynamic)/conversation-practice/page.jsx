@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
+import DateTimePicker from "./DateTimePicker";
 import { supabase } from "@/services/supabaseClient";
 import styles from "./page.module.css";
 
@@ -32,30 +33,19 @@ const FILTER_CHIPS = [
   { val: "night", label: "Night" },
 ];
 
-const TIME_OPTIONS = Array.from({ length: 48 }, (_, i) => {
-  const hour = String(Math.floor(i / 2)).padStart(2, "0");
-  const minute = i % 2 === 0 ? "00" : "30";
-  return `${hour}:${minute}`;
-});
 
-const MONTH_OPTIONS = [
-  { value: "01", label: "January" },
-  { value: "02", label: "February" },
-  { value: "03", label: "March" },
-  { value: "04", label: "April" },
-  { value: "05", label: "May" },
-  { value: "06", label: "June" },
-  { value: "07", label: "July" },
-  { value: "08", label: "August" },
-  { value: "09", label: "September" },
-  { value: "10", label: "October" },
-  { value: "11", label: "November" },
-  { value: "12", label: "December" },
-];
 
 function slotLabel(value) {
   const found = TIME_SLOTS.find((s) => s.value === value);
   return found ? found.label : value;
+}
+
+function getSlotFromHour(hour) {
+  if (hour >= 5 && hour < 12) return "morning";
+  if (hour >= 12 && hour < 14) return "noon";
+  if (hour >= 14 && hour < 18) return "afternoon";
+  if (hour >= 18 && hour < 21) return "evening";
+  return "night";
 }
 
 function initials(name) {
@@ -72,15 +62,6 @@ function avatarClassForName(name) {
   return AVATAR_COLORS[Math.abs(h) % AVATAR_COLORS.length];
 }
 
-function combineDateTime(dateStr, timeStr) {
-  if (!dateStr || !timeStr) return null;
-  return new Date(`${dateStr}T${timeStr}`);
-}
-
-function buildDateString(year, month, day) {
-  if (!year || !month || !day) return "";
-  return `${year}-${month}-${day}`;
-}
 
 function formatAvailability(from, until) {
   if (!from || !until) return null;
@@ -139,18 +120,8 @@ export default function ConversationPracticePage() {
   const [guestEmail, setGuestEmail] = useState("");
 
   const [regName, setRegName] = useState("");
-  const [regSlots, setRegSlots] = useState([]);
-  const currentYear = new Date().getFullYear();
   const today = new Date();
-  const [regYear, setRegYear] = useState(String(currentYear));
-  const [regMonth, setRegMonth] = useState(
-    String(today.getMonth() + 1).padStart(2, "0"),
-  );
-  const [regDay, setRegDay] = useState(
-    String(today.getDate()).padStart(2, "0"),
-  );
-  const [regStartTime, setRegStartTime] = useState("");
-  const [regEndTime, setRegEndTime] = useState("");
+  const [regDate, setRegDate] = useState(today);
   const [saving, setSaving] = useState(false);
 
   const [modalTarget, setModalTarget] = useState(null);
@@ -378,12 +349,6 @@ export default function ConversationPracticePage() {
     showToast("Guest profile saved.");
   }
 
-  function toggleRegSlot(val) {
-    setRegSlots((prev) =>
-      prev.includes(val) ? prev.filter((s) => s !== val) : [...prev, val],
-    );
-  }
-
   async function handleRegister(e) {
     e.preventDefault();
     if (!currentUser?.id && (!guestName || !guestEmail)) {
@@ -397,19 +362,13 @@ export default function ConversationPracticePage() {
       return;
     }
 
-    const regDate = buildDateString(regYear, regMonth, regDay);
-    const fromDate = combineDateTime(regDate, regStartTime);
-    const untilDate = combineDateTime(regDate, regEndTime);
-
-    if (!fromDate || !untilDate) {
-      showToast("Please select date, start time, and end time.");
+    if (!regDate) {
+      showToast("Please select a date and time.");
       return;
     }
-
-    if (untilDate <= fromDate) {
-      showToast("End time must be after start time.");
-      return;
-    }
+    const fromDate = regDate;
+    const untilDate = new Date(regDate.getTime() + 60 * 60 * 1000); // +1 hour
+    const autoSlots = [getSlotFromHour(fromDate.getHours())];
 
     setSaving(true);
     let error = null;
@@ -420,7 +379,7 @@ export default function ConversationPracticePage() {
           name,
           email: currentUserEmail,
           status: "available",
-          slots: regSlots,
+          slots: autoSlots,
           available_from: fromDate.toISOString(),
           available_until: untilDate.toISOString(),
         },
@@ -442,7 +401,7 @@ export default function ConversationPracticePage() {
             name,
             email: guestEmailNorm,
             status: "available",
-            slots: regSlots,
+            slots: autoSlots,
             available_from: fromDate.toISOString(),
             available_until: untilDate.toISOString(),
           })
@@ -453,7 +412,7 @@ export default function ConversationPracticePage() {
           name,
           email: guestEmailNorm,
           status: "available",
-          slots: regSlots,
+          slots: autoSlots,
           available_from: fromDate.toISOString(),
           available_until: untilDate.toISOString(),
         }));
@@ -609,28 +568,6 @@ export default function ConversationPracticePage() {
     () => students.filter((s) => matchesFilter(s, filter)),
     [students, filter],
   );
-  const yearOptions = useMemo(
-    () => [String(currentYear), String(currentYear + 1)],
-    [currentYear],
-  );
-  const dayOptions = useMemo(() => {
-    if (!regYear || !regMonth) return [];
-    const daysInMonth = new Date(
-      Number(regYear),
-      Number(regMonth),
-      0,
-    ).getDate();
-    return Array.from({ length: daysInMonth }, (_, i) =>
-      String(i + 1).padStart(2, "0"),
-    );
-  }, [regYear, regMonth]);
-
-  useEffect(() => {
-    if (!dayOptions.length) return;
-    if (!regDay || !dayOptions.includes(regDay)) {
-      setRegDay(dayOptions[0]);
-    }
-  }, [dayOptions, regDay]);
   const availableCount = students.length;
   const pendingCount = requests.length;
 
@@ -852,85 +789,13 @@ export default function ConversationPracticePage() {
             </>
           )}
           <div className={styles.field}>
-            <span className={styles.fieldLabel}>Preferred time slots</span>
-            <div className={styles.slotsPicker}>
-              {TIME_SLOTS.map((slot) => (
-                <button
-                  key={slot.value}
-                  type="button"
-                  className={`${styles.slotBtn} ${regSlots.includes(slot.value) ? styles.slotBtnPicked : ""}`}
-                  onClick={() => toggleRegSlot(slot.value)}
-                >
-                  {slot.label}
-                </button>
-              ))}
-            </div>
-          </div>
-          <div className={styles.field}>
-            <label>Date</label>
-            <div className={styles.slotsPicker}>
-              <select
-                value={regYear}
-                onChange={(e) => setRegYear(e.target.value)}
-              >
-                <option value="">Year</option>
-                {yearOptions.map((y) => (
-                  <option key={y} value={y}>
-                    {y}
-                  </option>
-                ))}
-              </select>
-              <select
-                value={regMonth}
-                onChange={(e) => setRegMonth(e.target.value)}
-              >
-                <option value="">Month</option>
-                {MONTH_OPTIONS.map((m) => (
-                  <option key={m.value} value={m.value}>
-                    {m.label}
-                  </option>
-                ))}
-              </select>
-              <select
-                value={regDay}
-                onChange={(e) => setRegDay(e.target.value)}
-              >
-                <option value="">Day</option>
-                {dayOptions.map((d) => (
-                  <option key={d} value={d}>
-                    {d}
-                  </option>
-                ))}
-              </select>
-            </div>
-          </div>
-          <div className={styles.field}>
-            <label>Start time</label>
-            <select
-              value={regStartTime}
-              onChange={(e) => setRegStartTime(e.target.value)}
-            >
-              <option value="">Select start time</option>
-              {TIME_OPTIONS.map((t) => (
-                <option key={`start-${t}`} value={t}>
-                  {t}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div className={styles.field}>
-            <label>End time</label>
-            <select
-              value={regEndTime}
-              onChange={(e) => setRegEndTime(e.target.value)}
-            >
-              <option value="">Select end time</option>
-              {TIME_OPTIONS.map((t) => (
-                <option key={`end-${t}`} value={t}>
-                  {t}
-                </option>
-              ))}
-            </select>
+            <label>Date &amp; time</label>
+            <DateTimePicker
+              value={regDate}
+              onChange={(date) => date && setRegDate(date)}
+              minDate={new Date()}
+              placeholder="Select date & time"
+            />
           </div>
           <button type="submit" className={styles.btnSubmit} disabled={saving}>
             {saving ? "Saving..." : "Save my availability"}
