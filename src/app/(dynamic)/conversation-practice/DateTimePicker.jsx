@@ -129,7 +129,9 @@ export default function DateTimePicker({
     <div className={styles.root} ref={ref}>
       {/* triggerWrap is a div so we can have two sibling buttons inside —
           nesting <button> inside <button> is invalid HTML */}
-      <div className={`${styles.triggerWrap} ${open ? styles.triggerActive : ""}`}>
+      <div
+        className={`${styles.triggerWrap} ${open ? styles.triggerActive : ""}`}
+      >
         <button
           type="button"
           className={styles.trigger}

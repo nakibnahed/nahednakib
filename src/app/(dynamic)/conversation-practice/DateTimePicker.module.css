@@ -14,17 +14,18 @@
   display: flex;
   align-items: center;
   width: 100%;
-  background: var(--background-main);
+  background: color-mix(in srgb, var(--background-main) 80%, transparent 15%);
   border: 1px solid var(--card-border);
-  border-radius: var(--button-radius);
-  color: var(--text-dark);
-  transition: border-color 0.2s, box-shadow 0.2s;
+  border-radius: 8px;
+  color: var(--text-light);
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
 }
 
 .triggerWrap:hover,
 .triggerActive {
   border-color: var(--primary-color);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary-color) 14%, transparent);
   color: var(--card-text);
 }
 
@@ -34,11 +35,11 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 10px 14px;
+  padding: 10px 15px;
   background: none;
   border: none;
   color: inherit;
-  font-size: 14px;
+  font-size: 16px;
   font-family: var(--font-main);
   cursor: pointer;
   text-align: left;
@@ -89,10 +90,12 @@
   left: 50%;
   transform: translate(-50%, -50%);
   z-index: 300;
-  background: var(--card-bg);
+  background: color-mix(in srgb, var(--background-main) 80%, transparent 15%);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
   border: 1px solid var(--card-border);
-  border-radius: 16px;
-  width: 292px;
+  border-radius: 20px;
+  width: 300px;
   box-shadow: 0 24px 64px rgba(0, 0, 0, 0.65);
   overflow: hidden;
   animation: panelIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
@@ -305,7 +308,7 @@
 }
 
 .spinBtn {
-  background: var(--card-bg-hover);
+  background: color-mix(in srgb, var(--background-main) 60%, transparent);
   border: 1px solid var(--card-border);
   color: var(--text-muted);
   cursor: pointer;
@@ -336,8 +339,8 @@
 .ampmBtn {
   flex: 1;
   padding: 9px;
-  background: var(--card-bg-hover);
-  border: 1.5px solid transparent;
+  background: color-mix(in srgb, var(--background-main) 60%, transparent);
+  border: 1.5px solid var(--card-border);
   border-radius: 8px;
   color: var(--text-muted);
   font-size: 13px;

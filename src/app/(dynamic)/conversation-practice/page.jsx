@@ -26,14 +26,11 @@ const TIME_SLOTS = [
 
 const FILTER_CHIPS = [
   { val: "all", label: "All" },
-  { val: "available", label: "Available only" },
   { val: "morning", label: "Morning" },
   { val: "noon", label: "Noon & Afternoon" },
   { val: "evening", label: "Evening" },
   { val: "night", label: "Night" },
 ];
-
-
 
 function slotLabel(value) {
   const found = TIME_SLOTS.find((s) => s.value === value);
@@ -61,7 +58,6 @@ function avatarClassForName(name) {
   }
   return AVATAR_COLORS[Math.abs(h) % AVATAR_COLORS.length];
 }
-
 
 function formatAvailability(from, until) {
   if (!from || !until) return null;
@@ -595,7 +591,7 @@ export default function ConversationPracticePage() {
         </div>
         <div className={styles.liveBadge}>
           <span className={styles.liveDot} />
-          <span>{availableCount} available now</span>
+          <span>{availableCount} available</span>
         </div>
       </header>
 
@@ -612,14 +608,8 @@ export default function ConversationPracticePage() {
 
       <div className={styles.stats}>
         <div className={styles.statCard}>
-          <div className={styles.statNum}>{students.length}</div>
+          <div className={`${styles.statNum} ${styles.statNumAccent}`}>{students.length}</div>
           <div className={styles.statLabel}>Available students</div>
-        </div>
-        <div className={styles.statCard}>
-          <div className={`${styles.statNum} ${styles.statNumAccent}`}>
-            {availableCount}
-          </div>
-          <div className={styles.statLabel}>Live now</div>
         </div>
         <div className={styles.statCard}>
           <div className={`${styles.statNum} ${styles.statNumAccent}`}>
@@ -706,47 +696,46 @@ export default function ConversationPracticePage() {
                       {slotLabel(sl)}
                     </span>
                   ))}
-                  {formatAvailability(s.available_from, s.available_until) && (
-                    <span className={styles.slotPill}>
-                      {formatAvailability(s.available_from, s.available_until)}
-                    </span>
+                </div>
+                {formatAvailability(s.available_from, s.available_until) && (
+                  <div className={styles.cardTime}>
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+                    </svg>
+                    {formatAvailability(s.available_from, s.available_until)}
+                  </div>
+                )}
+                <div className={styles.cardFooter}>
+                  {(() => {
+                    const isOwnCard =
+                      (currentUser?.id && currentUser.id === s.user_id) ||
+                      (!currentUser?.id &&
+                        guestEmail &&
+                        s.email &&
+                        guestEmail.trim().toLowerCase() ===
+                          s.email.trim().toLowerCase());
+                    return isOwnCard ? (
+                      <span className={styles.btnBusy}>Your availability card</span>
+                    ) : (
+                      <button
+                        type="button"
+                        className={styles.btnRequest}
+                        onClick={() => setModalTarget(s)}
+                      >
+                        Request meeting <span className={styles.btnArrow}>→</span>
+                      </button>
+                    );
+                  })()}
+                  {isAdmin && (
+                    <button
+                      type="button"
+                      className={styles.btnAdminDelete}
+                      onClick={() => deleteAvailabilitySession(s)}
+                    >
+                      ✕ Delete
+                    </button>
                   )}
                 </div>
-                {(() => {
-                  const isOwnCard =
-                    (currentUser?.id && currentUser.id === s.user_id) ||
-                    (!currentUser?.id &&
-                      guestEmail &&
-                      s.email &&
-                      guestEmail.trim().toLowerCase() ===
-                        s.email.trim().toLowerCase());
-                  return isOwnCard ? (
-                    <button
-                      type="button"
-                      className={`${styles.btnRequest} ${styles.btnBusy}`}
-                      disabled
-                    >
-                      Your availability card
-                    </button>
-                  ) : (
-                    <button
-                      type="button"
-                      className={styles.btnRequest}
-                      onClick={() => setModalTarget(s)}
-                    >
-                      Request meeting
-                    </button>
-                  );
-                })()}
-                {isAdmin && (
-                  <button
-                    type="button"
-                    className={`${styles.btnRequest} ${styles.btnAdminDelete}`}
-                    onClick={() => deleteAvailabilitySession(s)}
-                  >
-                    Delete session (Admin)
-                  </button>
-                )}
               </div>
             ))
           )}
