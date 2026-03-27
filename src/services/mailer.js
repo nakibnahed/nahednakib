@@ -258,3 +258,73 @@ export async function sendPracticeIncomingRequestEmail({
     text,
   });
 }
+
+export async function sendPracticeCancellationEmail({
+  recipientName,
+  recipientEmail,
+  cancelledByName,
+  suggestedTime,
+  reason,
+}) {
+  if (!recipientEmail) return;
+
+  const transporter = nodemailer.createTransport({
+    host: process.env.SMTP_HOST,
+    port: Number(process.env.SMTP_PORT),
+    secure: process.env.SMTP_SECURE === "true",
+    auth: {
+      user: process.env.SMTP_USER,
+      pass: process.env.SMTP_PASS,
+    },
+  });
+
+  const subject = "Conversation Practice Meeting Cancelled";
+  const html = `
+    <div style="background:#f6f8fc;padding:28px 12px;font-family:Montserrat,Arial,sans-serif;color:#1f2937;">
+      <div style="max-width:640px;margin:0 auto;background:#ffffff;border:1px solid #e5e7eb;border-radius:16px;overflow:hidden;box-shadow:0 6px 20px rgba(15,23,42,.06);">
+        <div style="background:linear-gradient(135deg,#ef4444,#b91c1c);padding:18px 24px;">
+          <div style="font-size:18px;font-weight:700;color:#ffffff;">Conversation Practice</div>
+          <div style="font-size:12px;color:#fee2e2;margin-top:2px;">Meeting Cancelled</div>
+        </div>
+
+        <div style="padding:24px;">
+          <h2 style="margin:0 0 12px;font-size:20px;line-height:1.3;color:#111827;">This meeting has been cancelled</h2>
+          <p style="margin:0 0 14px;font-size:14px;line-height:1.7;color:#374151;">
+            Hi <strong>${recipientName || "Student"}</strong>,<br/>
+            <strong>${cancelledByName || "The other participant"}</strong> cancelled your conversation practice meeting.
+          </p>
+
+          <div style="margin:16px 0;padding:14px;border:1px solid #fecaca;background:#fff5f5;border-radius:10px;">
+            <div style="font-size:12px;color:#6b7280;margin-bottom:6px;">Scheduled time</div>
+            <div style="font-size:14px;font-weight:600;color:#111827;">${suggestedTime || "Not specified"}</div>
+            ${
+              reason
+                ? `<div style="margin-top:10px;font-size:12px;color:#6b7280;">Reason</div><div style="font-size:14px;color:#111827;">${reason}</div>`
+                : ""
+            }
+          </div>
+
+          <p style="margin:14px 0 0;font-size:12px;color:#6b7280;line-height:1.6;">
+            You can open the conversation practice page to schedule a new meeting.
+          </p>
+        </div>
+
+        <div style="padding:14px 24px;border-top:1px solid #f3f4f6;background:#fafafa;font-size:12px;color:#6b7280;">
+          Sent by Nahed Nakib - Conversation Practice System
+        </div>
+      </div>
+    </div>
+  `;
+
+  const text = `Conversation Practice - Meeting Cancelled\n\nHi ${recipientName || "Student"},\n${cancelledByName || "The other participant"} cancelled your conversation practice meeting.\n\nScheduled time: ${suggestedTime || "Not specified"}${
+    reason ? `\nReason: ${reason}` : ""
+  }\n\nSent by Nahed Nakib - Conversation Practice System`;
+
+  await transporter.sendMail({
+    from: `"Practice Meetings" <${process.env.SMTP_USER}>`,
+    to: recipientEmail,
+    subject,
+    html,
+    text,
+  });
+}

@@ -32,6 +32,13 @@ const FILTER_CHIPS = [
   { val: "night", label: "Night" },
 ];
 
+const REQUEST_FILTERS = [
+  { val: "all", label: "All" },
+  { val: "pending", label: "Pending" },
+  { val: "accepted", label: "Approved" },
+  { val: "cancelled", label: "Cancelled" },
+];
+
 function slotLabel(value) {
   const found = TIME_SLOTS.find((s) => s.value === value);
   return found ? found.label : value;
@@ -99,10 +106,18 @@ function matchesFilter(student, filter) {
   return true;
 }
 
+function requestStatusLabel(status) {
+  if (status === "accepted") return "Approved";
+  if (status === "cancelled") return "Cancelled";
+  if (status === "declined") return "Declined";
+  return "Pending";
+}
+
 export default function ConversationPracticePage() {
   const [tab, setTab] = useState("browse");
   const [students, setStudents] = useState([]);
   const [requests, setRequests] = useState([]);
+  const [requestFilter, setRequestFilter] = useState("all");
   const [filter, setFilter] = useState("all");
   const [loading, setLoading] = useState(true);
   const [dbError, setDbError] = useState(null);
@@ -123,6 +138,9 @@ export default function ConversationPracticePage() {
   const [modalTarget, setModalTarget] = useState(null);
   const [reqMsg, setReqMsg] = useState("");
   const [sending, setSending] = useState(false);
+  const [cancellingRequestId, setCancellingRequestId] = useState(null);
+  const [cancelModalRequest, setCancelModalRequest] = useState(null);
+  const [cancelReason, setCancelReason] = useState("");
   const [needsProfileFirst, setNeedsProfileFirst] = useState(false);
 
   const showToast = useCallback((msg) => {
@@ -230,7 +248,7 @@ export default function ConversationPracticePage() {
     const { data, error } = await supabase
       .from("practice_requests")
       .select("*")
-      .eq("status", "pending")
+      .in("status", ["pending", "accepted", "cancelled", "declined"])
       .order("created_at", { ascending: false });
 
     if (error) {
@@ -239,13 +257,17 @@ export default function ConversationPracticePage() {
     }
 
     setDbError(null);
-    const incoming = (data || []).filter(
+    const emailNorm = (email || "").trim().toLowerCase();
+    const related = (data || []).filter(
       (r) =>
-        (userId && r.to_user_id === userId) ||
-        (email && r.to_email === email) ||
+        (userId &&
+          (r.to_user_id === userId || r.from_user_id === userId)) ||
+        (emailNorm &&
+          ((r.to_email || "").trim().toLowerCase() === emailNorm ||
+            (r.from_email || "").trim().toLowerCase() === emailNorm)) ||
         (myStudent?.id && r.to_student_id === myStudent.id),
     );
-    setRequests(incoming);
+    setRequests(related);
   }, []);
 
   useEffect(() => {
@@ -546,6 +568,42 @@ export default function ConversationPracticePage() {
     });
   }
 
+  async function cancelApprovedRequest(request, reason = "") {
+    setCancellingRequestId(request.id);
+    const res = await fetch("/api/practice/cancel", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        requestId: request.id,
+        actorUserId: currentUser?.id || null,
+        actorEmail: activeEmail || null,
+        actorName: activeName || regName || "Student",
+        reason,
+      }),
+    });
+    const payload = await res.json();
+    setCancellingRequestId(null);
+
+    if (!res.ok) {
+      showToast(payload?.error || "Could not cancel this meeting");
+      return;
+    }
+
+    showToast("Meeting cancelled. The other participant was notified.");
+    await fetchRequests({
+      userId: currentUser?.id,
+      email: currentUser?.id ? null : guestEmail,
+    });
+  }
+
+  async function submitCancelMeeting(e) {
+    e.preventDefault();
+    if (!cancelModalRequest) return;
+    await cancelApprovedRequest(cancelModalRequest, cancelReason);
+    setCancelModalRequest(null);
+    setCancelReason("");
+  }
+
   async function deleteAvailabilitySession(student) {
     if (!isAdmin) return;
     const ok = window.confirm(
@@ -585,7 +643,18 @@ export default function ConversationPracticePage() {
     [students, filter],
   );
   const availableCount = students.length;
-  const pendingCount = requests.length;
+  const myEmailNorm = (activeEmail || "").trim().toLowerCase();
+  const pendingCount = requests.filter((r) => {
+    const isIncoming =
+      (currentUser?.id && r.to_user_id === currentUser.id) ||
+      (myEmailNorm &&
+        (r.to_email || "").trim().toLowerCase() === myEmailNorm);
+    return isIncoming && r.status === "pending";
+  }).length;
+
+  const visibleRequests = requests.filter((r) =>
+    requestFilter === "all" ? true : r.status === requestFilter,
+  );
 
   if (loading) {
     return (
@@ -635,7 +704,7 @@ export default function ConversationPracticePage() {
           <div className={`${styles.statNum} ${styles.statNumAccent}`}>
             {pendingCount}
           </div>
-          <div className={styles.statLabel}>Incoming requests</div>
+          <div className={styles.statLabel}>Requests</div>
         </div>
       </div>
 
@@ -662,7 +731,7 @@ export default function ConversationPracticePage() {
           {pendingCount > 0 && (
             <span className={styles.tabBadge}>{pendingCount}</span>
           )}
-          Incoming requests
+          Requests
         </button>
       </div>
 
@@ -829,47 +898,111 @@ export default function ConversationPracticePage() {
         id="incoming-requests"
         className={`${styles.section} ${tab === "requests" ? styles.sectionActive : ""}`}
       >
-        {requests.length === 0 ? (
+        <div className={styles.filters}>
+          {REQUEST_FILTERS.map((c) => (
+            <button
+              key={c.val}
+              type="button"
+              className={`${styles.chip} ${requestFilter === c.val ? styles.chipOn : ""}`}
+              onClick={() => setRequestFilter(c.val)}
+            >
+              {c.label}
+            </button>
+          ))}
+        </div>
+        {visibleRequests.length === 0 ? (
           <div className={styles.empty}>
             <div className={styles.emptyIcon}>📨</div>
-            <div className={styles.emptyText}>No pending requests</div>
+            <div className={styles.emptyText}>No requests in this status</div>
           </div>
         ) : (
           <div className={styles.reqList}>
-            {requests.map((r, i) => (
-              <div key={r.id} className={styles.reqCard}>
-                <div
-                  className={`${styles.reqAvatar} ${AVATAR_COLORS[i % AVATAR_COLORS.length]}`}
-                >
-                  {initials(r.from_name)}
-                </div>
-                <div className={styles.reqInfo}>
-                  <div className={styles.reqName}>
-                    {r.from_name} → {r.to_name}
-                  </div>
-                  <div className={styles.reqDetail}>
-                    {r.suggested_time}
-                    {r.message ? ` · ${r.message}` : ""}
-                  </div>
-                </div>
-                <div className={styles.reqActions}>
-                  <button
-                    type="button"
-                    className={styles.btnAccept}
-                    onClick={() => acceptRequest(r)}
+            {visibleRequests.map((r, i) => {
+              const myEmail = (activeEmail || "").trim().toLowerCase();
+              const isIncoming =
+                (currentUser?.id && r.to_user_id === currentUser.id) ||
+                (myEmail &&
+                  (r.to_email || "").trim().toLowerCase() === myEmail);
+              const isOutgoing =
+                (currentUser?.id && r.from_user_id === currentUser.id) ||
+                (myEmail &&
+                  (r.from_email || "").trim().toLowerCase() === myEmail);
+              const canAccept = r.status === "pending" && isIncoming;
+              const canCancel = r.status === "accepted" && (isIncoming || isOutgoing);
+
+              return (
+                <div key={r.id} className={styles.reqCard}>
+                  <div
+                    className={`${styles.reqAvatar} ${AVATAR_COLORS[i % AVATAR_COLORS.length]}`}
                   >
-                    Accept
-                  </button>
-                  <button
-                    type="button"
-                    className={styles.btnDecline}
-                    onClick={() => declineRequest(r.id)}
-                  >
-                    Decline
-                  </button>
+                    {initials(isIncoming ? r.from_name : r.to_name)}
+                  </div>
+                  <div className={styles.reqInfo}>
+                    <div className={styles.reqName}>
+                      {isIncoming ? `${r.from_name} -> You` : `You -> ${r.to_name}`}
+                    </div>
+                    <div className={styles.reqDetail}>
+                      <span
+                        className={`${styles.reqStatus} ${
+                          r.status === "accepted"
+                            ? styles.reqStatusApproved
+                            : r.status === "cancelled"
+                              ? styles.reqStatusCancelled
+                              : r.status === "declined"
+                                ? styles.reqStatusDeclined
+                                : styles.reqStatusPending
+                        }`}
+                      >
+                        {requestStatusLabel(r.status)}
+                      </span>
+                      {r.suggested_time ? ` · ${r.suggested_time}` : ""}
+                      {r.status === "cancelled" && r.cancelled_by_name
+                        ? ` · Cancelled by ${r.cancelled_by_name}`
+                        : ""}
+                      {r.status === "cancelled" && r.cancellation_reason
+                        ? ` · Reason: ${r.cancellation_reason}`
+                        : ""}
+                      {r.message ? ` · ${r.message}` : ""}
+                    </div>
+                  </div>
+                  <div className={styles.reqActions}>
+                    {canAccept && (
+                      <>
+                        <button
+                          type="button"
+                          className={styles.btnAccept}
+                          onClick={() => acceptRequest(r)}
+                        >
+                          Accept
+                        </button>
+                        <button
+                          type="button"
+                          className={styles.btnDecline}
+                          onClick={() => declineRequest(r.id)}
+                        >
+                          Decline
+                        </button>
+                      </>
+                    )}
+                    {canCancel && (
+                      <button
+                        type="button"
+                        className={styles.btnDecline}
+                        onClick={() => {
+                          setCancelModalRequest(r);
+                          setCancelReason("");
+                        }}
+                        disabled={cancellingRequestId === r.id}
+                      >
+                        {cancellingRequestId === r.id
+                          ? "Cancelling..."
+                          : "Cancel meeting"}
+                      </button>
+                    )}
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </div>
@@ -907,6 +1040,57 @@ export default function ConversationPracticePage() {
                   disabled={sending}
                 >
                   {sending ? "Sending..." : "Send request"}
+                </button>
+              </div>
+            </form>
+          </div>
+        )}
+      </div>
+
+      <div
+        className={`${styles.overlay} ${cancelModalRequest ? styles.overlayOpen : ""}`}
+        onClick={(e) => {
+          if (e.target === e.currentTarget) {
+            setCancelModalRequest(null);
+            setCancelReason("");
+          }
+        }}
+      >
+        {cancelModalRequest && (
+          <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
+            <h2 className={styles.modalTitle}>Cancel meeting</h2>
+            <p className={styles.modalSub}>
+              This will notify {activeName === cancelModalRequest.to_name ? cancelModalRequest.from_name : cancelModalRequest.to_name} immediately by email and site notification.
+            </p>
+            <form onSubmit={submitCancelMeeting}>
+              <div className={styles.modalField}>
+                <label>Reason (optional)</label>
+                <input
+                  value={cancelReason}
+                  onChange={(e) => setCancelReason(e.target.value)}
+                  placeholder="e.g. Sorry, I can't make it today"
+                  maxLength={300}
+                />
+              </div>
+              <div className={styles.modalBtns}>
+                <button
+                  type="button"
+                  className={styles.btnCancel}
+                  onClick={() => {
+                    setCancelModalRequest(null);
+                    setCancelReason("");
+                  }}
+                >
+                  Keep meeting
+                </button>
+                <button
+                  type="submit"
+                  className={styles.btnDanger}
+                  disabled={cancellingRequestId === cancelModalRequest.id}
+                >
+                  {cancellingRequestId === cancelModalRequest.id
+                    ? "Cancelling..."
+                    : "Confirm cancel"}
                 </button>
               </div>
             </form>
