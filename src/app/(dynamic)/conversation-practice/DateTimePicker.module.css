@@ -270,19 +270,16 @@
   line-height: 1;
 }
 
-.timeAmpm {
-  font-size: 18px;
-  font-weight: 400;
-  color: var(--primary-color);
-}
-
 .timeRow {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 12px;
 }
 
 .timeLabel {
+  flex: 1;
+  text-align: center;
   font-size: 11px;
   font-weight: 600;
   text-transform: uppercase;
@@ -290,78 +287,86 @@
   color: var(--text-muted);
 }
 
-.spin {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
-}
-
-.spinVal {
-  font-size: 22px;
-  font-weight: 300;
-  color: var(--card-text);
-  font-variant-numeric: tabular-nums;
-  min-width: 44px;
-  text-align: center;
-  line-height: 1.2;
-}
-
-.spinBtn {
-  background: color-mix(in srgb, var(--background-main) 60%, transparent);
+/* iOS-like drum picker */
+.drum {
+  flex: 1;
+  height: 140px;
+  position: relative;
+  overflow: hidden;
   border: 1px solid var(--card-border);
-  color: var(--text-muted);
-  cursor: pointer;
-  font-size: 9px;
-  width: 34px;
-  height: 22px;
-  border-radius: 6px;
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--background-main) 60%, transparent);
+  user-select: none;
+  cursor: ns-resize;
+  touch-action: none;
+}
+
+.drumList {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  will-change: transform;
+}
+
+.drumItem {
+  height: 36px;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition:
-    background 0.12s,
-    color 0.12s,
-    border-color 0.12s;
-}
-
-.spinBtn:hover {
-  background: color-mix(in srgb, var(--primary-color) 12%, transparent);
-  border-color: var(--primary-color);
-  color: var(--primary-color);
-}
-
-.ampm {
-  display: flex;
-  gap: 8px;
-}
-
-.ampmBtn {
-  flex: 1;
-  padding: 9px;
-  background: color-mix(in srgb, var(--background-main) 60%, transparent);
-  border: 1.5px solid var(--card-border);
-  border-radius: 8px;
+  font-size: 21px;
+  font-weight: 300;
+  line-height: 1;
   color: var(--text-muted);
-  font-size: 13px;
-  font-weight: 600;
-  font-family: var(--font-main);
-  cursor: pointer;
-  transition: all 0.15s;
+  font-variant-numeric: tabular-nums;
+  transition: color 0.12s, transform 0.12s;
 }
 
-.ampmBtn:hover {
+.drumActive {
   color: var(--card-text);
+  font-weight: 600;
+  transform: scale(1.05);
 }
 
-.ampmActive {
-  background: color-mix(
-    in srgb,
-    var(--primary-color) 14%,
-    transparent
-  ) !important;
-  border-color: var(--primary-color) !important;
-  color: var(--primary-color) !important;
+.drumSelector {
+  position: absolute;
+  left: 6px;
+  right: 6px;
+  top: 52px;
+  height: 36px;
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--primary-color) 16%, transparent);
+  border: 1px solid color-mix(in srgb, var(--primary-color) 35%, transparent);
+  pointer-events: none;
+  z-index: 2;
+}
+
+.drumFadeTop,
+.drumFadeBot {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 42px;
+  pointer-events: none;
+  z-index: 3;
+}
+
+.drumFadeTop {
+  top: 0;
+  background: linear-gradient(
+    to bottom,
+    color-mix(in srgb, var(--background-main) 90%, transparent 10%) 0%,
+    transparent 100%
+  );
+}
+
+.drumFadeBot {
+  bottom: 0;
+  background: linear-gradient(
+    to top,
+    color-mix(in srgb, var(--background-main) 90%, transparent 10%) 0%,
+    transparent 100%
+  );
 }
 
 .confirm {

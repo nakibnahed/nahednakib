@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import DateTimePicker from "./DateTimePicker";
 import { supabase } from "@/services/supabaseClient";
+import { normalizeSuggestedTimeDisplay } from "@/utils/practiceSuggestedTime";
 import styles from "./page.module.css";
 
 const GUEST_STORAGE_KEY = "practice_guest_profile_v1";
@@ -66,10 +67,9 @@ function avatarClassForName(name) {
   return AVATAR_COLORS[Math.abs(h) % AVATAR_COLORS.length];
 }
 
-function formatAvailability(from, until) {
-  if (!from || !until) return null;
+function formatAvailability(from) {
+  if (!from) return null;
   const dateFrom = new Date(from);
-  const dateUntil = new Date(until);
   const date = dateFrom.toLocaleDateString("en-GB", {
     day: "2-digit",
     month: "2-digit",
@@ -80,12 +80,7 @@ function formatAvailability(from, until) {
     minute: "2-digit",
     hour12: false,
   });
-  const timeUntil = dateUntil.toLocaleTimeString("en-GB", {
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: false,
-  });
-  return `${date}, ${timeFrom} - ${timeUntil}`;
+  return `${date}, ${timeFrom}`;
 }
 
 function isStillAvailable(student, now = new Date()) {
@@ -492,7 +487,8 @@ export default function ConversationPracticePage() {
         to_student_id: modalTarget.id,
         to_name: modalTarget.name,
         to_email: modalTarget.email || null,
-        suggested_time: `${new Date(modalTarget.available_from).toLocaleString()} - ${new Date(modalTarget.available_until).toLocaleTimeString()}`,
+        suggested_time:
+          formatAvailability(modalTarget.available_from) || "",
         message: reqMsg.trim(),
       })
       .select("id")
@@ -786,12 +782,12 @@ export default function ConversationPracticePage() {
                     </span>
                   ))}
                 </div>
-                {formatAvailability(s.available_from, s.available_until) && (
+                {formatAvailability(s.available_from) && (
                   <div className={styles.cardTime}>
                     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                       <rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
                     </svg>
-                    {formatAvailability(s.available_from, s.available_until)}
+                    {formatAvailability(s.available_from)}
                   </div>
                 )}
                 <div className={styles.cardFooter}>
@@ -929,6 +925,7 @@ export default function ConversationPracticePage() {
                   (r.from_email || "").trim().toLowerCase() === myEmail);
               const canAccept = r.status === "pending" && isIncoming;
               const canCancel = r.status === "accepted" && (isIncoming || isOutgoing);
+              const timeDisplay = normalizeSuggestedTimeDisplay(r.suggested_time);
 
               return (
                 <div key={r.id} className={styles.reqCard}>
@@ -955,14 +952,19 @@ export default function ConversationPracticePage() {
                       >
                         {requestStatusLabel(r.status)}
                       </span>
-                      {r.suggested_time ? ` · ${r.suggested_time}` : ""}
+                      {timeDisplay ? ` · ${timeDisplay}` : ""}
                       {r.status === "cancelled" && r.cancelled_by_name
                         ? ` · Cancelled by ${r.cancelled_by_name}`
                         : ""}
-                      {r.status === "cancelled" && r.cancellation_reason
-                        ? ` · Reason: ${r.cancellation_reason}`
-                        : ""}
-                      {r.message ? ` · ${r.message}` : ""}
+                      {r.status === "cancelled"
+                        ? r.cancellation_reason
+                          ? ` · Reason: ${r.cancellation_reason}`
+                          : ""
+                        : r.status === "declined"
+                          ? ""
+                          : r.message
+                            ? ` · ${r.message}`
+                            : ""}
                     </div>
                   </div>
                   <div className={styles.reqActions}>

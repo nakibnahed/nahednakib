@@ -50,6 +50,12 @@ function pad(n) {
   return String(n).padStart(2, "0");
 }
 
+const DRUM_ITEM_HEIGHT = 36;
+const DRUM_HEIGHT = 140;
+const DRUM_CENTER_OFFSET = (DRUM_HEIGHT - DRUM_ITEM_HEIGHT) / 2;
+const HOURS_24 = Array.from({ length: 24 }, (_, i) => i);
+const MINUTES_60 = Array.from({ length: 60 }, (_, i) => i);
+
 export default function DateTimePicker({
   value,
   onChange,
@@ -63,13 +69,20 @@ export default function DateTimePicker({
 
   const [cursor, setCursor] = useState(value ?? today);
   const [selected, setSelected] = useState(value ?? null);
-  const [hour, setHour] = useState(value ? value.getHours() % 12 || 12 : 12);
+  const [hour, setHour] = useState(value ? value.getHours() : today.getHours());
   const [minute, setMinute] = useState(value ? value.getMinutes() : 0);
-  const [ampm, setAmpm] = useState(
-    value ? (value.getHours() >= 12 ? "PM" : "AM") : "PM",
+  const [hourOffset, setHourOffset] = useState(
+    (value ? value.getHours() : today.getHours()) * DRUM_ITEM_HEIGHT,
+  );
+  const [minuteOffset, setMinuteOffset] = useState(
+    (value ? value.getMinutes() : 0) * DRUM_ITEM_HEIGHT,
   );
 
   const ref = useRef(null);
+  const dragRef = useRef(null);
+  const momentumRef = useRef(null);
+  const hourWheelSnapRef = useRef(null);
+  const minuteWheelSnapRef = useRef(null);
 
   useEffect(() => {
     const handler = (e) => {
@@ -79,14 +92,11 @@ export default function DateTimePicker({
     return () => document.removeEventListener("mousedown", handler);
   }, []);
 
-  function commit(day, h, m, ap) {
+  function commit(day, h, m) {
     const resolvedHour = h ?? hour;
     const resolvedMinute = m ?? minute;
-    const resolvedAmpm = ap ?? ampm;
-    const h24 =
-      resolvedAmpm === "PM" ? (resolvedHour % 12) + 12 : resolvedHour % 12;
     const result = new Date(day);
-    result.setHours(h24, resolvedMinute, 0, 0);
+    result.setHours(resolvedHour, resolvedMinute, 0, 0);
     setSelected(result);
     onChange?.(result);
   }
@@ -101,6 +111,156 @@ export default function DateTimePicker({
     if (selected) commit(selected);
     setOpen(false);
   }
+
+  function stopMomentum() {
+    if (momentumRef.current) {
+      cancelAnimationFrame(momentumRef.current);
+      momentumRef.current = null;
+    }
+  }
+
+  function clampOffset(offset, maxIndex) {
+    const max = maxIndex * DRUM_ITEM_HEIGHT;
+    if (offset < 0) return 0;
+    if (offset > max) return max;
+    return offset;
+  }
+
+  function applyOffset(type, nextOffset) {
+    if (type === "hour") {
+      const clamped = clampOffset(nextOffset, 23);
+      setHourOffset(clamped);
+      setHour(Math.round(clamped / DRUM_ITEM_HEIGHT));
+      return;
+    }
+    const clamped = clampOffset(nextOffset, 59);
+    setMinuteOffset(clamped);
+    setMinute(Math.round(clamped / DRUM_ITEM_HEIGHT));
+  }
+
+  function snapDrum(type, currentOffset) {
+    const maxIndex = type === "hour" ? 23 : 59;
+    const clamped = clampOffset(currentOffset, maxIndex);
+    const snapped = Math.round(clamped / DRUM_ITEM_HEIGHT) * DRUM_ITEM_HEIGHT;
+    applyOffset(type, snapped);
+  }
+
+  function startMomentum(type, initialVelocity, startOffset) {
+    stopMomentum();
+    let v = initialVelocity;
+    let offset = startOffset;
+
+    const step = () => {
+      offset += v * 16;
+      applyOffset(type, offset);
+      offset = type === "hour" ? clampOffset(offset, 23) : clampOffset(offset, 59);
+      v *= 0.95;
+
+      const hitEdge =
+        offset <= 0 ||
+        offset >= (type === "hour" ? 23 : 59) * DRUM_ITEM_HEIGHT;
+      if (Math.abs(v) < 0.02 || hitEdge) {
+        snapDrum(type, offset);
+        momentumRef.current = null;
+        return;
+      }
+      momentumRef.current = requestAnimationFrame(step);
+    };
+
+    momentumRef.current = requestAnimationFrame(step);
+  }
+
+  function startDrag(type, clientY) {
+    stopMomentum();
+    dragRef.current = {
+      type,
+      startY: clientY,
+      startOffset: type === "hour" ? hourOffset : minuteOffset,
+      lastY: clientY,
+      lastTime: performance.now(),
+      velocity: 0,
+    };
+  }
+
+  useEffect(() => {
+    const onMouseMove = (e) => {
+      if (!dragRef.current) return;
+      const drag = dragRef.current;
+      const now = performance.now();
+      const deltaY = e.clientY - drag.startY;
+      const nextOffset = drag.startOffset - deltaY;
+      applyOffset(drag.type, nextOffset);
+
+      const dt = Math.max(now - drag.lastTime, 1);
+      drag.velocity = -(e.clientY - drag.lastY) / dt;
+      drag.lastY = e.clientY;
+      drag.lastTime = now;
+    };
+
+    const onMouseUp = () => {
+      if (!dragRef.current) return;
+      const drag = dragRef.current;
+      const currentOffset = drag.type === "hour" ? hourOffset : minuteOffset;
+      const velocity = drag.velocity;
+      dragRef.current = null;
+      if (Math.abs(velocity) > 0.08) {
+        startMomentum(drag.type, velocity, currentOffset);
+      } else {
+        snapDrum(drag.type, currentOffset);
+      }
+    };
+
+    const onTouchMove = (e) => {
+      if (!dragRef.current || !e.touches?.[0]) return;
+      e.preventDefault();
+      const touch = e.touches[0];
+      const drag = dragRef.current;
+      const now = performance.now();
+      const deltaY = touch.clientY - drag.startY;
+      const nextOffset = drag.startOffset - deltaY;
+      applyOffset(drag.type, nextOffset);
+
+      const dt = Math.max(now - drag.lastTime, 1);
+      drag.velocity = -(touch.clientY - drag.lastY) / dt;
+      drag.lastY = touch.clientY;
+      drag.lastTime = now;
+    };
+
+    const onTouchEnd = () => {
+      if (!dragRef.current) return;
+      const drag = dragRef.current;
+      const currentOffset = drag.type === "hour" ? hourOffset : minuteOffset;
+      const velocity = drag.velocity;
+      dragRef.current = null;
+      if (Math.abs(velocity) > 0.08) {
+        startMomentum(drag.type, velocity, currentOffset);
+      } else {
+        snapDrum(drag.type, currentOffset);
+      }
+    };
+
+    window.addEventListener("mousemove", onMouseMove);
+    window.addEventListener("mouseup", onMouseUp);
+    window.addEventListener("touchmove", onTouchMove, { passive: false });
+    window.addEventListener("touchend", onTouchEnd);
+    return () => {
+      window.removeEventListener("mousemove", onMouseMove);
+      window.removeEventListener("mouseup", onMouseUp);
+      window.removeEventListener("touchmove", onTouchMove);
+      window.removeEventListener("touchend", onTouchEnd);
+    };
+  }, [hourOffset, minuteOffset]);
+
+  useEffect(() => {
+    return () => stopMomentum();
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      if (hourWheelSnapRef.current) clearTimeout(hourWheelSnapRef.current);
+      if (minuteWheelSnapRef.current) clearTimeout(minuteWheelSnapRef.current);
+    };
+  }, []);
 
   const year = cursor.getFullYear();
   const month = cursor.getMonth();
@@ -279,67 +439,95 @@ export default function DateTimePicker({
             {view === "time" && (
               <div className={styles.time}>
                 <div className={styles.timeDisplay}>
-                  {pad(hour)}:{pad(minute)}{" "}
-                  <span className={styles.timeAmpm}>{ampm}</span>
+                  {pad(hour)}:{pad(minute)}
                 </div>
 
                 <div className={styles.timeRow}>
                   <span className={styles.timeLabel}>Hour</span>
-                  <div className={styles.spin}>
-                    <button
-                      type="button"
-                      className={styles.spinBtn}
-                      onClick={() => setHour((h) => (h === 12 ? 1 : h + 1))}
-                    >
-                      ▲
-                    </button>
-                    <span className={styles.spinVal}>{pad(hour)}</span>
-                    <button
-                      type="button"
-                      className={styles.spinBtn}
-                      onClick={() => setHour((h) => (h === 1 ? 12 : h - 1))}
-                    >
-                      ▼
-                    </button>
-                  </div>
+                  <span className={styles.timeLabel}>Minute</span>
                 </div>
 
                 <div className={styles.timeRow}>
-                  <span className={styles.timeLabel}>Minute</span>
-                  <div className={styles.spin}>
-                    <button
-                      type="button"
-                      className={styles.spinBtn}
-                      onClick={() => setMinute((m) => (m + 1) % 60)}
+                  <div
+                    className={styles.drum}
+                    onMouseDown={(e) => startDrag("hour", e.clientY)}
+                    onTouchStart={(e) => {
+                      if (e.touches?.[0]) startDrag("hour", e.touches[0].clientY);
+                    }}
+                    onWheel={(e) => {
+                      e.preventDefault();
+                      stopMomentum();
+                      applyOffset("hour", hourOffset + e.deltaY * 0.5);
+                      if (hourWheelSnapRef.current) {
+                        clearTimeout(hourWheelSnapRef.current);
+                      }
+                      hourWheelSnapRef.current = setTimeout(
+                        () => snapDrum("hour", hourOffset + e.deltaY * 0.5),
+                        70,
+                      );
+                    }}
+                  >
+                    <div className={styles.drumSelector} />
+                    <div className={styles.drumFadeTop} />
+                    <div className={styles.drumFadeBot} />
+                    <div
+                      className={styles.drumList}
+                      style={{
+                        transform: `translateY(${DRUM_CENTER_OFFSET - hourOffset}px)`,
+                      }}
                     >
-                      ▲
-                    </button>
-                    <span className={styles.spinVal}>{pad(minute)}</span>
-                    <button
-                      type="button"
-                      className={styles.spinBtn}
-                      onClick={() => setMinute((m) => (m - 1 + 60) % 60)}
-                    >
-                      ▼
-                    </button>
+                      {HOURS_24.map((h) => (
+                        <div
+                          key={h}
+                          className={`${styles.drumItem} ${h === hour ? styles.drumActive : ""}`}
+                        >
+                          {pad(h)}
+                        </div>
+                      ))}
+                    </div>
                   </div>
-                </div>
 
-                <div className={styles.ampm}>
-                  <button
-                    type="button"
-                    className={`${styles.ampmBtn} ${ampm === "AM" ? styles.ampmActive : ""}`}
-                    onClick={() => setAmpm("AM")}
+                  <div
+                    className={styles.drum}
+                    onMouseDown={(e) => startDrag("minute", e.clientY)}
+                    onTouchStart={(e) => {
+                      if (e.touches?.[0]) {
+                        startDrag("minute", e.touches[0].clientY);
+                      }
+                    }}
+                    onWheel={(e) => {
+                      e.preventDefault();
+                      stopMomentum();
+                      applyOffset("minute", minuteOffset + e.deltaY * 0.5);
+                      if (minuteWheelSnapRef.current) {
+                        clearTimeout(minuteWheelSnapRef.current);
+                      }
+                      minuteWheelSnapRef.current = setTimeout(
+                        () =>
+                          snapDrum("minute", minuteOffset + e.deltaY * 0.5),
+                        70,
+                      );
+                    }}
                   >
-                    AM
-                  </button>
-                  <button
-                    type="button"
-                    className={`${styles.ampmBtn} ${ampm === "PM" ? styles.ampmActive : ""}`}
-                    onClick={() => setAmpm("PM")}
-                  >
-                    PM
-                  </button>
+                    <div className={styles.drumSelector} />
+                    <div className={styles.drumFadeTop} />
+                    <div className={styles.drumFadeBot} />
+                    <div
+                      className={styles.drumList}
+                      style={{
+                        transform: `translateY(${DRUM_CENTER_OFFSET - minuteOffset}px)`,
+                      }}
+                    >
+                      {MINUTES_60.map((m) => (
+                        <div
+                          key={m}
+                          className={`${styles.drumItem} ${m === minute ? styles.drumActive : ""}`}
+                        >
+                          {pad(m)}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
                 </div>
 
                 <button

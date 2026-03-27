@@ -1,4 +1,5 @@
 import nodemailer from "nodemailer";
+import { normalizeSuggestedTimeDisplay } from "@/utils/practiceSuggestedTime";
 
 const sendOwnerNotification = process.env.SEND_OWNER_NOTIFICATION === "true";
 
@@ -136,6 +137,8 @@ export async function sendPracticeMeetingEmail({
   meetLink,
   suggestedTime,
 }) {
+  const timeLine =
+    normalizeSuggestedTimeDisplay(suggestedTime) || "Not specified";
   const transporter = nodemailer.createTransport({
     host: process.env.SMTP_HOST,
     port: Number(process.env.SMTP_PORT),
@@ -164,7 +167,7 @@ export async function sendPracticeMeetingEmail({
 
           <div style="margin:16px 0;padding:14px;border:1px solid #fde3d3;background:#fff7f2;border-radius:10px;">
             <div style="font-size:12px;color:#6b7280;margin-bottom:6px;">Scheduled time</div>
-            <div style="font-size:14px;font-weight:600;color:#111827;">${suggestedTime || "Not specified"}</div>
+            <div style="font-size:14px;font-weight:600;color:#111827;">${timeLine}</div>
           </div>
 
           <a href="${meetLink}" style="display:inline-block;margin-top:8px;background:#111827;color:#ffffff;text-decoration:none;padding:12px 18px;border-radius:10px;font-size:14px;font-weight:600;">
@@ -183,7 +186,7 @@ export async function sendPracticeMeetingEmail({
     </div>
   `;
 
-  const text = `Conversation Practice - Session Confirmed\n\nHi ${requesterName} and ${recipientName},\nYour conversation practice request has been accepted.\n\nScheduled time: ${suggestedTime || "Not specified"}\nJoin Meeting Room: ${meetLink}\n\nBoth of you have the same link — just click it and you will join the same room instantly. No account needed.\n\nSent by Nahed Nakib - Conversation Practice System`;
+  const text = `Conversation Practice - Session Confirmed\n\nHi ${requesterName} and ${recipientName},\nYour conversation practice request has been accepted.\n\nScheduled time: ${timeLine}\nJoin Meeting Room: ${meetLink}\n\nBoth of you have the same link — just click it and you will join the same room instantly. No account needed.\n\nSent by Nahed Nakib - Conversation Practice System`;
 
   const recipients = [requesterEmail, recipientEmail].filter(Boolean);
   if (!recipients.length) return;
@@ -268,6 +271,8 @@ export async function sendPracticeCancellationEmail({
 }) {
   if (!recipientEmail) return;
 
+  const timeLine =
+    normalizeSuggestedTimeDisplay(suggestedTime) || "Not specified";
   const transporter = nodemailer.createTransport({
     host: process.env.SMTP_HOST,
     port: Number(process.env.SMTP_PORT),
@@ -296,7 +301,7 @@ export async function sendPracticeCancellationEmail({
 
           <div style="margin:16px 0;padding:14px;border:1px solid #fecaca;background:#fff5f5;border-radius:10px;">
             <div style="font-size:12px;color:#6b7280;margin-bottom:6px;">Scheduled time</div>
-            <div style="font-size:14px;font-weight:600;color:#111827;">${suggestedTime || "Not specified"}</div>
+            <div style="font-size:14px;font-weight:600;color:#111827;">${timeLine}</div>
             ${
               reason
                 ? `<div style="margin-top:10px;font-size:12px;color:#6b7280;">Reason</div><div style="font-size:14px;color:#111827;">${reason}</div>`
@@ -316,7 +321,7 @@ export async function sendPracticeCancellationEmail({
     </div>
   `;
 
-  const text = `Conversation Practice - Meeting Cancelled\n\nHi ${recipientName || "Student"},\n${cancelledByName || "The other participant"} cancelled your conversation practice meeting.\n\nScheduled time: ${suggestedTime || "Not specified"}${
+  const text = `Conversation Practice - Meeting Cancelled\n\nHi ${recipientName || "Student"},\n${cancelledByName || "The other participant"} cancelled your conversation practice meeting.\n\nScheduled time: ${timeLine}${
     reason ? `\nReason: ${reason}` : ""
   }\n\nSent by Nahed Nakib - Conversation Practice System`;
 
