@@ -10,7 +10,9 @@ export async function POST(req) {
   try {
     const { requestId } = await req.json();
     if (!requestId) {
-      return new Response(JSON.stringify({ error: "requestId is required" }), { status: 400 });
+      return new Response(JSON.stringify({ error: "requestId is required" }), {
+        status: 400,
+      });
     }
 
     const { data: requestRow, error } = await supabaseAdmin
@@ -20,13 +22,17 @@ export async function POST(req) {
       .maybeSingle();
 
     if (error || !requestRow) {
-      return new Response(JSON.stringify({ error: "Request not found" }), { status: 404 });
+      return new Response(JSON.stringify({ error: "Request not found" }), {
+        status: 404,
+      });
     }
 
     const baseUrl =
       process.env.NEXT_PUBLIC_SITE_URL ||
       process.env.NEXT_PUBLIC_BASE_URL ||
-      (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000");
+      (process.env.VERCEL_URL
+        ? `https://${process.env.VERCEL_URL}`
+        : "http://localhost:3000");
 
     const requestsPageUrl = `${baseUrl}/conversation-practice?tab=requests#incoming-requests`;
 
@@ -43,6 +49,9 @@ export async function POST(req) {
 
     return new Response(JSON.stringify({ ok: true }), { status: 200 });
   } catch (err) {
-    return new Response(JSON.stringify({ error: err.message || "Internal server error" }), { status: 500 });
+    return new Response(
+      JSON.stringify({ error: err.message || "Internal server error" }),
+      { status: 500 },
+    );
   }
 }

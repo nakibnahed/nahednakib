@@ -6,34 +6,48 @@
   font-family: var(--font-main);
 }
 
-/* ── Trigger button ───────────────────────────────────────── */
-.trigger {
+/* ── Trigger ──────────────────────────────────────────────── */
+/* .triggerWrap is the styled div that holds the border/ring.
+   Two sibling <button>s live inside it — this avoids the
+   invalid-HTML "button inside button" nesting error.          */
+.triggerWrap {
   display: flex;
   align-items: center;
-  gap: 10px;
   width: 100%;
-  padding: 10px 14px;
   background: var(--background-main);
   border: 1px solid var(--card-border);
   border-radius: var(--button-radius);
   color: var(--text-dark);
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.triggerWrap:hover,
+.triggerActive {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary-color) 14%, transparent);
+  color: var(--card-text);
+}
+
+/* inner button: calendar icon + selected text */
+.trigger {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  background: none;
+  border: none;
+  color: inherit;
   font-size: 14px;
   font-family: var(--font-main);
   cursor: pointer;
   text-align: left;
-  transition: border-color 0.2s, box-shadow 0.2s;
+  min-width: 0;
 }
 
 .trigger svg {
   flex-shrink: 0;
   color: var(--primary-color);
-}
-
-.trigger:hover,
-.triggerActive {
-  border-color: var(--primary-color);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary-color) 14%, transparent);
-  color: var(--card-text);
 }
 
 .triggerText {
@@ -51,7 +65,7 @@
   cursor: pointer;
   font-size: 18px;
   line-height: 1;
-  padding: 0 2px;
+  padding: 0 12px 0 4px;
   flex-shrink: 0;
   transition: color 0.15s;
 }
@@ -115,7 +129,9 @@
   font-weight: 500;
   font-family: var(--font-main);
   cursor: pointer;
-  transition: color 0.15s, background 0.15s;
+  transition:
+    color 0.15s,
+    background 0.15s;
 }
 
 .tabBtn:hover {
@@ -161,7 +177,9 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: background 0.15s, color 0.15s;
+  transition:
+    background 0.15s,
+    color 0.15s;
 }
 
 .navBtn:hover {
@@ -203,7 +221,9 @@
   border: none;
   color: var(--text-dark);
   cursor: pointer;
-  transition: background 0.12s, color 0.12s;
+  transition:
+    background 0.12s,
+    color 0.12s;
 }
 
 .day:hover:not(.dayDisabled):not(.daySelected) {
@@ -296,7 +316,10 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: background 0.12s, color 0.12s, border-color 0.12s;
+  transition:
+    background 0.12s,
+    color 0.12s,
+    border-color 0.12s;
 }
 
 .spinBtn:hover {
@@ -329,7 +352,11 @@
 }
 
 .ampmActive {
-  background: color-mix(in srgb, var(--primary-color) 14%, transparent) !important;
+  background: color-mix(
+    in srgb,
+    var(--primary-color) 14%,
+    transparent
+  ) !important;
   border-color: var(--primary-color) !important;
   color: var(--primary-color) !important;
 }
@@ -345,7 +372,9 @@
   font-weight: 600;
   font-family: var(--font-main);
   cursor: pointer;
-  transition: opacity 0.15s, transform 0.1s;
+  transition:
+    opacity 0.15s,
+    transform 0.1s;
 }
 
 .confirm:hover {
