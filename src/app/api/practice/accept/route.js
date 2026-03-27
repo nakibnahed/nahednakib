@@ -9,11 +9,15 @@ const supabaseAdmin = createSupabaseClient(
 export async function POST(req) {
   try {
     const { requestId } = await req.json();
-    const meetLink = "https://meet.google.com/new";
 
     if (!requestId) {
       return new Response(JSON.stringify({ error: "requestId is required" }), { status: 400 });
     }
+
+    // Generate a unique room name tied to this request
+    // Both students get the same link → same Jitsi room
+    const roomName = `practice-${requestId.replace(/-/g, "").slice(0, 16)}`;
+    const meetLink = `https://meet.jit.si/${roomName}`;
 
     const { data: requestRow, error: requestErr } = await supabaseAdmin
       .from("practice_requests")

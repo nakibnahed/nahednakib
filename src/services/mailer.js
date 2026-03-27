@@ -168,11 +168,11 @@ export async function sendPracticeMeetingEmail({
           </div>
 
           <a href="${meetLink}" style="display:inline-block;margin-top:8px;background:#111827;color:#ffffff;text-decoration:none;padding:12px 18px;border-radius:10px;font-size:14px;font-weight:600;">
-            Open Google Meet
+            Join Meeting Room
           </a>
 
           <p style="margin:14px 0 0;font-size:12px;color:#6b7280;line-height:1.6;">
-            This link opens Google Meet's meeting creation page. One of you can create the room and share it instantly.
+            Both of you have the same link — just click it and you will join the same room instantly. No account needed.
           </p>
         </div>
 
@@ -183,7 +183,7 @@ export async function sendPracticeMeetingEmail({
     </div>
   `;
 
-  const text = `Conversation Practice - Session Confirmed\n\nHi ${requesterName} and ${recipientName},\nYour conversation practice request has been accepted.\n\nScheduled time: ${suggestedTime || "Not specified"}\nOpen Google Meet: ${meetLink}\n\nSent by Nahed Nakib - Conversation Practice System`;
+  const text = `Conversation Practice - Session Confirmed\n\nHi ${requesterName} and ${recipientName},\nYour conversation practice request has been accepted.\n\nScheduled time: ${suggestedTime || "Not specified"}\nJoin Meeting Room: ${meetLink}\n\nBoth of you have the same link — just click it and you will join the same room instantly. No account needed.\n\nSent by Nahed Nakib - Conversation Practice System`;
 
   const recipients = [requesterEmail, recipientEmail].filter(Boolean);
   if (!recipients.length) return;
