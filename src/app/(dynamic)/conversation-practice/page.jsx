@@ -123,6 +123,7 @@ export default function ConversationPracticePage() {
   const [modalTarget, setModalTarget] = useState(null);
   const [reqMsg, setReqMsg] = useState("");
   const [sending, setSending] = useState(false);
+  const [needsProfileFirst, setNeedsProfileFirst] = useState(false);
 
   const showToast = useCallback((msg) => {
     setToast(msg);
@@ -329,11 +330,12 @@ export default function ConversationPracticePage() {
     const name = regName.trim();
     const email = (guestEmail || "").trim().toLowerCase();
     if (!name || !email) {
-      showToast("Please enter guest name and email.");
+      showToast("Please enter your name and email.");
       return;
     }
     setGuestName(name);
     setGuestEmail(email);
+    setNeedsProfileFirst(false);
     try {
       window.localStorage.setItem(
         GUEST_STORAGE_KEY,
@@ -342,13 +344,31 @@ export default function ConversationPracticePage() {
     } catch (e) {
       // ignore local storage failure
     }
-    showToast("Guest profile saved.");
+    showToast("Profile saved.");
+  }
+
+  function ensureProfileBeforeRequest() {
+    if (currentUser?.id) return true;
+    const hasProfile = Boolean(guestName && guestEmail);
+    if (hasProfile) return true;
+
+    setNeedsProfileFirst(true);
+    setTab("register");
+    showToast("Please enter your name and email, then click Save profile.");
+    if (typeof window !== "undefined") {
+      window.setTimeout(() => {
+        document
+          .getElementById("practice-register-form")
+          ?.scrollIntoView({ behavior: "smooth", block: "start" });
+      }, 80);
+    }
+    return false;
   }
 
   async function handleRegister(e) {
     e.preventDefault();
     if (!currentUser?.id && (!guestName || !guestEmail)) {
-      showToast("Save guest profile first (name + email).");
+      showToast("Save your profile first (name + email).");
       return;
     }
 
@@ -430,7 +450,7 @@ export default function ConversationPracticePage() {
   async function handleSendRequest(e) {
     e.preventDefault();
     if (!currentUser?.id && (!guestName || !guestEmail)) {
-      showToast("Save guest profile first (name + email).");
+      showToast("Save your profile first (name + email).");
       return;
     }
     if (!modalTarget) return;
@@ -720,7 +740,10 @@ export default function ConversationPracticePage() {
                       <button
                         type="button"
                         className={styles.btnRequest}
-                        onClick={() => setModalTarget(s)}
+                        onClick={() => {
+                          if (!ensureProfileBeforeRequest()) return;
+                          setModalTarget(s);
+                        }}
                       >
                         Request meeting <span className={styles.btnArrow}>→</span>
                       </button>
@@ -745,8 +768,18 @@ export default function ConversationPracticePage() {
       <div
         className={`${styles.section} ${tab === "register" ? styles.sectionActive : ""}`}
       >
-        <form className={styles.formCard} onSubmit={handleRegister}>
+        <form
+          id="practice-register-form"
+          className={styles.formCard}
+          onSubmit={handleRegister}
+        >
           <h2 className={styles.formTitle}>Set your availability</h2>
+          {!currentUser && needsProfileFirst && (
+            <div className={`${styles.setupHint} ${styles.setupHintWarn}`}>
+              Before sending a request, save your profile first:
+              enter your name and email, then click <b>Save profile</b>.
+            </div>
+          )}
           <div className={styles.field}>
             <label>Your name</label>
             <input
@@ -758,7 +791,7 @@ export default function ConversationPracticePage() {
           {!currentUser && (
             <>
               <div className={styles.field}>
-                <label>Guest email</label>
+                <label>Your email</label>
                 <input
                   type="email"
                   value={guestEmail}
@@ -772,7 +805,7 @@ export default function ConversationPracticePage() {
                   className={styles.btnSubmit}
                   onClick={saveGuestProfile}
                 >
-                  Save guest profile
+                  Save profile
                 </button>
               </div>
             </>
