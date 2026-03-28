@@ -30,7 +30,7 @@ export default function Sidebar({ activeTab }) {
     const { data: listener } = supabase.auth.onAuthStateChange(
       async (_event, session) => {
         setUser(session?.user ?? null);
-      }
+      },
     );
     return () => listener?.subscription?.unsubscribe();
   }, []);
@@ -41,7 +41,7 @@ export default function Sidebar({ activeTab }) {
       try {
         // cache-bust to ensure fresh value after admin saves
         const response = await fetch(
-          `/api/running-settings/public?t=${Date.now()}`
+          `/api/running-settings/public?t=${Date.now()}`,
         );
         const data = await response.json();
         if (response.ok) {
@@ -92,9 +92,9 @@ export default function Sidebar({ activeTab }) {
             }}
           >
             <li>Arabic — Native</li>
-            <li>English — B2 (70%)</li>
-            <li>Turkish — C1 (85%)</li>
-            <li>German — (5%)</li>
+            <li>Turkish — C1 </li>
+            <li>English — B2 </li>
+            <li>German — A2 </li>
           </ul>
         </div>
       ) : (
