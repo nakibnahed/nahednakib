@@ -30,7 +30,6 @@ const FILTER_CHIPS = [
   { val: "morning", label: "Morning" },
   { val: "noon", label: "Noon & Afternoon" },
   { val: "evening", label: "Evening" },
-  { val: "night", label: "Night" },
 ];
 
 const REQUEST_FILTERS = [
@@ -83,6 +82,30 @@ function formatAvailability(from) {
   return `${date}, ${timeFrom}`;
 }
 
+function splitTimeDisplay(display) {
+  if (!display) return null;
+  const [date, time] = display.split(", ");
+  if (!date || !time) return null;
+  return { date, time };
+}
+
+function formatAvailabilityParts(from) {
+  if (!from) return null;
+  const dateFrom = new Date(from);
+  return {
+    date: dateFrom.toLocaleDateString("en-GB", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+    }),
+    time: dateFrom.toLocaleTimeString("en-GB", {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false,
+    }),
+  };
+}
+
 function isStillAvailable(student, now = new Date()) {
   if (!student || student.status !== "available") return false;
   if (!student.available_until) return true;
@@ -116,7 +139,6 @@ export default function ConversationPracticePage() {
   const [filter, setFilter] = useState("all");
   const [loading, setLoading] = useState(true);
   const [dbError, setDbError] = useState(null);
-  const [toast, setToast] = useState(null);
 
   const [currentUser, setCurrentUser] = useState(null);
   const [currentUserName, setCurrentUserName] = useState("");
@@ -140,9 +162,15 @@ export default function ConversationPracticePage() {
   /** Guest must save name+email first: 'request' | 'availability' | null */
   const [guestProfileHint, setGuestProfileHint] = useState(null);
 
-  const showToast = useCallback((msg) => {
-    setToast(msg);
-    setTimeout(() => setToast(null), 2800);
+  const showToast = useCallback((msg, type) => {
+    const resolved =
+      type ||
+      (/^(please|could not|failed|save your|this target)/i.test(msg)
+        ? "error"
+        : "success");
+    if (typeof window !== "undefined" && window.showToast) {
+      window.showToast(msg, resolved);
+    }
   }, []);
 
   useEffect(() => {
@@ -262,8 +290,7 @@ export default function ConversationPracticePage() {
     const emailNorm = (email || "").trim().toLowerCase();
     const related = (data || []).filter(
       (r) =>
-        (userId &&
-          (r.to_user_id === userId || r.from_user_id === userId)) ||
+        (userId && (r.to_user_id === userId || r.from_user_id === userId)) ||
         (emailNorm &&
           ((r.to_email || "").trim().toLowerCase() === emailNorm ||
             (r.from_email || "").trim().toLowerCase() === emailNorm)) ||
@@ -355,6 +382,10 @@ export default function ConversationPracticePage() {
     const email = (guestEmail || "").trim().toLowerCase();
     if (!name || !email) {
       showToast("Please enter your name and email.");
+      return;
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      showToast("Please enter a valid email address.");
       return;
     }
     setGuestName(name);
@@ -517,8 +548,7 @@ export default function ConversationPracticePage() {
         to_student_id: modalTarget.id,
         to_name: modalTarget.name,
         to_email: modalTarget.email || null,
-        suggested_time:
-          formatAvailability(modalTarget.available_from) || "",
+        suggested_time: formatAvailability(modalTarget.available_from) || "",
         message: reqMsg.trim(),
       })
       .select("id")
@@ -532,20 +562,17 @@ export default function ConversationPracticePage() {
     }
 
     showToast(`Request sent to ${modalTarget.name}`);
-    const requestId = insertedRows?.[0]?.id;
-    try {
-      if (requestId) {
-        await fetch("/api/practice/request-notify", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ requestId }),
-        });
-      }
-    } catch (e) {
-      // non-fatal
-    }
     setModalTarget(null);
     setReqMsg("");
+
+    const requestId = insertedRows?.[0]?.id;
+    if (requestId) {
+      fetch("/api/practice/request-notify", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ requestId }),
+      }).catch(() => {});
+    }
     await fetchRequests({
       userId: currentUser?.id,
       email: currentUser?.id ? null : guestEmail,
@@ -664,17 +691,25 @@ export default function ConversationPracticePage() {
     }
   }
 
-  const filtered = useMemo(
-    () => students.filter((s) => matchesFilter(s, filter)),
-    [students, filter],
-  );
+  const filtered = useMemo(() => {
+    const now = Date.now();
+    return students
+      .filter((s) => matchesFilter(s, filter))
+      .sort((a, b) => {
+        const aTime = a.available_from ? new Date(a.available_from).getTime() : Infinity;
+        const bTime = b.available_from ? new Date(b.available_from).getTime() : Infinity;
+        const aPast = aTime < now;
+        const bPast = bTime < now;
+        if (aPast !== bPast) return aPast ? 1 : -1;
+        return aTime - bTime;
+      });
+  }, [students, filter]);
   const availableCount = students.length;
   const myEmailNorm = (activeEmail || "").trim().toLowerCase();
   const pendingCount = requests.filter((r) => {
     const isIncoming =
       (currentUser?.id && r.to_user_id === currentUser.id) ||
-      (myEmailNorm &&
-        (r.to_email || "").trim().toLowerCase() === myEmailNorm);
+      (myEmailNorm && (r.to_email || "").trim().toLowerCase() === myEmailNorm);
     return isIncoming && r.status === "pending";
   }).length;
 
@@ -723,7 +758,9 @@ export default function ConversationPracticePage() {
 
       <div className={styles.stats}>
         <div className={styles.statCard}>
-          <div className={`${styles.statNum} ${styles.statNumAccent}`}>{students.length}</div>
+          <div className={`${styles.statNum} ${styles.statNumAccent}`}>
+            {students.length}
+          </div>
           <div className={styles.statLabel}>Available students</div>
         </div>
         <div className={styles.statCard}>
@@ -785,10 +822,12 @@ export default function ConversationPracticePage() {
               </div>
             </div>
           ) : (
-            filtered.map((s) => (
+            filtered.map((s) => {
+              const isPast = s.available_from && new Date(s.available_from).getTime() < Date.now();
+              return (
               <div
                 key={s.id}
-                className={`${styles.studentCard} ${styles.studentCardAvailable}`}
+                className={`${styles.studentCard} ${styles.studentCardAvailable} ${isPast ? styles.studentCardPast : ""}`}
               >
                 <div className={styles.cardTop}>
                   <div
@@ -805,21 +844,95 @@ export default function ConversationPracticePage() {
                     </div>
                   </div>
                 </div>
-                <div className={styles.cardSlots}>
-                  {(s.slots || []).map((sl) => (
-                    <span key={sl} className={styles.slotPill}>
-                      {slotLabel(sl)}
-                    </span>
-                  ))}
+                <div className={styles.cardPillsRow}>
+                  {(s.slots || []).map((sl) => {
+                    const isNight = sl === "night" || sl === "evening";
+                    return (
+                      <span key={sl} className={styles.slotPill}>
+                        {isNight ? (
+                          <svg
+                            width="12"
+                            height="12"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                          >
+                            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+                          </svg>
+                        ) : (
+                          <svg
+                            width="12"
+                            height="12"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                          >
+                            <circle cx="12" cy="12" r="5" />
+                            <line x1="12" y1="1" x2="12" y2="3" />
+                            <line x1="12" y1="21" x2="12" y2="23" />
+                            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
+                            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
+                            <line x1="1" y1="12" x2="3" y2="12" />
+                            <line x1="21" y1="12" x2="23" y2="12" />
+                            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
+                            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
+                          </svg>
+                        )}
+                        {slotLabel(sl)}
+                      </span>
+                    );
+                  })}
+                  {formatAvailabilityParts(s.available_from) &&
+                    (() => {
+                      const parts = formatAvailabilityParts(s.available_from);
+                      return (
+                        <>
+                          <div className={styles.cardTime}>
+                            <svg
+                              width="13"
+                              height="13"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="2"
+                            >
+                              <circle cx="12" cy="12" r="10" />
+                              <polyline points="12 6 12 12 16 14" />
+                            </svg>
+                            {parts.time}
+                          </div>
+                          <div className={styles.cardTime}>
+                            <svg
+                              width="13"
+                              height="13"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="2"
+                            >
+                              <rect x="3" y="4" width="18" height="18" rx="2" />
+                              <line x1="16" y1="2" x2="16" y2="6" />
+                              <line x1="8" y1="2" x2="8" y2="6" />
+                              <line x1="3" y1="10" x2="21" y2="10" />
+                            </svg>
+                            {parts.date}
+                          </div>
+                          {isPast && (
+                            <div className={styles.cardTimePast}>
+                              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                <circle cx="12" cy="12" r="10" />
+                                <line x1="12" y1="8" x2="12" y2="12" />
+                                <line x1="12" y1="16" x2="12.01" y2="16" />
+                              </svg>
+                              Time passed
+                            </div>
+                          )}
+                        </>
+                      );
+                    })()}
                 </div>
-                {formatAvailability(s.available_from) && (
-                  <div className={styles.cardTime}>
-                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
-                    </svg>
-                    {formatAvailability(s.available_from)}
-                  </div>
-                )}
                 <div className={styles.cardFooter}>
                   {(() => {
                     const isOwnCard =
@@ -830,7 +943,13 @@ export default function ConversationPracticePage() {
                         guestEmail.trim().toLowerCase() ===
                           s.email.trim().toLowerCase());
                     return isOwnCard ? (
-                      <span className={styles.btnBusy}>Your availability card</span>
+                      <span className={styles.btnBusy}>
+                        Your availability card
+                      </span>
+                    ) : isPast ? (
+                      <span className={styles.btnBusy}>
+                        Time passed
+                      </span>
                     ) : (
                       <button
                         type="button"
@@ -840,7 +959,8 @@ export default function ConversationPracticePage() {
                           setModalTarget(s);
                         }}
                       >
-                        Request meeting <span className={styles.btnArrow}>→</span>
+                        Request meeting{" "}
+                        <span className={styles.btnArrow}>→</span>
                       </button>
                     );
                   })()}
@@ -850,12 +970,13 @@ export default function ConversationPracticePage() {
                       className={styles.btnAdminDelete}
                       onClick={() => deleteAvailabilitySession(s)}
                     >
-                      ✕ Delete
+                      ✕
                     </button>
                   )}
                 </div>
               </div>
-            ))
+              );
+            })
           )}
         </div>
       </div>
@@ -887,7 +1008,9 @@ export default function ConversationPracticePage() {
           <div className={styles.field}>
             <label>Your name</label>
             <input
-              value={guestProfileLocked && !guestProfileEditing ? guestName : regName}
+              value={
+                guestProfileLocked && !guestProfileEditing ? guestName : regName
+              }
               onChange={(e) => setRegName(e.target.value)}
               placeholder="e.g. Sarah Johnson"
               readOnly={guestProfileLocked && !guestProfileEditing}
@@ -1002,8 +1125,11 @@ export default function ConversationPracticePage() {
                 (myEmail &&
                   (r.from_email || "").trim().toLowerCase() === myEmail);
               const canAccept = r.status === "pending" && isIncoming;
-              const canCancel = r.status === "accepted" && (isIncoming || isOutgoing);
-              const timeDisplay = normalizeSuggestedTimeDisplay(r.suggested_time);
+              const canCancel =
+                r.status === "accepted" && (isIncoming || isOutgoing);
+              const timeDisplay = normalizeSuggestedTimeDisplay(
+                r.suggested_time,
+              );
 
               return (
                 <div key={r.id} className={styles.reqCard}>
@@ -1013,10 +1139,32 @@ export default function ConversationPracticePage() {
                     {initials(isIncoming ? r.from_name : r.to_name)}
                   </div>
                   <div className={styles.reqInfo}>
-                    <div className={styles.reqName}>
-                      {isIncoming ? `${r.from_name} -> You` : `You -> ${r.to_name}`}
+                    <div className={styles.reqNameRow}>
+                      <span className={styles.reqName}>
+                        {isIncoming ? r.from_name : r.to_name}
+                      </span>
+                      <span className={styles.reqDirectionPill}>
+                        {isIncoming ? (
+                          <>
+                            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                              <line x1="5" y1="12" x2="19" y2="12" />
+                              <polyline points="12 5 19 12 12 19" />
+                            </svg>
+                            Incoming
+                          </>
+                        ) : (
+                          <>
+                            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                              <line x1="19" y1="12" x2="5" y2="12" />
+                              <polyline points="12 19 5 12 12 5" />
+                            </svg>
+                            Outgoing
+                          </>
+                        )}
+                      </span>
                     </div>
-                    <div className={styles.reqDetail}>
+                    <div className={styles.reqPillsRow}>
+                      {/* status */}
                       <span
                         className={`${styles.reqStatus} ${
                           r.status === "accepted"
@@ -1030,20 +1178,64 @@ export default function ConversationPracticePage() {
                       >
                         {requestStatusLabel(r.status)}
                       </span>
-                      {timeDisplay ? ` · ${timeDisplay}` : ""}
-                      {r.status === "cancelled" && r.cancelled_by_name
-                        ? ` · Cancelled by ${r.cancelled_by_name}`
-                        : ""}
-                      {r.status === "cancelled"
-                        ? r.cancellation_reason
-                          ? ` · Reason: ${r.cancellation_reason}`
-                          : ""
-                        : r.status === "declined"
-                          ? ""
-                          : r.message
-                            ? ` · ${r.message}`
-                            : ""}
+                      {/* time + date split */}
+                      {splitTimeDisplay(timeDisplay) ? (
+                        <>
+                          <span className={styles.cardTime}>
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                              <circle cx="12" cy="12" r="10" />
+                              <polyline points="12 6 12 12 16 14" />
+                            </svg>
+                            {splitTimeDisplay(timeDisplay).time}
+                          </span>
+                          <span className={styles.cardTime}>
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                              <rect x="3" y="4" width="18" height="18" rx="2" />
+                              <line x1="16" y1="2" x2="16" y2="6" />
+                              <line x1="8" y1="2" x2="8" y2="6" />
+                              <line x1="3" y1="10" x2="21" y2="10" />
+                            </svg>
+                            {splitTimeDisplay(timeDisplay).date}
+                          </span>
+                        </>
+                      ) : timeDisplay ? (
+                        <span className={styles.cardTime}>
+                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <circle cx="12" cy="12" r="10" />
+                            <polyline points="12 6 12 12 16 14" />
+                          </svg>
+                          {timeDisplay}
+                        </span>
+                      ) : null}
+                      {/* cancelled by */}
+                      {r.status === "cancelled" && r.cancelled_by_name && (
+                        <span className={styles.cardTime}>
+                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <circle cx="12" cy="12" r="10" />
+                            <line x1="15" y1="9" x2="9" y2="15" />
+                            <line x1="9" y1="9" x2="15" y2="15" />
+                          </svg>
+                          {r.cancelled_by_name}
+                        </span>
+                      )}
                     </div>
+                    {/* message / reason */}
+                    {r.status === "cancelled" && r.cancellation_reason && (
+                      <div className={styles.reqMessage}>
+                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                        </svg>
+                        {r.cancellation_reason}
+                      </div>
+                    )}
+                    {r.status !== "cancelled" && r.status !== "declined" && r.message && (
+                      <div className={styles.reqMessage}>
+                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                        </svg>
+                        {r.message}
+                      </div>
+                    )}
                   </div>
                   <div className={styles.reqActions}>
                     {canAccept && (
@@ -1095,7 +1287,7 @@ export default function ConversationPracticePage() {
           <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
             <h2 className={styles.modalTitle}>Request meeting</h2>
             <p className={styles.modalSub}>
-              Send a practice request to {modalTarget.name}
+              Send a practice request to <strong>{modalTarget.name}</strong>
             </p>
             <form onSubmit={handleSendRequest}>
               <div className={styles.modalField}>
@@ -1140,7 +1332,11 @@ export default function ConversationPracticePage() {
           <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
             <h2 className={styles.modalTitle}>Cancel meeting</h2>
             <p className={styles.modalSub}>
-              This will notify {activeName === cancelModalRequest.to_name ? cancelModalRequest.from_name : cancelModalRequest.to_name} immediately by email and site notification.
+              This will notify{" "}
+              {activeName === cancelModalRequest.to_name
+                ? cancelModalRequest.from_name
+                : cancelModalRequest.to_name}{" "}
+              immediately by email and site notification.
             </p>
             <form onSubmit={submitCancelMeeting}>
               <div className={styles.modalField}>
@@ -1176,10 +1372,6 @@ export default function ConversationPracticePage() {
             </form>
           </div>
         )}
-      </div>
-
-      <div className={`${styles.toast} ${toast ? styles.toastShow : ""}`}>
-        {toast || "\u00a0"}
       </div>
     </div>
   );

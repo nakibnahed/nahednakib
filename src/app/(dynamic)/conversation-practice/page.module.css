@@ -339,6 +339,21 @@
   transform: translateY(-2px);
 }
 
+.studentCardPast {}
+
+.cardTimePast {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+  background: color-mix(in srgb, #ef4444 12%, transparent);
+  border: 1px solid color-mix(in srgb, #ef4444 35%, transparent);
+  color: #ef4444;
+}
+
 .cardTop {
   display: flex;
   align-items: center;
@@ -411,7 +426,7 @@
 .cardName {
   font-size: 15px;
   font-weight: 600;
-  color: var(--card-text);
+  color: #aaaaaa;
 }
 
 .cardStatus {
@@ -436,8 +451,20 @@
   margin-bottom: 10px;
 }
 
+/* Unified row: slotPills + time + date */
+.cardPillsRow {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 14px;
+}
+
 /* Blog techTag style — neutral dark chip */
 .slotPill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
   padding: 4px 10px;
   border-radius: 12px;
   font-size: 12px;
@@ -461,7 +488,6 @@
   border: 1px solid var(--card-border);
   color: var(--card-text);
   opacity: 0.8;
-  margin-bottom: 14px;
 }
 
 .slotEmpty {
@@ -621,7 +647,7 @@
   background: color-mix(in srgb, var(--background-main) 80%, transparent 15%);
   border: 1px solid var(--card-border);
   border-radius: 8px;
-  color: var(--text-light);
+  color: var(--text-dark);
   font-family: var(--font-main);
   font-size: 16px;
   outline: none;
@@ -640,7 +666,11 @@
   cursor: not-allowed;
   opacity: 0.72;
   color: var(--text-muted);
-  background: color-mix(in srgb, var(--background-main) 88%, var(--text-muted) 4%);
+  background: color-mix(
+    in srgb,
+    var(--background-main) 88%,
+    var(--text-muted) 4%
+  );
   border-color: color-mix(in srgb, var(--card-border) 65%, transparent);
   box-shadow: none;
 }
@@ -720,7 +750,9 @@
   font-family: var(--font-main);
   font-size: 15px;
   cursor: pointer;
-  transition: border-color 0.2s, color 0.2s;
+  transition:
+    border-color 0.2s,
+    color 0.2s;
 }
 
 .btnEditProfile:hover {
@@ -798,24 +830,69 @@
   font-size: 14px;
   font-weight: 700;
   flex-shrink: 0;
+  align-self: center;
 }
 
 .reqInfo {
   flex: 1;
   min-width: 0;
+  align-self: center;
+}
+
+.reqNameRow {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  margin-bottom: 6px;
 }
 
 .reqName {
   font-size: 14px;
   font-weight: 600;
-  color: var(--card-text);
+  color: #aaaaaa;
 }
 
-.reqDetail {
+.reqDirectionPill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 7px;
+  border-radius: 8px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  opacity: 0.55;
+}
+
+.reqPillsRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+
+.reqMessage {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  margin-top: 8px;
+  padding: 7px 10px;
+  border-radius: 10px;
+  border-left: 2px solid var(--card-border);
+  background: color-mix(in srgb, var(--background-main) 60%, transparent);
   font-size: 12px;
   color: var(--text-muted);
-  margin-top: 4px;
-  line-height: 1.55;
+  line-height: 1.45;
+}
+
+.reqMessage svg {
+  flex-shrink: 0;
+  margin-top: 1px;
+  opacity: 0.6;
 }
 
 .reqStatus {
@@ -855,12 +932,14 @@
 
 .reqActions {
   display: flex;
-  gap: 8px;
+  flex-direction: column;
+  gap: 6px;
   flex-shrink: 0;
+  align-self: center;
 }
 
 .btnAccept {
-  padding: 8px 16px;
+  padding: 7px 16px;
   border-radius: var(--button-radius);
   border: 1px solid color-mix(in srgb, #22d98a 40%, transparent);
   background: rgba(34, 217, 138, 0.1);
@@ -870,6 +949,7 @@
   font-weight: 600;
   cursor: pointer;
   transition: background 0.2s;
+  white-space: nowrap;
 }
 
 .btnAccept:hover {
@@ -877,7 +957,7 @@
 }
 
 .btnDecline {
-  padding: 8px 14px;
+  padding: 7px 14px;
   border-radius: var(--button-radius);
   border: 1px solid var(--card-border);
   background: transparent;
@@ -885,6 +965,7 @@
   font-family: var(--font-main);
   font-size: 12px;
   cursor: pointer;
+  white-space: nowrap;
 }
 
 .btnDecline:disabled {
@@ -996,7 +1077,7 @@
   border-radius: var(--button-radius);
   border: 1px solid rgba(220, 38, 38, 0.45);
   background: linear-gradient(135deg, #ef4444, #b91c1c);
-  color: #fff;
+  color: var(--text-dark);
   font-family: var(--font-main);
   font-size: 14px;
   font-weight: 700;
@@ -1009,32 +1090,6 @@
   cursor: not-allowed;
 }
 
-/* ── Toast ────────────────────────────────────────────────── */
-.toast {
-  position: fixed;
-  bottom: 24px;
-  left: 50%;
-  transform: translateX(-50%) translateY(100px);
-  z-index: 300;
-  padding: 10px 24px;
-  border-radius: 999px;
-  font-size: 14px;
-  color: var(--card-text);
-  background: color-mix(in srgb, var(--background-main) 80%, transparent 15%);
-  border: 1px solid var(--card-border);
-  backdrop-filter: blur(16px) saturate(160%);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
-  transition: transform 0.3s ease;
-  max-width: 90vw;
-  text-align: center;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.toastShow {
-  transform: translateX(-50%) translateY(0);
-}
 
 /* ── Loading ──────────────────────────────────────────────── */
 .loadingWrap {
