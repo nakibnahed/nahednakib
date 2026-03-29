@@ -20,7 +20,7 @@ export default async function Portfolio() {
         category,
         image,
         technologies
-      `
+      `,
       )
       .order("created_at", { ascending: false });
 

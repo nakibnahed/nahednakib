@@ -1,7 +1,7 @@
 .container {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 2rem;
+  padding: 1rem;
 }
 
 .header {
@@ -16,9 +16,9 @@
   align-items: center;
   gap: 0.5rem;
   padding: 0.75rem 1rem;
-  background: var(--card-background);
+  background: color-mix(in srgb, var(--background-main) 90%, transparent);
   border: 1px solid var(--card-border);
-  border-radius: var(--card-border-radius);
+  border-radius: 50px;
   color: var(--text-color);
   cursor: pointer;
   transition: all 0.3s ease;
@@ -33,7 +33,7 @@
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  font-size: 2rem;
+  font-size: 1.8rem;
   font-weight: 600;
   background: var(--gradient-typography-secondery);
   background-clip: text;
@@ -61,10 +61,28 @@
 
 .statCard {
   padding: 1.5rem;
-  background: var(--card-background);
+  background: color-mix(in srgb, var(--background-main) 80%, transparent 15%);
   border: 1px solid var(--card-border);
-  border-radius: var(--card-border-radius);
+  border-radius: 24px;
   text-align: center;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  backdrop-filter: blur(16px) saturate(160%);
+  -webkit-backdrop-filter: blur(16px) saturate(160%);
+  position: relative;
+}
+
+.statCard::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    145deg,
+    rgba(255, 255, 255, 0.02) 0%,
+    rgba(255, 255, 255, 0.01) 35%,
+    rgba(255, 255, 255, 0) 65%
+  );
+  pointer-events: none;
+  border-radius: inherit;
 }
 
 .statCard h3 {
@@ -83,10 +101,13 @@
 
 /* Comments Container */
 .commentsContainer {
-  background: var(--card-background);
+  background: color-mix(in srgb, var(--background-main) 80%, transparent 15%);
   border: 1px solid var(--card-border);
-  border-radius: var(--card-border-radius);
+  border-radius: 24px;
   overflow: hidden;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  backdrop-filter: blur(16px) saturate(160%);
+  -webkit-backdrop-filter: blur(16px) saturate(160%);
 }
 
 .noComments {
@@ -117,9 +138,9 @@
 }
 
 .commentCard {
-  padding: 1.5rem;
+  padding: 1rem 1.2rem;
   border-bottom: 1px solid var(--card-border);
-  transition: all 0.3s ease;
+  transition: background 0.2s ease;
 }
 
 .commentCard:last-child {
@@ -127,7 +148,7 @@
 }
 
 .commentCard:hover {
-  background: var(--card-background-hover);
+  background: color-mix(in srgb, var(--primary-color) 4%, transparent);
 }
 
 .commentCard.pending {
@@ -215,7 +236,7 @@
   gap: 0.5rem;
   padding: 0.5rem 1rem;
   border: 1px solid;
-  border-radius: 6px;
+  border-radius: 50px;
   font-size: 0.85rem;
   font-weight: 500;
   cursor: pointer;
@@ -223,9 +244,9 @@
 }
 
 .approveBtn {
-  background: transparent;
-  border-color: #28a745;
-  color: #28a745;
+  background: rgba(34, 197, 94, 0.12);
+  border-color: rgba(34, 197, 94, 0.4);
+  color: #22c55e;
 }
 
 .approveBtn:hover {
@@ -234,9 +255,9 @@
 }
 
 .rejectBtn {
-  background: transparent;
-  border-color: #ffc107;
-  color: #ffc107;
+  background: rgba(245, 158, 11, 0.12);
+  border-color: rgba(245, 158, 11, 0.4);
+  color: #f59e0b;
 }
 
 .rejectBtn:hover {
@@ -245,9 +266,9 @@
 }
 
 .deleteBtn {
-  background: transparent;
-  border-color: #dc3545;
-  color: #dc3545;
+  background: rgba(239, 68, 68, 0.12);
+  border-color: rgba(239, 68, 68, 0.4);
+  color: #ef4444;
 }
 
 .deleteBtn:hover {

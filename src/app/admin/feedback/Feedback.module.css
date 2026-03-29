@@ -22,7 +22,7 @@
 }
 
 .subtitle {
-  color: var(--text-dark);
+  color: var(--text-muted);
   font-size: 1.1rem;
   opacity: 0.8;
 }
@@ -107,9 +107,9 @@
 .searchInput {
   width: 100%;
   padding: 12px 16px 12px 44px;
-  border: 2px solid var(--card-border);
-  border-radius: 8px;
-  background: var(--background-main);
+  border: 1px solid var(--card-border);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.04);
   color: var(--text-dark);
   font-size: 1rem;
   transition: border-color 0.3s ease;
@@ -128,9 +128,9 @@
 
 .filterSelect {
   padding: 12px 16px;
-  border: 2px solid var(--card-border);
-  border-radius: 8px;
-  background: var(--background-main);
+  border: 1px solid var(--card-border);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.04);
   color: var(--text-dark);
   font-size: 1rem;
   cursor: pointer;
@@ -152,14 +152,17 @@
 }
 
 .statCard {
-  background: color-mix(in srgb, var(--background-main) 95%, transparent 5%);
+  background: color-mix(in srgb, var(--background-main) 80%, transparent 15%);
   border: 1px solid var(--card-border);
-  border-radius: 12px;
+  border-radius: 24px;
   padding: 24px;
   display: flex;
   align-items: center;
   gap: 16px;
-  transition: transform 0.3s ease;
+  transition: transform 0.2s ease;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  backdrop-filter: blur(16px) saturate(160%);
+  -webkit-backdrop-filter: blur(16px) saturate(160%);
 }
 
 .statCard:hover {
@@ -210,11 +213,14 @@
 
 /* Feedback Card */
 .feedbackCard {
-  background: color-mix(in srgb, var(--background-main) 95%, transparent 5%);
+  background: color-mix(in srgb, var(--background-main) 80%, transparent 15%);
   border: 1px solid var(--card-border);
-  border-radius: 12px;
+  border-radius: 24px;
   padding: 24px;
   transition: all 0.3s ease;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  backdrop-filter: blur(16px) saturate(160%);
+  -webkit-backdrop-filter: blur(16px) saturate(160%);
 }
 
 .feedbackCard:hover {
@@ -335,7 +341,7 @@
 .deleteButton {
   padding: 8px;
   border: none;
-  border-radius: 6px;
+  border-radius: 50px;
   cursor: pointer;
   transition: all 0.3s ease;
   display: flex;
@@ -344,22 +350,24 @@
 }
 
 .viewButton {
-  background: var(--primary-color);
-  color: white;
+  background: var(--button-bg);
+  color: var(--button-text);
+  box-shadow: var(--button-shadow);
 }
 
 .viewButton:hover {
-  background: #d55e0a;
+  opacity: 0.9;
   transform: translateY(-1px);
 }
 
 .deleteButton {
-  background: #ef4444;
-  color: white;
+  background: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.35);
 }
 
 .deleteButton:hover {
-  background: #dc2626;
+  opacity: 0.9;
   transform: translateY(-1px);
 }
 

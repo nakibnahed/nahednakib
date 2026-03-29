@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Send, Users, Globe, User, MessageSquare, Info } from "lucide-react";
+import { Send, Users, Globe, User, MessageSquare, Info, Mail } from "lucide-react";
+import { supabase } from "@/services/supabaseClient";
 import styles from "./NotificationManagement.module.css";
 
 export default function NotificationManagement() {
@@ -12,12 +13,16 @@ export default function NotificationManagement() {
   const [sending, setSending] = useState(false);
   const [selectedUsers, setSelectedUsers] = useState([]);
   const [showUserSelector, setShowUserSelector] = useState(false);
+  const [blogOptions, setBlogOptions] = useState([]);
+  const [portfolioOptions, setPortfolioOptions] = useState([]);
 
   const [formData, setFormData] = useState({
     title: "",
     message: "",
     type: "admin_message",
-    isGlobal: false,
+    recipient_type: "all_users",
+    related_content_type: null,
+    related_content_id: null,
   });
   const [stats, setStats] = useState({
     totalSent: 0,
@@ -28,7 +33,45 @@ export default function NotificationManagement() {
   useEffect(() => {
     fetchUsers();
     fetchNotifications();
+    fetchBlogs();
+    fetchPortfolios();
   }, []);
+
+  const fetchBlogs = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("blogs")
+        .select("id, title, description")
+        .order("created_at", { ascending: false });
+      if (error) {
+        console.error("Error fetching blogs:", error);
+        setBlogOptions([]);
+        return;
+      }
+      setBlogOptions(data || []);
+    } catch (error) {
+      console.error("Error:", error);
+      setBlogOptions([]);
+    }
+  };
+
+  const fetchPortfolios = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("portfolios")
+        .select("id, title, description")
+        .order("created_at", { ascending: false });
+      if (error) {
+        console.error("Error fetching portfolios:", error);
+        setPortfolioOptions([]);
+        return;
+      }
+      setPortfolioOptions(data || []);
+    } catch (error) {
+      console.error("Error:", error);
+      setPortfolioOptions([]);
+    }
+  };
 
   const fetchUsers = async () => {
     try {
@@ -80,10 +123,78 @@ export default function NotificationManagement() {
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
+    setFormData((prev) => {
+      const next = {
+        ...prev,
+        [name]: type === "checkbox" ? checked : value,
+      };
+
+      if (name === "type") {
+        if (value === "new_blog_post") {
+          next.related_content_type = "blog";
+          next.related_content_id = null;
+        } else if (value === "new_portfolio_post") {
+          next.related_content_type = "portfolio";
+          next.related_content_id = null;
+        } else {
+          next.related_content_type = null;
+          next.related_content_id = null;
+        }
+      }
+
+      return next;
+    });
+  };
+
+  const handleRelatedContentSelect = (e) => {
+    const selectedId = e.target.value || null;
+    if (!selectedId) {
+      setFormData((prev) => ({
+        ...prev,
+        related_content_id: null,
+      }));
+      return;
+    }
+
+    if (formData.type === "new_blog_post") {
+      const selectedBlog = blogOptions.find((item) => String(item.id) === selectedId);
+      setFormData((prev) => ({
+        ...prev,
+        related_content_type: "blog",
+        related_content_id: selectedId,
+        title: selectedBlog ? `New Blog Post: ${selectedBlog.title}` : prev.title,
+        message: selectedBlog?.description
+          ? selectedBlog.description.slice(0, 100)
+          : prev.message,
+      }));
+      return;
+    }
+
+    if (formData.type === "new_portfolio_post") {
+      const selectedPortfolio = portfolioOptions.find(
+        (item) => String(item.id) === selectedId
+      );
+      setFormData((prev) => ({
+        ...prev,
+        related_content_type: "portfolio",
+        related_content_id: selectedId,
+        title: selectedPortfolio
+          ? `New Project: ${selectedPortfolio.title}`
+          : prev.title,
+      }));
+    }
+  };
+
+  const handleRecipientTypeChange = (recipientType) => {
     setFormData((prev) => ({
       ...prev,
-      [name]: type === "checkbox" ? checked : value,
+      recipient_type: recipientType,
+      isGlobal: recipientType === "all_users",
     }));
+    if (recipientType !== "specific_users") {
+      setSelectedUsers([]);
+      setShowUserSelector(false);
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -98,7 +209,10 @@ export default function NotificationManagement() {
     }
 
     // Check if specific users are selected when not sending globally
-    if (!formData.isGlobal && selectedUsers.length === 0) {
+    if (
+      formData.recipient_type === "specific_users" &&
+      selectedUsers.length === 0
+    ) {
       setError("Please select at least one user to send the notification to");
       if (typeof window !== "undefined" && window.showToast) {
         window.showToast("Please select at least one user", "error");
@@ -113,7 +227,11 @@ export default function NotificationManagement() {
       // Prepare the request body
       const requestBody = {
         ...formData,
-        recipientIds: formData.isGlobal ? [] : selectedUsers,
+        recipientIds:
+          formData.recipient_type === "specific_users" ? selectedUsers : [],
+        isGlobal: formData.recipient_type === "all_users",
+        related_content_type: formData.related_content_type || null,
+        related_content_id: formData.related_content_id || null,
       };
 
       console.log("Sending notification request:", requestBody);
@@ -168,7 +286,9 @@ export default function NotificationManagement() {
         title: "",
         message: "",
         type: "admin_message",
-        isGlobal: false,
+        recipient_type: "all_users",
+        related_content_type: null,
+        related_content_id: null,
       });
       setSelectedUsers([]);
 
@@ -198,11 +318,6 @@ export default function NotificationManagement() {
         ? prev.filter((id) => id !== userId)
         : [...prev, userId]
     );
-  };
-
-  const handleGlobalToggle = () => {
-    setFormData((prev) => ({ ...prev, isGlobal: !prev.isGlobal }));
-    setSelectedUsers([]);
   };
 
   const getNotificationTypeIcon = (type) => {
@@ -319,6 +434,33 @@ export default function NotificationManagement() {
             </div>
           </div>
 
+          {(formData.type === "new_blog_post" ||
+            formData.type === "new_portfolio_post") && (
+            <div className={styles.formGroup}>
+              <label htmlFor="related-content-select">Link to Content</label>
+              <select
+                id="related-content-select"
+                value={formData.related_content_id || ""}
+                onChange={handleRelatedContentSelect}
+                className={styles.select}
+              >
+                <option value="">
+                  {formData.type === "new_blog_post"
+                    ? "Link to a blog post (optional)"
+                    : "Link to a portfolio project (optional)"}
+                </option>
+                {(formData.type === "new_blog_post"
+                  ? blogOptions
+                  : portfolioOptions
+                ).map((item) => (
+                  <option key={item.id} value={item.id}>
+                    {item.title}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+
           <div className={styles.formGroup}>
             <label htmlFor="message">Message *</label>
             <textarea
@@ -340,8 +482,8 @@ export default function NotificationManagement() {
               <label className={styles.radioLabel}>
                 <input
                   type="radio"
-                  checked={formData.isGlobal}
-                  onChange={handleGlobalToggle}
+                  checked={formData.recipient_type === "all_users"}
+                  onChange={() => handleRecipientTypeChange("all_users")}
                   className={styles.radio}
                 />
                 <Globe size={16} />
@@ -351,8 +493,21 @@ export default function NotificationManagement() {
               <label className={styles.radioLabel}>
                 <input
                   type="radio"
-                  checked={!formData.isGlobal}
-                  onChange={() => setFormData({ ...formData, isGlobal: false })}
+                  checked={formData.recipient_type === "newsletter_subscribers"}
+                  onChange={() =>
+                    handleRecipientTypeChange("newsletter_subscribers")
+                  }
+                  className={styles.radio}
+                />
+                <Mail size={16} />
+                Newsletter subscribers only
+              </label>
+
+              <label className={styles.radioLabel}>
+                <input
+                  type="radio"
+                  checked={formData.recipient_type === "specific_users"}
+                  onChange={() => handleRecipientTypeChange("specific_users")}
                   className={styles.radio}
                 />
                 <Users size={16} />
@@ -360,7 +515,7 @@ export default function NotificationManagement() {
               </label>
             </div>
 
-            {!formData.isGlobal && (
+            {formData.recipient_type === "specific_users" && (
               <div className={styles.userSelector}>
                 <button
                   type="button"

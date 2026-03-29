@@ -12,9 +12,8 @@
 }
 
 .title {
-  font-size: 32px;
-  font-family: "Unbounded", sans-serif !important;
-  background: linear-gradient(to bottom, #ee681a, rgb(76, 40, 23));
+  font-size: 1.8rem;
+  background: var(--gradient-typography-primary);
   background-clip: text;
   -webkit-text-fill-color: transparent;
   font-weight: 700;
@@ -27,18 +26,22 @@
   justify-content: center;
   gap: 8px;
   padding: 12px 20px;
-  background: linear-gradient(to bottom, #ee681a, rgb(155, 64, 22));
+  background: var(--button-bg);
   border: none;
-  border-radius: 6px;
-  color: #222;
-  font-weight: 700;
+  border-radius: 50px;
+  color: var(--button-text);
+  font-weight: 600;
   cursor: pointer;
-  transition: 0.3s ease-in-out;
+  transition:
+    opacity 0.2s,
+    transform 0.15s;
   font-size: 16px;
+  box-shadow: var(--button-shadow);
 }
 
 .addButton:hover:not(:disabled) {
-  background: linear-gradient(to bottom, #d55e0a, rgb(124, 51, 18));
+  opacity: 0.9;
+  transform: translateY(-1px);
 }
 
 .addButton:disabled {
@@ -47,10 +50,36 @@
 }
 
 .formContainer {
-  border: 1px solid var(--card-border, #333);
-  border-radius: 12px;
+  border: 1px solid var(--card-border);
+  border-radius: 24px;
   padding: 24px;
   margin-bottom: 32px;
+  background: color-mix(in srgb, var(--background-main) 80%, transparent 15%);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  backdrop-filter: blur(16px) saturate(160%);
+  -webkit-backdrop-filter: blur(16px) saturate(160%);
+  position: relative;
+  overflow: hidden;
+}
+
+.formContainer::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    145deg,
+    rgba(255, 255, 255, 0.02) 0%,
+    rgba(255, 255, 255, 0.01) 35%,
+    rgba(255, 255, 255, 0) 65%
+  );
+  pointer-events: none;
+  border-radius: inherit;
+  z-index: 0;
+}
+
+.formContainer > * {
+  position: relative;
+  z-index: 1;
 }
 
 .formContainer h2 {
@@ -81,8 +110,8 @@
 .textarea {
   padding: 12px;
   border: 1px solid var(--card-border, #333);
-  border-radius: 8px;
-  background-color: var(--background-main, #181818);
+  border-radius: 12px;
+  background-color: rgba(255, 255, 255, 0.04);
   color: var(--text-dark);
   font-size: 16px;
 }
@@ -110,7 +139,7 @@
 .cancelButton {
   padding: 12px 24px;
   border: none;
-  border-radius: 6px;
+  border-radius: 50px;
   font-weight: 600;
   cursor: pointer;
   transition: 0.3s ease-in-out;
@@ -118,12 +147,14 @@
 }
 
 .submitButton {
-  background: linear-gradient(to bottom, #ee681a, rgb(155, 64, 22));
-  color: #222;
+  background: var(--button-bg);
+  color: var(--button-text);
+  box-shadow: var(--button-shadow);
 }
 
 .submitButton:hover:not(:disabled) {
-  background: linear-gradient(to bottom, #d55e0a, rgb(124, 51, 18));
+  opacity: 0.9;
+  transform: translateY(-1px);
 }
 
 .submitButton:disabled {
@@ -148,10 +179,36 @@
 }
 
 .categoryCard {
-  border: 1px solid var(--card-border, #333);
-  border-radius: 12px;
+  border: 1px solid var(--card-border);
+  border-radius: 24px;
   padding: 20px;
-  transition: transform 0.3s ease;
+  transition: transform 0.2s ease;
+  background: color-mix(in srgb, var(--background-main) 80%, transparent 15%);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  backdrop-filter: blur(16px) saturate(160%);
+  -webkit-backdrop-filter: blur(16px) saturate(160%);
+  position: relative;
+  overflow: hidden;
+}
+
+.categoryCard::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    145deg,
+    rgba(255, 255, 255, 0.02) 0%,
+    rgba(255, 255, 255, 0.01) 35%,
+    rgba(255, 255, 255, 0) 65%
+  );
+  pointer-events: none;
+  border-radius: inherit;
+  z-index: 0;
+}
+
+.categoryCard > * {
+  position: relative;
+  z-index: 1;
 }
 
 .categoryCard:hover {
@@ -203,7 +260,7 @@
 .deleteButton {
   padding: 8px 16px;
   border: none;
-  border-radius: 4px;
+  border-radius: 50px;
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
@@ -211,21 +268,23 @@
 }
 
 .editButton {
-  background: var(--primary-color, #ee681a);
-  color: #222;
+  background: color-mix(in srgb, var(--primary-color) 12%, transparent);
+  color: var(--primary-color);
+  border: 1px solid color-mix(in srgb, var(--primary-color) 35%, transparent);
 }
 
 .editButton:hover {
-  background: #d55e0a;
+  opacity: 0.92;
 }
 
 .deleteButton {
-  background: #dc2626;
-  color: #fff;
+  background: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.35);
 }
 
 .deleteButton:hover {
-  background: #b91c1c;
+  opacity: 0.92;
 }
 
 @media (max-width: 768px) {

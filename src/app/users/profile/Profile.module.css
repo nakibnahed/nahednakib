@@ -159,47 +159,98 @@
 /* Profile Content Styles */
 .profileContent {
   flex: 1;
-  padding: 20px;
+  padding: 8px 6px;
 }
 
 .contentHeader {
-  margin-bottom: 30px;
-  padding-bottom: 20px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  margin-bottom: 22px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--card-border);
 }
 
 .contentHeader h1 {
-  color: var(--primary-color, #ee681a);
-  font-size: 2rem;
+  background: var(--gradient-typography-primary);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-size: 1.65rem;
   margin-bottom: 8px;
 }
 
 .contentHeader p {
-  color: rgba(255, 255, 255, 0.7);
-  font-size: 1.1rem;
+  color: var(--text-muted);
+  font-size: 1rem;
 }
 
 .emptyState {
   text-align: center;
-  padding: 60px 20px;
-  color: rgba(255, 255, 255, 0.6);
+  padding: 48px 20px;
+  color: var(--text-muted);
+  border: 1px solid var(--card-border);
+  border-radius: 24px;
+  background: color-mix(in srgb, var(--background-main) 80%, transparent 15%);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  backdrop-filter: blur(16px) saturate(160%);
+  -webkit-backdrop-filter: blur(16px) saturate(160%);
+  position: relative;
+  overflow: hidden;
+}
+
+.emptyState::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    145deg,
+    rgba(255, 255, 255, 0.02) 0%,
+    rgba(255, 255, 255, 0.01) 35%,
+    rgba(255, 255, 255, 0) 65%
+  );
+  pointer-events: none;
+  border-radius: inherit;
 }
 
 .contentList {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 14px;
 }
 
 /* Comment Item Styles */
 .commentItem {
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 8px;
-  padding: 20px;
+  border: 1px solid var(--card-border);
+  border-radius: 24px;
+  padding: 18px;
+  background: color-mix(in srgb, var(--background-main) 80%, transparent 15%);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  backdrop-filter: blur(16px) saturate(160%);
+  -webkit-backdrop-filter: blur(16px) saturate(160%);
+  position: relative;
+  transition: transform 0.2s ease;
+}
+
+.commentItem::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    145deg,
+    rgba(255, 255, 255, 0.02) 0%,
+    rgba(255, 255, 255, 0.01) 35%,
+    rgba(255, 255, 255, 0) 65%
+  );
+  pointer-events: none;
+  border-radius: inherit;
+  z-index: 0;
+}
+
+.commentItem > * {
+  position: relative;
+  z-index: 1;
 }
 
 .commentItem:hover {
-  border-color: rgba(255, 255, 255, 0.2);
+  transform: translateY(-2px);
 }
 
 .commentHeader {
@@ -210,14 +261,14 @@
 }
 
 .postInfo h3 {
-  color: var(--primary-color, #ee681a);
+  color: var(--text-main);
   margin-bottom: 5px;
-  font-size: 1.1rem;
+  font-size: 1rem;
 }
 
 .commentDate {
-  color: rgba(255, 255, 255, 0.5);
-  font-size: 0.9rem;
+  color: var(--text-muted);
+  font-size: 0.8rem;
 }
 
 .commentContent {
@@ -225,7 +276,7 @@
 }
 
 .commentContent p {
-  color: rgba(255, 255, 255, 0.8);
+  color: var(--text-muted);
   line-height: 1.6;
 }
 
@@ -236,40 +287,72 @@
 }
 
 .deleteButton {
-  background: #ff4444;
-  color: var(--text-dark);
-  border: none;
+  background: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.3);
   padding: 8px 16px;
-  border-radius: 4px;
+  border-radius: 50px;
   cursor: pointer;
+  font-weight: 600;
+  transition:
+    opacity 0.2s,
+    transform 0.15s;
 }
 
 .deleteButton:hover {
-  background: #cc0000;
+  opacity: 0.92;
+  transform: translateY(-1px);
 }
 
 .viewPostLink {
-  color: var(--primary-color, #ee681a);
+  color: var(--primary-color);
   text-decoration: none;
-  font-weight: 500;
+  font-weight: 600;
 }
 
 .viewPostLink:hover {
-  color: #ff8c42;
+  opacity: 0.9;
 }
 
 /* Like/Favorite Item Styles */
 .likeItem,
 .favoriteItem {
-  background: transparent;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 8px;
-  padding: 20px;
+  background: color-mix(in srgb, var(--background-main) 80%, transparent 15%);
+  border: 1px solid var(--card-border);
+  border-radius: 24px;
+  padding: 18px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  backdrop-filter: blur(16px) saturate(160%);
+  -webkit-backdrop-filter: blur(16px) saturate(160%);
+  position: relative;
+  transition: transform 0.2s ease;
+}
+
+.likeItem::after,
+.favoriteItem::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    145deg,
+    rgba(255, 255, 255, 0.02) 0%,
+    rgba(255, 255, 255, 0.01) 35%,
+    rgba(255, 255, 255, 0) 65%
+  );
+  pointer-events: none;
+  border-radius: inherit;
+  z-index: 0;
+}
+
+.likeItem > *,
+.favoriteItem > * {
+  position: relative;
+  z-index: 1;
 }
 
 .likeItem:hover,
 .favoriteItem:hover {
-  border-color: rgba(255, 255, 255, 0.2);
+  transform: translateY(-2px);
 }
 
 .likeHeader,
@@ -282,8 +365,8 @@
 
 .likeDate,
 .favoriteDate {
-  color: rgba(255, 255, 255, 0.5);
-  font-size: 0.9rem;
+  color: var(--text-muted);
+  font-size: 0.8rem;
 }
 
 .likeContent,
@@ -293,7 +376,7 @@
 
 .likeContent p,
 .favoriteContent p {
-  color: rgba(255, 255, 255, 0.8);
+  color: var(--text-muted);
   line-height: 1.6;
 }
 
@@ -305,32 +388,65 @@
 }
 
 .postType {
-  background: rgba(238, 104, 26, 0.2);
-  color: var(--primary-color, #ee681a);
+  background: color-mix(in srgb, var(--primary-color) 12%, transparent);
+  color: var(--primary-color);
+  border: 1px solid color-mix(in srgb, var(--primary-color) 35%, transparent);
   padding: 4px 12px;
-  border-radius: 12px;
+  border-radius: 999px;
   font-size: 0.8rem;
-  font-weight: 500;
+  font-weight: 600;
 }
 
 .unlikeButton,
 .removeButton {
-  background: #666;
-  color: var(--text-dark);
-  border: none;
+  background: color-mix(in srgb, var(--background-main) 90%, transparent);
+  color: var(--text-muted);
+  border: 1px solid var(--card-border);
+  border-radius: 50px;
   padding: 8px 16px;
-  border-radius: 4px;
   cursor: pointer;
+  font-weight: 600;
+  transition:
+    opacity 0.2s,
+    transform 0.15s;
 }
 
 .unlikeButton:hover,
 .removeButton:hover {
-  background: #555;
+  opacity: 0.92;
+  transform: translateY(-1px);
 }
 
 /* Settings Form Styles */
 .settingsForm {
   max-width: 600px;
+  border: 1px solid var(--card-border);
+  border-radius: 24px;
+  padding: 22px;
+  background: color-mix(in srgb, var(--background-main) 80%, transparent 15%);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  backdrop-filter: blur(16px) saturate(160%);
+  -webkit-backdrop-filter: blur(16px) saturate(160%);
+  position: relative;
+}
+
+.settingsForm::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    145deg,
+    rgba(255, 255, 255, 0.02) 0%,
+    rgba(255, 255, 255, 0.01) 35%,
+    rgba(255, 255, 255, 0) 65%
+  );
+  pointer-events: none;
+  border-radius: inherit;
+}
+
+.settingsForm form {
+  position: relative;
+  z-index: 1;
 }
 
 .formGroup {
@@ -340,8 +456,8 @@
 .formGroup label {
   display: block;
   margin-bottom: 8px;
-  color: var(--text-dark);
-  font-weight: 500;
+  color: var(--text-main);
+  font-weight: 600;
 }
 
 .formInput,
@@ -349,8 +465,8 @@
   width: 100%;
   padding: 12px;
   border: 1px solid var(--card-border);
-  border-radius: 6px;
-  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.04);
   color: var(--text-dark);
   font-size: 1rem;
 }
@@ -368,18 +484,23 @@
 }
 
 .saveButton {
-  background: var(--primary-color, #ee681a);
+  background: var(--button-bg);
   color: var(--button-text);
   border: none;
   padding: 12px 24px;
-  border-radius: 6px;
+  border-radius: 50px;
   cursor: pointer;
   font-size: 1rem;
-  font-weight: 500;
+  font-weight: 600;
+  box-shadow: var(--button-shadow);
+  transition:
+    opacity 0.2s,
+    transform 0.15s;
 }
 
 .saveButton:hover {
-  background: #ff8c42;
+  opacity: 0.9;
+  transform: translateY(-1px);
 }
 
 .saveButton:disabled {
@@ -391,7 +512,7 @@
   background: rgba(255, 68, 68, 0.1);
   color: #ff4444;
   padding: 12px;
-  border-radius: 6px;
+  border-radius: 12px;
   margin-bottom: 20px;
   border: 1px solid rgba(255, 68, 68, 0.3);
 }
@@ -400,7 +521,7 @@
   background: rgba(34, 197, 94, 0.1);
   color: #22c55e;
   padding: 12px;
-  border-radius: 6px;
+  border-radius: 12px;
   margin-bottom: 20px;
   border: 1px solid rgba(34, 197, 94, 0.3);
 }
@@ -409,7 +530,7 @@
   width: 100%;
   padding: 12px;
   border: 1px solid var(--card-border);
-  border-radius: 6px;
+  border-radius: 12px;
   background: rgba(255, 255, 255, 0.03);
   color: var(--text-dark);
   font-size: 1rem;
@@ -438,22 +559,22 @@
 .avatarImage {
   width: 100px;
   height: 100px;
-  border-radius: 50%;
+  border-radius: 20px;
   object-fit: cover;
-  border: 3px solid var(--primary-color, #ee681a);
-  background: #222;
+  border: 1px solid color-mix(in srgb, var(--primary-color) 35%, transparent);
+  background: color-mix(in srgb, var(--primary-color) 12%, transparent);
 }
 
 .avatarPlaceholder {
   width: 100px;
   height: 100px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.1);
-  border: 3px solid rgba(255, 255, 255, 0.2);
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--card-border);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: rgba(255, 255, 255, 0.5);
+  color: var(--text-muted);
 }
 
 .avatarControls {
@@ -467,76 +588,95 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  background: var(--primary-color, #ee681a);
+  background: var(--button-bg);
   color: var(--button-text) !important;
-
   border: none;
   padding: 10px 16px;
-  border-radius: 6px;
+  border-radius: 50px;
   cursor: pointer;
   font-size: 0.9rem;
-  font-weight: 500;
-
+  font-weight: 600;
   text-decoration: none;
+  box-shadow: var(--button-shadow);
+  transition:
+    opacity 0.2s,
+    transform 0.15s;
 }
 
 .uploadButton:hover {
-  background: #ff8c42;
+  opacity: 0.9;
+  transform: translateY(-1px);
 }
 
-.removeButton {
+.avatarControls .removeButton {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  background: #666;
+  background: color-mix(in srgb, var(--background-main) 90%, transparent);
   color: var(--button-text);
-
-  border: none;
+  border: 1px solid var(--card-border);
   padding: 8px 12px;
-  border-radius: 6px;
+  border-radius: 50px;
   cursor: pointer;
   font-size: 0.85rem;
+  font-weight: 600;
 }
 
-.removeButton:hover {
-  background: #555;
+.avatarControls .removeButton:hover {
+  opacity: 0.9;
 }
 
-.deleteButton {
+.avatarControls .deleteButton {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  background: #dc2626;
+  background: rgba(239, 68, 68, 0.1);
   color: var(--button-text);
-
-  border: none;
+  border: 1px solid rgba(239, 68, 68, 0.35);
   padding: 8px 12px;
-  border-radius: 6px;
+  border-radius: 50px;
   cursor: pointer;
   font-size: 0.85rem;
+  font-weight: 600;
 }
 
-.deleteButton:hover:not(:disabled) {
-  background: #b91c1c;
+.avatarControls .deleteButton:hover:not(:disabled) {
+  opacity: 0.9;
 }
 
-.deleteButton:disabled {
+.avatarControls .deleteButton:disabled {
   background: #6b7280;
   cursor: not-allowed;
 }
 
 .fileInfo {
-  color: var(--text-dark);
+  color: var(--text-muted);
   font-size: 0.85rem;
   margin: 0;
   padding: 8px 12px;
   background: rgba(255, 255, 255, 0.05);
-  border-radius: 4px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  border: 1px solid var(--card-border);
 }
 
 /* Responsive Design */
 @media (max-width: 768px) {
+  .profileContent {
+    padding: 4px 0;
+  }
+
+  .contentHeader h1 {
+    font-size: 1.4rem;
+  }
+
+  .settingsForm,
+  .commentItem,
+  .likeItem,
+  .favoriteItem,
+  .emptyState {
+    border-radius: 20px;
+  }
+
   .avatarSection {
     flex-direction: column;
     align-items: center;

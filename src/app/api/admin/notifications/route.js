@@ -42,8 +42,16 @@ export async function POST(request) {
     // You can add more specific admin checks later
     console.log("✅ Admin access confirmed for user:", session.user.email);
 
-    const { title, message, type, recipientIds, isGlobal } =
-      await request.json();
+    const {
+      title,
+      message,
+      type,
+      recipientIds,
+      isGlobal,
+      recipient_type,
+      related_content_type,
+      related_content_id,
+    } = await request.json();
 
     console.log("Request data:", {
       title,
@@ -51,6 +59,9 @@ export async function POST(request) {
       type,
       recipientIds,
       isGlobal,
+      recipient_type,
+      related_content_type,
+      related_content_id,
     });
 
     if (!title || !message) {
@@ -63,12 +74,66 @@ export async function POST(request) {
 
     let usersToNotify = [];
 
-    if (isGlobal) {
-      // Get all users from profiles table except the current admin
+    if (recipient_type === "newsletter_subscribers") {
+      const { data: newsletterRows, error: newsletterError } = await supabase
+        .from("newsletter_subscribers")
+        .select("email")
+        .eq("subscribed", true);
+
+      console.log("subscribers found: " + ((newsletterRows || []).length || 0));
+
+      if (newsletterError) {
+        console.error("❌ Error fetching newsletter subscribers:", newsletterError);
+        return NextResponse.json(
+          {
+            error: "Failed to fetch newsletter subscribers",
+            details: newsletterError.message,
+          },
+          { status: 500 }
+        );
+      }
+
+      const subscriberEmails = Array.from(
+        new Set(
+          (newsletterRows || [])
+            .map((row) => (row.email || "").trim().toLowerCase())
+            .filter(Boolean)
+        )
+      );
+
+      if (subscriberEmails.length > 0) {
+        const { data: matchedProfiles, error: profilesError } = await supabase
+          .from("profiles")
+          .select("id, email")
+          .in("email", subscriberEmails);
+
+        if (profilesError) {
+          console.error(
+            "❌ Error matching newsletter subscribers to profiles:",
+            profilesError
+          );
+          return NextResponse.json(
+            { error: "Failed to match recipients", details: profilesError.message },
+            { status: 500 }
+          );
+        }
+
+        usersToNotify = (matchedProfiles || []).map((profile) => ({
+          id: profile.id,
+        }));
+        console.log("matched profiles: " + ((matchedProfiles || []).length || 0));
+      } else {
+        console.log("matched profiles: 0");
+      }
+      console.log(
+        "✅ Newsletter subscriber notification to",
+        usersToNotify.length,
+        "matched users"
+      );
+    } else if (recipient_type === "all_users" || isGlobal) {
       const { data: allUsers, error: usersError } = await supabase
         .from("profiles")
-        .select("id")
-        .neq("id", session.user.id);
+        .select("id");
 
       if (usersError) {
         console.error("❌ Error fetching users:", usersError);
@@ -80,14 +145,19 @@ export async function POST(request) {
 
       usersToNotify = allUsers || [];
       console.log("✅ Global notification to", usersToNotify.length, "users");
-    } else if (recipientIds && recipientIds.length > 0) {
-      // Use provided recipient IDs directly
-      usersToNotify = recipientIds.map((id) => ({ id }));
+    } else if (
+      recipient_type === "specific_users" ||
+      (recipientIds && recipientIds.length > 0)
+    ) {
+      usersToNotify = (recipientIds || []).map((id) => ({ id }));
       console.log("✅ Targeted notification to", usersToNotify.length, "users");
     } else {
       console.log("❌ No recipients specified");
       return NextResponse.json(
-        { error: "Must specify recipients or set as global" },
+        {
+          error:
+            "Must specify recipients via recipient_type or provide recipient IDs",
+        },
         { status: 400 }
       );
     }
@@ -109,6 +179,8 @@ export async function POST(request) {
       sender_id: session.user.id,
       is_admin_notification: true,
       is_read: false,
+      related_content_type: related_content_type || null,
+      related_content_id: related_content_id || null,
       updated_at: new Date().toISOString(),
     }));
 
@@ -118,6 +190,13 @@ export async function POST(request) {
       .from("notifications")
       .insert(notifications)
       .select();
+
+    console.log(
+      "notifications inserted: " +
+        (createError
+          ? `error: ${createError.message}`
+          : (createdNotifications || []).length || 0)
+    );
 
     if (createError) {
       console.error("❌ Error creating notifications:", createError);

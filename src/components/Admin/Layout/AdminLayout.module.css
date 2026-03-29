@@ -1,27 +1,47 @@
 .container {
   display: flex;
   flex: 1;
-  gap: 30px;
-  padding: 48px 20px;
+  gap: 20px;
+  padding: 32px 20px 48px;
+  max-width: 1300px;
+  margin: 0 auto;
+  width: 100%;
 }
 
 .content {
   flex: 1;
-  padding: 30px;
+  padding: 28px;
   min-height: 600px;
-
-  border-radius: var(--card-border-radius);
-  background: color-mix(
-    in srgb,
-    var(--background-main, #121212) 80%,
-    transparent 15%
-  );
-  border: 1px solid var(--card-border, rgba(255, 255, 255, 0.14));
+  border-radius: 24px;
+  background: color-mix(in srgb, var(--background-main) 80%, transparent 15%);
+  border: 1px solid var(--card-border);
   color: var(--card-text, #fff);
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
   backdrop-filter: blur(16px) saturate(160%);
   -webkit-backdrop-filter: blur(16px) saturate(160%);
   opacity: 0.98;
+  position: relative;
+  overflow: hidden;
+}
+
+.content::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    145deg,
+    rgba(255, 255, 255, 0.02) 0%,
+    rgba(255, 255, 255, 0.01) 35%,
+    rgba(255, 255, 255, 0) 65%
+  );
+  pointer-events: none;
+  border-radius: inherit;
+  z-index: 0;
+}
+
+.content > * {
+  position: relative;
+  z-index: 1;
 }
 
 .loadingContainer {
@@ -37,10 +57,11 @@
   .container {
     flex-direction: column;
     gap: 16px;
-    padding: 24px 20px;
+    padding: 20px 16px 30px;
   }
   .content {
     padding: 14px;
     min-height: 400px;
+    border-radius: 20px;
   }
 }

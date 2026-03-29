@@ -16,34 +16,46 @@
   overflow-y: auto !important;
   /* Ensure it's not affected by any parent stacking contexts */
   isolation: isolate;
-  /* No background on desktop - just positioning */
   pointer-events: none;
 }
 
 .popup {
-  background: color-mix(
-    in srgb,
-    var(--background-main, #121212) 98%,
-    transparent 2%
-  );
-  border: 1px solid var(--card-border, rgba(255, 255, 255, 0.14));
-  border-radius: 12px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+  background: color-mix(in srgb, var(--background-main) 84%, transparent 14%);
+  border: 1px solid var(--card-border);
+  border-radius: 24px;
+  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.35);
   backdrop-filter: blur(16px) saturate(160%);
   -webkit-backdrop-filter: blur(16px) saturate(160%);
-  width: 350px;
-  max-width: 350px;
-  max-height: 500px;
+  width: 380px;
+  max-width: 380px;
+  max-height: min(560px, calc(100vh - var(--popup-top, 60px) - 20px));
   overflow: hidden;
   animation: slideIn 0.3s ease-out;
-  /* Enable interaction within the popup */
   pointer-events: auto !important;
   touch-action: auto !important;
-  /* Ensure popup is visible */
   z-index: 99999 !important;
   position: relative !important;
-  /* Desktop dropdown styling */
   margin: 0;
+}
+
+.popup::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    145deg,
+    rgba(255, 255, 255, 0.02) 0%,
+    rgba(255, 255, 255, 0.01) 35%,
+    rgba(255, 255, 255, 0) 65%
+  );
+  pointer-events: none;
+  border-radius: inherit;
+  z-index: 0;
+}
+
+.popup > * {
+  position: relative;
+  z-index: 1;
 }
 
 @keyframes slideIn {
@@ -61,16 +73,21 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 16px 20px;
-  border-bottom: 1px solid var(--card-border, rgba(255, 255, 255, 0.14));
-  background: rgba(255, 255, 255, 0.02);
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--card-border);
+  background: color-mix(in srgb, var(--background-main) 92%, transparent);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
 }
 
 .title {
   margin: 0;
-  font-size: 18px;
-  font-weight: 600;
-  color: var(--text-primary, #fff);
+  font-size: 16px;
+  font-weight: 700;
+  background: var(--gradient-typography-primary);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 .headerActions {
@@ -80,62 +97,69 @@
 }
 
 .clearAllButton {
-  background: transparent;
+  background: rgba(239, 68, 68, 0.1);
   color: #ef4444;
-  border: none;
-  padding: 6px 8px;
-  border-radius: 4px;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  padding: 7px 12px;
+  border-radius: 999px;
   font-size: 12px;
-  font-weight: 500;
+  font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition:
+    opacity 0.2s,
+    transform 0.15s;
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 6px;
   text-decoration: none;
+  white-space: nowrap;
 }
 
 .clearAllButton:hover {
-  background: rgba(239, 68, 68, 0.1);
-  color: #dc2626;
+  opacity: 0.92;
+  transform: translateY(-1px);
 }
 
 .clearAllButton:active {
-  background: rgba(239, 68, 68, 0.2);
+  transform: scale(0.98);
 }
 
 .markAllReadButton {
-  background: transparent;
-  color: var(--primary-color, #ee681a);
+  background: var(--button-bg);
+  color: var(--button-text);
   border: none;
-  padding: 6px 8px;
-  border-radius: 4px;
+  padding: 7px 12px;
+  border-radius: 999px;
   font-size: 12px;
-  font-weight: 500;
+  font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition:
+    opacity 0.2s,
+    transform 0.15s;
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 6px;
   text-decoration: none;
+  box-shadow: var(--button-shadow);
+  white-space: nowrap;
 }
 
 .markAllReadButton:hover {
-  background: rgba(238, 104, 26, 0.1);
-  color: #d85d15;
+  opacity: 0.9;
+  transform: translateY(-1px);
 }
 
 .markAllReadButton:active {
-  background: rgba(238, 104, 26, 0.2);
+  transform: scale(0.98);
 }
 
 .closeButton {
-  background: transparent;
-  border: none;
-  color: var(--text-secondary, #aaa);
+  background: color-mix(in srgb, var(--background-main) 85%, transparent);
+  border: 1px solid var(--card-border);
+  color: var(--text-muted);
   cursor: pointer;
-  padding: 4px;
-  border-radius: 4px;
+  padding: 6px;
+  border-radius: 999px;
   transition: all 0.2s ease;
   display: flex;
   align-items: center;
@@ -143,8 +167,9 @@
 }
 
 .closeButton:hover {
-  background: rgba(255, 255, 255, 0.1);
-  color: var(--text-primary, #fff);
+  background: color-mix(in srgb, var(--primary-color) 10%, transparent);
+  color: var(--primary-color);
+  border-color: color-mix(in srgb, var(--primary-color) 35%, transparent);
 }
 
 .content {
@@ -157,15 +182,15 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 40px 20px;
-  color: var(--text-secondary, #aaa);
+  padding: 44px 20px;
+  color: var(--text-muted);
 }
 
 .spinner {
   width: 24px;
   height: 24px;
-  border: 2px solid rgba(255, 255, 255, 0.1);
-  border-top: 2px solid var(--primary-color, #ee681a);
+  border: 2px solid var(--card-border);
+  border-top: 2px solid var(--primary-color);
   border-radius: 50%;
   animation: spin 1s linear infinite;
   margin-bottom: 12px;
@@ -186,7 +211,7 @@
   align-items: center;
   justify-content: center;
   padding: 40px 20px;
-  color: #ff6b6b;
+  color: #ef4444;
   text-align: center;
 }
 
@@ -200,8 +225,8 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 40px 20px;
-  color: var(--text-secondary, #aaa);
+  padding: 50px 20px;
+  color: var(--text-muted);
   text-align: center;
 }
 
@@ -218,8 +243,8 @@
 }
 
 .notificationsList {
-  padding: 0 0 8px 0;
-  max-height: 350px;
+  padding: 4px 0 6px 0;
+  max-height: 360px;
   overflow-y: auto;
   overflow-x: hidden;
 }
@@ -227,10 +252,39 @@
 .actions {
   display: flex;
   align-items: center;
-  justify-content: flex-end;
-  padding: 8px 20px;
-  border-bottom: 1px solid var(--card-border, rgba(255, 255, 255, 0.14));
-  background: rgba(255, 255, 255, 0.01);
+  justify-content: space-between;
+  gap: 8px;
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--card-border);
+  background: color-mix(in srgb, var(--background-main) 88%, transparent);
+}
+
+.footer {
+  border-top: 1px solid var(--card-border);
+  padding: 10px 16px 14px;
+  background: color-mix(in srgb, var(--background-main) 88%, transparent);
+}
+
+.viewAllButton {
+  width: 100%;
+  border: none;
+  background: var(--button-bg);
+  color: var(--button-text);
+  font-size: 13px;
+  font-weight: 600;
+  text-align: center;
+  cursor: pointer;
+  padding: 10px 12px;
+  border-radius: 50px;
+  box-shadow: var(--button-shadow);
+  transition:
+    opacity 0.2s,
+    transform 0.15s;
+}
+
+.viewAllButton:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
 }
 
 /* Scrollbar styling */
@@ -241,24 +295,24 @@
 
 .content::-webkit-scrollbar-track,
 .notificationsList::-webkit-scrollbar-track {
-  background: rgba(255, 255, 255, 0.05);
+  background: transparent;
 }
 
 .content::-webkit-scrollbar-thumb,
 .notificationsList::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.2);
+  background: color-mix(in srgb, var(--card-border) 85%, transparent);
   border-radius: 3px;
 }
 
 .content::-webkit-scrollbar-thumb:hover,
 .notificationsList::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.3);
+  background: color-mix(in srgb, var(--primary-color) 30%, var(--card-border));
 }
 
 /* Mobile responsiveness */
 @media (max-width: 768px) {
   .overlay {
-    background: rgba(0, 0, 0, 0.8) !important;
+    background: rgba(0, 0, 0, 0.62) !important;
     backdrop-filter: blur(4px) !important;
     -webkit-backdrop-filter: blur(4px) !important;
     z-index: 99999;
@@ -266,9 +320,7 @@
     padding-top: 50px !important;
     padding-right: 20px !important;
     justify-content: center !important;
-    /* Re-enable full screen modal on mobile */
     pointer-events: auto !important;
-    /* Prevent interaction with background elements */
     touch-action: none;
     -webkit-touch-callout: none;
     -webkit-user-select: none;
@@ -280,12 +332,11 @@
 
   .popup {
     width: 100%;
-    max-width: 400px;
+    max-width: 420px;
     max-height: 500px;
     margin: 0 auto;
-    border-radius: 16px;
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.7);
-    /* Re-enable interaction within the popup */
+    border-radius: 20px;
+    box-shadow: 0 18px 40px rgba(0, 0, 0, 0.55);
     touch-action: auto;
     -webkit-touch-callout: default;
     -webkit-user-select: text;
@@ -297,8 +348,8 @@
   }
 
   .header {
-    padding: 16px 20px;
-    border-radius: 16px 16px 0 0;
+    padding: 14px 16px;
+    border-radius: 20px 20px 0 0;
   }
 
   .header h3 {
@@ -307,17 +358,17 @@
   }
 
   .actions {
-    padding: 12px 20px;
-    gap: 12px;
-    flex-wrap: wrap;
+    padding: 10px 16px;
+    gap: 8px;
+    flex-wrap: nowrap;
   }
 
   .clearAllButton,
   .markAllReadButton {
-    padding: 8px 12px;
+    padding: 7px 11px;
     font-size: 12px;
-    border-radius: 8px;
-    min-width: 100px;
+    border-radius: 999px;
+    min-width: 0;
     white-space: nowrap;
   }
 
@@ -329,7 +380,7 @@
   .loading,
   .error,
   .empty {
-    padding: 60px 20px;
+    padding: 50px 20px;
     font-size: 16px;
   }
 }
@@ -345,12 +396,12 @@
     width: 100%;
     max-width: none;
     max-height: 500px;
-    border-radius: 12px;
+    border-radius: 16px;
   }
 
   .header {
     padding: 14px 16px;
-    border-radius: 12px 12px 0 0;
+    border-radius: 16px 16px 0 0;
   }
 
   .header h3 {
@@ -359,17 +410,17 @@
 
   .actions {
     padding: 10px 16px;
-    gap: 8px;
-    justify-content: center;
+    gap: 6px;
+    justify-content: space-between;
   }
 
   .clearAllButton,
   .markAllReadButton {
     padding: 6px 10px;
     font-size: 11px;
-    min-width: 80px;
+    min-width: 0;
     flex: 1;
-    max-width: 120px;
+    max-width: none;
   }
 
   .notificationsList {

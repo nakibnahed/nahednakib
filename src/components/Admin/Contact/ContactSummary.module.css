@@ -19,7 +19,10 @@
   font-size: 2rem;
   font-weight: 700;
   margin-bottom: 0.5rem;
-  color: var(--text-light);
+  background: var(--gradient-typography-primary);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
   font-family: var(--font-heading), sans-serif;
 }
 
@@ -40,9 +43,13 @@
   gap: 0.75rem;
 
   padding: 1rem 1.5rem;
-  border-radius: 8px;
+  border-radius: 24px;
   border: 1px solid var(--card-border);
   min-width: 120px;
+  background: color-mix(in srgb, var(--background-main) 80%, transparent 15%);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  backdrop-filter: blur(16px) saturate(160%);
+  -webkit-backdrop-filter: blur(16px) saturate(160%);
 }
 
 .stat svg {
@@ -81,9 +88,9 @@
 
 .formSelector {
   padding: 10px 14px;
-  border-radius: 6px;
+  border-radius: 12px;
   border: 1px solid var(--card-border);
-  background-color: var(--background-main);
+  background-color: rgba(255, 255, 255, 0.04);
   color: var(--text-dark);
   font-size: 16px;
   font-family: var(--font-heading), sans-serif;
@@ -101,9 +108,9 @@
   min-width: 200px;
   max-width: 400px;
   padding: 10px 14px;
-  border-radius: 6px;
+  border-radius: 12px;
   border: 1px solid var(--card-border);
-  background-color: var(--background-main);
+  background-color: rgba(255, 255, 255, 0.04);
   color: var(--text-light);
   font-size: 16px;
   font-family: var(--font-heading), sans-serif;
@@ -125,19 +132,22 @@
   align-items: center;
   gap: 0.5rem;
   padding: 10px 20px;
-  background: var(--primary-color);
-  color: white;
+  background: var(--button-bg);
+  color: var(--button-text);
   border: none;
-  border-radius: 6px;
+  border-radius: 50px;
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition:
+    opacity 0.2s,
+    transform 0.15s;
   white-space: nowrap;
+  box-shadow: var(--button-shadow);
 }
 
 .exportBtn:hover {
-  background: var(--primary-hover);
+  opacity: 0.9;
   transform: translateY(-1px);
 }
 
@@ -161,9 +171,12 @@
 
 .tableContainer {
   overflow-x: auto;
-  border-radius: 12px;
-  background-color: var(--background-main);
+  border-radius: 24px;
+  background: color-mix(in srgb, var(--background-main) 80%, transparent 15%);
   border: 1px solid var(--card-border);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  backdrop-filter: blur(16px) saturate(160%);
+  -webkit-backdrop-filter: blur(16px) saturate(160%);
 }
 
 .table {

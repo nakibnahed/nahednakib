@@ -134,27 +134,31 @@ export default function NewBlogPage() {
 
     const createdDate = new Date().toLocaleString();
 
-    const { error } = await supabase.from("blogs").insert([
-      {
-        title: formData.title,
-        slug: uniqueSlug,
-        image: imageUrl,
-        date: createdDate,
-        category_id: formData.category_id || null,
-        author_id: formData.author_id || null,
-        description: formData.description,
-        content: formData.content,
-        tags: formData.tags.trim() || "Web Development",
-        readTime: formData.readTime ? parseInt(formData.readTime) : null,
-      },
-    ]);
+    const { data: createdBlog, error } = await supabase
+      .from("blogs")
+      .insert([
+        {
+          title: formData.title,
+          slug: uniqueSlug,
+          image: imageUrl,
+          date: createdDate,
+          category_id: formData.category_id || null,
+          author_id: formData.author_id || null,
+          description: formData.description,
+          content: formData.content,
+          tags: formData.tags.trim() || "Web Development",
+          readTime: formData.readTime ? parseInt(formData.readTime) : null,
+        },
+      ])
+      .select("id")
+      .single();
 
     if (error) {
       setErrorMsg(error.message);
     } else {
       // Send notification to all users about new blog post
       try {
-        await fetch("/api/admin/notifications", {
+        const response = await fetch("/api/admin/notifications", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -162,10 +166,15 @@ export default function NewBlogPage() {
           body: JSON.stringify({
             title: "New Blog Post Published! 📝",
             message: `Check out our latest blog post: "${formData.title}"`,
-            type: "blog",
-            isGlobal: true,
+            type: "new_blog_post",
+            recipient_type: "all_users",
+            related_content_type: "blog",
+            related_content_id: createdBlog?.id || null,
           }),
         });
+        if (!response.ok) {
+          console.error("Notification failed:", await response.text());
+        }
       } catch (error) {
         console.error("Error sending blog notification:", error);
       }

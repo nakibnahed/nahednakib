@@ -1,13 +1,15 @@
 .button {
   width: 100%;
   padding: 10px 12px;
-  border-radius: 8px;
+  border-radius: 50px;
   border: 1px solid transparent;
   background: transparent;
   color: var(--text-dark);
   font-weight: 500;
   cursor: pointer;
-  transition: color 0.2s ease;
+  transition:
+    color 0.2s,
+    background 0.2s;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -15,11 +17,10 @@
 }
 
 .button:hover {
-  /* Only change text color to primary color */
   color: var(--primary-color, #ee681a);
-  background: transparent;
+  background: color-mix(in srgb, var(--primary-color) 8%, transparent);
   transform: none;
-  border-color: transparent;
+  border-color: color-mix(in srgb, var(--primary-color) 25%, transparent);
 }
 
 .buttonText {

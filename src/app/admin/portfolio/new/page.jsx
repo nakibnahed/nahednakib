@@ -114,22 +114,26 @@ export default function NewPortfolioPage() {
 
     const createdDate = new Date().toLocaleString();
 
-    const { error } = await supabase.from("portfolios").insert([
-      {
-        title: formData.title,
-        image: imageUrl,
-        date: createdDate,
-        category: formData.category,
-        description: formData.description,
-        overview: formData.overview,
-        achievements: formData.achievements,
-        key_features: formData.key_features,
-        live_url: formData.live_url,
-        repo_url: formData.repo_url,
-        status: formData.status,
-        technologies: formData.technologies,
-      },
-    ]);
+    const { data: createdPortfolio, error } = await supabase
+      .from("portfolios")
+      .insert([
+        {
+          title: formData.title,
+          image: imageUrl,
+          date: createdDate,
+          category: formData.category,
+          description: formData.description,
+          overview: formData.overview,
+          achievements: formData.achievements,
+          key_features: formData.key_features,
+          live_url: formData.live_url,
+          repo_url: formData.repo_url,
+          status: formData.status,
+          technologies: formData.technologies,
+        },
+      ])
+      .select("id")
+      .single();
 
     if (error) {
       setErrorMsg(error.message);
@@ -147,8 +151,10 @@ export default function NewPortfolioPage() {
           body: JSON.stringify({
             title: "New Portfolio Project! 🚀",
             message: `Check out our latest project: \"${formData.title}\"`,
-            type: "portfolio",
-            isGlobal: true,
+            type: "new_portfolio_post",
+            recipient_type: "all_users",
+            related_content_type: "portfolio",
+            related_content_id: createdPortfolio?.id || null,
           }),
         });
       } catch (error) {

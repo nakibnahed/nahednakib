@@ -1,10 +1,9 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 
-export async function POST(_request, { params }) {
+export async function DELETE(_request, { params }) {
   try {
     const { id } = params;
-
     const supabase = await createClient();
     const {
       data: { session },
@@ -19,24 +18,18 @@ export async function POST(_request, { params }) {
 
     const { error } = await supabase
       .from("notifications")
-      .update({
-        is_read: true,
-        read_at: new Date().toISOString(),
-      })
+      .delete()
       .eq("id", id)
-      .eq("recipient_id", session.user.id)
-      .select();
+      .eq("recipient_id", session.user.id);
 
     if (error) {
       return NextResponse.json(
-        { error: "Failed to mark notification as read", details: error.message },
+        { error: "Failed to delete notification", details: error.message },
         { status: 500 },
       );
     }
 
-    return NextResponse.json({
-      message: "Notification marked as read",
-    });
+    return NextResponse.json({ success: true });
   } catch (error) {
     return NextResponse.json(
       { error: "Internal server error", details: error.message },

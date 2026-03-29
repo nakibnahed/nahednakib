@@ -1,0 +1,513 @@
+/* ── Page shell ───────────────────────────────────────────────── */
+.page {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 80px 20px 64px;
+}
+
+/* ── Sticky header ────────────────────────────────────────────── */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 18px 0 20px;
+  margin-bottom: 20px;
+  border-bottom: 1px solid var(--card-border);
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  background: color-mix(in srgb, var(--background-main) 94%, transparent);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.title {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--gradient-typography-primary);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-size: 1.6rem;
+  font-weight: 700;
+}
+
+/* Unread count badge — must reset gradient-text fill */
+.unreadBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 22px;
+  height: 22px;
+  padding: 0 6px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  background: color-mix(in srgb, var(--primary-color) 15%, transparent);
+  color: var(--primary-color);
+  -webkit-text-fill-color: var(--primary-color);
+  background-clip: unset;
+  -webkit-background-clip: unset;
+  border: 1px solid color-mix(in srgb, var(--primary-color) 35%, transparent);
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.headerActions {
+  display: flex;
+  gap: 8px;
+}
+
+.btn {
+  border: none;
+  border-radius: 50px;
+  padding: 8px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    opacity 0.2s,
+    transform 0.15s;
+}
+
+.btnPrimary {
+  background: var(--button-bg);
+  color: var(--button-text);
+  box-shadow: var(--button-shadow);
+}
+
+.btnPrimary:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+.btnDanger {
+  border-radius: 50px;
+  background: rgba(239, 68, 68, 0.12);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.25);
+}
+
+.btnDanger:hover {
+  background: rgba(239, 68, 68, 0.2);
+}
+
+/* ── Filter bar — single horizontal pill ─────────────────────── */
+.filterBar {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  margin-bottom: 20px;
+  background: color-mix(in srgb, var(--background-main) 80%, transparent 15%);
+  border: 1px solid var(--card-border);
+  border-radius: 20px;
+  padding: 8px 16px;
+  position: relative;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  backdrop-filter: blur(16px) saturate(160%);
+  -webkit-backdrop-filter: blur(16px) saturate(160%);
+  overflow: hidden;
+}
+
+.filterBar::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    145deg,
+    rgba(255, 255, 255, 0.02) 0%,
+    rgba(255, 255, 255, 0.01) 35%,
+    rgba(255, 255, 255, 0) 65%
+  );
+  pointer-events: none;
+  border-radius: inherit;
+  z-index: 0;
+}
+
+.filterGroup {
+  display: flex;
+  align-items: center;
+  flex-wrap: nowrap;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+  padding: 0;
+  background: none;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  position: relative;
+  z-index: 1;
+}
+
+.filterGroup::after {
+  display: none;
+}
+
+.filterGroup > * {
+  position: static;
+  z-index: auto;
+}
+
+/* Vertical separator between the two filter groups */
+.filterGroup + .filterGroup {
+  padding-left: 14px;
+  margin-left: 14px;
+  border-left: 1px solid var(--card-border);
+}
+
+.filterLabel {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  white-space: nowrap;
+  flex-shrink: 0;
+  margin-bottom: 0;
+  margin-right: 4px;
+}
+
+.chips {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 2px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.chips::-webkit-scrollbar {
+  display: none;
+}
+
+.chip {
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--text-muted);
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  white-space: nowrap;
+  min-height: 28px;
+  padding: 4px 10px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition:
+    border-color 0.2s,
+    background 0.2s,
+    color 0.2s;
+}
+
+.chip:hover {
+  color: var(--text-dark);
+  background: color-mix(in srgb, var(--card-border) 35%, transparent);
+}
+
+.chipActive {
+  background: color-mix(in srgb, var(--primary-color) 14%, transparent);
+  border-color: color-mix(in srgb, var(--primary-color) 40%, transparent);
+  color: var(--primary-color);
+  font-weight: 600;
+}
+
+.errorLine {
+  color: #dc2626;
+  margin: 8px 0 12px;
+}
+
+/* ── Group headers (Today / Earlier) ─────────────────────────── */
+.groupHeader {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  opacity: 0.6;
+  padding: 14px 18px 6px;
+}
+
+.groupHeader:first-child {
+  padding-top: 10px;
+}
+
+/* ── Notification list card ──────────────────────────────────── */
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  background: color-mix(in srgb, var(--background-main) 80%, transparent 15%);
+  border: 1px solid var(--card-border);
+  border-radius: 20px;
+  padding: 0;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  backdrop-filter: blur(16px) saturate(160%);
+  -webkit-backdrop-filter: blur(16px) saturate(160%);
+  overflow: hidden;
+}
+
+/* ── Individual item — slim row ──────────────────────────────── */
+.item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border: none;
+  border-bottom: 1px solid color-mix(in srgb, var(--card-border) 55%, transparent);
+  border-radius: 0;
+  padding: 12px 16px 12px 18px;
+  background: transparent;
+  position: relative;
+  box-shadow: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.item:last-child {
+  border-bottom: none;
+}
+
+/* Left accent bar — visible only for unread */
+.item::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 3px;
+  height: 0;
+  border-radius: 0 3px 3px 0;
+  background: var(--primary-color);
+  opacity: 0;
+  transition:
+    height 0.25s ease,
+    opacity 0.25s ease;
+}
+
+.item::after {
+  display: none;
+}
+
+.item > * {
+  position: static;
+  z-index: auto;
+}
+
+.item:hover {
+  background: color-mix(in srgb, var(--primary-color) 4%, transparent);
+  transform: none;
+}
+
+.itemUnread {
+  background: color-mix(in srgb, var(--primary-color) 3%, transparent);
+  border-color: color-mix(in srgb, var(--card-border) 55%, transparent);
+}
+
+.itemUnread::before {
+  height: 55%;
+  opacity: 1;
+}
+
+.iconWrap {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--primary-color) 12%, transparent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--primary-color, #ee681a);
+  flex-shrink: 0;
+}
+
+.body {
+  flex: 1;
+  min-width: 0;
+}
+
+.topLine {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 2px;
+}
+
+.itemTitle {
+  margin: 0;
+  color: var(--text-primary, #fff);
+  font-size: 14px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.time {
+  color: var(--text-secondary, #aaa);
+  font-size: 11px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.message {
+  margin: 0;
+  color: var(--text-secondary, #b7b7b7);
+  font-size: 12px;
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* meta row hidden — unread state conveyed by left accent bar */
+.meta {
+  display: none;
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: var(--primary-color, #ee681a);
+}
+
+/* Delete button — hidden until row hover */
+.deleteBtn {
+  border: none;
+  background: transparent;
+  color: #ef4444;
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 8px;
+  flex-shrink: 0;
+  opacity: 0;
+  transition:
+    opacity 0.2s,
+    background 0.15s;
+}
+
+.item:hover .deleteBtn {
+  opacity: 1;
+}
+
+.deleteBtn:hover {
+  background: rgba(239, 68, 68, 0.12);
+}
+
+/* ── Empty state ──────────────────────────────────────────────── */
+.empty {
+  text-align: center;
+  color: var(--text-secondary, #aaa);
+  border: 1px solid var(--card-border);
+  border-radius: 20px;
+  padding: 48px 18px;
+  background: color-mix(in srgb, var(--background-main) 80%, transparent 15%);
+  position: relative;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  backdrop-filter: blur(16px) saturate(160%);
+  -webkit-backdrop-filter: blur(16px) saturate(160%);
+  overflow: hidden;
+}
+
+.empty::before {
+  content: "🔔";
+  display: block;
+  font-size: 2rem;
+  line-height: 1;
+  margin: 0 auto 12px;
+  position: relative;
+  z-index: 1;
+}
+
+.empty::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    145deg,
+    rgba(255, 255, 255, 0.02) 0%,
+    rgba(255, 255, 255, 0.01) 35%,
+    rgba(255, 255, 255, 0) 65%
+  );
+  pointer-events: none;
+  border-radius: inherit;
+  z-index: 0;
+}
+
+/* ── Load more ────────────────────────────────────────────────── */
+.loadMore {
+  margin-top: 14px;
+  width: 100%;
+  border: none;
+  background: var(--button-bg);
+  color: var(--button-text);
+  border-radius: 50px;
+  padding: 10px;
+  cursor: pointer;
+  font-weight: 600;
+  box-shadow: var(--button-shadow);
+  transition:
+    opacity 0.2s,
+    transform 0.15s;
+}
+
+.loadMore:hover {
+  opacity: 0.9;
+}
+
+.loadMore:active {
+  transform: translateY(-1px);
+}
+
+/* ── Login notice ─────────────────────────────────────────────── */
+.loginNotice {
+  text-align: center;
+  color: var(--text-secondary, #aaa);
+  padding: 120px 20px 40px;
+}
+
+@media (max-width: 700px) {
+  .filterBar {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 10px 14px;
+    border-radius: 16px;
+  }
+
+  .filterGroup {
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+
+  .filterGroup + .filterGroup {
+    padding-left: 0;
+    margin-left: 0;
+    border-left: none;
+    padding-top: 8px;
+    border-top: 1px solid var(--card-border);
+  }
+
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .list {
+    border-radius: 16px;
+  }
+
+  .item {
+    padding: 11px 12px 11px 16px;
+  }
+}

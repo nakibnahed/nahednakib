@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useEffect, useRef } from "react";
+import { useRouter } from "next/navigation";
 import {
   X,
   Check,
@@ -10,56 +11,33 @@ import {
   FileText,
   User,
   Mail,
-  Heart,
 } from "lucide-react";
 import styles from "./NotificationPopup.module.css";
 import NotificationItem from "../NotificationItem/NotificationItem";
+import { useNotifications } from "@/context/NotificationContext";
+import {
+  getNotificationUrl,
+  shouldOpenInNewTab,
+} from "@/lib/notificationRouting";
 
-const NotificationPopup = ({
-  onClose,
-  onNotificationRead,
-  refreshKey = 0,
-  buttonPosition = { top: 60, right: 20 },
-}) => {
-  const [notifications, setNotifications] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+const NotificationPopup = ({ onClose, buttonPosition = { top: 60, right: 20 } }) => {
+  const router = useRouter();
   const popupRef = useRef(null);
-
-  const fetchNotifications = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-
-      const response = await fetch("/api/notifications?limit=20");
-
-      if (!response.ok) {
-        if (response.status === 401) {
-          // User is not authenticated, this is normal
-          setNotifications([]);
-          setError("Please log in to view notifications");
-          return;
-        }
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const data = await response.json();
-      setNotifications(data.notifications || []);
-    } catch (error) {
-      console.error("Error fetching notifications:", error);
-      setError("Failed to load notifications");
-      setNotifications([]);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Remove the real-time subscription from popup since it's handled by parent NotificationIcon
-  // The popup will refresh notifications when it opens and when notifications are marked as read
+  const {
+    notifications,
+    hasMore,
+    isListLoading,
+    error,
+    actionError,
+    fetchNotifications,
+    markAllRead,
+    clearAll,
+    markNotificationRead,
+  } = useNotifications();
 
   useEffect(() => {
-    fetchNotifications();
-  }, [refreshKey]); // Re-fetch when refreshKey changes (popup opens)
+    fetchNotifications({ reset: true });
+  }, [fetchNotifications]);
 
   // Lock background scroll when popup is open
   useEffect(() => {
@@ -104,69 +82,11 @@ const NotificationPopup = ({
   }, [onClose]);
 
   const handleMarkAllRead = async () => {
-    try {
-      const response = await fetch("/api/notifications/mark-all-read", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-
-      if (response.ok) {
-        setNotifications((prev) =>
-          prev.map((notification) => ({ ...notification, is_read: true }))
-        );
-        onNotificationRead("mark-all-read");
-      }
-    } catch (error) {
-      console.error("Error marking all as read:", error);
-    }
+    await markAllRead();
   };
 
   const handleClearAll = async () => {
-    try {
-      console.log("🗑️ Clearing all notifications...");
-
-      const response = await fetch("/api/notifications/clear-all", {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-
-      if (response.ok) {
-        const result = await response.json();
-        console.log("🗑️ Clear All API Response:", result);
-        console.log(
-          `📊 Expected: ${result.expectedCount}, Deleted: ${result.actualDeletedCount}, Remaining: ${result.remainingCount}`
-        );
-
-        if (result.fullyCleared) {
-          console.log(
-            "✅ All notifications successfully cleared from database"
-          );
-          // Clear notifications locally - this will show "No notifications" immediately
-          setNotifications([]);
-          // Trigger parent to set unread count to 0
-          onNotificationRead("clear-all");
-          console.log("✅ Popup should now show 'No notifications'");
-        } else {
-          console.warn(
-            "⚠️ Not all notifications were cleared! Remaining:",
-            result.remainingCount
-          );
-          // Still clear locally but warn about database state
-          setNotifications([]);
-          onNotificationRead("clear-all");
-        }
-      } else {
-        console.error("❌ Failed to clear notifications:", response.status);
-        const errorData = await response.json();
-        console.error("Error details:", errorData);
-      }
-    } catch (error) {
-      console.error("❌ Error clearing all notifications:", error);
-    }
+    await clearAll();
   };
 
   const getNotificationIcon = (type) => {
@@ -195,54 +115,20 @@ const NotificationPopup = ({
   };
 
   const handleNotificationRead = async (notificationId) => {
-    try {
-      // Find the notification to check if it's already read
-      const notification = notifications.find((n) => n.id === notificationId);
-      if (notification && notification.is_read) {
-        // If already read, just navigate to related content if it exists
-        if (
-          notification.related_content_type &&
-          notification.related_content_id
-        ) {
-          const url = `/${notification.related_content_type}/${notification.related_content_id}`;
-          window.open(url, "_blank");
-        }
-        return;
-      }
+    const notification = notifications.find((n) => n.id === notificationId);
+    if (!notification) return;
 
-      const response = await fetch(
-        `/api/notifications/${notificationId}/mark-read`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
-
-      if (response.ok) {
-        setNotifications((prev) =>
-          prev.map((notification) =>
-            notification.id === notificationId
-              ? { ...notification, is_read: true }
-              : notification
-          )
-        );
-        onNotificationRead("single");
-
-        // Navigate to related content if it exists
-        if (
-          notification &&
-          notification.related_content_type &&
-          notification.related_content_id
-        ) {
-          const url = `/${notification.related_content_type}/${notification.related_content_id}`;
-          window.open(url, "_blank");
-        }
-      }
-    } catch (error) {
-      console.error("Error marking notification as read:", error);
+    if (!notification.is_read) {
+      await markNotificationRead(notificationId);
     }
+
+    const url = getNotificationUrl(notification);
+    if (shouldOpenInNewTab(notification)) {
+      window.open(url, "_blank");
+      return;
+    }
+    onClose();
+    router.push(url);
   };
 
   // Create dynamic styles for desktop positioning
@@ -260,8 +146,13 @@ const NotificationPopup = ({
             <X size={20} />
           </button>
         </div>
+        {actionError ? (
+          <div style={{ color: "#dc2626", padding: "0 1rem 0.5rem" }}>
+            {actionError}
+          </div>
+        ) : null}
 
-        {loading ? (
+        {isListLoading && notifications.length === 0 ? (
           <div className={styles.loading}>Loading notifications...</div>
         ) : error ? (
           <div className={styles.error}>{error}</div>
@@ -295,6 +186,26 @@ const NotificationPopup = ({
                   onClick={() => handleNotificationRead(notification.id)}
                 />
               ))}
+              {hasMore && (
+                <button
+                  onClick={() => fetchNotifications({ reset: false })}
+                  className={styles.markAllReadButton}
+                  disabled={isListLoading}
+                >
+                  {isListLoading ? "Loading..." : "Load more"}
+                </button>
+              )}
+            </div>
+            <div className={styles.footer}>
+              <button
+                onClick={() => {
+                  onClose();
+                  router.push("/notifications");
+                }}
+                className={styles.viewAllButton}
+              >
+                View all notifications →
+              </button>
             </div>
           </>
         )}
