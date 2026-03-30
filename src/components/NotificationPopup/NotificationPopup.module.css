@@ -395,7 +395,7 @@
   .popup {
     width: 100%;
     max-width: none;
-    max-height: 500px;
+    max-height: fit-content;
     border-radius: 16px;
   }
 

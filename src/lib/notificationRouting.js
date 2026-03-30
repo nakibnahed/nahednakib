@@ -24,6 +24,10 @@ export function getNotificationUrl(notification) {
         return `/${relatedType}/${relatedId}`;
       }
       return "/notifications";
+    case "practice_request":
+      return "/conversation-practice?tab=requests#incoming-requests";
+    case "practice_cancelled":
+      return "/conversation-practice?tab=requests";
     default:
       return "/notifications";
   }

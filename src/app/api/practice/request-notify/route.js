@@ -17,15 +17,24 @@ export async function POST(req) {
 
     const { data: requestRow, error } = await supabaseAdmin
       .from("practice_requests")
-      .select("id, from_name, to_name, to_email")
+      .select("id, from_name, from_user_id, to_name, to_email, to_user_id")
       .eq("id", requestId)
       .maybeSingle();
 
     if (error || !requestRow) {
+      console.error("[request-notify] Request not found:", requestId, error?.message);
       return new Response(JSON.stringify({ error: "Request not found" }), {
         status: 404,
       });
     }
+
+    console.log("[request-notify] requestRow:", {
+      id: requestRow.id,
+      from_name: requestRow.from_name,
+      from_user_id: requestRow.from_user_id,
+      to_name: requestRow.to_name,
+      to_user_id: requestRow.to_user_id,
+    });
 
     const baseUrl =
       process.env.NEXT_PUBLIC_SITE_URL ||
@@ -35,6 +44,40 @@ export async function POST(req) {
         : "http://localhost:3000");
 
     const requestsPageUrl = `${baseUrl}/conversation-practice?tab=requests#incoming-requests`;
+
+    if (requestRow.to_user_id) {
+      const { error: notifErr } = await supabaseAdmin
+        .from("notifications")
+        .insert({
+          title: "New Conversation Practice Request",
+          message: `${requestRow.from_name} sent you a conversation practice request.`,
+          type: "practice_request",
+          recipient_id: requestRow.to_user_id,
+          sender_id: requestRow.from_user_id || null,
+          is_admin_notification: false,
+          is_read: false,
+          related_content_type: "practice_request",
+          related_content_id: requestRow.id,
+          updated_at: new Date().toISOString(),
+        });
+      if (notifErr) {
+        console.error(
+          "[request-notify] notification insert FAILED:",
+          notifErr.message,
+          notifErr.details,
+          notifErr.hint,
+        );
+      } else {
+        console.log(
+          "[request-notify] notification inserted OK for recipient:",
+          requestRow.to_user_id,
+        );
+      }
+    } else {
+      console.log(
+        `[request-notify] to_user_id is null for request ${requestId} — skipping in-app notification`,
+      );
+    }
 
     try {
       await sendPracticeIncomingRequestEmail({

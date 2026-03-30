@@ -9,6 +9,7 @@ import {
   MessageSquare,
   Trash2,
   User,
+  Users,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { useNotifications } from "@/context/NotificationContext";
@@ -55,6 +56,9 @@ function typeToFilter(type) {
     case "user_registration":
     case "user_login":
       return "admin";
+    case "practice_request":
+    case "practice_cancelled":
+      return "other";
     default:
       return "other";
   }
@@ -75,6 +79,9 @@ function iconForType(type) {
     case "user_registration":
     case "user_login":
       return <User size={16} />;
+    case "practice_request":
+    case "practice_cancelled":
+      return <Users size={16} />;
     default:
       return <Bell size={16} />;
   }
