@@ -1,4 +1,6 @@
+import { NextResponse } from "next/server";
 import { createClient as createSupabaseClient } from "@supabase/supabase-js";
+import { createClient } from "@/lib/supabase/server";
 import { sendPracticeMeetingEmail } from "@/services/mailer";
 
 const supabaseAdmin = createSupabaseClient(
@@ -8,10 +10,18 @@ const supabaseAdmin = createSupabaseClient(
 
 export async function POST(req) {
   try {
+    const supabase = await createClient();
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
+    if (!session?.user) {
+      return NextResponse.json({ error: "Authentication required" }, { status: 401 });
+    }
+
     const { requestId } = await req.json();
 
     if (!requestId) {
-      return new Response(JSON.stringify({ error: "requestId is required" }), { status: 400 });
+      return NextResponse.json({ error: "requestId is required" }, { status: 400 });
     }
 
     // Generate a unique room name tied to this request.
@@ -27,7 +37,17 @@ export async function POST(req) {
       .maybeSingle();
 
     if (requestErr || !requestRow) {
-      return new Response(JSON.stringify({ error: "Request not found or already resolved" }), { status: 404 });
+      return NextResponse.json(
+        { error: "Request not found or already resolved" },
+        { status: 404 },
+      );
+    }
+
+    if (requestRow.to_user_id !== session.user.id) {
+      return NextResponse.json(
+        { error: "Only the recipient can accept this request" },
+        { status: 403 },
+      );
     }
 
     const { error: updateReqErr } = await supabaseAdmin
@@ -40,7 +60,7 @@ export async function POST(req) {
       .eq("id", requestId);
 
     if (updateReqErr) {
-      return new Response(JSON.stringify({ error: updateReqErr.message }), { status: 500 });
+      return NextResponse.json({ error: updateReqErr.message }, { status: 500 });
     }
 
     // Remove both students from availability list after match accepted
@@ -71,8 +91,11 @@ export async function POST(req) {
       console.error("Practice email error:", emailErr);
     }
 
-    return new Response(JSON.stringify({ ok: true }), { status: 200 });
+    return NextResponse.json({ ok: true });
   } catch (err) {
-    return new Response(JSON.stringify({ error: err.message || "Internal server error" }), { status: 500 });
+    return NextResponse.json(
+      { error: err.message || "Internal server error" },
+      { status: 500 },
+    );
   }
 }

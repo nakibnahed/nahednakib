@@ -1,4 +1,6 @@
+import { NextResponse } from "next/server";
 import { createClient as createSupabaseClient } from "@supabase/supabase-js";
+import { createClient } from "@/lib/supabase/server";
 import { sendPracticeIncomingRequestEmail } from "@/services/mailer";
 
 const supabaseAdmin = createSupabaseClient(
@@ -8,11 +10,17 @@ const supabaseAdmin = createSupabaseClient(
 
 export async function POST(req) {
   try {
+    const supabase = await createClient();
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
+    if (!session?.user) {
+      return NextResponse.json({ error: "Authentication required" }, { status: 401 });
+    }
+
     const { requestId } = await req.json();
     if (!requestId) {
-      return new Response(JSON.stringify({ error: "requestId is required" }), {
-        status: 400,
-      });
+      return NextResponse.json({ error: "requestId is required" }, { status: 400 });
     }
 
     const { data: requestRow, error } = await supabaseAdmin
@@ -22,19 +30,15 @@ export async function POST(req) {
       .maybeSingle();
 
     if (error || !requestRow) {
-      console.error("[request-notify] Request not found:", requestId, error?.message);
-      return new Response(JSON.stringify({ error: "Request not found" }), {
-        status: 404,
-      });
+      return NextResponse.json({ error: "Request not found" }, { status: 404 });
     }
 
-    console.log("[request-notify] requestRow:", {
-      id: requestRow.id,
-      from_name: requestRow.from_name,
-      from_user_id: requestRow.from_user_id,
-      to_name: requestRow.to_name,
-      to_user_id: requestRow.to_user_id,
-    });
+    if (requestRow.from_user_id !== session.user.id) {
+      return NextResponse.json(
+        { error: "Only the requester can send request notification" },
+        { status: 403 },
+      );
+    }
 
     const baseUrl =
       process.env.NEXT_PUBLIC_SITE_URL ||
@@ -58,42 +62,29 @@ export async function POST(req) {
           is_read: false,
           related_content_type: "practice_request",
           related_content_id: requestRow.id,
-          updated_at: new Date().toISOString(),
         });
       if (notifErr) {
-        console.error(
-          "[request-notify] notification insert FAILED:",
-          notifErr.message,
-          notifErr.details,
-          notifErr.hint,
-        );
-      } else {
-        console.log(
-          "[request-notify] notification inserted OK for recipient:",
-          requestRow.to_user_id,
-        );
+        console.error("[request-notify] notification insert FAILED:", notifErr.message);
       }
-    } else {
-      console.log(
-        `[request-notify] to_user_id is null for request ${requestId} — skipping in-app notification`,
-      );
     }
 
-    try {
+    if (requestRow.to_email) {
+      try {
       await sendPracticeIncomingRequestEmail({
         recipientName: requestRow.to_name,
         recipientEmail: requestRow.to_email,
         requesterName: requestRow.from_name,
         requestsPageUrl,
       });
-    } catch (mailErr) {
-      console.error("Practice request notify email error:", mailErr);
+      } catch (mailErr) {
+        console.error("Practice request notify email error:", mailErr);
+      }
     }
 
-    return new Response(JSON.stringify({ ok: true }), { status: 200 });
+    return NextResponse.json({ ok: true });
   } catch (err) {
-    return new Response(
-      JSON.stringify({ error: err.message || "Internal server error" }),
+    return NextResponse.json(
+      { error: err.message || "Internal server error" },
       { status: 500 },
     );
   }

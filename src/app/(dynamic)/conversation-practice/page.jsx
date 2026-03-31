@@ -1,12 +1,11 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import DateTimePicker from "./DateTimePicker";
 import { supabase } from "@/services/supabaseClient";
 import { normalizeSuggestedTimeDisplay } from "@/utils/practiceSuggestedTime";
 import styles from "./page.module.css";
-
-const GUEST_STORAGE_KEY = "practice_guest_profile_v1";
 
 const AVATAR_COLORS = [
   styles.avBlue,
@@ -132,21 +131,19 @@ function requestStatusLabel(status) {
 }
 
 export default function ConversationPracticePage() {
+  const router = useRouter();
   const [tab, setTab] = useState("browse");
   const [students, setStudents] = useState([]);
   const [requests, setRequests] = useState([]);
   const [requestFilter, setRequestFilter] = useState("all");
   const [filter, setFilter] = useState("all");
-  const [loading, setLoading] = useState(true);
+  const [bootState, setBootState] = useState("booting");
   const [dbError, setDbError] = useState(null);
 
   const [currentUser, setCurrentUser] = useState(null);
   const [currentUserName, setCurrentUserName] = useState("");
   const [currentUserEmail, setCurrentUserEmail] = useState("");
   const [isAdmin, setIsAdmin] = useState(false);
-  const [guestName, setGuestName] = useState("");
-  const [guestEmail, setGuestEmail] = useState("");
-  const [guestProfileEditing, setGuestProfileEditing] = useState(false);
 
   const [regName, setRegName] = useState("");
   const today = new Date();
@@ -159,8 +156,10 @@ export default function ConversationPracticePage() {
   const [cancellingRequestId, setCancellingRequestId] = useState(null);
   const [cancelModalRequest, setCancelModalRequest] = useState(null);
   const [cancelReason, setCancelReason] = useState("");
-  /** Guest must save name+email first: 'request' | 'availability' | null */
-  const [guestProfileHint, setGuestProfileHint] = useState(null);
+  const [authPrompt, setAuthPrompt] = useState(null);
+  const studentsFetchSeqRef = useRef(0);
+  const requestsFetchSeqRef = useRef(0);
+  const bootSeqRef = useRef(0);
 
   const showToast = useCallback((msg, type) => {
     const resolved =
@@ -182,13 +181,28 @@ export default function ConversationPracticePage() {
     }
   }, []);
 
-  const activeName = currentUser ? currentUserName : guestName;
-  const activeEmail = currentUser ? currentUserEmail : guestEmail;
+  const activeName = currentUserName;
+  const activeEmail = currentUserEmail;
 
-  /** Guest: name + email saved (this session or localStorage) — no further edits */
-  const guestProfileLocked =
-    !currentUser &&
-    Boolean((guestName || "").trim() && (guestEmail || "").trim());
+  const redirectToLogin = useCallback(() => {
+    if (typeof window === "undefined") {
+      router.push("/login");
+      return;
+    }
+    const returnTo = `${window.location.pathname}${window.location.search}${window.location.hash}`;
+    router.push(`/login?next=${encodeURIComponent(returnTo)}`);
+  }, [router]);
+
+  const requireAuth = useCallback(
+    (context = "action") => {
+      if (currentUser?.id) return true;
+      setAuthPrompt(context);
+      showToast("Please login to continue.", "error");
+      redirectToLogin();
+      return false;
+    },
+    [currentUser?.id, redirectToLogin, showToast],
+  );
 
   const loadCurrentUser = useCallback(async () => {
     const {
@@ -200,23 +214,9 @@ export default function ConversationPracticePage() {
     if (!user) {
       setCurrentUserName("");
       setCurrentUserEmail("");
+      setRegName("");
       setIsAdmin(false);
-      try {
-        const raw = window.localStorage.getItem(GUEST_STORAGE_KEY);
-        if (raw) {
-          const guest = JSON.parse(raw);
-          if (guest?.name) {
-            setGuestName(guest.name);
-            setRegName(guest.name);
-          }
-          if (guest?.email) {
-            setGuestEmail(guest.email);
-          }
-        }
-      } catch (e) {
-        // ignore guest storage errors
-      }
-      return;
+      return null;
     }
 
     setCurrentUserEmail(user.email || "");
@@ -238,11 +238,11 @@ export default function ConversationPracticePage() {
     setCurrentUserName(displayName);
     setRegName(displayName);
     setIsAdmin(profile?.role === "admin");
-    setGuestName("");
-    setGuestEmail("");
+    return user;
   }, []);
 
   const fetchStudents = useCallback(async () => {
+    const seq = ++studentsFetchSeqRef.current;
     const { data, error } = await supabase
       .from("practice_students")
       .select("*")
@@ -256,28 +256,21 @@ export default function ConversationPracticePage() {
     setDbError(null);
     const now = new Date();
     const active = (data || []).filter((s) => isStillAvailable(s, now));
+    if (seq !== studentsFetchSeqRef.current) return;
     setStudents(active);
   }, []);
 
-  const fetchRequests = useCallback(async ({ userId, email }) => {
-    if (!userId && !email) {
+  const fetchRequests = useCallback(async ({ userId }) => {
+    const seq = ++requestsFetchSeqRef.current;
+    if (!userId) {
       setRequests([]);
       return;
-    }
-
-    let myStudent = null;
-    if (userId) {
-      const { data } = await supabase
-        .from("practice_students")
-        .select("id")
-        .eq("user_id", userId)
-        .maybeSingle();
-      myStudent = data;
     }
 
     const { data, error } = await supabase
       .from("practice_requests")
       .select("*")
+      .or(`to_user_id.eq.${userId},from_user_id.eq.${userId}`)
       .in("status", ["pending", "accepted", "cancelled", "declined"])
       .order("created_at", { ascending: false });
 
@@ -287,53 +280,41 @@ export default function ConversationPracticePage() {
     }
 
     setDbError(null);
-    const emailNorm = (email || "").trim().toLowerCase();
-    const related = (data || []).filter(
-      (r) =>
-        (userId && (r.to_user_id === userId || r.from_user_id === userId)) ||
-        (emailNorm &&
-          ((r.to_email || "").trim().toLowerCase() === emailNorm ||
-            (r.from_email || "").trim().toLowerCase() === emailNorm)) ||
-        (myStudent?.id && r.to_student_id === myStudent.id),
-    );
-    setRequests(related);
+    if (seq !== requestsFetchSeqRef.current) return;
+    setRequests(data || []);
   }, []);
 
   useEffect(() => {
-    let cancelled = false;
+    let closed = false;
+    const bootSeq = ++bootSeqRef.current;
 
     (async () => {
-      setLoading(true);
-      await loadCurrentUser();
-      if (!cancelled) setLoading(false);
+      try {
+        setBootState("booting");
+        const user = await loadCurrentUser();
+        await fetchStudents();
+        if (user?.id) {
+          await fetchRequests({ userId: user.id });
+        } else {
+          setRequests([]);
+        }
+        if (!closed && bootSeq === bootSeqRef.current) {
+          setBootState("ready");
+        }
+      } catch (error) {
+        if (!closed && bootSeq === bootSeqRef.current) {
+          setDbError(error?.message || "Could not load this page.");
+          setBootState("error");
+        }
+      }
     })();
 
     return () => {
-      cancelled = true;
+      closed = true;
     };
-  }, [loadCurrentUser]);
+  }, [fetchRequests, fetchStudents, loadCurrentUser]);
 
   useEffect(() => {
-    let cancelled = false;
-
-    (async () => {
-      if (!currentUser?.id && !guestEmail) {
-        await fetchStudents();
-        setRequests([]);
-        return;
-      }
-      await Promise.all([
-        fetchStudents(),
-        fetchRequests({
-          userId: currentUser?.id,
-          email: currentUser?.id ? null : guestEmail,
-        }),
-      ]);
-      if (!cancelled) {
-        setLoading(false);
-      }
-    })();
-
     const chStudents = supabase
       .channel("practice_students_rt")
       .on(
@@ -349,10 +330,9 @@ export default function ConversationPracticePage() {
         "postgres_changes",
         { event: "*", schema: "public", table: "practice_requests" },
         () => {
-          if (currentUser?.id || guestEmail) {
+          if (currentUser?.id) {
             fetchRequests({
               userId: currentUser?.id,
-              email: currentUser?.id ? null : guestEmail,
             });
           }
         },
@@ -361,96 +341,24 @@ export default function ConversationPracticePage() {
 
     const interval = setInterval(() => {
       fetchStudents();
-      if (currentUser?.id || guestEmail) {
+      if (currentUser?.id) {
         fetchRequests({
           userId: currentUser?.id,
-          email: currentUser?.id ? null : guestEmail,
         });
       }
     }, 30_000);
 
     return () => {
-      cancelled = true;
       clearInterval(interval);
       supabase.removeChannel(chStudents);
       supabase.removeChannel(chRequests);
     };
-  }, [currentUser?.id, guestEmail, fetchRequests, fetchStudents]);
-
-  function saveGuestProfile() {
-    const name = regName.trim();
-    const email = (guestEmail || "").trim().toLowerCase();
-    if (!name || !email) {
-      showToast("Please enter your name and email.");
-      return;
-    }
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      showToast("Please enter a valid email address.");
-      return;
-    }
-    setGuestName(name);
-    setGuestEmail(email);
-    setGuestProfileHint(null);
-    setGuestProfileEditing(false);
-    try {
-      window.localStorage.setItem(
-        GUEST_STORAGE_KEY,
-        JSON.stringify({ name, email }),
-      );
-    } catch (e) {
-      // ignore local storage failure
-    }
-    showToast("Profile saved.");
-  }
-
-  function startEditProfile() {
-    setRegName(guestName);
-    setGuestProfileEditing(true);
-  }
-
-  function cancelEditProfile() {
-    setRegName(guestName);
-    setGuestEmail(guestEmail);
-    setGuestProfileEditing(false);
-  }
-
-  function ensureProfileBeforeRequest() {
-    if (currentUser?.id) return true;
-    const hasProfile = Boolean(guestName && guestEmail);
-    if (hasProfile) return true;
-
-    setGuestProfileHint("request");
-    setTab("register");
-    showToast("Please enter your name and email, then click Save profile.");
-    if (typeof window !== "undefined") {
-      window.setTimeout(() => {
-        document
-          .getElementById("practice-register-form")
-          ?.scrollIntoView({ behavior: "smooth", block: "start" });
-      }, 80);
-    }
-    return false;
-  }
+  }, [currentUser?.id, fetchRequests, fetchStudents]);
 
   async function handleRegister(e) {
     e.preventDefault();
-    if (!currentUser?.id && (!guestName || !guestEmail)) {
-      setGuestProfileHint("availability");
-      setTab("register");
-      showToast(
-        "Please enter your name and email, then click Save profile before saving availability.",
-      );
-      if (typeof window !== "undefined") {
-        window.setTimeout(() => {
-          document
-            .getElementById("practice-register-form")
-            ?.scrollIntoView({ behavior: "smooth", block: "start" });
-        }, 80);
-      }
-      return;
-    }
-
-    const name = (currentUser ? regName : guestName).trim();
+    if (!requireAuth("availability")) return;
+    const name = regName.trim();
     if (!name) {
       showToast("Please enter your name first");
       return;
@@ -465,53 +373,18 @@ export default function ConversationPracticePage() {
     const autoSlots = [getSlotFromHour(fromDate.getHours())];
 
     setSaving(true);
-    let error = null;
-    if (currentUser?.id) {
-      ({ error } = await supabase.from("practice_students").upsert(
-        {
-          user_id: currentUser.id,
-          name,
-          email: currentUserEmail,
-          status: "available",
-          slots: autoSlots,
-          available_from: fromDate.toISOString(),
-          available_until: untilDate.toISOString(),
-        },
-        { onConflict: "user_id" },
-      ));
-    } else {
-      const guestEmailNorm = guestEmail.trim().toLowerCase();
-      const { data: existingGuest } = await supabase
-        .from("practice_students")
-        .select("id")
-        .eq("email", guestEmailNorm)
-        .is("user_id", null)
-        .maybeSingle();
-
-      if (existingGuest?.id) {
-        ({ error } = await supabase
-          .from("practice_students")
-          .update({
-            name,
-            email: guestEmailNorm,
-            status: "available",
-            slots: autoSlots,
-            available_from: fromDate.toISOString(),
-            available_until: untilDate.toISOString(),
-          })
-          .eq("id", existingGuest.id));
-      } else {
-        ({ error } = await supabase.from("practice_students").insert({
-          user_id: null,
-          name,
-          email: guestEmailNorm,
-          status: "available",
-          slots: autoSlots,
-          available_from: fromDate.toISOString(),
-          available_until: untilDate.toISOString(),
-        }));
-      }
-    }
+    const { error } = await supabase.from("practice_students").upsert(
+      {
+        user_id: currentUser.id,
+        name,
+        email: currentUserEmail,
+        status: "available",
+        slots: autoSlots,
+        available_from: fromDate.toISOString(),
+        available_until: untilDate.toISOString(),
+      },
+      { onConflict: "user_id" },
+    );
 
     setSaving(false);
     if (error) {
@@ -527,13 +400,14 @@ export default function ConversationPracticePage() {
 
   async function handleSendRequest(e) {
     e.preventDefault();
-    if (!currentUser?.id && (!guestName || !guestEmail)) {
-      showToast("Save your profile first (name + email).");
+    if (!requireAuth("request")) return;
+    if (!modalTarget) return;
+    if (!modalTarget.user_id) {
+      showToast("This target does not have a valid identity yet.");
       return;
     }
-    if (!modalTarget) return;
-    if (!modalTarget.user_id && !modalTarget.email) {
-      showToast("This target does not have a valid identity yet.");
+    if (modalTarget.user_id === currentUser?.id) {
+      showToast("You cannot send a request to yourself.");
       return;
     }
 
@@ -541,13 +415,13 @@ export default function ConversationPracticePage() {
     const { data: insertedRows, error } = await supabase
       .from("practice_requests")
       .insert({
-        from_user_id: currentUser?.id || null,
+        from_user_id: currentUser.id,
         from_name: activeName || regName || "Student",
         from_email: activeEmail || null,
-        to_user_id: modalTarget.user_id || null,
+        to_user_id: modalTarget.user_id,
         to_student_id: modalTarget.id,
         to_name: modalTarget.name,
-        to_email: modalTarget.email || null,
+        to_email: modalTarget.email,
         suggested_time: formatAvailability(modalTarget.available_from) || "",
         message: reqMsg.trim(),
       })
@@ -574,8 +448,7 @@ export default function ConversationPracticePage() {
       }).catch(() => {});
     }
     await fetchRequests({
-      userId: currentUser?.id,
-      email: currentUser?.id ? null : guestEmail,
+      userId: currentUser.id,
     });
   }
 
@@ -597,7 +470,6 @@ export default function ConversationPracticePage() {
       fetchStudents(),
       fetchRequests({
         userId: currentUser?.id,
-        email: currentUser?.id ? null : guestEmail,
       }),
     ]);
   }
@@ -617,7 +489,6 @@ export default function ConversationPracticePage() {
     showToast("Request declined");
     await fetchRequests({
       userId: currentUser?.id,
-      email: currentUser?.id ? null : guestEmail,
     });
   }
 
@@ -628,9 +499,6 @@ export default function ConversationPracticePage() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         requestId: request.id,
-        actorUserId: currentUser?.id || null,
-        actorEmail: activeEmail || null,
-        actorName: activeName || regName || "Student",
         reason,
       }),
     });
@@ -645,7 +513,6 @@ export default function ConversationPracticePage() {
     showToast("Meeting cancelled. The other participant was notified.");
     await fetchRequests({
       userId: currentUser?.id,
-      email: currentUser?.id ? null : guestEmail,
     });
   }
 
@@ -683,10 +550,9 @@ export default function ConversationPracticePage() {
 
     showToast("Availability session deleted");
     await fetchStudents();
-    if (currentUser?.id || guestEmail) {
+    if (currentUser?.id) {
       await fetchRequests({
         userId: currentUser?.id,
-        email: currentUser?.id ? null : guestEmail,
       });
     }
   }
@@ -705,11 +571,8 @@ export default function ConversationPracticePage() {
       });
   }, [students, filter]);
   const availableCount = students.length;
-  const myEmailNorm = (activeEmail || "").trim().toLowerCase();
   const pendingCount = requests.filter((r) => {
-    const isIncoming =
-      (currentUser?.id && r.to_user_id === currentUser.id) ||
-      (myEmailNorm && (r.to_email || "").trim().toLowerCase() === myEmailNorm);
+    const isIncoming = currentUser?.id && r.to_user_id === currentUser.id;
     return isIncoming && r.status === "pending";
   }).length;
 
@@ -717,7 +580,7 @@ export default function ConversationPracticePage() {
     requestFilter === "all" ? true : r.status === requestFilter,
   );
 
-  if (loading) {
+  if (bootState === "booting") {
     return (
       <div className={styles.page}>
         <div className={styles.loadingWrap}>
@@ -745,8 +608,15 @@ export default function ConversationPracticePage() {
         </div>
       </header>
 
-      {!currentUser && !guestProfileLocked && (
-        <div className={styles.setupHint}>Enter your name and email</div>
+      {!currentUser && (
+        <div className={styles.setupHint}>
+          Browse is open. Login is required to set availability or send requests.
+        </div>
+      )}
+      {authPrompt && !currentUser && (
+        <div className={`${styles.setupHint} ${styles.setupHintWarn}`}>
+          Login required for {authPrompt}.
+        </div>
       )}
 
       {dbError && (
@@ -936,12 +806,7 @@ export default function ConversationPracticePage() {
                 <div className={styles.cardFooter}>
                   {(() => {
                     const isOwnCard =
-                      (currentUser?.id && currentUser.id === s.user_id) ||
-                      (!currentUser?.id &&
-                        guestEmail &&
-                        s.email &&
-                        guestEmail.trim().toLowerCase() ===
-                          s.email.trim().toLowerCase());
+                      currentUser?.id && currentUser.id === s.user_id;
                     return isOwnCard ? (
                       <span className={styles.btnBusy}>
                         Your availability card
@@ -955,7 +820,7 @@ export default function ConversationPracticePage() {
                         type="button"
                         className={styles.btnRequest}
                         onClick={() => {
-                          if (!ensureProfileBeforeRequest()) return;
+                          if (!requireAuth("request")) return;
                           setModalTarget(s);
                         }}
                       >
@@ -990,91 +855,31 @@ export default function ConversationPracticePage() {
           onSubmit={handleRegister}
         >
           <h2 className={styles.formTitle}>Set your availability</h2>
-          {!currentUser && guestProfileHint && !guestProfileLocked && (
+          {!currentUser && (
             <div className={`${styles.setupHint} ${styles.setupHintWarn}`}>
-              {guestProfileHint === "request" ? (
-                <>
-                  Before sending a request, save your profile first: enter your
-                  name and email, then click <b>Save profile</b>.
-                </>
-              ) : (
-                <>
-                  Before saving your availability, save your profile first:
-                  enter your name and email, then click <b>Save profile</b>.
-                </>
-              )}
+              Please login first to set availability.
             </div>
           )}
           <div className={styles.field}>
             <label>Your name</label>
             <input
-              value={
-                guestProfileLocked && !guestProfileEditing ? guestName : regName
-              }
+              value={regName}
               onChange={(e) => setRegName(e.target.value)}
               placeholder="e.g. Sarah Johnson"
-              readOnly={guestProfileLocked && !guestProfileEditing}
-              disabled={guestProfileLocked && !guestProfileEditing}
-              aria-readonly={guestProfileLocked && !guestProfileEditing}
+              disabled={!currentUser}
+              aria-readonly={!currentUser}
             />
           </div>
           {!currentUser && (
-            <>
-              <div className={styles.field}>
-                <label>Your email</label>
-                <input
-                  type="email"
-                  value={guestEmail}
-                  onChange={(e) => setGuestEmail(e.target.value)}
-                  placeholder="your-email@example.com"
-                  readOnly={guestProfileLocked && !guestProfileEditing}
-                  disabled={guestProfileLocked && !guestProfileEditing}
-                  aria-readonly={guestProfileLocked && !guestProfileEditing}
-                />
-              </div>
-              {!guestProfileLocked && (
-                <div className={styles.field}>
-                  <button
-                    type="button"
-                    className={styles.btnSubmit}
-                    onClick={saveGuestProfile}
-                  >
-                    Save profile
-                  </button>
-                </div>
-              )}
-              {guestProfileLocked && !guestProfileEditing && (
-                <div className={styles.field}>
-                  <button
-                    type="button"
-                    className={styles.btnEditProfile}
-                    onClick={startEditProfile}
-                  >
-                    Edit profile
-                  </button>
-                </div>
-              )}
-              {guestProfileLocked && guestProfileEditing && (
-                <div className={styles.field}>
-                  <div className={styles.editProfileActions}>
-                    <button
-                      type="button"
-                      className={styles.btnCancel}
-                      onClick={cancelEditProfile}
-                    >
-                      Cancel
-                    </button>
-                    <button
-                      type="button"
-                      className={styles.btnSubmit}
-                      onClick={saveGuestProfile}
-                    >
-                      Save changes
-                    </button>
-                  </div>
-                </div>
-              )}
-            </>
+            <div className={styles.field}>
+              <button
+                type="button"
+                className={styles.btnSubmit}
+                onClick={redirectToLogin}
+              >
+                Login to continue
+              </button>
+            </div>
           )}
           <div className={styles.field}>
             <label>Date &amp; time</label>
@@ -1085,7 +890,11 @@ export default function ConversationPracticePage() {
               placeholder="Select date & time"
             />
           </div>
-          <button type="submit" className={styles.btnSubmit} disabled={saving}>
+          <button
+            type="submit"
+            className={styles.btnSubmit}
+            disabled={saving || !currentUser}
+          >
             {saving ? "Saving..." : "Save my availability"}
           </button>
         </form>
@@ -1115,15 +924,10 @@ export default function ConversationPracticePage() {
         ) : (
           <div className={styles.reqList}>
             {visibleRequests.map((r, i) => {
-              const myEmail = (activeEmail || "").trim().toLowerCase();
               const isIncoming =
-                (currentUser?.id && r.to_user_id === currentUser.id) ||
-                (myEmail &&
-                  (r.to_email || "").trim().toLowerCase() === myEmail);
+                currentUser?.id && r.to_user_id === currentUser.id;
               const isOutgoing =
-                (currentUser?.id && r.from_user_id === currentUser.id) ||
-                (myEmail &&
-                  (r.from_email || "").trim().toLowerCase() === myEmail);
+                currentUser?.id && r.from_user_id === currentUser.id;
               const canAccept = r.status === "pending" && isIncoming;
               const canCancel =
                 r.status === "accepted" && (isIncoming || isOutgoing);
@@ -1333,7 +1137,8 @@ export default function ConversationPracticePage() {
             <h2 className={styles.modalTitle}>Cancel meeting</h2>
             <p className={styles.modalSub}>
               This will notify{" "}
-              {activeName === cancelModalRequest.to_name
+              {currentUser?.id &&
+              currentUser.id === cancelModalRequest.to_user_id
                 ? cancelModalRequest.from_name
                 : cancelModalRequest.to_name}{" "}
               immediately by email and site notification.

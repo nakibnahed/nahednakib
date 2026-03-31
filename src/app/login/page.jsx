@@ -12,7 +12,15 @@ export default function LoginPage() {
 
   const searchParams = useSearchParams();
   const confirmed = searchParams.get("confirmed");
+  const nextPath = searchParams.get("next");
   const router = useRouter();
+
+  function resolveSafeNextPath(rawPath) {
+    if (!rawPath || typeof rawPath !== "string") return null;
+    if (!rawPath.startsWith("/")) return null;
+    if (rawPath.startsWith("//")) return null;
+    return rawPath;
+  }
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -56,6 +64,7 @@ export default function LoginPage() {
 
     // Check user role for routing
     try {
+      const safeNextPath = resolveSafeNextPath(nextPath);
       const { data: profile, error: profileError } = await supabase
         .from("profiles")
         .select("role")
@@ -64,15 +73,15 @@ export default function LoginPage() {
 
       if (profileError) {
         console.error("Error fetching profile:", profileError);
-        router.push("/users/profile");
+        router.push(safeNextPath || "/users/profile");
       } else if (profile?.role === "admin") {
-        router.push("/admin/");
+        router.push(safeNextPath || "/admin/");
       } else {
-        router.push("/users/profile");
+        router.push(safeNextPath || "/users/profile");
       }
     } catch (error) {
       console.error("Error checking user role:", error);
-      router.push("/users/profile");
+      router.push(resolveSafeNextPath(nextPath) || "/users/profile");
     }
     setLoading(false);
   }

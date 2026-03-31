@@ -1,4 +1,6 @@
+import { NextResponse } from "next/server";
 import { createClient as createSupabaseClient } from "@supabase/supabase-js";
+import { createClient } from "@/lib/supabase/server";
 import { sendPracticeCancellationEmail } from "@/services/mailer";
 
 const supabaseAdmin = createSupabaseClient(
@@ -8,13 +10,18 @@ const supabaseAdmin = createSupabaseClient(
 
 export async function POST(req) {
   try {
-    const { requestId, actorUserId, actorEmail, actorName, reason } =
-      await req.json();
+    const supabase = await createClient();
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
+    if (!session?.user) {
+      return NextResponse.json({ error: "Authentication required" }, { status: 401 });
+    }
+
+    const { requestId, reason } = await req.json();
 
     if (!requestId) {
-      return new Response(JSON.stringify({ error: "requestId is required" }), {
-        status: 400,
-      });
+      return NextResponse.json({ error: "requestId is required" }, { status: 400 });
     }
 
     const { data: row, error: getErr } = await supabaseAdmin
@@ -25,27 +32,18 @@ export async function POST(req) {
       .maybeSingle();
 
     if (getErr || !row) {
-      return new Response(
-        JSON.stringify({ error: "Accepted request not found" }),
-        { status: 404 },
-      );
+      return NextResponse.json({ error: "Accepted request not found" }, { status: 404 });
     }
 
-    const emailNorm = (actorEmail || "").trim().toLowerCase();
     const isParticipant =
-      (actorUserId &&
-        (row.from_user_id === actorUserId || row.to_user_id === actorUserId)) ||
-      (emailNorm &&
-        ((row.from_email || "").trim().toLowerCase() === emailNorm ||
-          (row.to_email || "").trim().toLowerCase() === emailNorm));
+      row.from_user_id === session.user.id || row.to_user_id === session.user.id;
 
     if (!isParticipant) {
-      return new Response(JSON.stringify({ error: "Not allowed" }), {
-        status: 403,
-      });
+      return NextResponse.json({ error: "Not allowed" }, { status: 403 });
     }
 
-    const cancelledByName = actorName || "Participant";
+    const cancelledByName =
+      row.from_user_id === session.user.id ? row.from_name : row.to_name;
     const cancelledAt = new Date().toISOString();
     const safeReason = (reason || "").trim().slice(0, 300);
 
@@ -61,14 +59,11 @@ export async function POST(req) {
       .eq("status", "accepted");
 
     if (updateErr) {
-      return new Response(JSON.stringify({ error: updateErr.message }), {
-        status: 500,
-      });
+      return NextResponse.json({ error: updateErr.message }, { status: 500 });
     }
 
     const actorIsFrom =
-      (actorUserId && row.from_user_id === actorUserId) ||
-      (emailNorm && (row.from_email || "").trim().toLowerCase() === emailNorm);
+      row.from_user_id === session.user.id;
 
     const recipientName = actorIsFrom ? row.to_name : row.from_name;
     const recipientEmail = actorIsFrom ? row.to_email : row.from_email;
@@ -80,9 +75,9 @@ export async function POST(req) {
         message: `${cancelledByName} cancelled your conversation practice meeting.`,
         type: "practice_cancelled",
         recipient_id: recipientUserId,
+        sender_id: session.user.id,
         is_admin_notification: false,
         is_read: false,
-        updated_at: cancelledAt,
       });
     }
 
@@ -98,10 +93,10 @@ export async function POST(req) {
       console.error("Practice cancellation email error:", emailErr);
     }
 
-    return new Response(JSON.stringify({ ok: true }), { status: 200 });
+    return NextResponse.json({ ok: true });
   } catch (err) {
-    return new Response(
-      JSON.stringify({ error: err.message || "Internal server error" }),
+    return NextResponse.json(
+      { error: err.message || "Internal server error" },
       { status: 500 },
     );
   }
