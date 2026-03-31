@@ -22,6 +22,7 @@ import {
   User,
   Settings,
   MessageSquare,
+  PenLine,
 } from "lucide-react";
 
 export default function Sidebar({ adminData }) {
@@ -38,6 +39,7 @@ export default function Sidebar({ adminData }) {
     },
     { label: "Blogs", path: "/admin/blogs", icon: <BookOpen size={18} /> },
     { label: "Categories", path: "/admin/categories", icon: <Tag size={18} /> },
+    { label: "Authors", path: "/admin/authors", icon: <PenLine size={18} /> },
     { label: "Forms", path: "/admin/contact", icon: <Mail size={18} /> },
     {
       label: "Feedback",

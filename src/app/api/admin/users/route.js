@@ -128,67 +128,146 @@ export async function GET() {
 export async function DELETE(request) {
   try {
     const supabase = await createClient();
-    const { userId } = await request.json();
-
-    // Check if user is authenticated and is admin
     const {
-      data: { session },
-    } = await supabase.auth.getSession();
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser();
 
-    if (!session?.user) {
+    if (authError || !user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    let body;
+    try {
+      body = await request.json();
+    } catch {
+      return NextResponse.json(
+        { error: "Invalid request body" },
+        { status: 400 }
+      );
+    }
+
+    const { userId } = body;
+    if (!userId || typeof userId !== "string") {
+      return NextResponse.json(
+        { error: "userId is required" },
+        { status: 400 }
+      );
+    }
+
+    const trimmedId = userId.trim();
+    const uuidRegex =
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    if (!uuidRegex.test(trimmedId)) {
+      return NextResponse.json({ error: "Invalid user ID" }, { status: 400 });
     }
 
     const { data: profile } = await supabase
       .from("profiles")
       .select("role")
-      .eq("id", session.user.id)
+      .eq("id", user.id)
       .single();
 
     if (!profile || profile.role !== "admin") {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
-    // Only main admin can perform deletions
-    if (session.user.email !== MAIN_ADMIN_EMAIL) {
+    if (user.email !== MAIN_ADMIN_EMAIL) {
       return NextResponse.json(
         { error: "Only the main admin can delete users" },
         { status: 403 }
       );
     }
 
-    // Don't allow admin to delete themselves
-    if (userId === session.user.id) {
+    if (trimmedId === user.id) {
       return NextResponse.json(
         { error: "Cannot delete your own account" },
-        { status: 400 }
+        { status: 403 }
       );
     }
 
-    // Prevent deletion of the main admin account regardless of caller
     const { data: targetUser, error: targetErr } =
-      await supabaseAdmin.auth.admin.getUserById(userId);
+      await supabaseAdmin.auth.admin.getUserById(trimmedId);
     if (targetErr) {
-      return NextResponse.json({ error: targetErr.message }, { status: 500 });
+      const msg = (targetErr.message || "").toLowerCase();
+      const notFound =
+        msg.includes("not found") ||
+        msg.includes("invalid") ||
+        msg.includes("no user");
+      return NextResponse.json(
+        { error: targetErr.message || "User not found" },
+        { status: notFound ? 400 : 500 }
+      );
     }
-    if (targetUser?.user?.email === MAIN_ADMIN_EMAIL) {
+    if (!targetUser?.user) {
+      return NextResponse.json({ error: "User not found" }, { status: 400 });
+    }
+
+    if (targetUser.user.email === MAIN_ADMIN_EMAIL) {
       return NextResponse.json(
         { error: "Main admin account cannot be deleted" },
         { status: 403 }
       );
     }
 
-    // Delete user from auth and profile will be cascade deleted
-    const { error: authError } = await supabaseAdmin.auth.admin.deleteUser(
-      userId
-    );
+    // Remove related user data first to avoid FK constraint failures.
+    const cleanupTargets = [
+      ["notifications", "user_id"],
+      ["notifications", "sender_id"],
+      ["notifications", "recipient_id"],
+      ["user_comments", "user_id"],
+      ["user_likes", "user_id"],
+      ["user_favorites", "user_id"],
+      ["user_views", "user_id"],
+      ["activity_likes", "user_id"],
+      ["practice_requests", "user_id"],
+      ["practice_requests", "student_id"],
+      ["practice_requests", "teacher_id"],
+      ["practice_students", "user_id"],
+      ["profiles", "id"],
+    ];
 
-    if (authError) {
-      return NextResponse.json({ error: authError.message }, { status: 500 });
+    for (const [table, column] of cleanupTargets) {
+      const { error } = await supabaseAdmin.from(table).delete().eq(column, trimmedId);
+      if (!error) {
+        continue;
+      }
+
+      // Ignore missing tables/columns so this route stays compatible across environments.
+      if (error.code === "42P01" || error.code === "42703") {
+        continue;
+      }
+
+      const message = error.message || "";
+      const isConstraintError =
+        error.code === "23503" ||
+        /foreign key|constraint|violates|referenced|dependent/i.test(message);
+
+      if (isConstraintError) {
+        return NextResponse.json(
+          { error: message || "Failed to delete related user data" },
+          { status: 400 }
+        );
+      }
+
+      throw new Error(`Failed cleaning ${table}.${column}: ${message}`);
+    }
+
+    const { error: deleteError } = await supabaseAdmin.auth.admin.deleteUser(trimmedId);
+
+    if (deleteError) {
+      const msg = deleteError.message || "";
+      const constraint =
+        /foreign key|constraint|violates|referenced|dependent/i.test(msg);
+      return NextResponse.json(
+        { error: msg || "Failed to delete user" },
+        { status: constraint ? 400 : 500 }
+      );
     }
 
     return NextResponse.json({ message: "User deleted successfully" });
   } catch (error) {
+    console.error("DELETE /api/admin/users:", error);
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }

@@ -26,7 +26,9 @@ export default function EditBlogPage() {
   });
 
   const [categories, setCategories] = useState([]);
-  const [users, setUsers] = useState([]);
+  const [authors, setAuthors] = useState([]);
+  const [newAuthorName, setNewAuthorName] = useState("");
+  const [addingAuthor, setAddingAuthor] = useState(false);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [errorMsg, setErrorMsg] = useState(null);
@@ -35,7 +37,7 @@ export default function EditBlogPage() {
 
   useEffect(() => {
     fetchCategories();
-    fetchUsers();
+    fetchAuthors();
     fetchBlog();
   }, [id]);
 
@@ -53,17 +55,45 @@ export default function EditBlogPage() {
     }
   }
 
-  async function fetchUsers() {
+  async function fetchAuthors() {
     const { data, error } = await supabase
-      .from("profiles")
-      .select("id, full_name, first_name, last_name, email, role")
-      .order("full_name");
+      .from("authors")
+      .select("id, name")
+      .order("name");
 
     if (error) {
-      console.error("Error fetching users:", error);
-      setUsers([]);
+      console.error("Error fetching authors:", error);
+      setAuthors([]);
     } else {
-      setUsers(data);
+      setAuthors(data || []);
+    }
+  }
+
+  async function handleAddAuthorQuick(e) {
+    e.preventDefault();
+    const name = newAuthorName.trim();
+    if (!name) return;
+    setAddingAuthor(true);
+    try {
+      const res = await fetch("/api/authors", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name }),
+      });
+      const json = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        setErrorMsg(json.error || "Could not create author (main admin only).");
+        return;
+      }
+      setNewAuthorName("");
+      await fetchAuthors();
+      if (json.author?.id) {
+        setFormData((prev) => ({ ...prev, author_id: json.author.id }));
+      }
+    } catch (err) {
+      setErrorMsg(err.message || "Failed to add author");
+    } finally {
+      setAddingAuthor(false);
     }
   }
 
@@ -273,23 +303,43 @@ export default function EditBlogPage() {
             className={styles.input}
           >
             <option value="">Select an author</option>
-            {users.map((user) => {
-              const displayName =
-                user.full_name ||
-                (user.first_name && user.last_name
-                  ? `${user.first_name} ${user.last_name}`
-                  : null) ||
-                user.email ||
-                "Unknown User";
-
-              return (
-                <option key={user.id} value={user.id}>
-                  {displayName}
-                  {user.role === "admin" ? " (Admin)" : ""}
-                </option>
-              );
-            })}
+            {authors.map((a) => (
+              <option key={a.id} value={a.id}>
+                {a.name}
+              </option>
+            ))}
           </select>
+          <p className={styles.helpText} style={{ marginTop: 8 }}>
+            Manage authors in Admin → Authors. Main admin can add authors
+            below.
+          </p>
+          <div
+            style={{
+              display: "flex",
+              gap: 8,
+              marginTop: 8,
+              flexWrap: "wrap",
+              alignItems: "center",
+            }}
+          >
+            <input
+              type="text"
+              value={newAuthorName}
+              onChange={(e) => setNewAuthorName(e.target.value)}
+              placeholder="New author name"
+              className={styles.input}
+              style={{ maxWidth: 280, marginBottom: 0 }}
+            />
+            <button
+              type="button"
+              onClick={handleAddAuthorQuick}
+              disabled={addingAuthor || !newAuthorName.trim()}
+              className={styles.submitBtn}
+              style={{ width: "auto", padding: "8px 16px" }}
+            >
+              {addingAuthor ? "Adding…" : "Add author"}
+            </button>
+          </div>
         </div>
 
         <div className={styles.formGroup}>

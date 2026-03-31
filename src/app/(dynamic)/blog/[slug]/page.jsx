@@ -7,49 +7,66 @@ import EngagementSection from "@/components/EngagementSection/EngagementSection"
 import ViewTracker from "./ViewTracker";
 import { supabase } from "@/services/supabaseClient";
 import { calculateReadTime, formatReadTime } from "@/lib/utils/readTime";
+import {
+  MAIN_AUTHOR_AVATAR,
+  MAIN_AUTHOR_FALLBACK_HREF,
+  MAIN_AUTHOR_NAME,
+  MAIN_AUTHOR_ROLE,
+} from "@/constants/mainAuthor";
 
-export async function generateMetadata({ params }) {
-  const { slug } = await params;
-
-  // Optimized: Fetch blog post with author in single query
+/**
+ * Load post by slug, then by id (legacy). Author is loaded separately so we do not
+ * rely on PostgREST embedding `authors:author_id` (requires FK + schema cache).
+ */
+async function loadBlogAndAuthor(slug) {
   let { data: blog, error } = await supabase
     .from("blogs")
-    .select(
-      `
-      *,
-      profiles:author_id (
-        full_name,
-        first_name,
-        last_name
-      )
-    `,
-    )
+    .select("*")
     .eq("slug", slug)
-    .single();
+    .maybeSingle();
 
-  // Fallback: if not found by slug, try by ID (for legacy links)
-  if ((error || !blog) && slug) {
-    const { data: byId, error: idError } = await supabase
+  if (error) {
+    return { blog: null, author: null, error };
+  }
+
+  if (!blog && slug) {
+    const second = await supabase
       .from("blogs")
-      .select(
-        `
-        *,
-        profiles:author_id (
-          full_name,
-          first_name,
-          last_name
-        )
-      `,
-      )
+      .select("*")
       .eq("id", slug)
-      .single();
-    if (!idError && byId) {
-      blog = byId;
-      error = null;
+      .maybeSingle();
+    blog = second.data;
+    if (second.error) {
+      return { blog: null, author: null, error: second.error };
     }
   }
 
-  if (error || !blog) {
+  let author = null;
+  if (blog?.author_id) {
+    const { data: authorRow, error: authorError } = await supabase
+      .from("authors")
+      .select("id, name, bio, role, avatar_url")
+      .eq("id", blog.author_id)
+      .maybeSingle();
+    if (!authorError) {
+      author = authorRow;
+    }
+  }
+
+  return { blog, author, error: null };
+}
+
+function formatSupabaseError(err) {
+  if (!err || typeof err !== "object") return String(err);
+  const msg = err.message || err.details || err.hint || err.code;
+  return msg ? `${msg}${err.code ? ` (${err.code})` : ""}` : JSON.stringify(err);
+}
+
+export async function generateMetadata({ params }) {
+  const { slug } = await params;
+  const { blog, author } = await loadBlogAndAuthor(slug);
+
+  if (!blog) {
     return {
       title: "Blog Post Not Found",
       description:
@@ -57,17 +74,8 @@ export async function generateMetadata({ params }) {
     };
   }
 
-  // Get author name from joined data
-  let authorName = "Nahed Nakib";
-  if (blog.profiles) {
-    authorName =
-      blog.profiles.full_name ||
-      (blog.profiles.first_name && blog.profiles.last_name
-        ? `${blog.profiles.first_name} ${blog.profiles.last_name}`
-        : "Nahed Nakib");
-  }
+  const authorName = author?.name?.trim() || MAIN_AUTHOR_NAME;
 
-  // Clean description from HTML content
   const cleanDescription =
     blog.description ||
     blog.content?.replace(/<[^>]*>/g, "").substring(0, 160) + "..." ||
@@ -106,67 +114,23 @@ export async function generateMetadata({ params }) {
       title: blog.title,
       description: cleanDescription,
       images: [imageUrl],
-      creator: "@your_twitter_handle", // Replace with your actual Twitter handle
+      creator: "@your_twitter_handle",
     },
     alternates: {
       canonical: postUrl,
+    },
+    other: {
+      author: authorName,
     },
   };
 }
 
 export default async function Post({ params }) {
   const { slug } = await params;
-
-  // Optimized: Get blog post with author in single query
-  let { data: blog, error } = await supabase
-    .from("blogs")
-    .select(
-      `
-      *,
-      profiles:author_id (
-        id,
-        full_name,
-        first_name,
-        last_name,
-        avatar_url,
-        email,
-        bio,
-        professional_role
-      )
-    `,
-    )
-    .eq("slug", slug)
-    .single();
-
-  // Fallback: if not found by slug, try by ID
-  if ((error || !blog) && slug) {
-    const { data: byId, error: idError } = await supabase
-      .from("blogs")
-      .select(
-        `
-        *,
-        profiles:author_id (
-          id,
-          full_name,
-          first_name,
-          last_name,
-          avatar_url,
-          email,
-          bio,
-          professional_role
-        )
-      `,
-      )
-      .eq("id", slug)
-      .single();
-    if (!idError && byId) {
-      blog = byId;
-      error = null;
-    }
-  }
+  const { blog, author, error } = await loadBlogAndAuthor(slug);
 
   if (error) {
-    console.error("Database error:", error);
+    console.error("Database error:", formatSupabaseError(error));
     return (
       <div className={styles.container}>
         <h1>Error Loading Blog Post</h1>
@@ -192,8 +156,29 @@ export default async function Post({ params }) {
     );
   }
 
-  // Author profile from joined data
-  const authorProfile = blog.profiles;
+  const authorName = author?.name?.trim() || MAIN_AUTHOR_NAME;
+  const authorRoleLine = author
+    ? author.role?.trim() || ""
+    : MAIN_AUTHOR_ROLE;
+
+  const baseUrl =
+    process.env.NEXT_PUBLIC_SITE_URL || "https://nahednakib.vercel.app";
+  const imageUrl = blog.image || `${baseUrl}/images/portfolio.jpg`;
+
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    headline: blog.title,
+    datePublished: blog.created_at,
+    image: imageUrl,
+    author: {
+      "@type": "Person",
+      name: authorName,
+      ...(author?.id
+        ? { url: `${baseUrl}/author/${author.id}` }
+        : { url: `${baseUrl}${MAIN_AUTHOR_FALLBACK_HREF}` }),
+    },
+  };
 
   const formattedDate = new Date(blog.created_at).toLocaleDateString(
     undefined,
@@ -208,11 +193,9 @@ export default async function Post({ params }) {
           .filter((t) => t.length > 0)
       : [];
 
-  // Optimized: Get related posts with single query
   let relatedPosts = [];
 
   try {
-    // Single optimized query for related posts
     const { data: allRelatedPosts, error: relatedError } = await supabase
       .from("blogs")
       .select(
@@ -234,32 +217,27 @@ export default async function Post({ params }) {
       )
       .neq("id", blog.id)
       .order("created_at", { ascending: false })
-      .limit(10); // Get fewer posts for faster query
+      .limit(10);
 
     if (!relatedError && allRelatedPosts) {
-      // Priority 1: Same category
       const categoryPosts = allRelatedPosts.filter(
         (post) => post.category_id === blog.category_id,
       );
 
-      // Priority 2: Similar tags
       const tagPosts = allRelatedPosts.filter((post) => {
         if (!post.tags || !tags.length) return false;
         const postTags = post.tags.toLowerCase();
         return tags.some((tag) => postTags.includes(tag.toLowerCase()));
       });
 
-      // Combine and deduplicate
       const combined = [...categoryPosts];
 
-      // Add tag posts that aren't already included
       tagPosts.forEach((post) => {
         if (!combined.find((p) => p.id === post.id)) {
           combined.push(post);
         }
       });
 
-      // Add other recent posts if still need more
       if (combined.length < 3) {
         allRelatedPosts.forEach((post) => {
           if (combined.length >= 3) return;
@@ -271,13 +249,17 @@ export default async function Post({ params }) {
 
       relatedPosts = combined.slice(0, 3);
     }
-  } catch (error) {
-    console.error("Error fetching related posts:", error);
+  } catch (e) {
+    console.error("Error fetching related posts:", e);
     relatedPosts = [];
   }
 
   return (
     <div className={styles.container}>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <ViewTracker blogId={blog.id} />
       <section className={styles.metaSection}>
         <div className={styles.breadcrumbRow}>
@@ -289,28 +271,23 @@ export default async function Post({ params }) {
         <h1 className={styles.title}>{blog.title}</h1>
         <div className={styles.authorRow}>
           <Link
-            href={authorProfile?.id ? `/author/${authorProfile.id}` : "#"}
+            href={
+              author?.id ? `/author/${author.id}` : MAIN_AUTHOR_FALLBACK_HREF
+            }
             className={styles.authorLink}
           >
             <Image
-              src={authorProfile?.avatar_url || "/images/me.jpg"}
-              alt={authorProfile?.full_name || "Author"}
+              src={author?.avatar_url || MAIN_AUTHOR_AVATAR}
+              alt={authorName}
               width={40}
               height={40}
               className={styles.authorAvatar}
             />
             <div>
-              <div className={styles.author}>
-                {authorProfile?.full_name ||
-                  (authorProfile?.first_name && authorProfile?.last_name
-                    ? `${authorProfile.first_name} ${authorProfile.last_name}`
-                    : "Nahed Nakib")}
-              </div>
-              <div className={styles.authorRole}>
-                {authorProfile?.professional_role ||
-                  authorProfile?.role ||
-                  "Founder & CEO"}
-              </div>
+              <div className={styles.author}>{authorName}</div>
+              {authorRoleLine ? (
+                <div className={styles.authorRole}>{authorRoleLine}</div>
+              ) : null}
             </div>
           </Link>
         </div>

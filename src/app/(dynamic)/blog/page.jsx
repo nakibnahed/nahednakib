@@ -3,10 +3,7 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/services/supabaseClient";
 import Link from "next/link";
-import Image from "next/image";
 import styles from "./page.module.css";
-import { Calendar, Clock, ArrowRight, Eye } from "lucide-react";
-import { useViews } from "@/hooks/useViews";
 import { calculateReadTime, formatReadTime } from "@/lib/utils/readTime";
 import BlogViews from "./BlogViews";
 
@@ -23,7 +20,6 @@ export default function Blog() {
   async function fetchData() {
     setLoading(true);
 
-    // Fetch categories
     const { data: categoriesData } = await supabase
       .from("categories")
       .select("*")
@@ -31,7 +27,6 @@ export default function Blog() {
 
     setCategories(categoriesData || []);
 
-    // Fetch blogs with category info
     const { data: blogsData, error } = await supabase
       .from("blogs")
       .select(
@@ -48,7 +43,10 @@ export default function Blog() {
       .order("created_at", { ascending: false });
 
     if (error) {
-      console.error("Error fetching blogs:", error);
+      console.error(
+        "Error fetching blogs:",
+        error.message || error.code || JSON.stringify(error),
+      );
       setBlogs([]);
     } else {
       setBlogs(blogsData || []);
@@ -90,7 +88,6 @@ export default function Blog() {
       <div className={styles.container}>
         <h1 className={styles.pageTitle}>Blog</h1>
 
-        {/* Category Navigation */}
         <div className={styles.categoryNavWrapper}>
           <div className={styles.categoryNav}>
             <button
@@ -118,7 +115,6 @@ export default function Blog() {
           </div>
         </div>
 
-        {/* Category Header */}
         {selectedCategory !== "all" && selectedCategoryData && (
           <div className={styles.categoryHeader}>
             <div
@@ -136,7 +132,6 @@ export default function Blog() {
           </div>
         )}
 
-        {/* Blog Grid */}
         {filteredBlogs.length === 0 ? (
           <div className={styles.emptyState}>
             <p>No blog posts found in this category.</p>
