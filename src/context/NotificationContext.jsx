@@ -9,7 +9,8 @@ import {
   useRef,
   useState,
 } from "react";
-import { createClient } from "@/lib/supabase/client";
+import { supabase } from "@/lib/supabase/client";
+import { useAuthSession } from "@/context/AuthSessionContext";
 
 const NOTIFICATION_PAGE_SIZE = 20;
 const UNREAD_REVALIDATE_MS = 15_000;
@@ -28,7 +29,7 @@ function mergeUniqueById(items) {
 }
 
 export function NotificationProvider({ children }) {
-  const supabase = useMemo(() => createClient(), []);
+  const { user, loading: authLoading } = useAuthSession();
 
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
@@ -288,56 +289,25 @@ export function NotificationProvider({ children }) {
   );
 
   useEffect(() => {
-    let mounted = true;
+    if (authLoading) return;
 
-    const bootstrapAuth = async () => {
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
-      if (!mounted) return;
+    const nextUserId = user?.id || null;
+    currentUserIdRef.current = nextUserId;
+    setIsAuthenticated(Boolean(nextUserId));
 
-      const nextUserId = session?.user?.id || null;
-      currentUserIdRef.current = nextUserId;
-      setIsAuthenticated(Boolean(nextUserId));
+    if (nextUserId) {
+      fetchNotifications({ reset: true });
+      return;
+    }
 
-      if (nextUserId) {
-        fetchNotifications({ reset: true });
-      } else {
-        setNotifications([]);
-        unreadCacheRef.current = { value: 0, fetchedAt: Date.now() };
-        nextCursorRef.current = null;
-        setUnreadCount(0);
-      }
-    };
-
-    bootstrapAuth();
-
-    const { data: listener } = supabase.auth.onAuthStateChange(
-      async (_event, session) => {
-        if (!mounted) return;
-        const nextUserId = session?.user?.id || null;
-        currentUserIdRef.current = nextUserId;
-        setIsAuthenticated(Boolean(nextUserId));
-
-        if (nextUserId) {
-          await fetchNotifications({ reset: true });
-        } else {
-          setNotifications([]);
-          unreadCacheRef.current = { value: 0, fetchedAt: Date.now() };
-          setUnreadCount(0);
-          setHasMore(false);
-          setNextCursor(null);
-          nextCursorRef.current = null;
-          setRealtimeStatus("disconnected");
-        }
-      },
-    );
-
-    return () => {
-      mounted = false;
-      listener?.subscription?.unsubscribe();
-    };
-  }, [fetchNotifications, supabase]);
+    setNotifications([]);
+    unreadCacheRef.current = { value: 0, fetchedAt: Date.now() };
+    setUnreadCount(0);
+    setHasMore(false);
+    setNextCursor(null);
+    nextCursorRef.current = null;
+    setRealtimeStatus("disconnected");
+  }, [authLoading, fetchNotifications, user]);
 
   useEffect(() => {
     if (!isAuthenticated || !currentUserIdRef.current) {

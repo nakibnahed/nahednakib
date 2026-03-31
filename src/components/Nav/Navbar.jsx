@@ -5,7 +5,8 @@ import styles from "./Navbar.module.css";
 import Logo from "@/elements/Logo/Logo";
 import DarkMoodToggle from "../DarkMoodToggle/DarkMoodToggle";
 import { useEffect, useState, useRef, useCallback } from "react";
-import { supabase } from "@/services/supabaseClient";
+import { supabase } from "@/lib/supabase/client";
+import { useAuthSession } from "@/context/AuthSessionContext";
 import {
   User,
   Menu,
@@ -35,15 +36,13 @@ const navLinks = [
 ];
 
 export default function Navbar() {
-  const [user, setUser] = useState(null);
+  const { user } = useAuthSession();
   const [userRole, setUserRole] = useState(null);
   const [userProfile, setUserProfile] = useState(null);
   const [menuOpen, setMenuOpen] = useState(false);
   const [contactDropdownOpen, setContactDropdownOpen] = useState(false);
   const [mobileContactDropdownOpen, setMobileContactDropdownOpen] =
     useState(false);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
   const router = useRouter();
   const dropdownRef = useRef(null);
   const mobileDropdownRef = useRef(null);
@@ -52,134 +51,47 @@ export default function Navbar() {
     let mounted = true;
     let profileFetchTimeout;
 
-    const getSession = async () => {
-      try {
-        if (!mounted) return;
-        setLoading(true);
-        setError(null);
-
-        const {
-          data: { session },
-          error,
-        } = await supabase.auth.getSession();
-
-        if (!mounted) return;
-
-        if (error) {
-          console.error("Session error:", error);
-          setError(error.message);
-          setUser(null);
-          setUserRole(null);
-          setUserProfile(null);
-        } else {
-          setUser(session?.user || null);
-
-          // Admin check will be done after profile fetch
-          if (session?.user) {
-            setUserRole("user"); // Default to user, will update after profile fetch
-
-            // Fetch user profile data with delay to avoid conflicts
-            profileFetchTimeout = setTimeout(async () => {
-              if (!mounted) return;
-
-              try {
-                const { data: profile, error: profileError } = await supabase
-                  .from("profiles")
-                  .select("*")
-                  .eq("id", session.user.id)
-                  .single();
-
-                if (!mounted) return;
-
-                if (profileError) {
-                  console.error("Profile fetch error:", profileError);
-                  setUserProfile(null);
-                } else {
-                  setUserProfile(profile);
-                  // Set role based on profile data
-                  if (profile?.role === "admin") {
-                    setUserRole("admin");
-                  }
-                }
-              } catch (err) {
-                if (!mounted) return;
-                console.error("Profile fetch error:", err);
-                setUserProfile(null);
-              }
-            }, 100); // Small delay to avoid conflicts
-          } else {
-            setUserRole(null);
-            setUserProfile(null);
-          }
-        }
-      } catch (error) {
-        if (!mounted) return;
-        console.error("Session initialization error:", error);
-        setError(error.message);
-        setUser(null);
+    const loadProfile = async () => {
+      if (!user) {
         setUserRole(null);
         setUserProfile(null);
-      } finally {
-        if (mounted) {
-          setLoading(false);
-        }
+        return;
       }
-    };
 
-    getSession();
-
-    const { data: listener } = supabase.auth.onAuthStateChange(
-      async (_event, session) => {
+      setUserRole("user");
+      profileFetchTimeout = setTimeout(async () => {
         if (!mounted) return;
+        try {
+          const { data: profile, error: profileError } = await supabase
+            .from("profiles")
+            .select("*")
+            .eq("id", user.id)
+            .single();
 
-        setUser(session?.user ?? null);
-        if (session?.user) {
-          setUserRole("user"); // Default to user, will update after profile fetch
+          if (!mounted) return;
+          if (profileError) {
+            setUserProfile(null);
+            return;
+          }
 
-          // Fetch user profile data with delay to avoid conflicts
-          profileFetchTimeout = setTimeout(async () => {
-            if (!mounted) return;
-
-            try {
-              const { data: profile, error: profileError } = await supabase
-                .from("profiles")
-                .select("*")
-                .eq("id", session.user.id)
-                .single();
-
-              if (!mounted) return;
-
-              if (profileError) {
-                console.error("Profile fetch error:", profileError);
-                setUserProfile(null);
-              } else {
-                setUserProfile(profile);
-                // Set role based on profile data
-                if (profile?.role === "admin") {
-                  setUserRole("admin");
-                }
-              }
-            } catch (err) {
-              if (!mounted) return;
-              console.error("Profile fetch error:", err);
-              setUserProfile(null);
-            }
-          }, 100); // Small delay to avoid conflicts
-        } else {
-          setUserRole(null);
+          setUserProfile(profile);
+          if (profile?.role === "admin") setUserRole("admin");
+        } catch {
+          if (!mounted) return;
           setUserProfile(null);
         }
-      },
-    );
+      }, 100);
+    };
+
+    loadProfile();
 
     return () => {
       mounted = false;
       if (profileFetchTimeout) {
         clearTimeout(profileFetchTimeout);
       }
-      listener?.subscription?.unsubscribe();
     };
-  }, []);
+  }, [user]);
 
   const toggleMenu = useCallback(() => setMenuOpen((open) => !open), []);
   const toggleContactDropdown = useCallback(

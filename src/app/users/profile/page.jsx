@@ -1,63 +1,58 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { supabase } from "@/services/supabaseClient";
-import { withTimeout } from "@/utils/withTimeout";
+import { supabase } from "@/lib/supabase/client";
 import UserLayout from "@/components/User/Layout/UserLayout";
-import UserDashboard from "@/components/User/Dashboard/UserDashboard";
+import { useAuthSession } from "@/context/AuthSessionContext";
 
 export default function ProfilePage() {
-  const [loading, setLoading] = useState(true);
-  const [user, setUser] = useState(null);
+  const { user, loading: authLoading, initialized } = useAuthSession();
+  const [loading, setLoading] = useState(false);
   const [profileData, setProfileData] = useState(null);
   const [error, setError] = useState(null);
   const router = useRouter();
 
   useEffect(() => {
+    if (!initialized || authLoading) return;
+    if (!user) {
+      router.push("/login");
+      return;
+    }
+
+    let active = true;
     async function loadUserData() {
       try {
         setLoading(true);
-
-        const {
-          data: { user: currentUser },
-          error: userError,
-        } = await withTimeout(
-          supabase.auth.getUser(),
-          9000,
-          "Authentication timed out",
-        );
-
-        if (userError || !currentUser) {
-          router.push("/login");
-          return;
-        }
-        setUser(currentUser);
 
         // Fetch profile data
         const { data: profile, error: profileError } = await supabase
           .from("profiles")
           .select("*")
-          .eq("id", currentUser.id)
+          .eq("id", user.id)
           .single();
 
+        if (!active) return;
+
         if (profileError) {
-          console.error("Error fetching profile:", profileError);
           setError("Could not load profile data");
         } else {
           setProfileData(profile);
         }
-      } catch (err) {
-        console.error("Error loading user data:", err);
+      } catch {
+        if (!active) return;
         setError("An error occurred while loading your profile");
       } finally {
-        setLoading(false);
+        if (active) setLoading(false);
       }
     }
 
     loadUserData();
-  }, [router]);
+    return () => {
+      active = false;
+    };
+  }, [authLoading, initialized, router, user]);
 
-  if (loading) {
+  if (authLoading || !initialized || loading) {
     return (
       <div
         style={{

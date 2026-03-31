@@ -4,6 +4,7 @@ import Footer from "@/components/Footer/Footer";
 import ToastContainer from "@/components/Toast/ToastContainer";
 import { metadata as siteMetadata } from "@/constants/metadata";
 import { ThemeProvider } from "@/context/ThemeContext";
+import { AuthSessionProvider } from "@/context/AuthSessionContext";
 import NotificationProviderBoundary from "@/components/NotificationProviderBoundary/NotificationProviderBoundary";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { Analytics } from "@vercel/analytics/next";
@@ -109,16 +110,18 @@ export default function RootLayout({ children }) {
       </head>
       <body>
         <ThemeProvider>
-          <NotificationProviderBoundary>
-            <Navbar />
-            <div className="mainContainer">
-              {children}
-              <Footer />
-            </div>
-            <ToastContainer />
-            <SpeedInsights />
-            <Analytics />
-          </NotificationProviderBoundary>
+          <AuthSessionProvider>
+            <NotificationProviderBoundary>
+              <Navbar />
+              <div className="mainContainer">
+                {children}
+                <Footer />
+              </div>
+              <ToastContainer />
+              <SpeedInsights />
+              <Analytics />
+            </NotificationProviderBoundary>
+          </AuthSessionProvider>
         </ThemeProvider>
       </body>
     </html>
