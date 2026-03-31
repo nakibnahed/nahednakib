@@ -3,6 +3,13 @@
 import { useState } from "react";
 import { supabase } from "@/services/supabaseClient";
 import styles from "./contact.module.css";
+import {
+  getSiteUrl,
+  isPasswordStrong,
+  isValidEmail,
+  mapAuthError,
+  normalizeEmail,
+} from "@/utils/authFeedback";
 
 export default function ContactTabsPage() {
   const [activeTab, setActiveTab] = useState("contact");
@@ -31,6 +38,7 @@ export default function ContactTabsPage() {
   const [registerLoading, setRegisterLoading] = useState(false);
   const [registerSuccess, setRegisterSuccess] = useState("");
   const [registerError, setRegisterError] = useState("");
+  const [showRegisterPassword, setShowRegisterPassword] = useState(false);
 
   // Handlers for Contact Form
   function handleContactChange(e) {
@@ -96,18 +104,62 @@ export default function ContactTabsPage() {
     setRegisterLoading(true);
     setRegisterSuccess("");
     setRegisterError("");
+    const emailNorm = normalizeEmail(registerForm.email);
+    if (!isValidEmail(emailNorm)) {
+      setRegisterError("Please enter a valid email address.");
+      setRegisterLoading(false);
+      return;
+    }
+    if (!isPasswordStrong(registerForm.password)) {
+      setRegisterError(
+        "Password must be at least 8 characters and include letters and numbers.",
+      );
+      setRegisterLoading(false);
+      return;
+    }
     try {
-      const { error } = await supabase.auth.signUp({
-        email: registerForm.email,
+      const { data, error } = await supabase.auth.signUp({
+        email: emailNorm,
         password: registerForm.password,
         options: {
-          emailRedirectTo: "https://nahednakib.vercel.app/login?confirmed=1",
+          emailRedirectTo: `${getSiteUrl()}/login?confirmed=1`,
         },
       });
       if (error) {
-        setRegisterError(error.message);
+        setRegisterError(mapAuthError(error, "register"));
+      } else if (
+        data?.user &&
+        Array.isArray(data.user.identities) &&
+        data.user.identities.length === 0
+      ) {
+        const { data: loginData, error: loginError } =
+          await supabase.auth.signInWithPassword({
+            email: emailNorm,
+            password: registerForm.password,
+          });
+        if (loginError) {
+          setRegisterError(
+            "This email is already registered. Enter your current password to log in.",
+          );
+        } else {
+          const userId = loginData?.user?.id;
+          let target = "/users/profile";
+          if (userId) {
+            const { data: profile } = await supabase
+              .from("profiles")
+              .select("role")
+              .eq("id", userId)
+              .single();
+            if (profile?.role === "admin") {
+              target = "/admin/";
+            }
+          }
+          window.location.href = target;
+        }
       } else {
-        setRegisterSuccess("Registration successful! Please check your email.");
+        setRegisterSuccess(
+          "Account created. Check your inbox and confirm your email before logging in.",
+        );
         setRegisterForm({ email: "", password: "" });
       }
     } catch (error) {
@@ -252,15 +304,25 @@ export default function ContactTabsPage() {
               required
               className={styles.input}
             />
-            <input
-              type="password"
-              name="password"
-              placeholder="Password"
-              value={registerForm.password}
-              onChange={handleRegisterChange}
-              required
-              className={styles.input}
-            />
+            <div className={styles.passwordWrap}>
+              <input
+                type={showRegisterPassword ? "text" : "password"}
+                name="password"
+                placeholder="Password"
+                value={registerForm.password}
+                onChange={handleRegisterChange}
+                required
+                className={`${styles.input} ${styles.inputWithToggle}`}
+              />
+              <button
+                type="button"
+                className={styles.passwordToggle}
+                onClick={() => setShowRegisterPassword((v) => !v)}
+                aria-label={showRegisterPassword ? "Hide password" : "Show password"}
+              >
+                {showRegisterPassword ? "Hide" : "Show"}
+              </button>
+            </div>
             <button
               type="submit"
               disabled={registerLoading}
