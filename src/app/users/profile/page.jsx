@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/services/supabaseClient";
+import { withTimeout } from "@/utils/withTimeout";
 import UserLayout from "@/components/User/Layout/UserLayout";
 import UserDashboard from "@/components/User/Dashboard/UserDashboard";
 
@@ -17,48 +18,20 @@ export default function ProfilePage() {
       try {
         setLoading(true);
 
-        // Get current user with retry logic
-        let retryCount = 0;
-        const maxRetries = 3;
-        let currentUser = null;
+        const {
+          data: { user: currentUser },
+          error: userError,
+        } = await withTimeout(
+          supabase.auth.getUser(),
+          9000,
+          "Authentication timed out",
+        );
 
-        while (retryCount < maxRetries) {
-          const {
-            data: { user },
-            error: userError,
-          } = await supabase.auth.getUser();
-
-          if (userError) {
-            console.error("User error:", userError);
-            retryCount++;
-
-            if (retryCount < maxRetries) {
-              console.log(
-                `Retrying auth check (${retryCount}/${maxRetries})...`
-              );
-              // Try to refresh session
-              const { error: refreshError } =
-                await supabase.auth.refreshSession();
-              if (refreshError) {
-                console.error("Refresh error:", refreshError);
-              }
-              await new Promise((resolve) => setTimeout(resolve, 1000)); // Wait 1 second
-              continue;
-            } else {
-              router.push("/login");
-              return;
-            }
-          }
-
-          if (!user) {
-            router.push("/login");
-            return;
-          }
-
-          currentUser = user;
-          setUser(currentUser);
-          break;
+        if (userError || !currentUser) {
+          router.push("/login");
+          return;
         }
+        setUser(currentUser);
 
         // Fetch profile data
         const { data: profile, error: profileError } = await supabase

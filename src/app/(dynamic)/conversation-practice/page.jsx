@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import DateTimePicker from "./DateTimePicker";
 import { supabase } from "@/services/supabaseClient";
 import { normalizeSuggestedTimeDisplay } from "@/utils/practiceSuggestedTime";
+import { withTimeout } from "@/utils/withTimeout";
 import styles from "./page.module.css";
 
 const AVATAR_COLORS = [
@@ -207,7 +208,11 @@ export default function ConversationPracticePage() {
   const loadCurrentUser = useCallback(async () => {
     const {
       data: { session },
-    } = await supabase.auth.getSession();
+    } = await withTimeout(
+      supabase.auth.getSession(),
+      9000,
+      "Authentication check timed out. Please refresh.",
+    );
 
     const user = session?.user || null;
     setCurrentUser(user);
