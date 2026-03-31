@@ -56,6 +56,11 @@ export default function RegisterPage() {
     return rawPath;
   }
 
+  const safeNextPath = resolveSafeNextPath(nextPath);
+  const loginHref = safeNextPath
+    ? `/login?next=${encodeURIComponent(safeNextPath)}`
+    : "/login";
+
   async function handleSubmit(e) {
     e.preventDefault();
     setFeedback(null);
@@ -79,7 +84,9 @@ export default function RegisterPage() {
       email: emailNorm,
       password,
       options: {
-        emailRedirectTo: `${getSiteUrl()}/login?confirmed=1`,
+        emailRedirectTo: `${getSiteUrl()}/login?confirmed=1${
+          safeNextPath ? `&next=${encodeURIComponent(safeNextPath)}` : ""
+        }`,
       },
     });
 
@@ -253,7 +260,7 @@ export default function RegisterPage() {
           </button>
         </form>
         <div className={styles.links}>
-          <a href="/login" className={styles.link}>
+          <a href={loginHref} className={styles.link}>
             Already have an account? Login
           </a>
         </div>

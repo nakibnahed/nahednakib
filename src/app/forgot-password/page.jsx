@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import { useSearchParams } from "next/navigation";
 import styles from "../login/Login.module.css";
 import {
   getSiteUrl,
@@ -9,9 +10,23 @@ import {
 } from "@/utils/authFeedback";
 
 export default function ForgotPasswordPage() {
+  const searchParams = useSearchParams();
+  const nextPath = searchParams.get("next");
   const [email, setEmail] = useState("");
   const [feedback, setFeedback] = useState(null);
   const [loading, setLoading] = useState(false);
+
+  function resolveSafeNextPath(rawPath) {
+    if (!rawPath || typeof rawPath !== "string") return null;
+    if (!rawPath.startsWith("/")) return null;
+    if (rawPath.startsWith("//")) return null;
+    return rawPath;
+  }
+
+  const safeNextPath = resolveSafeNextPath(nextPath);
+  const loginHref = safeNextPath
+    ? `/login?next=${encodeURIComponent(safeNextPath)}`
+    : "/login";
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -75,7 +90,7 @@ export default function ForgotPasswordPage() {
           </button>
         </form>
         <div className={styles.links}>
-          <a href="/login" className={styles.link}>
+          <a href={loginHref} className={styles.link}>
             Back to login
           </a>
         </div>

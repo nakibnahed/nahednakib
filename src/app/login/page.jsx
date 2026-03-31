@@ -57,6 +57,14 @@ export default function LoginPage() {
     return rawPath;
   }
 
+  const safeNextPath = resolveSafeNextPath(nextPath);
+  const registerHref = safeNextPath
+    ? `/register?next=${encodeURIComponent(safeNextPath)}`
+    : "/register";
+  const forgotHref = safeNextPath
+    ? `/forgot-password?next=${encodeURIComponent(safeNextPath)}`
+    : "/forgot-password";
+
   async function handleSubmit(e) {
     e.preventDefault();
     setFeedback(null);
@@ -256,10 +264,10 @@ export default function LoginPage() {
           </button>
         </form>
         <div className={styles.links}>
-          <a href="/register" className={styles.link}>
+          <a href={registerHref} className={styles.link}>
             Register now
           </a>
-          <a href="/forgot-password" className={styles.link}>
+          <a href={forgotHref} className={styles.link}>
             Forgot password?
           </a>
         </div>

@@ -7,6 +7,7 @@ import styles from "./UserSidebar.module.css";
 import {
   User,
   MessageCircle,
+  CalendarCheck2,
   Heart,
   Star,
   Settings,
@@ -43,11 +44,25 @@ export default function UserSidebar({
       icon: <Star size={18} />,
     },
     {
+      key: "meeting-requests",
+      label: "Meeting Requests",
+      icon: <CalendarCheck2 size={18} />,
+      href: "/conversation-practice?tab=requests",
+    },
+    {
       key: "settings",
       label: "Settings",
       icon: <Settings size={18} />,
     },
   ];
+
+  const handleNavItemClick = (item) => {
+    if (item.href) {
+      router.push(item.href);
+      return;
+    }
+    setActiveTab(item.key);
+  };
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
@@ -88,7 +103,7 @@ export default function UserSidebar({
               className={`${styles.menuItem} ${
                 activeTab === item.key ? styles.active : ""
               }`}
-              onClick={() => setActiveTab(item.key)}
+              onClick={() => handleNavItemClick(item)}
             >
               <span className={styles.menuItemContent}>
                 {item.icon}
