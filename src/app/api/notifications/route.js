@@ -5,10 +5,11 @@ export async function GET(request) {
   try {
     const supabase = await createClient();
     const {
-      data: { session },
-    } = await supabase.auth.getSession();
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser();
 
-    if (!session?.user) {
+    if (authError || !user) {
       return NextResponse.json(
         { error: "Authentication required" },
         { status: 401 },
@@ -40,7 +41,7 @@ export async function GET(request) {
         recipient_id
       `,
       )
-      .eq("recipient_id", session.user.id)
+      .eq("recipient_id", user.id)
       .order("created_at", { ascending: false })
       .limit(limit + 1);
 
@@ -60,7 +61,7 @@ export async function GET(request) {
     const { count: unreadCount, error: countError } = await supabase
       .from("notifications")
       .select("*", { count: "exact", head: true })
-      .eq("recipient_id", session.user.id)
+      .eq("recipient_id", user.id)
       .eq("is_read", false);
 
     if (countError) {
@@ -95,10 +96,11 @@ export async function POST(request) {
   try {
     const supabase = await createClient();
     const {
-      data: { session },
-    } = await supabase.auth.getSession();
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser();
 
-    if (!session?.user) {
+    if (authError || !user) {
       return NextResponse.json(
         { error: "Authentication required" },
         { status: 401 },
@@ -114,7 +116,7 @@ export async function POST(request) {
           is_read: true,
           read_at: new Date().toISOString(),
         })
-        .eq("recipient_id", session.user.id)
+        .eq("recipient_id", user.id)
         .eq("is_read", false);
 
       if (error) {
@@ -146,7 +148,7 @@ export async function POST(request) {
         read_at: new Date().toISOString(),
       })
       .eq("id", notificationId)
-      .eq("recipient_id", session.user.id);
+      .eq("recipient_id", user.id);
 
     if (error) {
       return NextResponse.json(
