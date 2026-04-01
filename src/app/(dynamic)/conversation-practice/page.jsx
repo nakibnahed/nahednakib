@@ -144,6 +144,7 @@ export default function ConversationPracticePage() {
   const [currentUser, setCurrentUser] = useState(null);
   const [currentUserName, setCurrentUserName] = useState("");
   const [currentUserEmail, setCurrentUserEmail] = useState("");
+  const [profileAvatarUrl, setProfileAvatarUrl] = useState("");
   const [isAdmin, setIsAdmin] = useState(false);
 
   const [regName, setRegName] = useState("");
@@ -219,6 +220,7 @@ export default function ConversationPracticePage() {
     if (!user) {
       setCurrentUserName("");
       setCurrentUserEmail("");
+      setProfileAvatarUrl("");
       setRegName("");
       setIsAdmin(false);
       return null;
@@ -227,9 +229,18 @@ export default function ConversationPracticePage() {
     setCurrentUserEmail(user.email || "");
     const { data: profile } = await supabase
       .from("profiles")
-      .select("full_name, first_name, last_name, email, role")
+      .select("full_name, first_name, last_name, email, role, avatar_url")
       .eq("id", user.id)
       .maybeSingle();
+
+    const metaAvatar =
+      typeof user.user_metadata?.avatar_url === "string"
+        ? user.user_metadata.avatar_url.trim()
+        : typeof user.user_metadata?.picture === "string"
+          ? user.user_metadata.picture.trim()
+          : "";
+
+    setProfileAvatarUrl(profile?.avatar_url?.trim() || metaAvatar || "");
 
     const displayName =
       profile?.full_name ||
@@ -706,9 +717,21 @@ export default function ConversationPracticePage() {
               >
                 <div className={styles.cardTop}>
                   <div
-                    className={`${styles.avatar} ${avatarClassForName(s.name || "")}`}
+                    className={`${styles.avatar} ${avatarClassForName(s.name || "")} ${
+                      currentUser?.id === s.user_id && profileAvatarUrl
+                        ? styles.avatarWithPhoto
+                        : ""
+                    }`}
                   >
-                    {initials(s.name)}
+                    {currentUser?.id === s.user_id && profileAvatarUrl ? (
+                      <img
+                        src={profileAvatarUrl}
+                        alt=""
+                        className={styles.avatarPhoto}
+                      />
+                    ) : (
+                      initials(s.name)
+                    )}
                   </div>
                   <div>
                     <div className={styles.cardName}>{s.name}</div>
@@ -859,6 +882,26 @@ export default function ConversationPracticePage() {
           className={styles.formCard}
           onSubmit={handleRegister}
         >
+          {currentUser && (
+            <div
+              className={styles.pageAvatar}
+              aria-label={activeName || "Your profile"}
+            >
+              {profileAvatarUrl ? (
+                <img
+                  src={profileAvatarUrl}
+                  alt=""
+                  className={styles.pageAvatarImg}
+                />
+              ) : (
+                <div
+                  className={`${styles.avatar} ${styles.pageAvatarFallback} ${avatarClassForName(activeName || regName || "Student")}`}
+                >
+                  {initials(activeName || regName)}
+                </div>
+              )}
+            </div>
+          )}
           <h2 className={styles.formTitle}>Set your availability</h2>
           {!currentUser && (
             <div className={`${styles.setupHint} ${styles.setupHintWarn}`}>
