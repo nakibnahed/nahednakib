@@ -3,7 +3,6 @@ import styles from "./about.module.css";
 import { logoFont } from "@/lib/fonts/fonts.js";
 import Link from "next/link";
 import Image from "next/image";
-import BlogImage2 from "/public/images/me.jpg";
 
 export default function About() {
   return (
@@ -33,7 +32,7 @@ export default function About() {
       <div className={styles.col}>
         <div className={styles.imageGrid}>
           <Image
-            src={BlogImage2}
+            src="/images/me.jpg"
             alt="Nahed Nakib - Running Programmer"
             className={styles.image}
             width={800}

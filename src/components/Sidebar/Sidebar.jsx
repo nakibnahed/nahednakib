@@ -4,8 +4,9 @@ import InfoCard from "../InfoCard/InfoCard";
 import Link from "next/link";
 
 import { social_media } from "./data";
-import myImage from "/public/images/me.jpg";
-import runningImage from "/public/images/run2.jpg";
+
+const MY_IMAGE_SRC = "/images/me.jpg";
+const RUNNING_IMAGE_SRC = "/images/run2.jpg";
 import { Globe, Star, Phone, Calendar as CalendarIcon } from "lucide-react";
 import SocialLinks from "@/components/SocialLinks/SocialLinks";
 import { useEffect, useState } from "react";
@@ -13,7 +14,8 @@ import { createClient } from "@/lib/supabase/client";
 import { SiPaypal } from "react-icons/si";
 
 export default function Sidebar({ activeTab }) {
-  const displayImage = activeTab === "web" ? myImage : runningImage;
+  const displayImage =
+    activeTab === "web" ? MY_IMAGE_SRC : RUNNING_IMAGE_SRC;
   const [user, setUser] = useState(null);
   const [showSupportCard, setShowSupportCard] = useState(true);
 

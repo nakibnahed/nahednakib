@@ -7,9 +7,6 @@ import Sidebar from "../../../components/Sidebar/Sidebar";
 import WebContent from "../../../components/WebContent/WebContent";
 import RunningContent from "../../../components/RunningContent/RunningContent";
 
-import Image from "next/image";
-import BlogImage2 from "/public/images/me.jpg";
-
 export default function InfoPage() {
   const [activeTab, setActiveTab] = useState("running");
   return (
