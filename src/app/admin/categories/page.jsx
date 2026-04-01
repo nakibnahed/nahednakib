@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/services/supabaseClient";
 import { slugify } from "@/lib/utils/slugify";
+import { showAppToast } from "@/lib/showAppToast";
 import styles from "./Categories.module.css";
 
 export default function CategoriesPage() {
@@ -60,11 +61,15 @@ export default function CategoriesPage() {
     const { error } = await supabase.from("categories").insert([formData]);
 
     if (error) {
-      alert("Error creating category: " + error.message);
+      showAppToast(
+        error.message || "Could not create category.",
+        "error",
+      );
     } else {
       setFormData({ name: "", slug: "", description: "", color: "#ee681a" });
       setShowForm(false);
       fetchCategories();
+      showAppToast("Category created.", "success");
     }
     setLoading(false);
   }
@@ -77,12 +82,16 @@ export default function CategoriesPage() {
       .eq("id", editingCategory.id);
 
     if (error) {
-      alert("Error updating category: " + error.message);
+      showAppToast(
+        error.message || "Could not update category.",
+        "error",
+      );
     } else {
       setFormData({ name: "", slug: "", description: "", color: "#ee681a" });
       setEditingCategory(null);
       setShowForm(false);
       fetchCategories();
+      showAppToast("Category updated.", "success");
     }
     setLoading(false);
   }
@@ -94,9 +103,13 @@ export default function CategoriesPage() {
     const { error } = await supabase.from("categories").delete().eq("id", id);
 
     if (error) {
-      alert("Error deleting category: " + error.message);
+      showAppToast(
+        error.message || "Could not delete category.",
+        "error",
+      );
     } else {
       fetchCategories();
+      showAppToast("Category deleted.", "success");
     }
     setLoading(false);
   }

@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { supabase } from "@/services/supabaseClient";
 import UserLayout from "@/components/User/Layout/UserLayout";
 import ConfirmationModal from "@/components/ConfirmationModal/ConfirmationModal";
+import { showAppToast } from "@/lib/showAppToast";
 import styles from "../Profile.module.css";
 
 export default function FavoritesPage() {
@@ -106,15 +107,16 @@ export default function FavoritesPage() {
 
       if (error) {
         console.error("Error removing favorite:", error);
-        alert("Failed to remove favorite");
+        showAppToast("Failed to remove favorite.", "error");
       } else {
         setFavorites((prev) =>
           prev.filter((fav) => fav.id !== favoriteToDelete)
         );
+        showAppToast("Favorite removed.", "success");
       }
     } catch (err) {
       console.error("Error removing favorite:", err);
-      alert("An error occurred while removing the favorite");
+      showAppToast("An error occurred while removing the favorite.", "error");
     } finally {
       setShowDeleteConfirm(false);
       setFavoriteToDelete(null);

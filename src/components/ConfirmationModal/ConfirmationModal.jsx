@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { X, AlertTriangle } from "lucide-react";
+import { X, AlertTriangle, Info } from "lucide-react";
 import styles from "./ConfirmationModal.module.css";
 
 export default function ConfirmationModal({
@@ -34,6 +34,15 @@ export default function ConfirmationModal({
 
   if (!isOpen) return null;
 
+  const TypeIcon = type === "info" ? Info : AlertTriangle;
+
+  const panelTypeClass =
+    type === "danger"
+      ? styles.contentDanger
+      : type === "warning"
+        ? styles.contentWarning
+        : styles.contentInfo;
+
   const handleBackdropClick = (e) => {
     if (e.target === e.currentTarget) {
       onClose();
@@ -47,13 +56,16 @@ export default function ConfirmationModal({
 
   return (
     <div className={styles.modalOverlay} onClick={handleBackdropClick}>
-      <div className={styles.modalContent}>
+      <div className={`${styles.modalContent} ${panelTypeClass}`}>
         <div className={styles.modalHeader}>
           <div className={styles.titleContainer}>
-            <AlertTriangle
-              size={24}
-              className={`${styles.icon} ${styles[type]}`}
-            />
+            <div className={styles.iconWrap} aria-hidden>
+              <TypeIcon
+                size={20}
+                strokeWidth={2.25}
+                className={`${styles.icon} ${styles[type]}`}
+              />
+            </div>
             <h3 className={styles.title}>{title}</h3>
           </div>
           <button onClick={onClose} className={styles.closeButton}>

@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import { supabase } from "@/services/supabaseClient";
 import styles from "./Feedback.module.css";
 import ConfirmationModal from "@/components/ConfirmationModal/ConfirmationModal";
+import { showAppToast } from "@/lib/showAppToast";
 import {
   MessageSquare,
   Star,
@@ -91,9 +92,10 @@ export default function AdminFeedbackPage() {
       setFeedback(feedback.filter((item) => item.id !== feedbackToDelete));
       setShowDeleteModal(false);
       setFeedbackToDelete(null);
+      showAppToast("Feedback deleted.", "success");
     } catch (err) {
       console.error("Error deleting feedback:", err);
-      alert("Failed to delete feedback");
+      showAppToast("Failed to delete feedback.", "error");
     }
   };
 

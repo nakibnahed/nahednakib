@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/services/supabaseClient";
 import ConfirmationModal from "@/components/ConfirmationModal/ConfirmationModal";
+import { showAppToast } from "@/lib/showAppToast";
 import styles from "./Comments.module.css";
 import {
   MessageCircle,
@@ -90,9 +91,10 @@ export default function CommentsPage() {
 
       await fetchComments();
       await fetchStats();
+      showAppToast("Comment approved.", "success");
     } catch (error) {
       console.error("Error approving comment:", error);
-      alert("Failed to approve comment. Please try again.");
+      showAppToast("Failed to approve comment. Please try again.", "error");
     }
   };
 
@@ -110,9 +112,10 @@ export default function CommentsPage() {
 
       await fetchComments();
       await fetchStats();
+      showAppToast("Comment rejected.", "success");
     } catch (error) {
       console.error("Error rejecting comment:", error);
-      alert("Failed to reject comment. Please try again.");
+      showAppToast("Failed to reject comment. Please try again.", "error");
     }
   };
 
@@ -145,9 +148,13 @@ export default function CommentsPage() {
       console.log("Comment deleted successfully");
       await fetchComments();
       await fetchStats();
+      showAppToast("Comment deleted.", "success");
     } catch (error) {
       console.error("Error deleting comment:", error);
-      alert(`Failed to delete comment: ${error.message}`);
+      showAppToast(
+        error.message || "Failed to delete comment.",
+        "error",
+      );
     } finally {
       setShowDeleteConfirm(false);
       setCommentToDelete(null);

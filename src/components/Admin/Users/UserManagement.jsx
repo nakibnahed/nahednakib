@@ -4,6 +4,7 @@ import { useState, useEffect, useMemo } from "react";
 import styles from "./UserManagement.module.css";
 import { Edit, Trash2, User, Shield, Eye, Ban } from "lucide-react";
 import ConfirmationModal from "@/components/ConfirmationModal/ConfirmationModal";
+import { showAppToast } from "@/lib/showAppToast";
 
 const MAIN_ADMIN_EMAIL = "nahednakibyos@gmail.com";
 
@@ -93,13 +94,13 @@ export default function UserManagement() {
 
       if (response.ok) {
         setUsers(users.filter((user) => user.id !== userToDelete));
-        alert("User deleted successfully");
+        showAppToast("User deleted.", "success");
       } else {
-        alert(`Error: ${data.error}`);
+        showAppToast(data.error || "Could not delete user.", "error");
       }
     } catch (error) {
       console.error("Error:", error);
-      alert("Failed to delete user");
+      showAppToast("Failed to delete user.", "error");
     } finally {
       setShowDeleteConfirm(false);
       setUserToDelete(null);
@@ -123,13 +124,13 @@ export default function UserManagement() {
           users.map((user) => (user.id === userId ? { ...user, role } : user))
         );
         setEditingUser(null);
-        alert("User role updated successfully");
+        showAppToast("User role updated.", "success");
       } else {
-        alert(`Error: ${data.error}`);
+        showAppToast(data.error || "Could not update role.", "error");
       }
     } catch (error) {
       console.error("Error:", error);
-      alert("Failed to update user role");
+      showAppToast("Failed to update user role.", "error");
     }
   };
 

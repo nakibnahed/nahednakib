@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { supabase } from "@/services/supabaseClient";
 import UserLayout from "@/components/User/Layout/UserLayout";
 import ConfirmationModal from "@/components/ConfirmationModal/ConfirmationModal";
+import { showAppToast } from "@/lib/showAppToast";
 import styles from "../Profile.module.css";
 
 export default function CommentsPage() {
@@ -106,13 +107,14 @@ export default function CommentsPage() {
 
       if (error) {
         console.error("Error deleting comment:", error);
-        alert("Failed to delete comment");
+        showAppToast("Failed to delete comment.", "error");
       } else {
         setComments((prev) => prev.filter((c) => c.id !== commentToDelete));
+        showAppToast("Comment deleted.", "success");
       }
     } catch (err) {
       console.error("Error deleting comment:", err);
-      alert("An error occurred while deleting the comment");
+      showAppToast("An error occurred while deleting the comment.", "error");
     } finally {
       setShowDeleteConfirm(false);
       setCommentToDelete(null);

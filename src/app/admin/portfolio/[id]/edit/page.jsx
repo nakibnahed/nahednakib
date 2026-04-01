@@ -5,6 +5,7 @@ import { useRouter, useParams } from "next/navigation";
 import Image from "next/image";
 import { supabase } from "@/services/supabaseClient";
 import ConfirmationModal from "@/components/ConfirmationModal/ConfirmationModal";
+import { showAppToast } from "@/lib/showAppToast";
 import styles from "./EditPortfolio.module.css";
 
 const CATEGORY_OPTIONS = [
@@ -53,6 +54,7 @@ export default function EditPortfolioPage() {
 
       if (error) {
         setErrorMsg(error.message);
+        showAppToast(error.message || "Could not load portfolio item.", "error");
       } else {
         setFormData({
           title: data.title || "",
@@ -112,6 +114,7 @@ export default function EditPortfolioPage() {
 
     if (uploadError) {
       setErrorMsg(uploadError.message);
+      showAppToast(uploadError.message || "Image upload failed.", "error");
       setUploading(false);
       return;
     }
@@ -121,6 +124,7 @@ export default function EditPortfolioPage() {
       .getPublicUrl(filePath);
 
     setFormData((prev) => ({ ...prev, image: data.publicUrl }));
+    showAppToast("Image uploaded.", "success");
     setUploading(false);
   }
 
@@ -158,10 +162,12 @@ export default function EditPortfolioPage() {
         }
       }
 
-      // Clear image from form (regardless of storage deletion result)
       setFormData((prev) => ({ ...prev, image: "" }));
+      showAppToast("Cover image removed.", "success");
     } catch (error) {
-      setErrorMsg("Error deleting image: " + error.message);
+      const msg = "Error deleting image: " + error.message;
+      setErrorMsg(msg);
+      showAppToast(msg, "error");
     }
 
     setUploading(false);
@@ -192,10 +198,9 @@ export default function EditPortfolioPage() {
 
     if (error) {
       setErrorMsg(error.message);
+      showAppToast(error.message || "Could not update portfolio item.", "error");
     } else {
-      if (typeof window !== "undefined" && window.showToast) {
-        window.showToast("Portfolio updated successfully!", "success");
-      }
+      showAppToast("Portfolio updated successfully.", "success");
       router.push("/admin/portfolio");
     }
     setSaving(false);

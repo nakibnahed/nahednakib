@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import styles from "./Login.module.css";
 import {
@@ -9,6 +9,7 @@ import {
   mapAuthError,
   normalizeEmail,
 } from "@/utils/authFeedback";
+import { showAppToast } from "@/lib/showAppToast";
 
 function GoogleIcon() {
   return (
@@ -50,6 +51,22 @@ export default function LoginPage() {
   const nextPath = searchParams.get("next");
   const router = useRouter();
 
+  const notify = useCallback((fb) => {
+    setFeedback(fb);
+    if (fb?.text) {
+      showAppToast(fb.text, fb.type === "error" ? "error" : "success");
+    }
+  }, []);
+
+  useEffect(() => {
+    if (confirmed === "1") {
+      showAppToast(
+        "Email confirmed successfully. You can sign in now.",
+        "success",
+      );
+    }
+  }, [confirmed]);
+
   function resolveSafeNextPath(rawPath) {
     if (!rawPath || typeof rawPath !== "string") return null;
     if (!rawPath.startsWith("/")) return null;
@@ -70,11 +87,14 @@ export default function LoginPage() {
     setFeedback(null);
     const emailNorm = normalizeEmail(email);
     if (!isValidEmail(emailNorm)) {
-      setFeedback({ type: "error", text: "Please enter a valid email address." });
+      notify({
+        type: "error",
+        text: "Please enter a valid email address.",
+      });
       return;
     }
     if (!password) {
-      setFeedback({ type: "error", text: "Please enter your password." });
+      notify({ type: "error", text: "Please enter your password." });
       return;
     }
 
@@ -89,10 +109,12 @@ export default function LoginPage() {
     });
 
     if (error) {
-      setFeedback({ type: "error", text: mapAuthError(error, "login") });
+      notify({ type: "error", text: mapAuthError(error, "login") });
       setLoadingMode(null);
       return;
     }
+
+    showAppToast("Signed in successfully.", "success");
 
     // Send welcome notification for authenticated users
     try {
@@ -155,13 +177,13 @@ export default function LoginPage() {
         },
       });
       if (error) {
-        setFeedback({
+        notify({
           type: "error",
           text: "Google login is not available right now. Please use email login.",
         });
       }
     } catch (error) {
-      setFeedback({
+      notify({
         type: "error",
         text: "Google login failed. Please try again.",
       });
@@ -175,19 +197,14 @@ export default function LoginPage() {
       <div className={styles.container}>
         <h1 className={styles.title}>Login</h1>
         <p className={styles.subtitle}>Welcome back. Sign in to continue.</p>
-        {confirmed === "1" && (
-          <p className={styles.successBox} role="status" aria-live="polite">
-            Email confirmed successfully! You can log in now.
-          </p>
-        )}
         {feedback && (
-          <p
-            className={feedback.type === "error" ? styles.errorBox : styles.successBox}
+          <span
+            className={styles.visuallyHidden}
             role={feedback.type === "error" ? "alert" : "status"}
             aria-live="polite"
           >
             {feedback.text}
-          </p>
+          </span>
         )}
         <form onSubmit={handleSubmit} className={styles.form}>
           <div className={styles.field}>

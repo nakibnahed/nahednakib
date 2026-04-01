@@ -6,6 +6,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { supabase } from "@/services/supabaseClient";
 import ConfirmationModal from "@/components/ConfirmationModal/ConfirmationModal";
+import { showAppToast } from "@/lib/showAppToast";
 import { Edit, Trash2 } from "lucide-react";
 
 export default function PortfolioListPage() {
@@ -50,8 +51,12 @@ export default function PortfolioListPage() {
       .eq("id", portfolioToDelete.id);
 
     if (error) {
-      alert("Error deleting portfolio: " + error.message);
+      showAppToast(
+        error.message || "Could not delete this portfolio item.",
+        "error",
+      );
     } else {
+      showAppToast("Portfolio item deleted.", "success");
       setPortfolios((prev) =>
         prev.filter((p) => p.id !== portfolioToDelete.id)
       );

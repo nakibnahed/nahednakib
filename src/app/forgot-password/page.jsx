@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { useSearchParams } from "next/navigation";
 import styles from "../login/Login.module.css";
 import {
@@ -8,6 +8,7 @@ import {
   mapAuthError,
   normalizeEmail,
 } from "@/utils/authFeedback";
+import { showAppToast } from "@/lib/showAppToast";
 
 export default function ForgotPasswordPage() {
   const searchParams = useSearchParams();
@@ -15,6 +16,13 @@ export default function ForgotPasswordPage() {
   const [email, setEmail] = useState("");
   const [feedback, setFeedback] = useState(null);
   const [loading, setLoading] = useState(false);
+
+  const notify = useCallback((fb) => {
+    setFeedback(fb);
+    if (fb?.text) {
+      showAppToast(fb.text, fb.type === "error" ? "error" : "success");
+    }
+  }, []);
 
   function resolveSafeNextPath(rawPath) {
     if (!rawPath || typeof rawPath !== "string") return null;
@@ -33,7 +41,10 @@ export default function ForgotPasswordPage() {
     setFeedback(null);
     const emailNorm = normalizeEmail(email);
     if (!isValidEmail(emailNorm)) {
-      setFeedback({ type: "error", text: "Please enter a valid email address." });
+      notify({
+        type: "error",
+        text: "Please enter a valid email address.",
+      });
       return;
     }
     setLoading(true);
@@ -44,9 +55,9 @@ export default function ForgotPasswordPage() {
     });
 
     if (error) {
-      setFeedback({ type: "error", text: mapAuthError(error, "forgot") });
+      notify({ type: "error", text: mapAuthError(error, "forgot") });
     } else {
-      setFeedback({
+      notify({
         type: "success",
         text: "Reset email sent. Check your inbox and open the link to set a new password.",
       });
@@ -63,13 +74,13 @@ export default function ForgotPasswordPage() {
           Enter your email and we will send you a secure reset link.
         </p>
         {feedback && (
-          <p
-            className={feedback.type === "error" ? styles.errorBox : styles.successBox}
+          <span
+            className={styles.visuallyHidden}
             role={feedback.type === "error" ? "alert" : "status"}
             aria-live="polite"
           >
             {feedback.text}
-          </p>
+          </span>
         )}
         <form onSubmit={handleSubmit} className={styles.form}>
           <div className={styles.field}>

@@ -8,6 +8,7 @@ import {
 } from "react-icons/fa";
 import { FiShare2 } from "react-icons/fi";
 import { useEngagement } from "@/hooks/useEngagement";
+import { showAppToast } from "@/lib/showAppToast";
 import styles from "./ActionBar.module.css";
 
 export default function ActionBar({ title, contentType, contentId }) {
@@ -21,8 +22,7 @@ export default function ActionBar({ title, contentType, contentId }) {
       });
     } else if (typeof window !== "undefined") {
       navigator.clipboard.writeText(window.location.href);
-      // Simple alert for now
-      alert("Link copied to clipboard!");
+      showAppToast("Link copied to clipboard.", "success");
     }
   };
 

@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import styles from "../login/Login.module.css";
 import {
@@ -10,6 +10,7 @@ import {
   mapAuthError,
   normalizeEmail,
 } from "@/utils/authFeedback";
+import { showAppToast } from "@/lib/showAppToast";
 
 function GoogleIcon() {
   return (
@@ -49,6 +50,13 @@ export default function RegisterPage() {
   const [feedback, setFeedback] = useState(null);
   const [loadingMode, setLoadingMode] = useState(null);
 
+  const notify = useCallback((fb) => {
+    setFeedback(fb);
+    if (fb?.text) {
+      showAppToast(fb.text, fb.type === "error" ? "error" : "success");
+    }
+  }, []);
+
   function resolveSafeNextPath(rawPath) {
     if (!rawPath || typeof rawPath !== "string") return null;
     if (!rawPath.startsWith("/")) return null;
@@ -66,11 +74,14 @@ export default function RegisterPage() {
     setFeedback(null);
     const emailNorm = normalizeEmail(email);
     if (!isValidEmail(emailNorm)) {
-      setFeedback({ type: "error", text: "Please enter a valid email address." });
+      notify({
+        type: "error",
+        text: "Please enter a valid email address.",
+      });
       return;
     }
     if (!isPasswordStrong(password)) {
-      setFeedback({
+      notify({
         type: "error",
         text: "Password must be at least 8 characters and include letters and numbers.",
       });
@@ -91,7 +102,7 @@ export default function RegisterPage() {
     });
 
     if (error) {
-      setFeedback({ type: "error", text: mapAuthError(error, "register") });
+      notify({ type: "error", text: mapAuthError(error, "register") });
       setLoadingMode(null);
       return;
     }
@@ -107,13 +118,15 @@ export default function RegisterPage() {
           password,
         });
       if (loginError) {
-        setFeedback({
+        notify({
           type: "error",
           text: "This email is already registered. Enter your current password to log in.",
         });
         setLoadingMode(null);
         return;
       }
+
+      showAppToast("Signed in successfully.", "success");
 
       const safeNextPath = resolveSafeNextPath(nextPath) || "/users/profile";
       try {
@@ -130,7 +143,7 @@ export default function RegisterPage() {
       return;
     }
 
-    setFeedback({
+    notify({
       type: "success",
       text: "Account created. Check your inbox and confirm your email before logging in.",
     });
@@ -154,13 +167,13 @@ export default function RegisterPage() {
         },
       });
       if (error) {
-        setFeedback({
+        notify({
           type: "error",
           text: "Google signup is unavailable right now. Please use email signup.",
         });
       }
     } catch (error) {
-      setFeedback({
+      notify({
         type: "error",
         text: "Google signup failed. Please try again.",
       });
@@ -177,13 +190,13 @@ export default function RegisterPage() {
         <h1 className={styles.title}>Register</h1>
         <p className={styles.subtitle}>Create your account in less than a minute.</p>
         {feedback && (
-          <p
-            className={feedback.type === "error" ? styles.errorBox : styles.successBox}
+          <span
+            className={styles.visuallyHidden}
             role={feedback.type === "error" ? "alert" : "status"}
             aria-live="polite"
           >
             {feedback.text}
-          </p>
+          </span>
         )}
         <form onSubmit={handleSubmit} className={styles.form}>
           <div className={styles.field}>

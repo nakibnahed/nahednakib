@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { supabase } from "@/services/supabaseClient";
+import { showAppToast } from "@/lib/showAppToast";
 import styles from "../../../../app/users/profile/Profile.module.css";
 
 export default function LikesContent({ user }) {
@@ -111,13 +112,14 @@ export default function LikesContent({ user }) {
 
       if (error) {
         console.error("Error removing like:", error);
-        alert("Failed to remove like");
+        showAppToast("Failed to remove like.", "error");
       } else {
         setLikes(likes.filter((like) => like.id !== likeId));
+        showAppToast("Like removed.", "success");
       }
     } catch (err) {
       console.error("Error removing like:", err);
-      alert("An error occurred while removing the like");
+      showAppToast("An error occurred while removing the like.", "error");
     }
   };
 

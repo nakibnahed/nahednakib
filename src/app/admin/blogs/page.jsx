@@ -6,6 +6,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { supabase } from "@/services/supabaseClient";
 import ConfirmationModal from "@/components/ConfirmationModal/ConfirmationModal";
+import { showAppToast } from "@/lib/showAppToast";
 import { Edit, Trash2 } from "lucide-react";
 
 export default function BlogListPage() {
@@ -30,6 +31,10 @@ export default function BlogListPage() {
 
     if (blogsError) {
       console.error("Error fetching blogs:", blogsError);
+      showAppToast(
+        blogsError.message || "Could not load blog posts.",
+        "error",
+      );
       setBlogs([]);
       setLoading(false);
       return;
@@ -72,8 +77,12 @@ export default function BlogListPage() {
       .eq("id", blogToDelete.id);
 
     if (error) {
-      alert("Error deleting blog: " + error.message);
+      showAppToast(
+        error.message || "Could not delete this blog post.",
+        "error",
+      );
     } else {
+      showAppToast("Blog post deleted.", "success");
       setBlogs((prev) => prev.filter((b) => b.id !== blogToDelete.id));
     }
     setLoading(false);

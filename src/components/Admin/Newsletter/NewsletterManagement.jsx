@@ -4,6 +4,7 @@ import { useState, useEffect, useMemo } from "react";
 import styles from "./NewsletterManagement.module.css";
 import { Mail, Trash2, Download, UserX, Users } from "lucide-react";
 import ConfirmationModal from "@/components/ConfirmationModal/ConfirmationModal";
+import { showAppToast } from "@/lib/showAppToast";
 
 export default function NewsletterManagement() {
   const [subscribers, setSubscribers] = useState([]);
@@ -82,13 +83,13 @@ export default function NewsletterManagement() {
         setSubscribers(
           subscribers.filter((sub) => sub.id !== subscriberToDelete)
         );
-        alert("Subscriber deleted successfully");
+        showAppToast("Subscriber removed.", "success");
       } else {
-        alert(`Error: ${data.error}`);
+        showAppToast(data.error || "Could not remove subscriber.", "error");
       }
     } catch (error) {
       console.error("Error:", error);
-      alert("Failed to delete subscriber");
+      showAppToast("Failed to delete subscriber.", "error");
     } finally {
       setShowDeleteConfirm(false);
       setSubscriberToDelete(null);

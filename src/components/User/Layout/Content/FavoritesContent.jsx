@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { supabase } from "@/services/supabaseClient";
+import { showAppToast } from "@/lib/showAppToast";
 import ConfirmationModal from "@/components/ConfirmationModal/ConfirmationModal";
 import styles from "../../../../app/users/profile/Profile.module.css";
 
@@ -97,15 +98,16 @@ export default function FavoritesContent({ user }) {
 
       if (error) {
         console.error("Error deleting favorite:", error);
-        alert("Failed to delete favorite");
+        showAppToast("Failed to delete favorite.", "error");
       } else {
         setFavorites(
           favorites.filter((favorite) => favorite.id !== favoriteToDelete)
         );
+        showAppToast("Favorite removed.", "success");
       }
     } catch (err) {
       console.error("Error deleting favorite:", err);
-      alert("An error occurred while deleting the favorite");
+      showAppToast("An error occurred while deleting the favorite.", "error");
     } finally {
       setShowDeleteConfirm(false);
       setFavoriteToDelete(null);

@@ -6,6 +6,7 @@ import { supabase } from "@/services/supabaseClient";
 import { Editor } from "@tinymce/tinymce-react";
 import { slugify, generateUniqueSlug } from "@/lib/utils/slugify";
 import ConfirmationModal from "@/components/ConfirmationModal/ConfirmationModal";
+import { showAppToast } from "@/lib/showAppToast";
 import styles from "./NewBlog.module.css";
 
 export default function NewBlogPage() {
@@ -76,7 +77,9 @@ export default function NewBlogPage() {
       });
       const json = await res.json().catch(() => ({}));
       if (!res.ok) {
-        setErrorMsg(json.error || "Could not create author (main admin only).");
+        const msg = json.error || "Could not create author (main admin only).";
+        setErrorMsg(msg);
+        showAppToast(msg, "error");
         return;
       }
       setNewAuthorName("");
@@ -84,8 +87,11 @@ export default function NewBlogPage() {
       if (json.author?.id) {
         setFormData((prev) => ({ ...prev, author_id: json.author.id }));
       }
+      showAppToast("Author added and selected.", "success");
     } catch (err) {
-      setErrorMsg(err.message || "Failed to add author");
+      const msg = err.message || "Failed to add author";
+      setErrorMsg(msg);
+      showAppToast(msg, "error");
     } finally {
       setAddingAuthor(false);
     }
@@ -113,6 +119,7 @@ export default function NewBlogPage() {
   function confirmDeleteImage() {
     setFormData({ ...formData, imageFile: null });
     setShowDeleteConfirm(false);
+    showAppToast("Cover image removed.", "success");
   }
 
   async function handleSubmit(e) {
@@ -150,7 +157,9 @@ export default function NewBlogPage() {
         });
 
       if (uploadError) {
-        setErrorMsg("Image upload failed: " + uploadError.message);
+        const msg = "Image upload failed: " + uploadError.message;
+        setErrorMsg(msg);
+        showAppToast(msg, "error");
         setLoading(false);
         return;
       }
@@ -185,7 +194,9 @@ export default function NewBlogPage() {
 
     if (error) {
       setErrorMsg(error.message);
+      showAppToast(error.message || "Could not create blog post.", "error");
     } else {
+      showAppToast("Blog post created successfully.", "success");
       // Send notification to all users about new blog post
       try {
         const response = await fetch("/api/admin/notifications", {

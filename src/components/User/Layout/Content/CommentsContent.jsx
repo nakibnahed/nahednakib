@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { supabase } from "@/services/supabaseClient";
+import { showAppToast } from "@/lib/showAppToast";
 import ConfirmationModal from "@/components/ConfirmationModal/ConfirmationModal";
 import styles from "../../../../app/users/profile/Profile.module.css";
 
@@ -97,15 +98,16 @@ export default function CommentsContent({ user }) {
 
       if (error) {
         console.error("Error deleting comment:", error);
-        alert("Failed to delete comment");
+        showAppToast("Failed to delete comment.", "error");
       } else {
         setComments(
           comments.filter((comment) => comment.id !== commentToDelete)
         );
+        showAppToast("Comment deleted.", "success");
       }
     } catch (err) {
       console.error("Error deleting comment:", err);
-      alert("An error occurred while deleting the comment");
+      showAppToast("An error occurred while deleting the comment.", "error");
     } finally {
       setShowDeleteConfirm(false);
       setCommentToDelete(null);

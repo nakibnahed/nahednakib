@@ -13,6 +13,7 @@ import {
 import { FiShare2, FiSend, FiLoader } from "react-icons/fi";
 import { useEngagement } from "@/hooks/useEngagement";
 import ConfirmationModal from "@/components/ConfirmationModal/ConfirmationModal";
+import { showAppToast } from "@/lib/showAppToast";
 import styles from "./EngagementSection.module.css";
 
 export default function EngagementSection({
@@ -63,14 +64,7 @@ export default function EngagementSection({
       });
     } else if (typeof window !== "undefined") {
       navigator.clipboard.writeText(window.location.href);
-      // Show a nice toast notification instead of alert
-      const toast = document.createElement("div");
-      toast.className = styles.toast;
-      toast.textContent = "Link copied to clipboard!";
-      document.body.appendChild(toast);
-      setTimeout(() => {
-        document.body.removeChild(toast);
-      }, 3000);
+      showAppToast("Link copied to clipboard.", "success");
     }
   };
 
@@ -83,6 +77,7 @@ export default function EngagementSection({
       setNewComment("");
     } catch (error) {
       console.error("Failed to add comment:", error);
+      showAppToast("Could not post comment. Please try again.", "error");
     }
   };
 
@@ -96,6 +91,7 @@ export default function EngagementSection({
       setReplyTo(null);
     } catch (error) {
       console.error("Failed to add reply:", error);
+      showAppToast("Could not post reply. Please try again.", "error");
     }
   };
 
@@ -112,19 +108,10 @@ export default function EngagementSection({
 
     try {
       await actions.deleteComment(commentToDelete);
-
-      // Show success toast
-      const toast = document.createElement("div");
-      toast.className = styles.toast;
-      toast.textContent = "Comment deleted successfully!";
-      toast.style.background = "#10b981";
-      document.body.appendChild(toast);
-      setTimeout(() => {
-        document.body.removeChild(toast);
-      }, 3000);
+      showAppToast("Comment deleted.", "success");
     } catch (error) {
       console.error("Error deleting comment:", error);
-      alert("Failed to delete comment. Please try again.");
+      showAppToast("Failed to delete comment. Please try again.", "error");
     } finally {
       setDeletingComment(null);
       setCommentToDelete(null);
@@ -152,19 +139,10 @@ export default function EngagementSection({
 
       setEditingComment(null);
       setEditText("");
-
-      // Show success toast
-      const toast = document.createElement("div");
-      toast.className = styles.toast;
-      toast.textContent = "Comment updated successfully!";
-      toast.style.background = "#10b981";
-      document.body.appendChild(toast);
-      setTimeout(() => {
-        document.body.removeChild(toast);
-      }, 3000);
+      showAppToast("Comment updated.", "success");
     } catch (error) {
       console.error("Error updating comment:", error);
-      alert("Failed to update comment. Please try again.");
+      showAppToast("Failed to update comment. Please try again.", "error");
     }
   };
 

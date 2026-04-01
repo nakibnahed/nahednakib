@@ -22,12 +22,13 @@ const ToastContainer = () => {
 
   return (
     <div>
-      {toasts.map((toast) => (
+      {toasts.map((toast, index) => (
         <Toast
           key={toast.id}
           message={toast.message}
           type={toast.type}
           duration={toast.duration}
+          stackIndex={index}
           onClose={() => removeToast(toast.id)}
         />
       ))}

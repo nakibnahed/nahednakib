@@ -7,6 +7,7 @@ import { supabase } from "@/services/supabaseClient";
 import { Editor } from "@tinymce/tinymce-react";
 import { slugify, generateUniqueSlug } from "@/lib/utils/slugify";
 import ConfirmationModal from "@/components/ConfirmationModal/ConfirmationModal";
+import { showAppToast } from "@/lib/showAppToast";
 import styles from "./EditBlog.module.css";
 
 export default function EditBlogPage() {
@@ -82,7 +83,9 @@ export default function EditBlogPage() {
       });
       const json = await res.json().catch(() => ({}));
       if (!res.ok) {
-        setErrorMsg(json.error || "Could not create author (main admin only).");
+        const msg = json.error || "Could not create author (main admin only).";
+        setErrorMsg(msg);
+        showAppToast(msg, "error");
         return;
       }
       setNewAuthorName("");
@@ -90,8 +93,11 @@ export default function EditBlogPage() {
       if (json.author?.id) {
         setFormData((prev) => ({ ...prev, author_id: json.author.id }));
       }
+      showAppToast("Author added and selected.", "success");
     } catch (err) {
-      setErrorMsg(err.message || "Failed to add author");
+      const msg = err.message || "Failed to add author";
+      setErrorMsg(msg);
+      showAppToast(msg, "error");
     } finally {
       setAddingAuthor(false);
     }
@@ -107,6 +113,7 @@ export default function EditBlogPage() {
 
     if (error) {
       setErrorMsg(error.message);
+      showAppToast(error.message || "Could not load blog post.", "error");
     } else {
       setFormData({
         title: data.title,
@@ -156,6 +163,7 @@ export default function EditBlogPage() {
 
     if (uploadError) {
       setErrorMsg(uploadError.message);
+      showAppToast(uploadError.message || "Image upload failed.", "error");
       setUploading(false);
       return;
     }
@@ -165,6 +173,7 @@ export default function EditBlogPage() {
       .getPublicUrl(filePath);
 
     setFormData((prev) => ({ ...prev, image: data.publicUrl }));
+    showAppToast("Cover image uploaded.", "success");
     setUploading(false);
   }
 
@@ -189,13 +198,17 @@ export default function EditBlogPage() {
         .remove([fileName]);
 
       if (deleteError) {
-        setErrorMsg("Error deleting image: " + deleteError.message);
+        const msg = "Error deleting image: " + deleteError.message;
+        setErrorMsg(msg);
+        showAppToast(msg, "error");
       } else {
-        // Clear image from form
         setFormData((prev) => ({ ...prev, image: "" }));
+        showAppToast("Cover image removed.", "success");
       }
     } catch (error) {
-      setErrorMsg("Error deleting image: " + error.message);
+      const msg = "Error deleting image: " + error.message;
+      setErrorMsg(msg);
+      showAppToast(msg, "error");
     }
 
     setUploading(false);
@@ -239,7 +252,9 @@ export default function EditBlogPage() {
 
     if (error) {
       setErrorMsg(error.message);
+      showAppToast(error.message || "Could not update blog post.", "error");
     } else {
+      showAppToast("Blog post updated successfully.", "success");
       router.push("/admin/blogs");
     }
     setSaving(false);

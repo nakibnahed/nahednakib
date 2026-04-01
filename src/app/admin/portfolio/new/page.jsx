@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/services/supabaseClient";
 import ConfirmationModal from "@/components/ConfirmationModal/ConfirmationModal";
+import { showAppToast } from "@/lib/showAppToast";
 import styles from "./NewPortfolio.module.css";
 
 const CATEGORY_OPTIONS = [
@@ -52,6 +53,7 @@ export default function NewPortfolioPage() {
   function confirmDeleteImage() {
     setFormData({ ...formData, imageFile: null });
     setShowDeleteConfirm(false);
+    showAppToast("Cover image removed.", "success");
   }
 
   function handleCategoryChange(e) {
@@ -89,7 +91,9 @@ export default function NewPortfolioPage() {
           });
 
         if (uploadError) {
-          setErrorMsg("Image upload failed: " + uploadError.message);
+          const msg = "Image upload failed: " + uploadError.message;
+          setErrorMsg(msg);
+          showAppToast(msg, "error");
           setLoading(false);
           return;
         }
@@ -99,14 +103,18 @@ export default function NewPortfolioPage() {
           .getPublicUrl(filePath);
 
         if (urlError) {
-          setErrorMsg("Failed to get image URL: " + urlError.message);
+          const msg = "Failed to get image URL: " + urlError.message;
+          setErrorMsg(msg);
+          showAppToast(msg, "error");
           setLoading(false);
           return;
         }
 
         imageUrl = publicData.publicUrl;
       } catch (uploadError) {
-        setErrorMsg("Image upload failed: " + uploadError.message);
+        const msg = "Image upload failed: " + uploadError.message;
+        setErrorMsg(msg);
+        showAppToast(msg, "error");
         setLoading(false);
         return;
       }
@@ -137,10 +145,9 @@ export default function NewPortfolioPage() {
 
     if (error) {
       setErrorMsg(error.message);
+      showAppToast(error.message || "Could not create portfolio item.", "error");
     } else {
-      if (typeof window !== "undefined" && window.showToast) {
-        window.showToast("Portfolio created successfully!", "success");
-      }
+      showAppToast("Portfolio created successfully.", "success");
       // Send notification to all users about new portfolio item
       try {
         await fetch("/api/admin/notifications", {
