@@ -6,6 +6,7 @@ import Image from "next/image";
 import { supabase } from "@/services/supabaseClient";
 import ConfirmationModal from "@/components/ConfirmationModal/ConfirmationModal";
 import { showAppToast } from "@/lib/showAppToast";
+import { seoKeywordsFromInput, seoKeywordsToInput } from "@/lib/seo/auto";
 import styles from "./EditPortfolio.module.css";
 
 const CATEGORY_OPTIONS = [
@@ -35,6 +36,10 @@ export default function EditPortfolioPage() {
     repo_url: "",
     status: "Completed",
     technologies: "",
+    focus_keyword: "",
+    seo_keywords: "",
+    meta_title: "",
+    meta_description: "",
   });
 
   const [loading, setLoading] = useState(true);
@@ -68,6 +73,10 @@ export default function EditPortfolioPage() {
           repo_url: data.repo_url || "",
           status: data.status || "Completed",
           technologies: data.technologies || "",
+          focus_keyword: data.focus_keyword || "",
+          seo_keywords: seoKeywordsToInput(data.seo_keywords),
+          meta_title: data.meta_title || "",
+          meta_description: data.meta_description || "",
         });
       }
       setLoading(false);
@@ -193,6 +202,10 @@ export default function EditPortfolioPage() {
         repo_url: formData.repo_url,
         status: formData.status,
         technologies: formData.technologies,
+        focus_keyword: formData.focus_keyword.trim() || null,
+        seo_keywords: seoKeywordsFromInput(formData.seo_keywords),
+        meta_title: formData.meta_title.trim() || null,
+        meta_description: formData.meta_description.trim() || null,
       })
       .eq("id", id);
 
@@ -372,6 +385,46 @@ export default function EditPortfolioPage() {
             onChange={handleChange}
             className={styles.input}
             placeholder="e.g. React, Next.js, Supabase"
+          />
+        </div>
+
+        <div className={styles.formGroup}>
+          <h2 style={{ fontSize: "1.25rem", marginBottom: "0.5rem" }}>
+            SEO (optional)
+          </h2>
+          <p className={styles.helpText}>
+            Leave blank to auto-generate titles and descriptions from project
+            fields. Supporting keywords feed structured data only.
+          </p>
+          <label className={styles.label}>Focus keyword</label>
+          <input
+            name="focus_keyword"
+            value={formData.focus_keyword}
+            onChange={handleChange}
+            className={styles.input}
+          />
+          <label className={styles.label}>Supporting keywords</label>
+          <input
+            name="seo_keywords"
+            value={formData.seo_keywords}
+            onChange={handleChange}
+            className={styles.input}
+            placeholder="Comma-separated"
+          />
+          <label className={styles.label}>Meta title override</label>
+          <input
+            name="meta_title"
+            value={formData.meta_title}
+            onChange={handleChange}
+            className={styles.input}
+          />
+          <label className={styles.label}>Meta description override</label>
+          <textarea
+            name="meta_description"
+            value={formData.meta_description}
+            onChange={handleChange}
+            className={styles.textarea}
+            rows={3}
           />
         </div>
 

@@ -13,6 +13,7 @@ import {
   MAIN_AUTHOR_NAME,
   MAIN_AUTHOR_ROLE,
 } from "@/constants/mainAuthor";
+import { buildArticleJsonLd, buildBlogPostMetadata } from "@/lib/seo/blog";
 
 /**
  * Load post by slug, then by id (legacy). Author is loaded separately so we do not
@@ -75,54 +76,7 @@ export async function generateMetadata({ params }) {
   }
 
   const authorName = author?.name?.trim() || MAIN_AUTHOR_NAME;
-
-  const cleanDescription =
-    blog.description ||
-    blog.content?.replace(/<[^>]*>/g, "").substring(0, 160) + "..." ||
-    "Read this amazing blog post about web development, technology, and more.";
-
-  const baseUrl =
-    process.env.NEXT_PUBLIC_SITE_URL || "https://nahednakib.vercel.app";
-  const postUrl = `${baseUrl}/blog/${blog.slug}`;
-  const imageUrl = blog.image || `${baseUrl}/images/portfolio.jpg`;
-
-  return {
-    title: blog.title,
-    description: cleanDescription,
-    authors: [{ name: authorName }],
-    openGraph: {
-      title: blog.title,
-      description: cleanDescription,
-      url: postUrl,
-      siteName: "Nahed Nakib Blog",
-      images: [
-        {
-          url: imageUrl,
-          width: 1200,
-          height: 630,
-          alt: blog.title,
-        },
-      ],
-      locale: "en_US",
-      type: "article",
-      publishedTime: blog.created_at,
-      authors: [authorName],
-      tags: blog.tags ? blog.tags.split(",").map((tag) => tag.trim()) : [],
-    },
-    twitter: {
-      card: "summary_large_image",
-      title: blog.title,
-      description: cleanDescription,
-      images: [imageUrl],
-      creator: "@your_twitter_handle",
-    },
-    alternates: {
-      canonical: postUrl,
-    },
-    other: {
-      author: authorName,
-    },
-  };
+  return buildBlogPostMetadata({ blog, authorName });
 }
 
 export default async function Post({ params }) {
@@ -165,20 +119,15 @@ export default async function Post({ params }) {
     process.env.NEXT_PUBLIC_SITE_URL || "https://nahednakib.vercel.app";
   const imageUrl = blog.image || `${baseUrl}/images/portfolio.jpg`;
 
-  const jsonLd = {
-    "@context": "https://schema.org",
-    "@type": "Article",
-    headline: blog.title,
-    datePublished: blog.created_at,
-    image: imageUrl,
-    author: {
-      "@type": "Person",
-      name: authorName,
-      ...(author?.id
-        ? { url: `${baseUrl}/author/${author.id}` }
-        : { url: `${baseUrl}${MAIN_AUTHOR_FALLBACK_HREF}` }),
-    },
-  };
+  const authorUrl = author?.id
+    ? `${baseUrl}/author/${author.id}`
+    : `${baseUrl}${MAIN_AUTHOR_FALLBACK_HREF}`;
+
+  const jsonLd = buildArticleJsonLd({
+    blog,
+    authorName,
+    authorUrl,
+  });
 
   const formattedDate = new Date(blog.created_at).toLocaleDateString(
     undefined,

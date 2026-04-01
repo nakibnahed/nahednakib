@@ -1,15 +1,15 @@
 import { getSiteUrl, siteDefaults, getDefaultOgImageUrl } from "@/lib/seo/site";
 
 export const metadata = {
-  title: "Blog",
+  title: "Training",
   description:
-    "Articles on web development, Next.js, performance, and lessons from the intersection of running and software.",
-  alternates: { canonical: `${getSiteUrl()}/blog` },
+    "Training insights and running journey — discipline, mileage, and mindset from a distance runner who codes.",
+  alternates: { canonical: `${getSiteUrl()}/training` },
   openGraph: {
-    title: `Blog | ${siteDefaults.authorName}`,
+    title: `Training | ${siteDefaults.authorName}`,
     description:
-      "Technical writing, tutorials, and thoughts on building modern web applications.",
-    url: `${getSiteUrl()}/blog`,
+      "Running-focused updates and training notes from a competitive distance runner and developer.",
+    url: `${getSiteUrl()}/training`,
     siteName: siteDefaults.authorName,
     locale: siteDefaults.locale,
     type: "website",
@@ -17,13 +17,13 @@ export const metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: `Blog | ${siteDefaults.authorName}`,
+    title: `Training | ${siteDefaults.authorName}`,
     images: [getDefaultOgImageUrl()],
     creator: siteDefaults.twitterCreator,
     site: siteDefaults.twitterSite,
   },
 };
 
-export default function BlogSegmentLayout({ children }) {
+export default function TrainingLayout({ children }) {
   return children;
 }

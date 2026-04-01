@@ -7,6 +7,7 @@ import { Editor } from "@tinymce/tinymce-react";
 import { slugify, generateUniqueSlug } from "@/lib/utils/slugify";
 import ConfirmationModal from "@/components/ConfirmationModal/ConfirmationModal";
 import { showAppToast } from "@/lib/showAppToast";
+import { seoKeywordsFromInput } from "@/lib/seo/auto";
 import styles from "./NewBlog.module.css";
 
 export default function NewBlogPage() {
@@ -21,6 +22,10 @@ export default function NewBlogPage() {
     content: "",
     tags: "",
     readTime: "",
+    focus_keyword: "",
+    seo_keywords: "",
+    meta_title: "",
+    meta_description: "",
   });
 
   const [categories, setCategories] = useState([]);
@@ -187,6 +192,10 @@ export default function NewBlogPage() {
           content: formData.content,
           tags: formData.tags.trim() || "Web Development",
           readTime: formData.readTime ? parseInt(formData.readTime) : null,
+          focus_keyword: formData.focus_keyword.trim() || null,
+          seo_keywords: seoKeywordsFromInput(formData.seo_keywords),
+          meta_title: formData.meta_title.trim() || null,
+          meta_description: formData.meta_description.trim() || null,
         },
       ])
       .select("id")
@@ -383,6 +392,48 @@ export default function NewBlogPage() {
             will be automatically calculated based on content length (200 words
             per minute).
           </small>
+        </div>
+
+        <div className={styles.formGroup}>
+          <h2 style={{ fontSize: "1.25rem", marginBottom: "0.5rem" }}>
+            SEO (optional)
+          </h2>
+          <p className={styles.helpText}>
+            Leave blank to auto-generate titles and descriptions. Supporting
+            keywords are used for structured data, not the deprecated meta
+            keywords tag.
+          </p>
+          <label className={styles.label}>Focus keyword</label>
+          <input
+            name="focus_keyword"
+            value={formData.focus_keyword}
+            onChange={handleChange}
+            className={styles.input}
+            placeholder="Primary phrase for this post"
+          />
+          <label className={styles.label}>Supporting keywords</label>
+          <input
+            name="seo_keywords"
+            value={formData.seo_keywords}
+            onChange={handleChange}
+            className={styles.input}
+            placeholder="Comma-separated"
+          />
+          <label className={styles.label}>Meta title override</label>
+          <input
+            name="meta_title"
+            value={formData.meta_title}
+            onChange={handleChange}
+            className={styles.input}
+          />
+          <label className={styles.label}>Meta description override</label>
+          <textarea
+            name="meta_description"
+            value={formData.meta_description}
+            onChange={handleChange}
+            className={styles.textarea}
+            rows={3}
+          />
         </div>
 
         <div className={styles.formGroup}>

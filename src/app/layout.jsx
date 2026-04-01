@@ -2,56 +2,71 @@ import "./globals.css";
 import Navbar from "@/components/Nav/Navbar";
 import Footer from "@/components/Footer/Footer";
 import ToastContainer from "@/components/Toast/ToastContainer";
-import { metadata as siteMetadata } from "@/constants/metadata";
+import { getSiteUrl, siteDefaults, getDefaultOgImageUrl } from "@/lib/seo/site";
 import { ThemeProvider } from "@/context/ThemeContext";
 import { AuthSessionProvider } from "@/context/AuthSessionContext";
 import NotificationProviderBoundary from "@/components/NotificationProviderBoundary/NotificationProviderBoundary";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { Analytics } from "@vercel/analytics/next";
 
+const base = getSiteUrl();
+
 export const metadata = {
-  title: siteMetadata.title,
-  description: siteMetadata.description,
-  keywords: siteMetadata.keywords,
-  authors: [{ name: siteMetadata.author }],
-  creator: siteMetadata.author,
-  publisher: siteMetadata.author,
-  robots: siteMetadata.robots,
+  metadataBase: new URL(base),
+  title: {
+    default: siteDefaults.shortTitle,
+    template: `%s | ${siteDefaults.authorName}`,
+  },
+  description: siteDefaults.description,
+  applicationName: siteDefaults.authorName,
+  authors: [{ name: siteDefaults.authorName, url: base }],
+  creator: siteDefaults.authorName,
+  publisher: siteDefaults.authorName,
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
   manifest: "/manifest.json",
   icons: {
-    icon: siteMetadata.icons.icon,
-    apple: siteMetadata.icons.apple,
+    icon: "/favicon.ico",
+    apple: "/favicon.ico",
   },
   alternates: {
-    canonical: siteMetadata.canonical,
+    canonical: base,
   },
   openGraph: {
-    title: siteMetadata.title,
-    description: siteMetadata.description,
-    url: siteMetadata.url,
-    siteName: siteMetadata.siteName,
-    type: siteMetadata.type,
-    locale: siteMetadata.locale,
+    type: "website",
+    locale: siteDefaults.locale,
+    url: base,
+    siteName: siteDefaults.authorName,
+    title: siteDefaults.shortTitle,
+    description: siteDefaults.description,
     images: [
       {
-        url: siteMetadata.image,
+        url: getDefaultOgImageUrl(),
         width: 1200,
         height: 630,
-        alt: "Nahed Nakib - Web Developer & Distance Runner",
-        type: "image/jpeg",
+        alt: `${siteDefaults.authorName} — Web Developer & Distance Runner`,
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: siteMetadata.title,
-    description: siteMetadata.description,
-    images: [siteMetadata.image],
-    creator: "@nahednakib",
-    site: "@nahednakib",
+    title: siteDefaults.shortTitle,
+    description: siteDefaults.description,
+    images: [getDefaultOgImageUrl()],
+    creator: siteDefaults.twitterCreator,
+    site: siteDefaults.twitterSite,
   },
   other: {
-    "google-site-verification": "5zi1LXSp9ABxohGs7sj86y3W9GCCwuo2erxRAbMzmNM",
+    "google-site-verification": siteDefaults.googleSiteVerification,
   },
 };
 
@@ -60,41 +75,39 @@ export const viewport = {
   initialScale: 1,
 };
 
-// Structured data for better SEO
-const structuredData = {
+const rootJsonLd = {
   "@context": "https://schema.org",
-  "@type": "Person",
-  name: "Nahed Nakib",
-  url: "https://nahednakib.vercel.app",
-  image: "https://nahednakib.vercel.app/images/me.jpg",
-  sameAs: [
-    "https://github.com/nahednakib",
-    "https://linkedin.com/in/nahednakib",
-    "https://twitter.com/nahednakib",
+  "@graph": [
+    {
+      "@type": "WebSite",
+      "@id": `${base}/#website`,
+      name: siteDefaults.authorName,
+      url: base,
+      description: siteDefaults.description,
+      inLanguage: "en-US",
+      publisher: { "@id": `${base}/#person` },
+    },
+    {
+      "@type": "Person",
+      "@id": `${base}/#person`,
+      name: siteDefaults.authorName,
+      url: base,
+      image: `${base}/images/me.jpg`,
+      sameAs: [
+        "https://github.com/nahednakib",
+        "https://linkedin.com/in/nahednakib",
+        "https://twitter.com/nahednakib",
+      ],
+      jobTitle: "Running Programmer & Web Developer",
+      knowsAbout: [
+        "Web Development",
+        "React",
+        "Next.js",
+        "JavaScript",
+        "Distance Running",
+      ],
+    },
   ],
-  jobTitle: "Running Programmer & Web Developer",
-  worksFor: {
-    "@type": "Organization",
-    name: "Freelance",
-  },
-  description:
-    "Nahed Nakib is a professional distance runner and web developer who combines athletic excellence with coding expertise. As a running programmer, I bring discipline and precision to both sports and technology.",
-  knowsAbout: [
-    "Web Development",
-    "React",
-    "Next.js",
-    "JavaScript",
-    "Distance Running",
-    "Marathon Running",
-    "Running Programming",
-    "Athlete Developer",
-    "Professional Running",
-    "Software Development",
-  ],
-  address: {
-    "@type": "PostalAddress",
-    addressCountry: "US",
-  },
 };
 
 export default function RootLayout({ children }) {
@@ -104,7 +117,7 @@ export default function RootLayout({ children }) {
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
-            __html: JSON.stringify(structuredData),
+            __html: JSON.stringify(rootJsonLd),
           }}
         />
       </head>

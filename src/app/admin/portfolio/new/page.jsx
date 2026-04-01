@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { supabase } from "@/services/supabaseClient";
 import ConfirmationModal from "@/components/ConfirmationModal/ConfirmationModal";
 import { showAppToast } from "@/lib/showAppToast";
+import { seoKeywordsFromInput } from "@/lib/seo/auto";
 import styles from "./NewPortfolio.module.css";
 
 const CATEGORY_OPTIONS = [
@@ -32,6 +33,10 @@ export default function NewPortfolioPage() {
     repo_url: "",
     status: "Completed",
     technologies: "",
+    focus_keyword: "",
+    seo_keywords: "",
+    meta_title: "",
+    meta_description: "",
   });
 
   const [loading, setLoading] = useState(false);
@@ -138,6 +143,10 @@ export default function NewPortfolioPage() {
           repo_url: formData.repo_url,
           status: formData.status,
           technologies: formData.technologies,
+          focus_keyword: formData.focus_keyword.trim() || null,
+          seo_keywords: seoKeywordsFromInput(formData.seo_keywords),
+          meta_title: formData.meta_title.trim() || null,
+          meta_description: formData.meta_description.trim() || null,
         },
       ])
       .select("id")
@@ -321,6 +330,46 @@ export default function NewPortfolioPage() {
             onChange={handleChange}
             className={styles.input}
             placeholder="e.g. React, Next.js, Supabase"
+          />
+        </div>
+
+        <div className={styles.formGroup}>
+          <h2 style={{ fontSize: "1.25rem", marginBottom: "0.5rem" }}>
+            SEO (optional)
+          </h2>
+          <p style={{ opacity: 0.85, fontSize: "0.9rem", marginBottom: "0.75rem" }}>
+            Leave blank to auto-generate titles and descriptions. Supporting
+            keywords feed structured data only.
+          </p>
+          <label className={styles.label}>Focus keyword</label>
+          <input
+            name="focus_keyword"
+            value={formData.focus_keyword}
+            onChange={handleChange}
+            className={styles.input}
+          />
+          <label className={styles.label}>Supporting keywords</label>
+          <input
+            name="seo_keywords"
+            value={formData.seo_keywords}
+            onChange={handleChange}
+            className={styles.input}
+            placeholder="Comma-separated"
+          />
+          <label className={styles.label}>Meta title override</label>
+          <input
+            name="meta_title"
+            value={formData.meta_title}
+            onChange={handleChange}
+            className={styles.input}
+          />
+          <label className={styles.label}>Meta description override</label>
+          <textarea
+            name="meta_description"
+            value={formData.meta_description}
+            onChange={handleChange}
+            className={styles.textarea}
+            rows={3}
           />
         </div>
 

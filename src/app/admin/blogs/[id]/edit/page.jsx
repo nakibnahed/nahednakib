@@ -8,6 +8,7 @@ import { Editor } from "@tinymce/tinymce-react";
 import { slugify, generateUniqueSlug } from "@/lib/utils/slugify";
 import ConfirmationModal from "@/components/ConfirmationModal/ConfirmationModal";
 import { showAppToast } from "@/lib/showAppToast";
+import { seoKeywordsFromInput, seoKeywordsToInput } from "@/lib/seo/auto";
 import styles from "./EditBlog.module.css";
 
 export default function EditBlogPage() {
@@ -24,6 +25,10 @@ export default function EditBlogPage() {
     content: "",
     tags: "",
     readTime: "",
+    focus_keyword: "",
+    seo_keywords: "",
+    meta_title: "",
+    meta_description: "",
   });
 
   const [categories, setCategories] = useState([]);
@@ -125,6 +130,10 @@ export default function EditBlogPage() {
         content: data.content,
         tags: data.tags || "",
         readTime: data.readTime || "",
+        focus_keyword: data.focus_keyword || "",
+        seo_keywords: seoKeywordsToInput(data.seo_keywords),
+        meta_title: data.meta_title || "",
+        meta_description: data.meta_description || "",
       });
     }
     setLoading(false);
@@ -247,6 +256,10 @@ export default function EditBlogPage() {
         content: formData.content,
         tags: formData.tags.trim() || "Web Development",
         readTime: formData.readTime ? parseInt(formData.readTime) : null,
+        focus_keyword: formData.focus_keyword.trim() || null,
+        seo_keywords: seoKeywordsFromInput(formData.seo_keywords),
+        meta_title: formData.meta_title.trim() || null,
+        meta_description: formData.meta_description.trim() || null,
       })
       .eq("id", id);
 
@@ -435,6 +448,50 @@ export default function EditBlogPage() {
             will be automatically calculated based on content length (200 words
             per minute).
           </small>
+        </div>
+
+        <div className={styles.formGroup}>
+          <h2 style={{ fontSize: "1.25rem", marginBottom: "0.5rem" }}>
+            SEO (optional)
+          </h2>
+          <p className={styles.helpText}>
+            Leave blank to auto-generate titles and descriptions from your
+            content. Supporting keywords are for internal signals and structured
+            data — not the deprecated meta keywords tag.
+          </p>
+          <label className={styles.label}>Focus keyword</label>
+          <input
+            name="focus_keyword"
+            value={formData.focus_keyword}
+            onChange={handleChange}
+            className={styles.input}
+            placeholder="Primary phrase for this post"
+          />
+          <label className={styles.label}>Supporting keywords</label>
+          <input
+            name="seo_keywords"
+            value={formData.seo_keywords}
+            onChange={handleChange}
+            className={styles.input}
+            placeholder="Comma-separated (e.g. Next.js, SSR, performance)"
+          />
+          <label className={styles.label}>Meta title override</label>
+          <input
+            name="meta_title"
+            value={formData.meta_title}
+            onChange={handleChange}
+            className={styles.input}
+            placeholder="Overrides browser title / OG title when set"
+          />
+          <label className={styles.label}>Meta description override</label>
+          <textarea
+            name="meta_description"
+            value={formData.meta_description}
+            onChange={handleChange}
+            className={styles.textarea}
+            rows={3}
+            placeholder="Overrides search snippet when set"
+          />
         </div>
 
         <div className={styles.formGroup}>

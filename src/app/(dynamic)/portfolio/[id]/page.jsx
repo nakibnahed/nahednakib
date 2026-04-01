@@ -22,6 +22,32 @@ import {
 } from "react-icons/fa";
 import PostBoxCard from "@/components/InfoCard/PostBoxCard";
 import { FileText, MessageSquare, Trophy, Key, Briefcase } from "lucide-react";
+import {
+  buildCreativeWorkJsonLd,
+  buildPortfolioMetadata,
+} from "@/lib/seo/portfolio-meta";
+
+export async function generateMetadata({ params }) {
+  const { id } = await params;
+  const { createClient } = await import("@/lib/supabase/server");
+  const supabaseServer = await createClient();
+  const { data: portfolio } = await supabaseServer
+    .from("portfolios")
+    .select(
+      "id, title, description, overview, image, meta_title, meta_description, focus_keyword, seo_keywords, created_at, updated_at",
+    )
+    .eq("id", id)
+    .single();
+
+  if (!portfolio) {
+    return {
+      title: "Project Not Found",
+      description: "This portfolio project could not be found.",
+    };
+  }
+
+  return buildPortfolioMetadata({ portfolio });
+}
 
 function formatDate(dateString) {
   if (!dateString) return "Recent";
@@ -70,8 +96,16 @@ export default async function PortfolioPage({ params }) {
     ? portfolio.technologies.split(",").map((tech) => tech.trim())
     : [];
 
+  const portfolioJsonLd = buildCreativeWorkJsonLd({ portfolio });
+
   return (
     <div className={styles.pageContainer}>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(portfolioJsonLd),
+        }}
+      />
       <ViewTracker portfolioId={id} />
 
       <div className={styles.sectionsGrid}>
@@ -236,21 +270,4 @@ export default async function PortfolioPage({ params }) {
       </div>
     </div>
   );
-}
-
-export async function generateMetadata({ params }) {
-  const { id } = params;
-  const { createClient } = await import("@/lib/supabase/server");
-  const supabase = await createClient();
-  const { data: portfolio } = await supabase
-    .from("portfolios")
-    .select("title")
-    .eq("id", id)
-    .single();
-
-  return {
-    title: portfolio?.title
-      ? `${portfolio.title} | Nahed`
-      : "Portfolio Project | Nahed",
-  };
 }

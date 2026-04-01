@@ -1,39 +1,36 @@
-"use client";
-import { useState, useEffect } from "react";
-import dynamic from "next/dynamic";
-import styles from "./page.module.css";
-import { logoFont } from "../lib/fonts/fonts.js";
-import Link from "next/link";
-import GridBackground from "@/components/GridBackground/GridBackground";
+import HomeClient from "./HomeClient";
+import { getSiteUrl, siteDefaults, getDefaultOgImageUrl } from "@/lib/seo/site";
 
-export default function Home() {
-  return (
-    <div className={styles.container}>
-      <div className={styles.animatedBg}>
-        <GridBackground />
-      </div>
-      <div className={styles.col}>
-        <h1 className={styles.title}>Welcome to Nahed</h1>
-        <p className={styles.description}>
-          Professional distance runner and web developer.
-          <br />
-          Clean code. Clear goals. Whether on the web or on the track, I bring
-          discipline and precision to every step.
-        </p>
-        <div className={styles.heroButtons}>
-          <Link href="/info" className={styles.button}>
-            <span>Explore More</span>
-            <span className={styles.arrow}>→</span>
-          </Link>
-          <Link
-            href="/portfolio"
-            className={`${styles.button} ${styles.aboutButton}`}
-          >
-            <span>My Work</span>
-            <span className={styles.arrow}>→</span>
-          </Link>
-        </div>
-      </div>
-    </div>
-  );
+export const metadata = {
+  title: { absolute: siteDefaults.shortTitle },
+  description: siteDefaults.description,
+  alternates: { canonical: getSiteUrl() },
+  openGraph: {
+    title: siteDefaults.shortTitle,
+    description: siteDefaults.description,
+    url: getSiteUrl(),
+    siteName: siteDefaults.authorName,
+    locale: siteDefaults.locale,
+    type: "website",
+    images: [
+      {
+        url: getDefaultOgImageUrl(),
+        width: 1200,
+        height: 630,
+        alt: siteDefaults.authorName,
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: siteDefaults.shortTitle,
+    description: siteDefaults.description,
+    images: [getDefaultOgImageUrl()],
+    creator: siteDefaults.twitterCreator,
+    site: siteDefaults.twitterSite,
+  },
+};
+
+export default function HomePage() {
+  return <HomeClient />;
 }

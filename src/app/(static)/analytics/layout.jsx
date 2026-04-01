@@ -1,15 +1,15 @@
 import { getSiteUrl, siteDefaults, getDefaultOgImageUrl } from "@/lib/seo/site";
 
 export const metadata = {
-  title: "Blog",
+  title: "Analytics",
   description:
-    "Articles on web development, Next.js, performance, and lessons from the intersection of running and software.",
-  alternates: { canonical: `${getSiteUrl()}/blog` },
+    "Public analytics and site insights — transparent metrics about content performance and engagement.",
+  alternates: { canonical: `${getSiteUrl()}/analytics` },
   openGraph: {
-    title: `Blog | ${siteDefaults.authorName}`,
+    title: `Analytics | ${siteDefaults.authorName}`,
     description:
-      "Technical writing, tutorials, and thoughts on building modern web applications.",
-    url: `${getSiteUrl()}/blog`,
+      "Explore public analytics dashboards and engagement metrics for this site.",
+    url: `${getSiteUrl()}/analytics`,
     siteName: siteDefaults.authorName,
     locale: siteDefaults.locale,
     type: "website",
@@ -17,13 +17,13 @@ export const metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: `Blog | ${siteDefaults.authorName}`,
+    title: `Analytics | ${siteDefaults.authorName}`,
     images: [getDefaultOgImageUrl()],
     creator: siteDefaults.twitterCreator,
     site: siteDefaults.twitterSite,
   },
 };
 
-export default function BlogSegmentLayout({ children }) {
+export default function AnalyticsLayout({ children }) {
   return children;
 }

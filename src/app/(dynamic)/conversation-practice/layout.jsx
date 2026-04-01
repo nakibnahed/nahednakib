@@ -9,8 +9,6 @@ const pageImage = `${siteMetadata.url}/images/conversation-practice.jpg`;
 export const metadata = {
   title: pageTitle,
   description: pageDescription,
-  keywords:
-    "conversation practice, speaking practice, language practice partner, find practice partner, video call practice, English speaking practice, schedule practice session",
   authors: [{ name: siteMetadata.author }],
   creator: siteMetadata.author,
   robots: "index, follow",
