@@ -34,14 +34,14 @@ export default async function sitemap() {
 
     const { data: blogs } = await supabase
       .from("blogs")
-      .select("slug, updated_at, created_at")
+      .select("slug, created_at")
       .eq("published", true)
       .order("created_at", { ascending: false });
 
     if (blogs?.length) {
       blogPages = blogs.map((blog) => ({
         url: `${baseUrl}/blog/${blog.slug}`,
-        lastModified: new Date(blog.updated_at || blog.created_at),
+        lastModified: new Date(blog.created_at),
         changeFrequency: "monthly",
         priority: 0.7,
       }));
