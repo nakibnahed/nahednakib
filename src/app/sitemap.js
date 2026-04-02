@@ -1,3 +1,5 @@
+export const revalidate = 3600;
+
 import { createAnonPublicClient } from "@/lib/supabase/anon-public";
 import { getSiteUrl } from "@/lib/seo/site";
 
