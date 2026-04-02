@@ -64,7 +64,9 @@ async function loadBlogAndAuthor(slug) {
 function formatSupabaseError(err) {
   if (!err || typeof err !== "object") return String(err);
   const msg = err.message || err.details || err.hint || err.code;
-  return msg ? `${msg}${err.code ? ` (${err.code})` : ""}` : JSON.stringify(err);
+  return msg
+    ? `${msg}${err.code ? ` (${err.code})` : ""}`
+    : JSON.stringify(err);
 }
 
 export async function generateMetadata({ params }) {
@@ -115,9 +117,7 @@ export default async function Post({ params }) {
   }
 
   const authorName = author?.name?.trim() || MAIN_AUTHOR_NAME;
-  const authorRoleLine = author
-    ? author.role?.trim() || ""
-    : MAIN_AUTHOR_ROLE;
+  const authorRoleLine = author ? author.role?.trim() || "" : MAIN_AUTHOR_ROLE;
 
   const baseUrl =
     process.env.NEXT_PUBLIC_SITE_URL || "https://nahednakib.vercel.app";

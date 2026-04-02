@@ -86,11 +86,7 @@
   padding: 16px 20px;
   border: 2px solid var(--card-border);
   border-radius: 12px;
-  background: color-mix(
-    in srgb,
-    var(--background-main, #121212) 90%,
-    transparent 10%
-  );
+  background: var(--form-control-bg);
   color: var(--text-dark);
   font-size: 1rem;
   font-family: var(--font-main);
@@ -101,6 +97,7 @@
 .input:focus,
 .textarea:focus {
   outline: none;
+  background: var(--form-control-bg-focus);
   /* border-color: var(--primary-color); */
 }
 
@@ -374,7 +371,7 @@
 
 .light .input,
 .light .textarea {
-  background: rgba(255, 255, 255, 0.8);
+  background: var(--form-control-bg);
 }
 
 .light .categoryButton {

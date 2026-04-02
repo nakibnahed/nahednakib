@@ -1,57 +1,62 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { Menu, X } from "lucide-react";
 import UserSidebar from "@/components/User/Sidebar/UserSidebar";
-import UserDashboard from "@/components/User/Dashboard/UserDashboard";
 import styles from "./UserLayout.module.css";
 
-// Simplified content components
-import CommentsContent from "./Content/CommentsContent";
-import LikesContent from "./Content/LikesContent";
-import FavoritesContent from "./Content/FavoritesContent";
-import SettingsContent from "./Content/SettingsContent";
+export default function UserLayout({ user, profileData, children }) {
+  const [navOpen, setNavOpen] = useState(false);
 
-export default function UserLayout({ user, profileData }) {
-  const [activeTab, setActiveTab] = useState("dashboard");
-
-  const renderContent = () => {
-    switch (activeTab) {
-      case "dashboard":
-        return (
-          <UserDashboard
-            user={user}
-            profileData={profileData}
-            setActiveTab={setActiveTab}
-          />
-        );
-      case "comments":
-        return <CommentsContent user={user} />;
-      case "likes":
-        return <LikesContent user={user} />;
-      case "favorites":
-        return <FavoritesContent user={user} />;
-      case "settings":
-        return <SettingsContent user={user} />;
-      default:
-        return (
-          <UserDashboard
-            user={user}
-            profileData={profileData}
-            setActiveTab={setActiveTab}
-          />
-        );
-    }
-  };
+  useEffect(() => {
+    if (!navOpen) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = prev;
+    };
+  }, [navOpen]);
 
   return (
-    <div className={styles.container}>
-      <UserSidebar
-        user={user}
-        profileData={profileData}
-        activeTab={activeTab}
-        setActiveTab={setActiveTab}
-      />
-      <main className={styles.content}>{renderContent()}</main>
+    <div className={styles.shell}>
+      {navOpen && (
+        <button
+          type="button"
+          className={styles.backdrop}
+          aria-label="Close navigation"
+          onClick={() => setNavOpen(false)}
+        />
+      )}
+      <aside
+        className={`${styles.sidebarWrap} ${navOpen ? styles.sidebarOpen : ""}`}
+      >
+        <button
+          type="button"
+          className={styles.drawerClose}
+          aria-label="Close menu"
+          onClick={() => setNavOpen(false)}
+        >
+          <X size={20} strokeWidth={2} />
+        </button>
+        <UserSidebar
+          profileData={profileData}
+          onNavigate={() => setNavOpen(false)}
+        />
+      </aside>
+      <div className={styles.mainColumn}>
+        <header className={styles.topBar}>
+          <button
+            type="button"
+            className={styles.menuToggle}
+            aria-label="Open navigation"
+            onClick={() => setNavOpen(true)}
+          >
+            <Menu size={22} strokeWidth={2} />
+          </button>
+          <span className={styles.brandMark}>Account</span>
+        </header>
+        <main className={styles.content}>{children}</main>
+      </div>
     </div>
   );
 }

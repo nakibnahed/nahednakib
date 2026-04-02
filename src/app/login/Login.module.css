@@ -44,22 +44,22 @@
   padding: 12px 13px;
   border-radius: 8px;
   border: 1px solid var(--card-border);
-  background: color-mix(
-    in srgb,
-    var(--background-main) 80%,
-    transparent 15%
-  );
+  background: var(--form-control-bg);
   color: var(--text-dark);
   font-size: 0.95rem;
   width: 100%;
   box-sizing: border-box;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    background 0.2s ease;
 }
 
 .input:focus {
   outline: none;
   border-color: var(--primary-color);
   box-shadow: 0 0 0 3px rgba(238, 104, 26, 0.18);
+  background: var(--form-control-bg-focus);
 }
 
 .input:disabled {

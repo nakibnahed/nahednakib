@@ -101,7 +101,7 @@
   padding: 12px;
   border: 1px solid var(--card-border, #333);
   border-radius: 12px;
-  background-color: rgba(255, 255, 255, 0.04);
+  background-color: var(--form-control-bg);
   color: var(--text-dark);
   font-size: 16px;
 }

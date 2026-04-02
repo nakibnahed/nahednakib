@@ -70,8 +70,8 @@
   padding: 12px;
   border: 1px solid var(--card-border);
   border-radius: 12px;
-  background: rgba(255, 255, 255, 0.04);
-  color: white;
+  background: var(--form-control-bg);
+  color: var(--text-dark);
   font-size: 14px;
   transition: all 0.3s ease;
 }
@@ -81,7 +81,7 @@
 .textarea:focus {
   outline: none;
   border-color: var(--primary-color);
-  background: rgba(255, 255, 255, 0.08);
+  background: var(--form-control-bg-focus);
 }
 
 .textarea {

@@ -1,10 +1,13 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { ArrowLeft, MessageCircle } from "lucide-react";
 import { supabase } from "@/services/supabaseClient";
-import UserLayout from "@/components/User/Layout/UserLayout";
 import ConfirmationModal from "@/components/ConfirmationModal/ConfirmationModal";
 import { showAppToast } from "@/lib/showAppToast";
+import be from "@/app/admin/blogs/BlogEditor.module.css";
+import admin from "@/components/Admin/adminPage.module.css";
 import styles from "../Profile.module.css";
 
 export default function CommentsPage() {
@@ -123,35 +126,63 @@ export default function CommentsPage() {
 
   if (loading) {
     return (
-      <div className={styles.profileContent}>
-        <p>Loading...</p>
+      <div className={be.pageRoot}>
+        <p className={styles.pageLoading}>Loading…</p>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className={styles.profileContent}>
+      <div className={be.pageRoot}>
         <p className={styles.error}>{error}</p>
       </div>
     );
   }
 
   return (
-    <UserLayout user={user} profileData={profileData}>
-      <div className={styles.profileContent}>
-        <div className={styles.contentHeader}>
-          <h1>My Comments</h1>
-          <p>View and manage all your comments</p>
+    <div className={be.pageRoot}>
+      <header className={be.hero}>
+        <div className={be.heroBack}>
+          <Link href="/users/profile" className={admin.backNav}>
+            <ArrowLeft size={18} strokeWidth={2} aria-hidden />
+            Back to dashboard
+          </Link>
         </div>
+        <div className={be.heroMeta}>
+          <p className={admin.eyebrow}>Account</p>
+          <span className={be.metaChip}>Comments</span>
+        </div>
+        <h1 className={admin.pageTitle}>My comments</h1>
+        <p className={admin.lead}>
+          View and manage all your comments on blog posts and portfolio items.
+        </p>
+      </header>
 
-        {comments.length === 0 ? (
-          <div className={styles.emptyState}>
-            <p>You haven't made any comments yet.</p>
+      <div className={be.formFlow}>
+        <section className={be.section} aria-labelledby="user-comments-section">
+          <div className={be.sectionHead}>
+            <div className={be.sectionIcon} aria-hidden>
+              <MessageCircle size={20} strokeWidth={1.75} />
+            </div>
+            <div className={be.sectionHeadText}>
+              <p className={be.sectionKicker}>Engagement</p>
+              <h2 id="user-comments-section" className={be.sectionTitle}>
+                Your comments
+              </h2>
+              <p className={be.sectionLead}>
+                Delete a comment or open the post it belongs to.
+              </p>
+            </div>
           </div>
-        ) : (
-          <div className={styles.contentList}>
-            {comments.map((comment) => {
+
+          {comments.length === 0 ? (
+            <div className={styles.emptyState}>
+              <p>You haven&apos;t made any comments yet.</p>
+            </div>
+          ) : (
+            <div className={styles.contentList}>
+              {comments.map((comment) => {
               const isBlog = comment.content_type === "blog";
               const href = isBlog
                 ? `/blog/${blogIdToSlug[comment.content_id] || ""}`
@@ -195,22 +226,22 @@ export default function CommentsPage() {
                   </div>
                 </div>
               );
-            })}
-          </div>
-        )}
-
-        {/* Delete Confirmation Modal */}
-        <ConfirmationModal
-          isOpen={showDeleteConfirm}
-          onClose={() => setShowDeleteConfirm(false)}
-          onConfirm={handleDeleteComment}
-          title="Delete Comment"
-          message="Are you sure you want to delete this comment? This action cannot be undone."
-          confirmText="Delete"
-          cancelText="Cancel"
-          type="danger"
-        />
+              })}
+            </div>
+          )}
+        </section>
       </div>
-    </UserLayout>
+
+      <ConfirmationModal
+        isOpen={showDeleteConfirm}
+        onClose={() => setShowDeleteConfirm(false)}
+        onConfirm={handleDeleteComment}
+        title="Delete Comment"
+        message="Are you sure you want to delete this comment? This action cannot be undone."
+        confirmText="Delete"
+        cancelText="Cancel"
+        type="danger"
+      />
+    </div>
   );
 }

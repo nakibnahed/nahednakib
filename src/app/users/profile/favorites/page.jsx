@@ -1,10 +1,13 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { ArrowLeft, Star } from "lucide-react";
 import { supabase } from "@/services/supabaseClient";
-import UserLayout from "@/components/User/Layout/UserLayout";
 import ConfirmationModal from "@/components/ConfirmationModal/ConfirmationModal";
 import { showAppToast } from "@/lib/showAppToast";
+import be from "@/app/admin/blogs/BlogEditor.module.css";
+import admin from "@/components/Admin/adminPage.module.css";
 import styles from "../Profile.module.css";
 
 export default function FavoritesPage() {
@@ -125,35 +128,63 @@ export default function FavoritesPage() {
 
   if (loading) {
     return (
-      <div className={styles.profileContent}>
-        <p>Loading...</p>
+      <div className={be.pageRoot}>
+        <p className={styles.pageLoading}>Loading…</p>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className={styles.profileContent}>
+      <div className={be.pageRoot}>
         <p className={styles.error}>{error}</p>
       </div>
     );
   }
 
   return (
-    <UserLayout user={user} profileData={profileData}>
-      <div className={styles.profileContent}>
-        <div className={styles.contentHeader}>
-          <h1>Favorites</h1>
-          <p>Your favorite posts</p>
+    <div className={be.pageRoot}>
+      <header className={be.hero}>
+        <div className={be.heroBack}>
+          <Link href="/users/profile" className={admin.backNav}>
+            <ArrowLeft size={18} strokeWidth={2} aria-hidden />
+            Back to dashboard
+          </Link>
         </div>
+        <div className={be.heroMeta}>
+          <p className={admin.eyebrow}>Account</p>
+          <span className={be.metaChip}>Favorites</span>
+        </div>
+        <h1 className={admin.pageTitle}>Favorites</h1>
+        <p className={admin.lead}>
+          Your saved blog posts and portfolio items in one place.
+        </p>
+      </header>
 
-        {favorites.length === 0 ? (
-          <div className={styles.emptyState}>
-            <p>You don't have any favorites yet.</p>
+      <div className={be.formFlow}>
+        <section className={be.section} aria-labelledby="user-favorites-section">
+          <div className={be.sectionHead}>
+            <div className={be.sectionIcon} aria-hidden>
+              <Star size={20} strokeWidth={1.75} />
+            </div>
+            <div className={be.sectionHeadText}>
+              <p className={be.sectionKicker}>Saved</p>
+              <h2 id="user-favorites-section" className={be.sectionTitle}>
+                Your favorites
+              </h2>
+              <p className={be.sectionLead}>
+                Remove items or jump to the original post.
+              </p>
+            </div>
           </div>
-        ) : (
-          <div className={styles.contentList}>
-            {favorites.map((favorite) => {
+
+          {favorites.length === 0 ? (
+            <div className={styles.emptyState}>
+              <p>You don&apos;t have any favorites yet.</p>
+            </div>
+          ) : (
+            <div className={styles.contentList}>
+              {favorites.map((favorite) => {
               const isBlog = favorite.content_type === "blog";
               const href = isBlog
                 ? `/blog/${blogIdToSlug[favorite.content_id] || ""}`
@@ -201,22 +232,22 @@ export default function FavoritesPage() {
                   </div>
                 </div>
               );
-            })}
-          </div>
-        )}
-
-        {/* Delete Confirmation Modal */}
-        <ConfirmationModal
-          isOpen={showDeleteConfirm}
-          onClose={() => setShowDeleteConfirm(false)}
-          onConfirm={handleRemoveFavorite}
-          title="Remove from Favorites"
-          message="Are you sure you want to remove this from your favorites?"
-          confirmText="Remove"
-          cancelText="Cancel"
-          type="warning"
-        />
+              })}
+            </div>
+          )}
+        </section>
       </div>
-    </UserLayout>
+
+      <ConfirmationModal
+        isOpen={showDeleteConfirm}
+        onClose={() => setShowDeleteConfirm(false)}
+        onConfirm={handleRemoveFavorite}
+        title="Remove from Favorites"
+        message="Are you sure you want to remove this from your favorites?"
+        confirmText="Remove"
+        cancelText="Cancel"
+        type="warning"
+      />
+    </div>
   );
 }

@@ -5,8 +5,8 @@
   left: 0;
   width: 100vw;
   background: color-mix(in srgb, var(--background-main) 80%, transparent 15%);
-  backdrop-filter: blur(16px) saturate(160%);
   -webkit-backdrop-filter: blur(16px) saturate(160%);
+  backdrop-filter: blur(16px) saturate(160%);
   z-index: 9999;
   border-bottom: 1px solid var(--card-border);
   box-shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.04);

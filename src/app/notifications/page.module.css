@@ -1,11 +1,21 @@
 /* ── Page shell ───────────────────────────────────────────────── */
+/* Inside flex .mainContainer: force shrink + cap width so content can’t overflow viewport */
 .page {
-  max-width: 900px;
-  margin: 0 auto;
-  padding: 80px 20px 64px;
+  align-self: stretch;
+  width: 100%;
+  max-width: min(900px, 100%);
+  min-width: 0;
+  margin-left: auto;
+  margin-right: auto;
+  padding-top: 20px;
+  padding-right: max(20px, env(safe-area-inset-right));
+  padding-bottom: max(64px, env(safe-area-inset-bottom));
+  padding-left: max(20px, env(safe-area-inset-left));
+  box-sizing: border-box;
 }
 
 /* ── Sticky header ────────────────────────────────────────────── */
+/* top: aligns with fixed Navbar (.container height: 70px desktop, 64px ≤768px) */
 .header {
   display: flex;
   align-items: center;
@@ -15,7 +25,7 @@
   margin-bottom: 20px;
   border-bottom: 1px solid var(--card-border);
   position: sticky;
-  top: 0;
+  top: 70px;
   z-index: 5;
   background: color-mix(in srgb, var(--background-main) 94%, transparent);
   backdrop-filter: blur(12px);
@@ -101,6 +111,8 @@
   align-items: center;
   gap: 0;
   margin-bottom: 20px;
+  max-width: 100%;
+  min-width: 0;
   background: color-mix(in srgb, var(--background-main) 80%, transparent 15%);
   border: 1px solid var(--card-border);
   border-radius: 20px;
@@ -175,9 +187,12 @@
 
 .chips {
   display: flex;
+  flex: 1;
   flex-wrap: nowrap;
   gap: 2px;
+  min-width: 0;
   overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
 }
 
@@ -243,6 +258,8 @@
   display: flex;
   flex-direction: column;
   gap: 0;
+  max-width: 100%;
+  min-width: 0;
   background: color-mix(in srgb, var(--background-main) 80%, transparent 15%);
   border: 1px solid var(--card-border);
   border-radius: 20px;
@@ -259,7 +276,8 @@
   align-items: center;
   gap: 12px;
   border: none;
-  border-bottom: 1px solid color-mix(in srgb, var(--card-border) 55%, transparent);
+  border-bottom: 1px solid
+    color-mix(in srgb, var(--card-border) 55%, transparent);
   border-radius: 0;
   padding: 12px 16px 12px 18px;
   background: transparent;
@@ -339,10 +357,13 @@
   justify-content: space-between;
   gap: 8px;
   margin-bottom: 2px;
+  min-width: 0;
 }
 
 .itemTitle {
   margin: 0;
+  flex: 1;
+  min-width: 0;
   color: var(--text-primary, #fff);
   font-size: 14px;
   font-weight: 600;
@@ -368,6 +389,8 @@
   line-clamp: 1;
   -webkit-box-orient: vertical;
   overflow: hidden;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 /* meta row hidden — unread state conveyed by left accent bar */
@@ -391,14 +414,21 @@
   padding: 6px;
   border-radius: 8px;
   flex-shrink: 0;
-  opacity: 0;
+  opacity: 1;
   transition:
     opacity 0.2s,
     background 0.15s;
 }
 
-.item:hover .deleteBtn {
-  opacity: 1;
+/* Hover-only hide: touch devices keep delete visible (no hover) */
+@media (hover: hover) and (pointer: fine) {
+  .deleteBtn {
+    opacity: 0;
+  }
+
+  .item:hover .deleteBtn {
+    opacity: 1;
+  }
 }
 
 .deleteBtn:hover {
@@ -477,7 +507,14 @@
   padding: 120px 20px 40px;
 }
 
-@media (max-width: 700px) {
+@media (max-width: 768px) {
+  .header {
+    top: 64px;
+  }
+}
+
+/* Stack filters before the page max-width would squeeze two columns + chip rows */
+@media (max-width: 900px) {
   .filterBar {
     flex-direction: column;
     align-items: stretch;
@@ -497,10 +534,26 @@
     padding-top: 8px;
     border-top: 1px solid var(--card-border);
   }
+}
 
+@media (max-width: 700px) {
   .header {
     flex-direction: column;
     align-items: flex-start;
+  }
+
+  .headerActions {
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+  }
+
+  .headerActions .btn {
+    flex: 1;
+    min-width: 0;
+    text-align: center;
+    padding: 8px 12px;
+    font-size: 12px;
   }
 
   .list {

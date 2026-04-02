@@ -1,0 +1,284 @@
+/* Blog editor (new + edit) — layout and section chrome; fields use adminPage.module.css */
+
+/* Full width inside admin main column — same idea as BlogsList.mainContainer */
+.pageRoot {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: none;
+  margin: 0;
+}
+
+/* Single column: back → meta row → title → lead (no cramped side-by-side grid) */
+.hero {
+  margin-bottom: clamp(18px, 2.5vw, 26px);
+  padding-bottom: clamp(18px, 2.5vw, 24px);
+  border-bottom: 1px solid color-mix(in srgb, var(--card-border) 85%, transparent);
+}
+
+.heroBack {
+  margin-bottom: clamp(14px, 2vw, 18px);
+}
+
+.heroMeta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 0.875rem;
+  margin-bottom: 0.5rem;
+}
+
+.heroMeta > p {
+  margin-bottom: 0;
+}
+
+.metaChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin: 0;
+  padding: 0.3rem 0.7rem;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--primary-color) 92%, #fff 8%);
+  background: color-mix(in srgb, var(--primary-color) 14%, transparent);
+  border: 1px solid color-mix(in srgb, var(--primary-color) 28%, transparent);
+  border-radius: 999px;
+  line-height: 1.2;
+}
+
+/* Form body: no extra “card in a card” — sections provide structure */
+.formFlow {
+  width: 100%;
+  margin-top: clamp(4px, 1vw, 8px);
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(18px, 2.2vw, 26px);
+  margin-bottom: clamp(20px, 2.5vw, 28px);
+  padding-bottom: clamp(20px, 2.5vw, 28px);
+  border-bottom: 1px solid color-mix(in srgb, var(--card-border) 72%, transparent);
+}
+
+.section:last-of-type {
+  margin-bottom: 0;
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+.sectionHead {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  margin-bottom: 0;
+}
+
+.sectionIcon {
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  color: var(--primary-color);
+  background: color-mix(in srgb, var(--primary-color) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--primary-color) 22%, transparent);
+}
+
+.sectionHeadText {
+  flex: 1;
+  min-width: 0;
+}
+
+.sectionKicker {
+  margin: 0 0 4px 0;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-secondary, #a1a1aa);
+}
+
+.sectionTitle {
+  margin: 0;
+  font-size: 1.0625rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--text-primary, #fafafa);
+  font-family: var(--font-heading, inherit);
+}
+
+.sectionLead {
+  margin: 6px 0 0 0;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: var(--text-muted, #a3a3a3);
+  max-width: 62ch;
+}
+
+.grid2 {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(18px, 2.2vw, 24px);
+}
+
+@media (max-width: 700px) {
+  .grid2 {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* adminPage .formField uses margin-block; these layouts already use gap */
+.section [class*="formField"],
+.grid2 [class*="formField"],
+.mediaPreview [class*="formField"],
+.seoFields [class*="formField"] {
+  margin-block: 0;
+}
+
+.authorCard {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 0;
+  padding: 18px;
+  border-radius: 14px;
+  border: 1px solid color-mix(in srgb, var(--card-border) 80%, transparent);
+  background: color-mix(in srgb, var(--background-main) 88%, #000 12%);
+}
+
+.authorCardLabel {
+  margin: 0;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-secondary, #a1a1aa);
+}
+
+.authorRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+
+.authorRow input {
+  flex: 1 1 220px;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.mediaPreview {
+  display: flex;
+  flex-wrap: wrap;
+  gap: clamp(20px, 2.5vw, 28px);
+  align-items: flex-start;
+}
+
+.previewFrame {
+  position: relative;
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--card-border) 75%, transparent);
+  background: color-mix(in srgb, #000 30%, var(--background-main));
+  box-shadow: 0 12px 40px -16px rgba(0, 0, 0, 0.5);
+}
+
+.previewFrame img {
+  display: block;
+  width: auto;
+  max-width: min(320px, 100%);
+  height: auto;
+  object-fit: cover;
+}
+
+.emptyMedia {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 120px;
+  padding: 20px;
+  border-radius: 14px;
+  border: 1px dashed color-mix(in srgb, var(--card-border) 65%, transparent);
+  background: color-mix(in srgb, var(--background-main) 92%, transparent);
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  text-align: center;
+  max-width: 320px;
+}
+
+.fileRow {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.fileInput {
+  font-size: 14px;
+  cursor: pointer;
+}
+
+/* Neutral sub-panel — same family as .authorCard (no primary tint wash) */
+.seoSection {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(16px, 2vw, 22px);
+  border-radius: 16px;
+  padding: clamp(18px, 2.2vw, 24px);
+  border: 1px solid color-mix(in srgb, var(--card-border) 80%, transparent);
+  background: color-mix(in srgb, var(--background-main) 88%, #000 12%);
+}
+
+.seoSection .sectionHead {
+  margin-bottom: 0;
+}
+
+.seoFields {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(18px, 2.2vw, 22px);
+}
+
+/* Portfolio (and similar): HTML body fields — taller than default textarea */
+.htmlTextarea {
+  min-height: clamp(220px, 28vh, 420px);
+}
+
+.editorBlock {
+  margin-top: 4px;
+}
+
+.editorShell {
+  border-radius: 14px;
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--card-border) 75%, transparent);
+}
+
+.stickyActions {
+  position: sticky;
+  bottom: 0;
+  z-index: 20;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 12px;
+  margin-top: clamp(22px, 3vw, 30px);
+  padding-top: 20px;
+  padding-bottom: 4px;
+  border-top: 1px solid color-mix(in srgb, var(--card-border) 70%, transparent);
+  background: linear-gradient(
+    180deg,
+    transparent 0%,
+    color-mix(in srgb, var(--background-main) 94%, #000 6%) 28%
+  );
+  backdrop-filter: blur(10px) saturate(140%);
+  -webkit-backdrop-filter: blur(10px) saturate(140%);
+}
+

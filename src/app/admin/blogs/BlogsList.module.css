@@ -1,11 +1,19 @@
-/* New container for button and search input */
+/* Blog list — toolbar, table (pairs with BlogEditor.module.css) */
+
 .controlsRow {
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
+  align-items: center;
   gap: 1rem;
   flex-wrap: wrap;
-  margin-bottom: 20px;
+  margin-bottom: clamp(18px, 2.5vw, 24px);
+  padding: clamp(14px, 2vw, 18px) clamp(16px, 2.5vw, 20px);
+  border-radius: 18px;
+  border: 1px solid color-mix(in srgb, var(--card-border) 82%, transparent);
+  background: color-mix(in srgb, var(--background-main) 94%, #080808 6%);
+  box-shadow:
+    0 1px 0 color-mix(in srgb, #fff 3%, transparent) inset,
+    0 18px 40px -28px rgba(0, 0, 0, 0.4);
 }
 
 /* Make search input take available space but limit max-width */
@@ -51,15 +59,18 @@
 .searchInput {
   width: 100%;
   max-width: 400px;
-  padding: 10px 14px;
+  padding: 12px 16px;
   border-radius: 12px;
-  border: 1px solid var(--card-border);
-  background-color: rgba(255, 255, 255, 0.04);
-  color: var(--text-light);
-  font-size: 16px;
+  border: 1px solid color-mix(in srgb, var(--card-border) 90%, transparent);
+  background-color: var(--form-control-bg);
+  color: var(--text-dark);
+  font-size: 15px;
   font-family: var(--font-heading), sans-serif;
   outline-offset: 2px;
-  transition: border-color 0.2s ease;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    background-color 0.2s ease;
 }
 
 .searchInput::placeholder {
@@ -67,20 +78,30 @@
 }
 
 .searchInput:focus {
-  border-color: var(--primary-color);
-  background-color: var(--card-bg);
-  color: var(--text-light);
+  border-color: color-mix(
+    in srgb,
+    var(--primary-color) 55%,
+    var(--card-border)
+  );
+  background-color: var(--form-control-bg-focus);
+  color: var(--text-dark);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary-color) 18%, transparent);
 }
 
 .newButton {
-  padding: 10px 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 20px;
   background: var(--button-bg);
   color: var(--button-text);
   text-decoration: none;
   border: none;
-  border-radius: 12px;
+  border-radius: 999px;
   font-size: 14px;
   font-weight: 700;
+  letter-spacing: 0.02em;
   cursor: pointer;
   box-shadow: var(--button-shadow);
   transition:
@@ -88,7 +109,7 @@
     transform 0.15s;
 }
 .newButton:hover {
-  opacity: 0.9;
+  opacity: 0.92;
   transform: translateY(-1px);
 }
 
@@ -162,9 +183,12 @@
 /* Table container scroll */
 .tableContainer {
   overflow-x: auto;
-  border-radius: 16px;
-  background: color-mix(in srgb, var(--background-main) 94%, #000 6%);
-  border: 1px solid color-mix(in srgb, var(--card-border) 85%, transparent);
+  border-radius: 20px;
+  background: color-mix(in srgb, var(--background-main) 94%, #080808 6%);
+  border: 1px solid color-mix(in srgb, var(--card-border) 82%, transparent);
+  box-shadow:
+    0 1px 0 color-mix(in srgb, #fff 3%, transparent) inset,
+    0 24px 48px -32px rgba(0, 0, 0, 0.45);
 }
 
 /* Table styles */
@@ -183,7 +207,7 @@
   border-bottom: 1px solid color-mix(in srgb, var(--card-border) 70%, transparent);
   text-align: center;
   background-color: transparent;
-  color: var(--card-text, #e4e4e7);
+  color: var(--text-dark);
   vertical-align: middle;
 }
 
@@ -211,7 +235,7 @@
   font-size: 11px;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--text-secondary, #a1a1aa);
+  color: var(--text-dark);
   font-family: var(--font-heading), sans-serif;
 }
 

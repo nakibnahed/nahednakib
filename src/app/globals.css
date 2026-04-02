@@ -82,6 +82,50 @@ a {
   text-decoration: none;
 }
 
+/*
+  Form controls — theme via --form-control-bg / --form-control-bg-focus (variables.css).
+  Excludes buttons, file pickers, checkboxes, etc.
+*/
+input:not([type="button"]):not([type="checkbox"]):not([type="color"]):not(
+    [type="file"]
+  ):not([type="hidden"]):not([type="image"]):not([type="radio"]):not(
+    [type="range"]
+  ):not([type="reset"]):not([type="submit"]),
+textarea,
+select {
+  background: var(--form-control-bg);
+}
+
+input:not([type="button"]):not([type="checkbox"]):not([type="color"]):not(
+    [type="file"]
+  ):not([type="hidden"]):not([type="image"]):not([type="radio"]):not(
+    [type="range"]
+  ):not([type="reset"]):not([type="submit"]):focus,
+textarea:focus,
+select:focus {
+  background: var(--form-control-bg-focus);
+}
+
+/* Labels, table cells, and form fields — readable body text color (light/dark via --text-dark) */
+label,
+legend,
+td,
+th,
+input:not([type="button"]):not([type="checkbox"]):not([type="color"]):not(
+    [type="file"]
+  ):not([type="hidden"]):not([type="image"]):not([type="radio"]):not(
+    [type="range"]
+  ):not([type="reset"]):not([type="submit"]),
+textarea,
+select {
+  color: var(--text-dark);
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--text-muted);
+}
+
 .mainContainer {
   max-width: var(--container-max-width);
   min-height: 100vh;

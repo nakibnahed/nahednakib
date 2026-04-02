@@ -1,11 +1,15 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { supabase } from "@/services/supabaseClient";
 import styles from "./UserDashboard.module.css";
-import { MessageCircle, Heart, Star, Activity } from "lucide-react";
+import be from "@/app/admin/blogs/BlogEditor.module.css";
+import admin from "@/components/Admin/adminPage.module.css";
+import { MessageCircle, Heart, Star, Activity, LayoutGrid } from "lucide-react";
 
-export default function UserDashboard({ user, profileData, setActiveTab }) {
+export default function UserDashboard({ user, profileData }) {
+  const router = useRouter();
   const [stats, setStats] = useState({
     comments: 0,
     likes: 0,
@@ -290,33 +294,27 @@ export default function UserDashboard({ user, profileData, setActiveTab }) {
     return date.toLocaleDateString();
   };
 
-  const handleCardClick = (tabName) => {
-    if (setActiveTab) {
-      setActiveTab(tabName);
-    }
-  };
-
   const dashboardCards = [
     {
       title: "My Comments",
       icon: <MessageCircle size={24} />,
       count: stats.comments,
       description: "View all your comments on posts",
-      tab: "comments",
+      href: "/users/profile/comments",
     },
     {
       title: "Liked Posts",
       icon: <Heart size={24} />,
       count: stats.likes,
       description: "Posts you've liked",
-      tab: "likes",
+      href: "/users/profile/likes",
     },
     {
       title: "Favorites",
       icon: <Star size={24} />,
       count: stats.favorites,
       description: "Your favorite posts and content",
-      tab: "favorites",
+      href: "/users/profile/favorites",
     },
   ];
 
@@ -329,58 +327,105 @@ export default function UserDashboard({ user, profileData, setActiveTab }) {
   }
 
   return (
-    <div className={styles.container}>
-      <div className={styles.header}>
-        <h1 className={styles.title}>Welcome back, {getUserDisplayName()}!</h1>
-        <p className={styles.subtitle}>
-          Here's an overview of your account activity
+    <div className={be.pageRoot}>
+      <header className={be.hero}>
+        <div className={be.heroMeta}>
+          <p className={admin.eyebrow}>Account</p>
+          <span className={be.metaChip}>Overview</span>
+        </div>
+        <h1 className={admin.pageTitle}>
+          Welcome back, {getUserDisplayName()}!
+        </h1>
+        <p className={admin.lead}>
+          Here&apos;s an overview of your account activity and shortcuts to
+          your content.
         </p>
-      </div>
+      </header>
 
-      <div className={styles.grid}>
-        {dashboardCards.map((card) => (
-          <div
-            key={card.title}
-            className={styles.card}
-            onClick={() => handleCardClick(card.tab)}
-          >
-            <div className={styles.cardIcon}>{card.icon}</div>
-            <div className={styles.cardContent}>
-              <h3 className={styles.cardTitle}>{card.title}</h3>
-              <p className={styles.cardCount}>{card.count}</p>
-              <p className={styles.cardDescription}>{card.description}</p>
+      <div className={be.formFlow}>
+        <section className={be.section} aria-labelledby="user-dash-stats">
+          <div className={be.sectionHead}>
+            <div className={be.sectionIcon} aria-hidden>
+              <LayoutGrid size={20} strokeWidth={1.75} />
+            </div>
+            <div className={be.sectionHeadText}>
+              <p className={be.sectionKicker}>Activity</p>
+              <h2 id="user-dash-stats" className={be.sectionTitle}>
+                At a glance
+              </h2>
+              <p className={be.sectionLead}>
+                Jump to comments, likes, or favorites — counts update as you
+                engage.
+              </p>
             </div>
           </div>
-        ))}
-      </div>
-
-      <div className={styles.recentActivity}>
-        <h2>Recent Activity</h2>
-        <div className={styles.activityCard}>
-          {recentActivities.length === 0 ? (
-            <p>
-              No recent activity. Start engaging with posts to see your activity
-              here!
-            </p>
-          ) : (
-            <div className={styles.activityList}>
-              {recentActivities.map((activity, index) => (
-                <div
-                  key={`${activity.type}-${activity.id}-${index}`}
-                  className={styles.activityItem}
-                >
-                  <div className={styles.activityIcon}>{activity.icon}</div>
-                  <div className={styles.activityContent}>
-                    <p className={styles.activityText}>{activity.text}</p>
-                    <span className={styles.activityDate}>
-                      {formatDate(activity.date)}
-                    </span>
-                  </div>
+          <div className={styles.grid}>
+            {dashboardCards.map((card) => (
+              <div
+                key={card.title}
+                className={styles.card}
+                role="button"
+                tabIndex={0}
+                onClick={() => router.push(card.href)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    router.push(card.href);
+                  }
+                }}
+              >
+                <div className={styles.cardIcon}>{card.icon}</div>
+                <div className={styles.cardContent}>
+                  <h3 className={styles.cardTitle}>{card.title}</h3>
+                  <p className={styles.cardCount}>{card.count}</p>
+                  <p className={styles.cardDescription}>{card.description}</p>
                 </div>
-              ))}
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <section className={be.section} aria-labelledby="user-dash-recent">
+          <div className={be.sectionHead}>
+            <div className={be.sectionIcon} aria-hidden>
+              <Activity size={20} strokeWidth={1.75} />
             </div>
-          )}
-        </div>
+            <div className={be.sectionHeadText}>
+              <p className={be.sectionKicker}>Timeline</p>
+              <h2 id="user-dash-recent" className={be.sectionTitle}>
+                Recent activity
+              </h2>
+              <p className={be.sectionLead}>
+                Your latest comments, likes, and favorites in one place.
+              </p>
+            </div>
+          </div>
+          <div className={styles.activityCard}>
+            {recentActivities.length === 0 ? (
+              <p className={styles.activityEmpty}>
+                No recent activity. Start engaging with posts to see your
+                activity here!
+              </p>
+            ) : (
+              <div className={styles.activityList}>
+                {recentActivities.map((activity, index) => (
+                  <div
+                    key={`${activity.type}-${activity.id}-${index}`}
+                    className={styles.activityItem}
+                  >
+                    <div className={styles.activityIcon}>{activity.icon}</div>
+                    <div className={styles.activityContent}>
+                      <p className={styles.activityText}>{activity.text}</p>
+                      <span className={styles.activityDate}>
+                        {formatDate(activity.date)}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </section>
       </div>
     </div>
   );

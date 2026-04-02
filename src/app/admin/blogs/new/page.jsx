@@ -3,8 +3,17 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
+import {
+  AlignLeft,
+  ArrowLeft,
+  FileText,
+  ImageIcon,
+  Layers,
+  PenLine,
+  Search,
+} from "lucide-react";
 import admin from "@/components/Admin/adminPage.module.css";
+import be from "../BlogEditor.module.css";
 import { supabase } from "@/services/supabaseClient";
 import { Editor } from "@tinymce/tinymce-react";
 import { slugify, generateUniqueSlug } from "@/lib/utils/slugify";
@@ -40,11 +49,22 @@ export default function NewBlogPage() {
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [coverPreviewUrl, setCoverPreviewUrl] = useState(null);
 
   useEffect(() => {
     fetchCategories();
     fetchAuthors();
   }, []);
+
+  useEffect(() => {
+    if (!formData.imageFile) {
+      setCoverPreviewUrl(null);
+      return;
+    }
+    const url = URL.createObjectURL(formData.imageFile);
+    setCoverPreviewUrl(url);
+    return () => URL.revokeObjectURL(url);
+  }, [formData.imageFile]);
 
   async function fetchCategories() {
     const { data, error } = await supabase
@@ -252,22 +272,24 @@ export default function NewBlogPage() {
 
   return (
     <div className={admin.page}>
-      <div className={admin.entityForm}>
-        <header className={admin.pageHeader}>
-          <p className={admin.eyebrow}>Content</p>
+      <div className={be.pageRoot}>
+        <header className={be.hero}>
+          <div className={be.heroBack}>
+            <Link href="/admin/blogs" className={admin.backNav}>
+              <ArrowLeft size={18} strokeWidth={2} aria-hidden />
+              Back to blogs
+            </Link>
+          </div>
+          <div className={be.heroMeta}>
+            <p className={admin.eyebrow}>Content</p>
+            <span className={be.metaChip}>New draft</span>
+          </div>
           <h1 className={admin.pageTitle}>New blog post</h1>
           <p className={admin.lead}>
-            Draft a new article, set taxonomy and SEO, then publish from the
+            Draft a new article, set taxonomy and SEO, then manage it from the
             blog list.
           </p>
         </header>
-
-        <section className={admin.filtersSection} aria-label="Back">
-          <Link href="/admin/blogs" className={admin.backNav}>
-            <ArrowLeft size={18} strokeWidth={2} aria-hidden />
-            Back to blogs
-          </Link>
-        </section>
 
         {errorMsg && (
           <div className={admin.formErrorBanner} role="alert">
@@ -275,325 +297,525 @@ export default function NewBlogPage() {
           </div>
         )}
 
-        <div className={admin.formCard}>
-          <form onSubmit={handleSubmit} className={admin.formStack}>
-        <div className={admin.formField}>
-          <label className={admin.fieldLabel}>Title:</label>
-          <input
-            name="title"
-            value={formData.title}
-            onChange={handleTitleChange}
-            required
-            className={admin.fieldInput}
-          />
-        </div>
+        <form
+          onSubmit={handleSubmit}
+          className={`${admin.formStack} ${be.formFlow}`}
+        >
+            <section className={be.section} aria-labelledby="new-section-basics">
+              <div className={be.sectionHead}>
+                <div className={be.sectionIcon} aria-hidden>
+                  <FileText size={20} strokeWidth={1.75} />
+                </div>
+                <div className={be.sectionHeadText}>
+                  <p className={be.sectionKicker}>Basics</p>
+                  <h2 id="new-section-basics" className={be.sectionTitle}>
+                    Title &amp; URL
+                  </h2>
+                  <p className={be.sectionLead}>
+                    The headline and slug used on the site and in share links.
+                  </p>
+                </div>
+              </div>
+              <div className={be.grid2}>
+                <div className={admin.formField}>
+                  <label className={admin.fieldLabel} htmlFor="new-blog-title">
+                    Title
+                  </label>
+                  <input
+                    id="new-blog-title"
+                    name="title"
+                    value={formData.title}
+                    onChange={handleTitleChange}
+                    required
+                    className={admin.fieldInput}
+                  />
+                </div>
+                <div className={admin.formField}>
+                  <label className={admin.fieldLabel} htmlFor="new-blog-slug">
+                    Slug
+                  </label>
+                  <input
+                    id="new-blog-slug"
+                    name="slug"
+                    value={formData.slug}
+                    onChange={handleChange}
+                    required
+                    className={admin.fieldInput}
+                    placeholder="URL-friendly version of title"
+                  />
+                </div>
+              </div>
+            </section>
 
-        <div className={admin.formField}>
-          <label className={admin.fieldLabel}>Slug:</label>
-          <input
-            name="slug"
-            value={formData.slug}
-            onChange={handleChange}
-            required
-            className={admin.fieldInput}
-            placeholder="URL-friendly version of title"
-          />
-        </div>
-
-        <div className={admin.formField}>
-          <label className={admin.fieldLabel}>Category:</label>
-          <select
-            name="category_id"
-            value={formData.category_id}
-            onChange={handleChange}
-            className={`${admin.fieldInput} ${admin.fieldSelect}`}
-          >
-            <option value="">Select a category</option>
-            {categories.map((category) => (
-              <option key={category.id} value={category.id}>
-                {category.name}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <div className={admin.formField}>
-          <label className={admin.fieldLabel}>Author:</label>
-          <select
-            name="author_id"
-            value={formData.author_id}
-            onChange={handleChange}
-            className={`${admin.fieldInput} ${admin.fieldSelect}`}
-          >
-            <option value="">Select an author</option>
-            {authors.map((a) => (
-              <option key={a.id} value={a.id}>
-                {a.name}
-              </option>
-            ))}
-          </select>
-          <p className={admin.fieldHelp}>
-            Manage authors in Admin → Authors. Main admin can add authors below.
-          </p>
-          <div className={admin.formRowInline}>
-            <input
-              type="text"
-              value={newAuthorName}
-              onChange={(e) => setNewAuthorName(e.target.value)}
-              placeholder="New author name"
-              className={admin.fieldInput}
-              style={{ maxWidth: 280 }}
-            />
-            <button
-              type="button"
-              onClick={handleAddAuthorQuick}
-              disabled={addingAuthor || !newAuthorName.trim()}
-              className={admin.btnPrimary}
+            <section
+              className={be.section}
+              aria-labelledby="new-section-taxonomy"
             >
-              {addingAuthor ? "Adding…" : "Add author"}
-            </button>
-          </div>
-        </div>
+              <div className={be.sectionHead}>
+                <div className={be.sectionIcon} aria-hidden>
+                  <Layers size={20} strokeWidth={1.75} />
+                </div>
+                <div className={be.sectionHeadText}>
+                  <p className={be.sectionKicker}>Classification</p>
+                  <h2 id="new-section-taxonomy" className={be.sectionTitle}>
+                    Category &amp; author
+                  </h2>
+                  <p className={be.sectionLead}>
+                    Connect this post to a category and credit an author.
+                  </p>
+                </div>
+              </div>
+              <div className={be.grid2}>
+                <div className={admin.formField}>
+                  <label
+                    className={admin.fieldLabel}
+                    htmlFor="new-blog-category"
+                  >
+                    Category
+                  </label>
+                  <select
+                    id="new-blog-category"
+                    name="category_id"
+                    value={formData.category_id}
+                    onChange={handleChange}
+                    className={`${admin.fieldInput} ${admin.fieldSelect}`}
+                  >
+                    <option value="">Select a category</option>
+                    {categories.map((category) => (
+                      <option key={category.id} value={category.id}>
+                        {category.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div className={admin.formField}>
+                  <label className={admin.fieldLabel} htmlFor="new-blog-author">
+                    Author
+                  </label>
+                  <select
+                    id="new-blog-author"
+                    name="author_id"
+                    value={formData.author_id}
+                    onChange={handleChange}
+                    className={`${admin.fieldInput} ${admin.fieldSelect}`}
+                  >
+                    <option value="">Select an author</option>
+                    {authors.map((a) => (
+                      <option key={a.id} value={a.id}>
+                        {a.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+              <div className={be.authorCard}>
+                <p className={be.authorCardLabel}>Quick add author</p>
+                <p className={admin.fieldHelp}>
+                  Manage authors in Admin → Authors. Main admin can add an author
+                  here without leaving this page.
+                </p>
+                <div className={be.authorRow}>
+                  <input
+                    type="text"
+                    value={newAuthorName}
+                    onChange={(e) => setNewAuthorName(e.target.value)}
+                    placeholder="New author name"
+                    className={admin.fieldInput}
+                    aria-label="New author name"
+                  />
+                  <button
+                    type="button"
+                    onClick={handleAddAuthorQuick}
+                    disabled={addingAuthor || !newAuthorName.trim()}
+                    className={admin.btnPrimary}
+                  >
+                    {addingAuthor ? "Adding…" : "Add author"}
+                  </button>
+                </div>
+              </div>
+            </section>
 
-        <div className={admin.formField}>
-          <label className={admin.fieldLabel}>Image Upload:</label>
-          <input
-            type="file"
-            accept="image/*"
-            onChange={handleFileChange}
-            className={admin.fieldInput}
-          />
-          {formData.imageFile && (
-            <div className={admin.imageThumbWrap}>
-              <p className={admin.fieldHelp}>Selected: {formData.imageFile.name}</p>
+            <section className={be.section} aria-labelledby="new-section-media">
+              <div className={be.sectionHead}>
+                <div className={be.sectionIcon} aria-hidden>
+                  <ImageIcon size={20} strokeWidth={1.75} />
+                </div>
+                <div className={be.sectionHeadText}>
+                  <p className={be.sectionKicker}>Media</p>
+                  <h2 id="new-section-media" className={be.sectionTitle}>
+                    Cover image
+                  </h2>
+                  <p className={be.sectionLead}>
+                    Optional hero image for listings and social cards. You can
+                    add one now or later when editing.
+                  </p>
+                </div>
+              </div>
+              <div className={be.mediaPreview}>
+                {coverPreviewUrl ? (
+                  <div className={be.previewFrame}>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={coverPreviewUrl}
+                      alt={coverImageAltForBlog({
+                        cover_image_alt: formData.cover_image_alt,
+                        title: formData.title,
+                      })}
+                      style={{ maxWidth: "100%", height: "auto", display: "block" }}
+                    />
+                  </div>
+                ) : (
+                  <div className={be.emptyMedia}>No file selected yet.</div>
+                )}
+                <div className={admin.formField} style={{ flex: "1 1 220px" }}>
+                  <label className={admin.fieldLabel} htmlFor="new-blog-upload">
+                    Upload image
+                  </label>
+                  <input
+                    id="new-blog-upload"
+                    type="file"
+                    accept="image/*"
+                    onChange={handleFileChange}
+                    className={`${admin.fieldInput} ${be.fileInput}`}
+                  />
+                  {formData.imageFile && (
+                    <>
+                      <p className={admin.fieldHelp}>
+                        Selected: {formData.imageFile.name}
+                      </p>
+                      <button
+                        type="button"
+                        onClick={handleDeleteImage}
+                        className={admin.btnDanger}
+                      >
+                        Remove image
+                      </button>
+                    </>
+                  )}
+                </div>
+              </div>
+              <div className={admin.formField}>
+                <label className={admin.fieldLabel} htmlFor="new-blog-cover-alt">
+                  Cover image alt text
+                </label>
+                <input
+                  id="new-blog-cover-alt"
+                  name="cover_image_alt"
+                  value={formData.cover_image_alt}
+                  onChange={handleChange}
+                  className={admin.fieldInput}
+                  placeholder="Describe the image for SEO (e.g. A developer coding)"
+                />
+                <p className={admin.fieldHelp}>
+                  Used for accessibility and social previews. If empty, the post
+                  title is used.
+                </p>
+              </div>
+            </section>
+
+            <section
+              className={be.section}
+              aria-labelledby="new-section-summary"
+            >
+              <div className={be.sectionHead}>
+                <div className={be.sectionIcon} aria-hidden>
+                  <AlignLeft size={20} strokeWidth={1.75} />
+                </div>
+                <div className={be.sectionHeadText}>
+                  <p className={be.sectionKicker}>Summary</p>
+                  <h2 id="new-section-summary" className={be.sectionTitle}>
+                    Excerpt &amp; discovery
+                  </h2>
+                  <p className={be.sectionLead}>
+                    Short description, tags, and optional read time.
+                  </p>
+                </div>
+              </div>
+              <div className={admin.formField}>
+                <label className={admin.fieldLabel} htmlFor="new-blog-desc">
+                  Description
+                </label>
+                <textarea
+                  id="new-blog-desc"
+                  name="description"
+                  value={formData.description}
+                  onChange={handleChange}
+                  className={admin.fieldTextarea}
+                />
+              </div>
+              <div className={be.grid2}>
+                <div className={admin.formField}>
+                  <label className={admin.fieldLabel} htmlFor="new-blog-tags">
+                    Tags
+                  </label>
+                  <input
+                    id="new-blog-tags"
+                    name="tags"
+                    value={formData.tags}
+                    onChange={handleChange}
+                    className={admin.fieldInput}
+                    placeholder="Comma-separated (e.g. Next.js, React)"
+                  />
+                  <p className={admin.fieldHelp}>
+                    For related posts and search. Default is &quot;Web Development&quot;
+                    if empty.
+                  </p>
+                </div>
+                <div className={admin.formField}>
+                  <label className={admin.fieldLabel} htmlFor="new-blog-read">
+                    Read time (minutes)
+                  </label>
+                  <input
+                    id="new-blog-read"
+                    name="readTime"
+                    type="number"
+                    min="1"
+                    value={formData.readTime}
+                    onChange={handleChange}
+                    className={admin.fieldInput}
+                    placeholder="Auto from content if empty"
+                  />
+                  <p className={admin.fieldHelp}>
+                    Optional. If empty, estimated from length (~200 words/min).
+                  </p>
+                </div>
+              </div>
+            </section>
+
+            <section className={be.section} aria-labelledby="new-section-seo">
+              <div className={be.seoSection}>
+                <div className={be.sectionHead}>
+                  <div className={be.sectionIcon} aria-hidden>
+                    <Search size={20} strokeWidth={1.75} />
+                  </div>
+                  <div className={be.sectionHeadText}>
+                    <p className={be.sectionKicker}>SEO</p>
+                    <h2 id="new-section-seo" className={be.sectionTitle}>
+                      Search &amp; metadata (optional)
+                    </h2>
+                    <p className={be.sectionLead}>
+                      Leave blank to auto-generate titles and descriptions.
+                      Supporting keywords feed structured data, not the deprecated
+                      meta keywords tag.
+                    </p>
+                  </div>
+                </div>
+                <div className={be.seoFields}>
+                  <div className={admin.formField}>
+                    <label
+                      className={admin.fieldLabel}
+                      htmlFor="new-blog-focus-kw"
+                    >
+                      Focus keyword
+                    </label>
+                    <input
+                      id="new-blog-focus-kw"
+                      name="focus_keyword"
+                      value={formData.focus_keyword}
+                      onChange={handleChange}
+                      className={admin.fieldInput}
+                      placeholder="Primary phrase for this post"
+                    />
+                  </div>
+                  <div className={admin.formField}>
+                    <label
+                      className={admin.fieldLabel}
+                      htmlFor="new-blog-seo-kw"
+                    >
+                      Supporting keywords
+                    </label>
+                    <input
+                      id="new-blog-seo-kw"
+                      name="seo_keywords"
+                      value={formData.seo_keywords}
+                      onChange={handleChange}
+                      className={admin.fieldInput}
+                      placeholder="Comma-separated"
+                    />
+                  </div>
+                  <div className={admin.formField}>
+                    <label
+                      className={admin.fieldLabel}
+                      htmlFor="new-blog-meta-title"
+                    >
+                      Meta title override
+                    </label>
+                    <input
+                      id="new-blog-meta-title"
+                      name="meta_title"
+                      value={formData.meta_title}
+                      onChange={handleChange}
+                      className={admin.fieldInput}
+                    />
+                  </div>
+                  <div className={admin.formField}>
+                    <label
+                      className={admin.fieldLabel}
+                      htmlFor="new-blog-meta-desc"
+                    >
+                      Meta description override
+                    </label>
+                    <textarea
+                      id="new-blog-meta-desc"
+                      name="meta_description"
+                      value={formData.meta_description}
+                      onChange={handleChange}
+                      className={admin.fieldTextarea}
+                      rows={3}
+                    />
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <section className={be.section} aria-labelledby="new-section-body">
+              <div className={be.sectionHead}>
+                <div className={be.sectionIcon} aria-hidden>
+                  <PenLine size={20} strokeWidth={1.75} />
+                </div>
+                <div className={be.sectionHeadText}>
+                  <p className={be.sectionKicker}>Body</p>
+                  <h2 id="new-section-body" className={be.sectionTitle}>
+                    Content (HTML)
+                  </h2>
+                  <p className={be.sectionLead}>
+                    Full article body. Inline images upload to the same storage
+                    bucket as the cover.
+                  </p>
+                </div>
+              </div>
+              <div className={`${admin.formField} ${be.editorBlock}`}>
+                {process.env.NEXT_PUBLIC_TINYMCE_API_KEY ? (
+                  <div className={be.editorShell}>
+                    <Editor
+                      apiKey={process.env.NEXT_PUBLIC_TINYMCE_API_KEY}
+                      value={formData.content}
+                      init={{
+                        height: 600,
+                        menubar:
+                          "file edit view insert format tools table help",
+                        image_advtab: true,
+                        image_title: true,
+                        image_description: true,
+                        plugins: [
+                          "advlist",
+                          "lists",
+                          "autolink",
+                          "link",
+                          "image",
+                          "charmap",
+                          "preview",
+                          "anchor",
+                          "searchreplace",
+                          "visualblocks",
+                          "code",
+                          "fullscreen",
+                          "insertdatetime",
+                          "media",
+                          "table",
+                          "help",
+                          "wordcount",
+                        ],
+                        toolbar:
+                          "undo redo | styles | bold italic underline strikethrough | " +
+                          "alignleft aligncenter alignright alignjustify | " +
+                          "bullist numlist outdent indent | blockquote | code | image | link | removeformat | help",
+                        content_style:
+                          "body { background: #181818; color: #fff; font-family:Helvetica,Arial,sans-serif; font-size:16px }",
+                        setup: (editor) => {
+                          editor.on("NodeChange", (e) => {
+                            const el = e.element;
+                            if (el && el.tagName === "IMG") {
+                              const alt = el.getAttribute("alt");
+                              if (!alt || alt.trim() === "") {
+                                const fallback =
+                                  el.getAttribute("title") ||
+                                  document.querySelector('[name="title"]')
+                                    ?.value ||
+                                  "Blog image";
+                                el.setAttribute("alt", fallback);
+                              }
+                            }
+                          });
+                        },
+                        images_upload_handler: (blobInfo) =>
+                          new Promise((resolve, reject) => {
+                            (async () => {
+                              try {
+                                const raw = blobInfo.blob();
+                                const baseName =
+                                  blobInfo.filename() ||
+                                  `inline-${Date.now()}.png`;
+                                let file = new File([raw], baseName, {
+                                  type: raw.type || "image/jpeg",
+                                });
+                                try {
+                                  file = await optimizeImageFile(file);
+                                } catch {
+                                  /* keep original */
+                                }
+                                const fileExt =
+                                  file.name.split(".").pop() ||
+                                  baseName.split(".").pop() ||
+                                  "jpg";
+                                const fileName = `${Date.now()}.${fileExt}`;
+                                const { error } = await supabase.storage
+                                  .from("blog-images")
+                                  .upload(fileName, file, {
+                                    cacheControl: "3600",
+                                    upsert: false,
+                                    contentType: file.type || "image/jpeg",
+                                  });
+                                if (error) {
+                                  reject("Upload failed: " + error.message);
+                                  return;
+                                }
+                                const { data: publicData } = supabase.storage
+                                  .from("blog-images")
+                                  .getPublicUrl(fileName);
+                                resolve(publicData.publicUrl);
+                              } catch (err) {
+                                reject(
+                                  "Upload failed: " +
+                                    (err.message || String(err)),
+                                );
+                              }
+                            })();
+                          }),
+                      }}
+                      onEditorChange={(val) =>
+                        setFormData({ ...formData, content: val })
+                      }
+                    />
+                  </div>
+                ) : (
+                  <div className={admin.editorFallback}>
+                    <p>
+                      TinyMCE API key not found. Add NEXT_PUBLIC_TINYMCE_API_KEY
+                      to your environment.
+                    </p>
+                    <p>
+                      API key:{" "}
+                      {process.env.NEXT_PUBLIC_TINYMCE_API_KEY
+                        ? "Present"
+                        : "Missing"}
+                    </p>
+                  </div>
+                )}
+              </div>
+            </section>
+
+            <div className={be.stickyActions}>
               <button
-                type="button"
-                onClick={handleDeleteImage}
-                className={admin.btnDanger}
+                type="submit"
+                disabled={loading}
+                className={admin.btnPrimary}
               >
-                Remove image
+                {loading ? "Saving…" : "Create post"}
               </button>
             </div>
-          )}
-        </div>
-
-        <div className={admin.formField}>
-          <label className={admin.fieldLabel} htmlFor="new-blog-cover-alt">
-            Cover Image Alt Text
-          </label>
-          <input
-            id="new-blog-cover-alt"
-            name="cover_image_alt"
-            value={formData.cover_image_alt}
-            onChange={handleChange}
-            className={admin.fieldInput}
-            placeholder="Describe the image for SEO (e.g. A developer coding)"
-          />
-          <p className={admin.fieldHelp}>
-            Used for accessibility and social previews. If empty, the post
-            title is used.
-          </p>
-        </div>
-
-        <div className={admin.formField}>
-          <label className={admin.fieldLabel}>Description:</label>
-          <textarea
-            name="description"
-            value={formData.description}
-            onChange={handleChange}
-            className={admin.fieldTextarea}
-          />
-        </div>
-
-        <div className={admin.formField}>
-          <label className={admin.fieldLabel}>Tags:</label>
-          <input
-            name="tags"
-            value={formData.tags}
-            onChange={handleChange}
-            className={admin.fieldInput}
-            placeholder="Enter tags separated by commas (e.g., Next.js, React, Web Development)"
-          />
-          <p className={admin.fieldHelp}>
-            Separate multiple tags with commas. These will be used for related
-            posts and search. If no tags are provided, &quot;Web Development&quot;
-            will be used as default.
-          </p>
-        </div>
-
-        <div className={admin.formField}>
-          <label className={admin.fieldLabel}>Read Time (minutes):</label>
-          <input
-            name="readTime"
-            type="number"
-            min="1"
-            value={formData.readTime}
-            onChange={handleChange}
-            className={admin.fieldInput}
-            placeholder="Leave empty for automatic calculation"
-          />
-          <p className={admin.fieldHelp}>
-            Optional: manually set read time. If left empty, it is calculated from
-            content length (200 words per minute).
-          </p>
-        </div>
-
-        <div className={admin.formField}>
-          <h2 className={admin.formSubheading}>SEO (optional)</h2>
-          <p className={admin.fieldHelp}>
-            Leave blank to auto-generate titles and descriptions. Supporting
-            keywords are used for structured data, not the deprecated meta
-            keywords tag.
-          </p>
-          <label className={admin.fieldLabel}>Focus keyword</label>
-          <input
-            name="focus_keyword"
-            value={formData.focus_keyword}
-            onChange={handleChange}
-            className={admin.fieldInput}
-            placeholder="Primary phrase for this post"
-          />
-          <label className={admin.fieldLabel}>Supporting keywords</label>
-          <input
-            name="seo_keywords"
-            value={formData.seo_keywords}
-            onChange={handleChange}
-            className={admin.fieldInput}
-            placeholder="Comma-separated"
-          />
-          <label className={admin.fieldLabel}>Meta title override</label>
-          <input
-            name="meta_title"
-            value={formData.meta_title}
-            onChange={handleChange}
-            className={admin.fieldInput}
-          />
-          <label className={admin.fieldLabel}>Meta description override</label>
-          <textarea
-            name="meta_description"
-            value={formData.meta_description}
-            onChange={handleChange}
-            className={admin.fieldTextarea}
-            rows={3}
-          />
-        </div>
-
-        <div className={admin.formField}>
-          <span className={admin.fieldLabel}>Content (HTML)</span>
-          {process.env.NEXT_PUBLIC_TINYMCE_API_KEY ? (
-            <Editor
-              apiKey={process.env.NEXT_PUBLIC_TINYMCE_API_KEY}
-              value={formData.content}
-              init={{
-                height: 400,
-                menubar: "file edit view insert format tools table help",
-                image_advtab: true,
-                image_title: true,
-                image_description: true,
-                plugins: [
-                  "advlist",
-                  "lists",
-                  "autolink",
-                  "link",
-                  "image",
-                  "charmap",
-                  "preview",
-                  "anchor",
-                  "searchreplace",
-                  "visualblocks",
-                  "code",
-                  "fullscreen",
-                  "insertdatetime",
-                  "media",
-                  "table",
-                  "help",
-                  "wordcount",
-                ],
-                toolbar:
-                  "undo redo | styles | bold italic underline strikethrough | " +
-                  "alignleft aligncenter alignright alignjustify | " +
-                  "bullist numlist outdent indent | blockquote | code | image | link | removeformat | help",
-                content_style:
-                  "body { background: #181818; color: #fff; font-family:Helvetica,Arial,sans-serif; font-size:16px }",
-                setup: (editor) => {
-                  editor.on("NodeChange", (e) => {
-                    const el = e.element;
-                    if (el && el.tagName === "IMG") {
-                      const alt = el.getAttribute("alt");
-                      if (!alt || alt.trim() === "") {
-                        const fallback =
-                          el.getAttribute("title") ||
-                          document.querySelector('[name="title"]')?.value ||
-                          "Blog image";
-                        el.setAttribute("alt", fallback);
-                      }
-                    }
-                  });
-                },
-                images_upload_handler: (blobInfo) =>
-                  new Promise((resolve, reject) => {
-                    (async () => {
-                      try {
-                        const raw = blobInfo.blob();
-                        const baseName =
-                          blobInfo.filename() || `inline-${Date.now()}.png`;
-                        let file = new File([raw], baseName, {
-                          type: raw.type || "image/jpeg",
-                        });
-                        try {
-                          file = await optimizeImageFile(file);
-                        } catch {
-                          /* keep original */
-                        }
-                        const fileExt =
-                          file.name.split(".").pop() || baseName.split(".").pop() || "jpg";
-                        const fileName = `${Date.now()}.${fileExt}`;
-                        const { error } = await supabase.storage
-                          .from("blog-images")
-                          .upload(fileName, file, {
-                            cacheControl: "3600",
-                            upsert: false,
-                            contentType: file.type || "image/jpeg",
-                          });
-                        if (error) {
-                          reject("Upload failed: " + error.message);
-                          return;
-                        }
-                        const { data: publicData } = supabase.storage
-                          .from("blog-images")
-                          .getPublicUrl(fileName);
-                        resolve(publicData.publicUrl);
-                      } catch (err) {
-                        reject("Upload failed: " + (err.message || String(err)));
-                      }
-                    })();
-                  }),
-              }}
-              onEditorChange={(val) =>
-                setFormData({ ...formData, content: val })
-              }
-            />
-          ) : (
-            <div className={admin.editorFallback}>
-              <p>
-                TinyMCE API key not found. Add NEXT_PUBLIC_TINYMCE_API_KEY to
-                your environment.
-              </p>
-              <p>
-                API key:{" "}
-                {process.env.NEXT_PUBLIC_TINYMCE_API_KEY ? "Present" : "Missing"}
-              </p>
-            </div>
-          )}
-        </div>
-
-        <div className={admin.formActions}>
-          <button type="submit" disabled={loading} className={admin.btnPrimary}>
-            {loading ? "Saving…" : "Create post"}
-          </button>
-        </div>
-      </form>
-        </div>
+        </form>
+      </div>
 
       <ConfirmationModal
         isOpen={showDeleteConfirm}
@@ -605,7 +827,6 @@ export default function NewBlogPage() {
         cancelText="Cancel"
         type="warning"
       />
-      </div>
     </div>
   );
 }

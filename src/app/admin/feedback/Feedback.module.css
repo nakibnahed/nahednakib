@@ -88,15 +88,18 @@
   padding: 12px 16px 12px 44px;
   border: 1px solid var(--card-border);
   border-radius: 12px;
-  background: rgba(255, 255, 255, 0.04);
+  background: var(--form-control-bg);
   color: var(--text-dark);
   font-size: 1rem;
-  transition: border-color 0.3s ease;
+  transition:
+    border-color 0.3s ease,
+    background 0.2s ease;
 }
 
 .searchInput:focus {
   outline: none;
   border-color: var(--primary-color);
+  background: var(--form-control-bg-focus);
 }
 
 .filterGroup {
@@ -109,17 +112,20 @@
   padding: 12px 16px;
   border: 1px solid var(--card-border);
   border-radius: 12px;
-  background: rgba(255, 255, 255, 0.04);
+  background: var(--form-control-bg);
   color: var(--text-dark);
   font-size: 1rem;
   cursor: pointer;
-  transition: border-color 0.3s ease;
+  transition:
+    border-color 0.3s ease,
+    background 0.2s ease;
   min-width: 150px;
 }
 
 .filterSelect:focus {
   outline: none;
   border-color: var(--primary-color);
+  background: var(--form-control-bg-focus);
 }
 
 /* Feedback List */

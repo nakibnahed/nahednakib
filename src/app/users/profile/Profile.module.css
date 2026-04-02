@@ -1,3 +1,9 @@
+.pageLoading {
+  margin: 0;
+  padding: clamp(24px, 4vw, 40px) 0;
+  color: var(--text-muted);
+}
+
 .container {
   display: flex;
   flex: 1 1;
@@ -109,11 +115,15 @@
   padding: 10px;
   border-radius: 6px;
   border: 1px solid var(--card-border);
-  background: #232323;
+  background: var(--form-control-bg);
   color: var(--text-dark);
   font-size: 16px;
   outline: none;
   margin-bottom: 8px;
+}
+
+.input:focus {
+  background: var(--form-control-bg-focus);
 }
 
 .button {
@@ -417,13 +427,15 @@
   transform: translateY(-1px);
 }
 
-/* Settings Form Styles */
+/* Settings Form Styles — full width, admin-style blocks */
 .settingsForm {
-  max-width: 600px;
+  width: 100%;
+  max-width: none;
+  box-sizing: border-box;
   border: 1px solid var(--card-border);
-  border-radius: 24px;
-  padding: 22px;
-  background: color-mix(in srgb, var(--background-main) 80%, transparent 15%);
+  border-radius: 20px;
+  padding: clamp(20px, 2.8vw, 32px);
+  background: color-mix(in srgb, var(--background-main) 82%, transparent 12%);
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
   backdrop-filter: blur(16px) saturate(160%);
   -webkit-backdrop-filter: blur(16px) saturate(160%);
@@ -444,13 +456,108 @@
   border-radius: inherit;
 }
 
-.settingsForm form {
+.settingsForm form,
+.settingsFormBody {
   position: relative;
   z-index: 1;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.settingsBlock {
+  width: 100%;
+  margin-bottom: clamp(22px, 2.5vw, 28px);
+}
+
+.settingsBlock:last-of-type {
+  margin-bottom: 0;
+}
+
+.settingsBlockKicker {
+  margin: 0 0 12px 0;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-secondary, #71717a);
+}
+
+.settingsDivider {
+  height: 1px;
+  margin: clamp(8px, 1.2vw, 14px) 0 clamp(22px, 2.5vw, 28px);
+  background: color-mix(in srgb, var(--card-border) 75%, transparent);
+  border: none;
+}
+
+.settingsRow2 {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(16px, 2vw, 22px);
+  width: 100%;
+  margin-bottom: clamp(22px, 2.5vw, 28px);
+}
+
+.settingsRow2 .formGroup {
+  margin-bottom: 0;
+}
+
+.settingsForm .avatarSection {
+  width: 100%;
+  max-width: none;
+  flex-wrap: wrap;
+  gap: clamp(18px, 2.5vw, 28px);
+}
+
+.settingsFooter {
+  width: 100%;
+  margin-top: clamp(8px, 1.5vw, 14px);
+  padding-top: clamp(18px, 2vw, 24px);
+  border-top: 1px solid color-mix(in srgb, var(--card-border) 70%, transparent);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  align-items: stretch;
+}
+
+.settingsSaveRow {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 12px;
+  width: 100%;
 }
 
 .formGroup {
   margin-bottom: 25px;
+}
+
+/* Tighter rhythm inside settings shell */
+.settingsForm .formGroup {
+  margin-bottom: clamp(16px, 2vw, 22px);
+}
+
+.settingsBlock .formGroup {
+  margin-bottom: 0;
+}
+
+.settingsBlock .formGroup + .formGroup {
+  margin-top: clamp(16px, 2vw, 20px);
+}
+
+.settingsForm .settingsRow2 {
+  margin-bottom: clamp(20px, 2.2vw, 26px);
+}
+
+.settingsForm .settingsFooter {
+  margin-bottom: 0;
+}
+
+@media (max-width: 640px) {
+  .settingsRow2 {
+    grid-template-columns: 1fr;
+  }
 }
 
 .formGroup label {
@@ -466,7 +573,7 @@
   padding: 12px;
   border: 1px solid var(--card-border);
   border-radius: 12px;
-  background: rgba(255, 255, 255, 0.04);
+  background: var(--form-control-bg);
   color: var(--text-dark);
   font-size: 1rem;
 }
@@ -475,7 +582,7 @@
 .formTextarea:focus {
   outline: none;
   border-color: var(--primary-color, #ee681a);
-  background: rgba(255, 255, 255, 0.08);
+  background: var(--form-control-bg-focus);
 }
 
 .formTextarea {
@@ -531,10 +638,11 @@
   padding: 12px;
   border: 1px solid var(--card-border);
   border-radius: 12px;
-  background: rgba(255, 255, 255, 0.03);
+  background: var(--form-control-bg);
   color: var(--text-dark);
   font-size: 1rem;
   cursor: not-allowed;
+  opacity: 0.92;
 }
 
 .fieldNote {

@@ -63,7 +63,7 @@
 }
 
 .searchInput::placeholder {
-  color: var(--text-dark);
+  color: var(--text-muted);
 }
 
 .searchInput:focus {

@@ -1,6 +1,7 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
+import Link from "next/link";
 import Image from "next/image";
 import { supabase } from "@/services/supabaseClient";
 import styles from "./UserSidebar.module.css";
@@ -12,112 +13,161 @@ import {
   Star,
   Settings,
   LogOut,
+  LayoutGrid,
 } from "lucide-react";
 
-export default function UserSidebar({
-  user,
-  profileData,
-  activeTab,
-  setActiveTab,
-}) {
+const NAV = [
+  {
+    key: "dashboard",
+    label: "Dashboard",
+    href: "/users/profile",
+    icon: LayoutGrid,
+  },
+  {
+    key: "comments",
+    label: "My comments",
+    href: "/users/profile/comments",
+    icon: MessageCircle,
+  },
+  {
+    key: "likes",
+    label: "Liked posts",
+    href: "/users/profile/likes",
+    icon: Heart,
+  },
+  {
+    key: "favorites",
+    label: "Favorites",
+    href: "/users/profile/favorites",
+    icon: Star,
+  },
+  {
+    key: "meeting-requests",
+    label: "Meeting requests",
+    href: "/conversation-practice?tab=requests",
+    icon: CalendarCheck2,
+  },
+  {
+    key: "settings",
+    label: "Settings",
+    href: "/users/profile/settings",
+    icon: Settings,
+  },
+];
+
+export default function UserSidebar({ profileData, onNavigate }) {
   const router = useRouter();
+  const pathname = usePathname();
 
-  const navItems = [
-    {
-      key: "dashboard",
-      label: "Dashboard",
-      icon: <User size={18} />,
-    },
-    {
-      key: "comments",
-      label: "My Comments",
-      icon: <MessageCircle size={18} />,
-    },
-    {
-      key: "likes",
-      label: "Liked Posts",
-      icon: <Heart size={18} />,
-    },
-    {
-      key: "favorites",
-      label: "Favorites",
-      icon: <Star size={18} />,
-    },
-    {
-      key: "meeting-requests",
-      label: "Meeting Requests",
-      icon: <CalendarCheck2 size={18} />,
-      href: "/conversation-practice?tab=requests",
-    },
-    {
-      key: "settings",
-      label: "Settings",
-      icon: <Settings size={18} />,
-    },
-  ];
+  const normalizedPath = pathname.replace(/\/$/, "") || "/";
 
-  const handleNavItemClick = (item) => {
-    if (item.href) {
-      router.push(item.href);
-      return;
+  const isActive = (href) => {
+    if (href === "/users/profile") {
+      return normalizedPath === "/users/profile";
     }
-    setActiveTab(item.key);
+    return normalizedPath === href || normalizedPath.startsWith(`${href}/`);
   };
 
   const handleLogout = async () => {
+    onNavigate?.();
     await supabase.auth.signOut();
     router.push("/");
   };
 
+  const displayName =
+    profileData?.first_name || profileData?.last_name
+      ? `${profileData?.first_name || ""} ${profileData?.last_name || ""}`.trim()
+      : profileData?.full_name || "User";
+
+  const roleLabel =
+    profileData?.professional_role ||
+    (profileData?.role === "admin" ? "Administrator" : "Member");
+
   return (
     <div className={styles.sidebarContainer}>
-      <nav className={styles.sidebar}>
-        <div className={styles.userInfo}>
-          <Image
-            src={profileData?.avatar_url || "/default-avatar.svg"}
-            alt="User Avatar"
-            className={styles.avatar}
-            width={50}
-            height={50}
-          />
-          <div className={styles.userDetails}>
-            <h4 className={styles.userName}>
-              {profileData?.first_name || profileData?.last_name
-                ? `${profileData?.first_name || ""} ${
-                    profileData?.last_name || ""
-                  }`.trim()
-                : profileData?.full_name || "User"}
-            </h4>
-            <p className={styles.userRole}>
-              {profileData?.professional_role ||
-                (profileData?.role === "admin" ? "Administrator" : "User")}
-            </p>
+      <nav className={styles.sidebar} aria-label="Account navigation">
+        <div className={styles.brandRow}>
+          <span className={styles.brandIcon} aria-hidden>
+            <User size={20} strokeWidth={2} />
+          </span>
+          <div className={styles.brandText}>
+            <span className={styles.brandTitle}>Account</span>
+            <span className={styles.brandSub}>Your profile</span>
           </div>
         </div>
 
-        <h3 className={styles.panelTitle}>User Panel</h3>
-        <ul className={styles.menu}>
-          {navItems.map((item) => (
-            <li
-              key={item.key}
-              className={`${styles.menuItem} ${
-                activeTab === item.key ? styles.active : ""
-              }`}
-              onClick={() => handleNavItemClick(item)}
-            >
-              <span className={styles.menuItemContent}>
-                {item.icon}
-                {item.label}
-              </span>
+        <div className={styles.navScroll}>
+          <p className={styles.sectionLabel}>Navigation</p>
+          <ul className={styles.menu}>
+            {NAV.map((item) => {
+              const Icon = item.icon;
+              const active = isActive(item.href);
+              return (
+                <li
+                  key={item.key}
+                  className={`${styles.menuItem} ${active ? styles.active : ""}`}
+                >
+                  <Link
+                    href={item.href}
+                    className={styles.menuLink}
+                    onClick={() => onNavigate?.()}
+                  >
+                    <span className={styles.menuItemContent}>
+                      <Icon size={18} strokeWidth={2} />
+                      {item.label}
+                    </span>
+                  </Link>
+                </li>
+              );
+            })}
+            <li className={`${styles.menuItem} ${styles.logoutItem}`}>
+              <button
+                type="button"
+                className={styles.menuLink}
+                onClick={handleLogout}
+              >
+                <span className={styles.menuItemContent}>
+                  <LogOut size={18} strokeWidth={2} />
+                  Log out
+                </span>
+              </button>
             </li>
-          ))}
-          <li className={styles.menuItem} onClick={handleLogout}>
-            <span className={styles.menuItemContent}>
-              <LogOut size={18} />
-              Logout
-            </span>
-          </li>
-        </ul>
+          </ul>
+        </div>
+
+        <div className={styles.userCard}>
+          <Link href="/users/profile/settings" className={styles.userAvatarLink}>
+            <div className={styles.userAvatar}>
+              <Image
+                src={profileData?.avatar_url || "/default-avatar.svg"}
+                alt=""
+                className={styles.avatarImage}
+                width={48}
+                height={48}
+              />
+            </div>
+          </Link>
+          <div className={styles.userDetails}>
+            <Link href="/users/profile/settings" className={styles.userNameLink}>
+              <span className={styles.userName}>{displayName}</span>
+            </Link>
+            <p className={styles.userRole}>
+              <User size={12} style={{ color: "var(--primary-color)" }} />
+              {roleLabel}
+            </p>
+          </div>
+          <div className={styles.settingsFloating}>
+            <Link
+              href="/users/profile/settings"
+              className={styles.settingsIcon}
+              aria-label="Settings"
+              onClick={() => onNavigate?.()}
+            >
+              <Settings size={16} />
+            </Link>
+            <span className={styles.tooltip}>Settings</span>
+          </div>
+        </div>
       </nav>
     </div>
   );

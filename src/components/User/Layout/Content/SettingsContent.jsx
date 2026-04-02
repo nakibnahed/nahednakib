@@ -1,9 +1,12 @@
 "use client";
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { supabase } from "@/services/supabaseClient";
 import styles from "../../../../app/users/profile/Profile.module.css";
+import be from "@/app/admin/blogs/BlogEditor.module.css";
+import admin from "@/components/Admin/adminPage.module.css";
 import Image from "next/image";
-import { Upload, X, User, Trash2 } from "lucide-react";
+import { Upload, X, User, Trash2, ArrowLeft, Settings } from "lucide-react";
 import ConfirmationModal from "@/components/ConfirmationModal/ConfirmationModal";
 
 export default function SettingsContent({ user }) {
@@ -241,49 +244,67 @@ export default function SettingsContent({ user }) {
 
   if (loading) {
     return (
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          minHeight: "60vh",
-          color: "#fff",
-        }}
-      >
-        <p>Loading settings...</p>
+      <div className={be.pageRoot}>
+        <p className={styles.pageLoading}>Loading settings…</p>
       </div>
     );
   }
 
   if (error && !formData.first_name) {
     return (
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          minHeight: "60vh",
-          color: "#ff6b6b",
-        }}
-      >
-        <p>{error}</p>
+      <div className={be.pageRoot}>
+        <p className={styles.error}>{error}</p>
       </div>
     );
   }
 
   return (
-    <div className={styles.profileContent}>
-      <div className={styles.contentHeader}>
-        <h1>Profile Settings</h1>
-        <p>Manage your account settings and profile information</p>
-      </div>
+    <div className={be.pageRoot}>
+      <header className={be.hero}>
+        <div className={be.heroBack}>
+          <Link href="/users/profile" className={admin.backNav}>
+            <ArrowLeft size={18} strokeWidth={2} aria-hidden />
+            Back to dashboard
+          </Link>
+        </div>
+        <div className={be.heroMeta}>
+          <p className={admin.eyebrow}>Account</p>
+          <span className={be.metaChip}>Settings</span>
+        </div>
+        <h1 className={admin.pageTitle}>Profile Settings</h1>
+        <p className={admin.lead}>
+          Manage your account settings and profile information
+        </p>
+      </header>
 
-      <div className={styles.settingsForm}>
-        <form onSubmit={handleSubmit}>
-          {/* Profile Picture Section */}
-          <div className={styles.formGroup}>
-            <label>Profile Picture</label>
-            <div className={styles.avatarSection}>
+      <div className={be.formFlow}>
+        <section className={be.section} aria-labelledby="user-settings-fields">
+          <div className={be.sectionHead}>
+            <div className={be.sectionIcon} aria-hidden>
+              <Settings size={20} strokeWidth={1.75} />
+            </div>
+            <div className={be.sectionHeadText}>
+              <p className={be.sectionKicker}>Profile</p>
+              <h2 id="user-settings-fields" className={be.sectionTitle}>
+                Picture, identity &amp; bio
+              </h2>
+              <p className={be.sectionLead}>
+                Upload a photo or paste a URL, edit your name, role, and bio.
+              </p>
+            </div>
+          </div>
+
+          <div className={styles.settingsForm}>
+            <form
+              onSubmit={handleSubmit}
+              className={styles.settingsFormBody}
+              noValidate
+            >
+              <div className={styles.settingsBlock}>
+                <p className={styles.settingsBlockKicker}>Profile picture</p>
+                <div className={styles.formGroup}>
+                  <label>Profile Picture</label>
+                  <div className={styles.avatarSection}>
               <div className={styles.avatarPreview}>
                 {previewUrl ? (
                   <Image
@@ -341,11 +362,16 @@ export default function SettingsContent({ user }) {
                     Selected: {selectedFile.name}
                   </p>
                 )}
+                    </div>
+                  </div>
+                </div>
               </div>
-            </div>
-          </div>
 
-          <div className={styles.formGroup}>
+              <hr className={styles.settingsDivider} aria-hidden />
+
+              <div className={styles.settingsBlock}>
+                <p className={styles.settingsBlockKicker}>Contact</p>
+                <div className={styles.formGroup}>
             <label>Email</label>
             <div className={styles.readOnlyField}>
               {user?.email || "No email available"}
@@ -353,9 +379,15 @@ export default function SettingsContent({ user }) {
             <small className={styles.fieldNote}>
               Email cannot be changed here
             </small>
-          </div>
+                </div>
+              </div>
 
-          <div className={styles.formGroup}>
+              <hr className={styles.settingsDivider} aria-hidden />
+
+              <div className={styles.settingsBlock}>
+                <p className={styles.settingsBlockKicker}>Name</p>
+                <div className={styles.settingsRow2}>
+                  <div className={styles.formGroup}>
             <label htmlFor="first_name">First Name</label>
             <input
               type="text"
@@ -366,9 +398,9 @@ export default function SettingsContent({ user }) {
               className={styles.formInput}
               placeholder="Enter your first name"
             />
-          </div>
+                  </div>
 
-          <div className={styles.formGroup}>
+                  <div className={styles.formGroup}>
             <label htmlFor="last_name">Last Name</label>
             <input
               type="text"
@@ -379,9 +411,15 @@ export default function SettingsContent({ user }) {
               className={styles.formInput}
               placeholder="Enter your last name"
             />
-          </div>
+                  </div>
+                </div>
+              </div>
 
-          <div className={styles.formGroup}>
+              <hr className={styles.settingsDivider} aria-hidden />
+
+              <div className={styles.settingsBlock}>
+                <p className={styles.settingsBlockKicker}>Public profile</p>
+                <div className={styles.formGroup}>
             <label htmlFor="professional_role">Professional Role</label>
             <input
               type="text"
@@ -396,9 +434,9 @@ export default function SettingsContent({ user }) {
             <small className={styles.fieldNote}>
               This will appear under your name on blog posts and profile pages
             </small>
-          </div>
+                </div>
 
-          <div className={styles.formGroup}>
+                <div className={styles.formGroup}>
             <label htmlFor="bio">Bio</label>
             <textarea
               id="bio"
@@ -413,9 +451,9 @@ export default function SettingsContent({ user }) {
             <small className={styles.fieldNote}>
               {formData.bio.length}/500 characters
             </small>
-          </div>
+                </div>
 
-          <div className={styles.formGroup}>
+                <div className={styles.formGroup}>
             <label htmlFor="avatar_url">Avatar URL (Alternative)</label>
             <input
               type="url"
@@ -429,22 +467,27 @@ export default function SettingsContent({ user }) {
             <small className={styles.fieldNote}>
               Use this if you prefer to link to an external image
             </small>
+                </div>
+              </div>
+
+              <div className={styles.settingsFooter}>
+                {error && <div className={styles.error}>{error}</div>}
+                {success && <div className={styles.success}>{success}</div>}
+                <div className={styles.settingsSaveRow}>
+                  <button
+                    type="submit"
+                    disabled={saving || uploading}
+                    className={styles.saveButton}
+                  >
+                    {saving || uploading ? "Saving..." : "Save Changes"}
+                  </button>
+                </div>
+              </div>
+            </form>
           </div>
-
-          {error && <div className={styles.error}>{error}</div>}
-          {success && <div className={styles.success}>{success}</div>}
-
-          <button
-            type="submit"
-            disabled={saving || uploading}
-            className={styles.saveButton}
-          >
-            {saving || uploading ? "Saving..." : "Save Changes"}
-          </button>
-        </form>
+        </section>
       </div>
 
-      {/* Delete Avatar Confirmation Modal */}
       <ConfirmationModal
         isOpen={showDeleteConfirm}
         onClose={() => setShowDeleteConfirm(false)}

@@ -208,7 +208,7 @@
   padding: 12px 14px;
   text-align: left;
   border-bottom: 1px solid color-mix(in srgb, var(--card-border) 70%, transparent);
-  color: var(--card-text, #e4e4e7);
+  color: var(--text-dark);
   font-size: 14px;
   vertical-align: middle;
 }
@@ -218,7 +218,7 @@
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--text-secondary, #a1a1aa);
+  color: var(--text-dark);
   background: color-mix(in srgb, #fff 3%, transparent);
 }
 
@@ -305,13 +305,21 @@
 .formStack {
   display: flex;
   flex-direction: column;
-  gap: clamp(18px, 2.5vw, 22px);
+  gap: clamp(22px, 2.8vw, 28px);
+}
+
+/* Stack already uses gap; extra margin on .formField would double vertical rhythm */
+.formStack > .formField,
+.formStack > .formRowInline {
+  margin-block: 0;
 }
 
 .formField {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: clamp(12px, 1.5vw, 18px);
+  /* Outer vertical rhythm when fields sit as siblings in grids/sections without stack gap */
+  margin-block: clamp(6px, 0.85vw, 12px);
 }
 
 .fieldLabel {
@@ -319,7 +327,7 @@
   font-weight: 600;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: var(--text-secondary, #a1a1aa);
+  color: var(--text-dark);
 }
 
 .fieldInput,
@@ -330,12 +338,14 @@
   padding: 12px 14px;
   border-radius: 12px;
   border: 1px solid var(--card-border);
-  background: rgba(255, 255, 255, 0.04);
-  color: var(--text-primary, #fafafa);
+  background: var(--form-control-bg);
+  color: var(--text-dark);
   font-size: 16px;
   font-family: inherit;
   outline: none;
-  transition: border-color 0.2s ease;
+  transition:
+    border-color 0.2s ease,
+    background 0.2s ease;
 }
 
 .fieldInput:focus,
@@ -346,6 +356,7 @@
     var(--primary-color) 55%,
     var(--card-border)
   );
+  background: var(--form-control-bg-focus);
 }
 
 .fieldSelect {
@@ -360,7 +371,7 @@
 .fieldHelp {
   margin: 0;
   font-size: 0.875rem;
-  line-height: 1.45;
+  line-height: 1.55;
   color: var(--text-muted, #a3a3a3);
 }
 
@@ -471,8 +482,9 @@
 .formRowInline {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: 10px 12px;
   align-items: center;
+  margin-top: 2px;
 }
 
 .checkboxGrid {
