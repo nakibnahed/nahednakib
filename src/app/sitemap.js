@@ -49,14 +49,14 @@ export default async function sitemap() {
 
     const { data: portfolios } = await supabase
       .from("portfolios")
-      .select("id, updated_at, created_at")
+      .select("id, created_at")
       .eq("published", true)
       .order("created_at", { ascending: false });
 
     if (portfolios?.length) {
       portfolioPages = portfolios.map((p) => ({
         url: `${baseUrl}/portfolio/${p.id}`,
-        lastModified: new Date(p.updated_at || p.created_at),
+        lastModified: new Date(p.created_at),
         changeFrequency: "monthly",
         priority: 0.6,
       }));
