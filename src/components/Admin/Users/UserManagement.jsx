@@ -1,8 +1,9 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
+import admin from "@/components/Admin/adminPage.module.css";
 import styles from "./UserManagement.module.css";
-import { Edit, Trash2, User, Shield, Eye, Ban } from "lucide-react";
+import { Edit, Trash2, User, Shield, Eye, Ban, Users } from "lucide-react";
 import ConfirmationModal from "@/components/ConfirmationModal/ConfirmationModal";
 import { showAppToast } from "@/lib/showAppToast";
 
@@ -32,9 +33,19 @@ export default function UserManagement() {
         (user.email && user.email.toLowerCase().includes(lowerTerm)) ||
         (user.role && user.role.toLowerCase().includes(lowerTerm)) ||
         (user.id && user.id.toLowerCase().includes(lowerTerm)) ||
-        (user.created_at && user.created_at.toLowerCase().includes(lowerTerm))
+        (user.created_at && user.created_at.toLowerCase().includes(lowerTerm)),
     );
   }, [users, searchTerm]);
+
+  const userStats = useMemo(() => {
+    const admins = users.filter((u) => u.role === "admin").length;
+    const regular = users.filter((u) => u.role === "user").length;
+    return {
+      total: users.length,
+      admins,
+      regular,
+    };
+  }, [users]);
 
   useEffect(() => {
     fetchUsers();
@@ -121,7 +132,7 @@ export default function UserManagement() {
 
       if (response.ok) {
         setUsers(
-          users.map((user) => (user.id === userId ? { ...user, role } : user))
+          users.map((user) => (user.id === userId ? { ...user, role } : user)),
         );
         setEditingUser(null);
         showAppToast("User role updated.", "success");
@@ -147,26 +158,62 @@ export default function UserManagement() {
   const isMainAdmin = currentUser?.email === MAIN_ADMIN_EMAIL;
 
   if (loading) {
-    return <div className={styles.loading}>Loading users...</div>;
+    return (
+      <div className={`${admin.page} ${styles.container}`}>
+        <div className={admin.loadingPanel}>
+          <div className={admin.loadingSpinner} aria-hidden />
+          <span>Loading users…</span>
+        </div>
+      </div>
+    );
   }
 
   return (
-    <div className={styles.container}>
-      <div className={styles.header}>
-        <h1 className={styles.title}>User Management</h1>
-        <p className={styles.subtitle}>Manage users and roles</p>
-      </div>
+    <div className={`${admin.page} ${styles.container}`}>
+      <header className={admin.pageHeader}>
+        <p className={admin.eyebrow}>Directory</p>
+        <h1 className={admin.pageTitle}>User Management</h1>
+        <p className={admin.lead}>Manage users and roles</p>
+      </header>
 
-      <div className={styles.controlsRow}>
-        <input
-          type="text"
-          placeholder="Search by email, role, ID or date..."
-          className={styles.searchInput}
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          autoComplete="off"
-        />
-      </div>
+      <section className={admin.statsSection} aria-label="Summary">
+        <div className={admin.statsGrid}>
+          <div className={admin.statCard}>
+            <Users size={24} aria-hidden />
+            <div>
+              <h3>{userStats.total}</h3>
+              <p>Total</p>
+            </div>
+          </div>
+          <div className={admin.statCard}>
+            <Shield size={24} aria-hidden />
+            <div>
+              <h3>{userStats.admins}</h3>
+              <p>Admins</p>
+            </div>
+          </div>
+          <div className={admin.statCard}>
+            <User size={24} aria-hidden />
+            <div>
+              <h3>{userStats.regular}</h3>
+              <p>Users</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className={admin.filtersSection} aria-label="Search and filters">
+        <div className={styles.controlsRow}>
+          <input
+            type="text"
+            placeholder="Search by email, role, ID or date..."
+            className={styles.searchInput}
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            autoComplete="off"
+          />
+        </div>
+      </section>
 
       <div className={styles.tableContainer}>
         <table className={styles.table}>

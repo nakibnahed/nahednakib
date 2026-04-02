@@ -1,31 +1,7 @@
 .container {
-  max-width: 1200px;
-  margin: 0 auto;
-}
-
-.header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 1rem;
-  flex-wrap: wrap;
-  margin-bottom: 20px;
-}
-
-.title {
-  font-size: 2rem;
-  font-weight: 700;
-  margin-bottom: 0.5rem;
-  background: var(--gradient-typography-primary);
-  background-clip: text;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  font-family: var(--font-heading), sans-serif;
-}
-
-.subtitle {
-  color: var(--text-muted);
-  font-size: 1rem;
+  width: 100%;
+  max-width: none;
+  margin: 0;
 }
 
 .controlsRow {
@@ -34,7 +10,8 @@
   align-items: flex-start;
   gap: 1rem;
   flex-wrap: wrap;
-  margin-bottom: 20px;
+  width: 100%;
+  margin-bottom: 0;
 }
 
 .searchInput {
@@ -70,12 +47,10 @@
 
 .tableContainer {
   overflow-x: auto;
-  border-radius: 24px;
-  background: color-mix(in srgb, var(--background-main) 80%, transparent 15%);
-  border: 1px solid var(--card-border);
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
-  backdrop-filter: blur(16px) saturate(160%);
-  -webkit-backdrop-filter: blur(16px) saturate(160%);
+  border-radius: 16px;
+  background: color-mix(in srgb, var(--background-main) 94%, #000 6%);
+  border: 1px solid color-mix(in srgb, var(--card-border) 85%, transparent);
+  box-shadow: 0 1px 0 color-mix(in srgb, #fff 3%, transparent);
 }
 
 .table {
@@ -88,11 +63,12 @@
 
 .table th,
 .table td {
-  padding: 10px;
-  border: 1px solid var(--card-border);
+  padding: 12px 14px;
+  border: none;
+  border-bottom: 1px solid color-mix(in srgb, var(--card-border) 70%, transparent);
   text-align: center;
-  background-color: var(--background-main);
-  color: var(--card-text);
+  background-color: transparent;
+  color: var(--card-text, #e4e4e7);
   vertical-align: middle;
 }
 
@@ -114,21 +90,22 @@
   border-bottom-right-radius: 12px;
 }
 
-.table th {
-  background-color: var(--background-main);
-  font-weight: bold;
+.table thead tr th {
+  background: color-mix(in srgb, #fff 4%, transparent);
+  font-weight: 700;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-secondary, #a1a1aa);
   font-family: var(--font-heading), sans-serif;
 }
 
-.table td {
-  padding: 10px;
-  border: 1px solid var(--card-border);
-  background-color: var(--background-main);
-  color: var(--card-text);
+.table tbody tr:hover td {
+  background: color-mix(in srgb, var(--primary-color) 6%, transparent);
 }
 
-.table tbody tr:hover {
-  background: var(--hover-bg);
+.table tbody tr:last-child td {
+  border-bottom: none;
 }
 
 .idCell {
@@ -307,7 +284,9 @@
   white-space: nowrap;
   font-size: 12px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  transition: opacity 0.15s ease, visibility 0.15s ease;
+  transition:
+    opacity 0.15s ease,
+    visibility 0.15s ease;
   z-index: 9999;
 }
 
@@ -372,11 +351,6 @@
 @media (max-width: 768px) {
   .container {
     padding: 1rem;
-  }
-
-  .header {
-    flex-direction: column;
-    align-items: stretch;
   }
 
   .controlsRow {

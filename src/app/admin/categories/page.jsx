@@ -1,6 +1,8 @@
 "use client";
 
+import admin from "@/components/Admin/adminPage.module.css";
 import { useState, useEffect } from "react";
+import { Tag } from "lucide-react";
 import { supabase } from "@/services/supabaseClient";
 import { slugify } from "@/lib/utils/slugify";
 import { showAppToast } from "@/lib/showAppToast";
@@ -61,10 +63,7 @@ export default function CategoriesPage() {
     const { error } = await supabase.from("categories").insert([formData]);
 
     if (error) {
-      showAppToast(
-        error.message || "Could not create category.",
-        "error",
-      );
+      showAppToast(error.message || "Could not create category.", "error");
     } else {
       setFormData({ name: "", slug: "", description: "", color: "#ee681a" });
       setShowForm(false);
@@ -82,10 +81,7 @@ export default function CategoriesPage() {
       .eq("id", editingCategory.id);
 
     if (error) {
-      showAppToast(
-        error.message || "Could not update category.",
-        "error",
-      );
+      showAppToast(error.message || "Could not update category.", "error");
     } else {
       setFormData({ name: "", slug: "", description: "", color: "#ee681a" });
       setEditingCategory(null);
@@ -103,10 +99,7 @@ export default function CategoriesPage() {
     const { error } = await supabase.from("categories").delete().eq("id", id);
 
     if (error) {
-      showAppToast(
-        error.message || "Could not delete category.",
-        "error",
-      );
+      showAppToast(error.message || "Could not delete category.", "error");
     } else {
       fetchCategories();
       showAppToast("Category deleted.", "success");
@@ -132,17 +125,41 @@ export default function CategoriesPage() {
   }
 
   return (
-    <div className={styles.container}>
-      <div className={styles.header}>
-        <h1 className={styles.title}>Manage Categories</h1>
-        <button
-          onClick={() => setShowForm(true)}
-          className={styles.addButton}
-          disabled={loading}
-        >
-          Add Category
-        </button>
-      </div>
+    <div className={`${admin.page} ${styles.container}`}>
+      <header className={admin.pageHeader}>
+        <p className={admin.eyebrow}>Taxonomy</p>
+        <h1 className={admin.pageTitle}>Categories</h1>
+        <p className={admin.lead}>
+          Labels, slugs, and colors used across blog posts.
+        </p>
+      </header>
+
+      {!loading && (
+        <section className={admin.statsSection} aria-label="Summary">
+          <div className={admin.statsGrid}>
+            <div className={admin.statCard}>
+              <Tag size={24} aria-hidden />
+              <div>
+                <h3>{categories.length}</h3>
+                <p>Categories</p>
+              </div>
+            </div>
+          </div>
+        </section>
+      )}
+
+      <section className={admin.filtersSection} aria-label="Actions">
+        <div className={styles.toolbar}>
+          <button
+            type="button"
+            onClick={() => setShowForm(true)}
+            className={styles.addButton}
+            disabled={loading}
+          >
+            Add Category
+          </button>
+        </div>
+      </section>
 
       {showForm && (
         <div className={styles.formContainer}>
@@ -212,7 +229,10 @@ export default function CategoriesPage() {
       )}
 
       {loading ? (
-        <p>Loading categories...</p>
+        <div className={admin.loadingPanel}>
+          <div className={admin.loadingSpinner} aria-hidden />
+          <span>Loading categories…</span>
+        </div>
       ) : (
         <div className={styles.categoriesGrid}>
           {categories.map((category) => (

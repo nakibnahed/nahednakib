@@ -1,13 +1,11 @@
 .container {
-  padding: 1rem;
-  max-width: 800px;
-  margin: 0 auto;
-  border: 1px solid var(--card-border);
-  border-radius: 24px;
-  background: color-mix(in srgb, var(--background-main) 80%, transparent 15%);
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
-  backdrop-filter: blur(16px) saturate(160%);
-  -webkit-backdrop-filter: blur(16px) saturate(160%);
+  padding: clamp(20px, 3vw, 28px);
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  border: 1px solid color-mix(in srgb, var(--card-border) 85%, transparent);
+  border-radius: 16px;
+  background: color-mix(in srgb, var(--background-main) 94%, #000 6%);
   position: relative;
   overflow: hidden;
 }
@@ -29,18 +27,6 @@
 .container > * {
   position: relative;
   z-index: 1;
-}
-
-.header {
-  margin-bottom: 2rem;
-}
-
-.title {
-  font-weight: 700;
-  margin-bottom: 1rem;
-}
-
-.description {
 }
 
 .settingsCard {

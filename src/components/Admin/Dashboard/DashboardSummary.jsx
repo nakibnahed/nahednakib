@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/services/supabaseClient";
 import styles from "./DashboardSummary.module.css";
@@ -11,7 +11,111 @@ import {
   BookOpen,
   Send,
   MessageCircle,
+  MessageSquare,
+  ChevronRight,
+  ArrowUpRight,
+  LayoutGrid,
+  Tag,
+  PenLine,
+  Bell,
 } from "lucide-react";
+
+const statConfig = [
+  {
+    key: "users",
+    label: "Users",
+    description: "Registered accounts",
+    path: "/admin/users",
+    icon: Users,
+    accent: "var(--admin-stat-1, #22c55e)",
+  },
+  {
+    key: "portfolios",
+    label: "Portfolios",
+    description: "Projects published",
+    path: "/admin/portfolio",
+    icon: Briefcase,
+    accent: "var(--admin-stat-2, #a855f7)",
+  },
+  {
+    key: "blogs",
+    label: "Blogs",
+    description: "Articles live",
+    path: "/admin/blogs",
+    icon: BookOpen,
+    accent: "var(--admin-stat-3, #f97316)",
+  },
+  {
+    key: "categories",
+    label: "Categories",
+    description: "Blog taxonomy",
+    path: "/admin/categories",
+    icon: Tag,
+    accent: "var(--admin-stat-4, #ec4899)",
+  },
+  {
+    key: "authors",
+    label: "Authors",
+    description: "Byline profiles",
+    path: "/admin/authors",
+    icon: PenLine,
+    accent: "var(--admin-stat-5, #8b5cf6)",
+  },
+  {
+    key: "messages",
+    label: "Forms",
+    description: "Contact submissions",
+    path: "/admin/contact",
+    icon: Mail,
+    accent: "var(--admin-stat-6, #3b82f6)",
+  },
+  {
+    key: "feedback",
+    label: "Feedback",
+    description: "Product feedback",
+    path: "/admin/feedback",
+    icon: MessageSquare,
+    accent: "var(--admin-stat-7, #06b6d4)",
+  },
+  {
+    key: "newsletter",
+    label: "Newsletter",
+    description: "Subscribers",
+    path: "/admin/newsletter",
+    icon: Send,
+    accent: "var(--admin-stat-8, #14b8a6)",
+  },
+  {
+    key: "comments",
+    label: "Comments",
+    description: "Approved comments",
+    path: "/admin/comments",
+    icon: MessageCircle,
+    accent: "var(--admin-stat-9, #eab308)",
+  },
+  {
+    key: "notifications",
+    label: "Notifications",
+    description: "Sent to users",
+    path: "/admin/notifications",
+    icon: Bell,
+    accent: "var(--admin-stat-10, #f43f5e)",
+  },
+];
+
+const quickLinks = [
+  { label: "Manage users", path: "/admin/users" },
+  { label: "Portfolio library", path: "/admin/portfolio" },
+  { label: "Blog posts", path: "/admin/blogs" },
+  { label: "Categories", path: "/admin/categories" },
+  { label: "Authors", path: "/admin/authors" },
+  { label: "Forms inbox", path: "/admin/contact" },
+  { label: "Feedback", path: "/admin/feedback" },
+  { label: "Newsletter", path: "/admin/newsletter" },
+  { label: "Comments", path: "/admin/comments" },
+  { label: "Notifications", path: "/admin/notifications" },
+  { label: "Site settings", path: "/admin/running-settings" },
+];
 
 export default function DashboardSummary() {
   const [counts, setCounts] = useState({
@@ -21,11 +125,24 @@ export default function DashboardSummary() {
     blogs: 0,
     newsletter: 0,
     comments: 0,
+    categories: 0,
+    authors: 0,
+    feedback: 0,
+    notifications: 0,
   });
   const [recentActivity, setRecentActivity] = useState([]);
   const [loading, setLoading] = useState(true);
 
   const router = useRouter();
+
+  const todayLabel = useMemo(() => {
+    return new Intl.DateTimeFormat(undefined, {
+      weekday: "long",
+      month: "long",
+      day: "numeric",
+      year: "numeric",
+    }).format(new Date());
+  }, []);
 
   useEffect(() => {
     async function fetchCounts() {
@@ -35,15 +152,18 @@ export default function DashboardSummary() {
         "portfolios",
         "blogs",
         "newsletter_subscribers",
+        "categories",
+        "authors",
+        "feedback_messages",
+        "notifications",
       ];
 
       const results = await Promise.all(
         tables.map((table) =>
-          supabase.from(table).select("*", { count: "exact", head: true })
-        )
+          supabase.from(table).select("*", { count: "exact", head: true }),
+        ),
       );
 
-      // For comments, we'll get the actual count from the user_comments table
       let commentsCount = 0;
       try {
         const { count, error } = await supabase
@@ -58,7 +178,6 @@ export default function DashboardSummary() {
           commentsCount = count || 0;
         }
       } catch (error) {
-        // If table doesn't exist yet, keep it at 0
         console.log("user_comments table not available:", error.message);
         commentsCount = 0;
       }
@@ -69,27 +188,28 @@ export default function DashboardSummary() {
         portfolios: results[2].count || 0,
         blogs: results[3].count || 0,
         newsletter: results[4].count || 0,
+        categories: results[5].count || 0,
+        authors: results[6].count || 0,
+        feedback: results[7].count || 0,
+        notifications: results[8].count || 0,
         comments: commentsCount,
       });
     }
 
     async function fetchRecentActivity() {
       try {
-        // Fetch recent messages
         const { data: recentMessages } = await supabase
           .from("contact_messages")
           .select("*")
           .order("created_at", { ascending: false })
           .limit(3);
 
-        // Fetch recent users
         const { data: recentUsers } = await supabase
           .from("profiles")
           .select("*")
           .order("created_at", { ascending: false })
           .limit(3);
 
-        // Fetch recent comments
         const { data: recentComments } = await supabase
           .from("user_comments")
           .select("*")
@@ -100,33 +220,32 @@ export default function DashboardSummary() {
         const activities = [
           ...(recentMessages || []).map((msg) => ({
             type: "message",
-            icon: <Mail size={16} />,
+            icon: <Mail size={16} strokeWidth={2} />,
             text: `New message from ${msg.name || msg.email}`,
             date: msg.created_at,
             color: "#3b82f6",
           })),
           ...(recentUsers || []).map((user) => ({
             type: "user",
-            icon: <Users size={16} />,
+            icon: <Users size={16} strokeWidth={2} />,
             text: `New user registered: ${
               user.first_name || user.full_name || "User"
             }`,
             date: user.created_at,
-            color: "#10b981",
+            color: "#22c55e",
           })),
           ...(recentComments || []).map((comment) => ({
             type: "comment",
-            icon: <MessageCircle size={16} />,
+            icon: <MessageCircle size={16} strokeWidth={2} />,
             text: `New comment on ${comment.content_type}`,
             date: comment.created_at,
             color: "#f59e0b",
           })),
         ];
 
-        // Sort by date and take the 5 most recent
         const sortedActivities = activities
           .sort((a, b) => new Date(b.date) - new Date(a.date))
-          .slice(0, 5);
+          .slice(0, 8);
 
         setRecentActivity(sortedActivities);
       } catch (error) {
@@ -156,117 +275,143 @@ export default function DashboardSummary() {
 
   if (loading) {
     return (
-      <div className={styles.loading}>
-        <p>Loading dashboard...</p>
+      <div className={styles.page}>
+        <div className={styles.skeletonHero}>
+          <div className={styles.skeletonLine} style={{ width: "40%" }} />
+          <div className={styles.skeletonLine} style={{ width: "65%" }} />
+          <div className={styles.skeletonLine} style={{ width: "50%" }} />
+        </div>
+        <div className={styles.skeletonGrid}>
+          {Array.from({ length: statConfig.length }, (_, i) => (
+            <div key={i} className={styles.skeletonCard} />
+          ))}
+        </div>
       </div>
     );
   }
 
   return (
-    <div className={styles.container}>
-      <div className={styles.header}>
-        <h1 className={styles.title}>Admin Dashboard</h1>
-        <p className={styles.subtitle}>
-          Welcome back! Here's an overview of your system
-        </p>
-      </div>
-
-      <div className={styles.grid}>
-        <div
-          className={styles.card}
-          onClick={() => router.push("/admin/users")}
-        >
-          <h3 className={styles.cardTitle}>
-            <Users size={20} className={styles.cardIcon} /> Users
-          </h3>
-          <p className={styles.cardCount}>{counts.users}</p>
-          <p className={styles.cardDescription}>
-            Registered users in the system
+    <div className={styles.page}>
+      <header className={styles.hero}>
+        <div className={styles.heroText}>
+          <p className={styles.eyebrow}>
+            <LayoutGrid size={14} strokeWidth={2} aria-hidden />
+            Overview
           </p>
+          <h1 className={styles.pageTitle}>Dashboard</h1>
+          <p className={styles.lead}></p>
         </div>
-        <div
-          className={styles.card}
-          onClick={() => router.push("/admin/contact")}
-        >
-          <h3 className={styles.cardTitle}>
-            <Mail size={20} className={styles.cardIcon} /> Messages
-          </h3>
-          <p className={styles.cardCount}>{counts.messages}</p>
-          <p className={styles.cardDescription}>Messages from contact forms</p>
+        <div className={styles.heroMeta}>
+          <span className={styles.metaLabel}>Today</span>
+          <time className={styles.metaDate} dateTime={new Date().toISOString()}>
+            {todayLabel}
+          </time>
         </div>
-        <div
-          className={styles.card}
-          onClick={() => router.push("/admin/portfolio")}
-        >
-          <h3 className={styles.cardTitle}>
-            <Briefcase size={20} className={styles.cardIcon} /> Portfolios
-          </h3>
-          <p className={styles.cardCount}>{counts.portfolios}</p>
-          <p className={styles.cardDescription}>Portfolio projects created</p>
-        </div>
-        <div
-          className={styles.card}
-          onClick={() => router.push("/admin/blogs")}
-        >
-          <h3 className={styles.cardTitle}>
-            <BookOpen size={20} className={styles.cardIcon} /> Blogs
-          </h3>
-          <p className={styles.cardCount}>{counts.blogs}</p>
-          <p className={styles.cardDescription}>Published blog articles</p>
-        </div>
-        <div
-          className={styles.card}
-          onClick={() => router.push("/admin/newsletter")}
-        >
-          <h3 className={styles.cardTitle}>
-            <Send size={20} className={styles.cardIcon} /> Newsletter
-          </h3>
-          <p className={styles.cardCount}>{counts.newsletter}</p>
-          <p className={styles.cardDescription}>
-            Active newsletter subscribers
-          </p>
-        </div>
-        <div
-          className={styles.card}
-          onClick={() => router.push("/admin/comments")}
-        >
-          <h3 className={styles.cardTitle}>
-            <MessageCircle size={20} className={styles.cardIcon} /> Comments
-          </h3>
-          <p className={styles.cardCount}>{counts.comments}</p>
-          <p className={styles.cardDescription}>User comments on content</p>
-        </div>
-      </div>
+      </header>
 
-      <div className={styles.recentActivity}>
-        <h2>Recent Activity</h2>
-        <div className={styles.activityCard}>
-          {recentActivity.length === 0 ? (
-            <p>No recent activity to display.</p>
-          ) : (
-            <div className={styles.activityList}>
-              {recentActivity.map((activity, index) => (
-                <div
-                  key={`${activity.type}-${index}`}
-                  className={styles.activityItem}
+      <section className={styles.kpiSection} aria-label="Key metrics">
+        <div className={styles.kpiGrid}>
+          {statConfig.map((item) => {
+            const Icon = item.icon;
+            const value = counts[item.key];
+            return (
+              <button
+                key={item.key}
+                type="button"
+                className={styles.kpiCard}
+                onClick={() => router.push(item.path)}
+              >
+                <span
+                  className={styles.kpiIcon}
+                  style={{
+                    color: item.accent,
+                    background: `color-mix(in srgb, ${item.accent} 18%, transparent)`,
+                    borderColor: `color-mix(in srgb, ${item.accent} 45%, transparent)`,
+                  }}
                 >
-                  <div
-                    className={styles.activityIcon}
-                    style={{ backgroundColor: activity.color }}
-                  >
-                    {activity.icon}
-                  </div>
-                  <div className={styles.activityContent}>
-                    <p className={styles.activityText}>{activity.text}</p>
-                    <span className={styles.activityDate}>
-                      {formatDate(activity.date)}
-                    </span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
+                  <Icon size={20} strokeWidth={2} />
+                </span>
+                <span className={styles.kpiTop}>
+                  <span className={styles.kpiLabel}>{item.label}</span>
+                  <ChevronRight
+                    className={styles.kpiChevron}
+                    size={18}
+                    strokeWidth={2}
+                    aria-hidden
+                  />
+                </span>
+                <span className={styles.kpiValue}>{value}</span>
+                <span className={styles.kpiHint}>{item.description}</span>
+              </button>
+            );
+          })}
         </div>
+      </section>
+
+      <div className={styles.lower}>
+        <section
+          className={styles.activitySection}
+          aria-labelledby="activity-heading"
+        >
+          <div className={styles.sectionHead}>
+            <h2 id="activity-heading" className={styles.sectionTitle}>
+              Recent activity
+            </h2>
+            <p className={styles.sectionSub}>
+              Latest messages, signups, and comments
+            </p>
+          </div>
+          <div className={styles.activityCard}>
+            {recentActivity.length === 0 ? (
+              <p className={styles.emptyState}>No recent activity yet.</p>
+            ) : (
+              <ul className={styles.activityList}>
+                {recentActivity.map((activity, index) => (
+                  <li
+                    key={`${activity.type}-${index}`}
+                    className={styles.activityItem}
+                  >
+                    <div
+                      className={styles.activityIcon}
+                      style={{
+                        backgroundColor: `color-mix(in srgb, ${activity.color} 22%, transparent)`,
+                        borderColor: `color-mix(in srgb, ${activity.color} 45%, transparent)`,
+                        color: activity.color,
+                      }}
+                    >
+                      {activity.icon}
+                    </div>
+                    <div className={styles.activityContent}>
+                      <p className={styles.activityText}>{activity.text}</p>
+                      <span className={styles.activityDate}>
+                        {formatDate(activity.date)}
+                      </span>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        </section>
+
+        <aside className={styles.quickPanel} aria-label="Quick links">
+          <h2 className={styles.quickTitle}>Shortcuts</h2>
+          <p className={styles.quickSub}>Jump to common admin tasks</p>
+          <ul className={styles.quickList}>
+            {quickLinks.map((link) => (
+              <li key={link.path}>
+                <button
+                  type="button"
+                  className={styles.quickLink}
+                  onClick={() => router.push(link.path)}
+                >
+                  <span>{link.label}</span>
+                  <ArrowUpRight size={16} strokeWidth={2} aria-hidden />
+                </button>
+              </li>
+            ))}
+          </ul>
+        </aside>
       </div>
     </div>
   );

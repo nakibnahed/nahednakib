@@ -1,5 +1,6 @@
 "use client";
 
+import admin from "@/components/Admin/adminPage.module.css";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/services/supabaseClient";
@@ -12,6 +13,7 @@ import {
   Eye,
   Trash2,
   CheckCircle,
+  Clock,
   XCircle,
 } from "lucide-react";
 
@@ -41,7 +43,7 @@ export default function CommentsPage() {
           is_approved,
           created_at,
           profiles!inner(email)
-        `
+        `,
         )
         .order("created_at", { ascending: false })
         .limit(50);
@@ -135,7 +137,7 @@ export default function CommentsPage() {
         {
           method: "DELETE",
           headers: { "Content-Type": "application/json" },
-        }
+        },
       );
 
       const data = await response.json();
@@ -151,10 +153,7 @@ export default function CommentsPage() {
       showAppToast("Comment deleted.", "success");
     } catch (error) {
       console.error("Error deleting comment:", error);
-      showAppToast(
-        error.message || "Failed to delete comment.",
-        "error",
-      );
+      showAppToast(error.message || "Failed to delete comment.", "error");
     } finally {
       setShowDeleteConfirm(false);
       setCommentToDelete(null);
@@ -162,37 +161,64 @@ export default function CommentsPage() {
   };
 
   if (loading) {
-    return <div className={styles.loading}>Loading comments...</div>;
+    return (
+      <div className={`${admin.page} ${styles.container}`}>
+        <div className={admin.loadingPanel}>
+          <div className={admin.loadingSpinner} aria-hidden />
+          <span>Loading comments…</span>
+        </div>
+      </div>
+    );
   }
 
   return (
-    <div className={styles.container}>
-      <div className={styles.header}>
-        <button onClick={() => router.back()} className={styles.backButton}>
-          <ArrowLeft size={20} />
-          Back
-        </button>
-        <h1 className={styles.title}>
-          <MessageCircle size={24} />
-          Comments Management
-        </h1>
-      </div>
+    <div className={`${admin.page} ${styles.container}`}>
+      <header className={admin.pageHeader}>
+        <p className={admin.eyebrow}>Moderation</p>
+        <h1 className={admin.pageTitle}>Comments</h1>
+        <p className={admin.lead}>
+          Approve, unapprove, or delete user comments on your content.
+        </p>
+      </header>
 
-      {/* Stats */}
-      <div className={styles.statsRow}>
-        <div className={styles.statCard}>
-          <h3>Total Comments</h3>
-          <p>{stats.total}</p>
+      <section className={admin.statsSection} aria-label="Summary">
+        <div className={admin.statsGrid}>
+          <div className={admin.statCard}>
+            <MessageCircle size={24} aria-hidden />
+            <div>
+              <h3>{stats.total}</h3>
+              <p>Total comments</p>
+            </div>
+          </div>
+          <div className={admin.statCard}>
+            <CheckCircle size={24} aria-hidden />
+            <div>
+              <h3>{stats.approved}</h3>
+              <p>Approved</p>
+            </div>
+          </div>
+          <div className={admin.statCard}>
+            <Clock size={24} aria-hidden />
+            <div>
+              <h3>{stats.pending}</h3>
+              <p>Pending</p>
+            </div>
+          </div>
         </div>
-        <div className={styles.statCard}>
-          <h3>Approved</h3>
-          <p>{stats.approved}</p>
+      </section>
+
+      <section className={admin.filtersSection} aria-label="Navigation">
+        <div className={styles.topBar}>
+          <button
+            type="button"
+            onClick={() => router.back()}
+            className={styles.backButton}
+          >
+            <ArrowLeft size={20} />
+            Back
+          </button>
         </div>
-        <div className={styles.statCard}>
-          <h3>Pending</h3>
-          <p>{stats.pending}</p>
-        </div>
-      </div>
+      </section>
 
       {/* Comments List */}
       <div className={styles.commentsContainer}>

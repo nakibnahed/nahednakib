@@ -1,23 +1,16 @@
 .container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 24px;
-}
-
-.header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 32px;
-}
-
-.title {
-  font-size: 1.8rem;
-  background: var(--gradient-typography-primary);
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-  font-weight: 700;
+  width: 100%;
+  max-width: none;
   margin: 0;
+  padding: 0;
+}
+
+.toolbar {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  width: 100%;
+  margin-bottom: 0;
 }
 
 .addButton {
@@ -25,10 +18,10 @@
   align-items: center;
   justify-content: center;
   gap: 8px;
-  padding: 12px 20px;
+  padding: 10px 18px;
   background: var(--button-bg);
   border: none;
-  border-radius: 50px;
+  border-radius: 12px;
   color: var(--button-text);
   font-weight: 600;
   cursor: pointer;
@@ -50,14 +43,11 @@
 }
 
 .formContainer {
-  border: 1px solid var(--card-border);
-  border-radius: 24px;
+  border: 1px solid color-mix(in srgb, var(--card-border) 85%, transparent);
+  border-radius: 16px;
   padding: 24px;
   margin-bottom: 32px;
-  background: color-mix(in srgb, var(--background-main) 80%, transparent 15%);
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
-  backdrop-filter: blur(16px) saturate(160%);
-  -webkit-backdrop-filter: blur(16px) saturate(160%);
+  background: color-mix(in srgb, var(--background-main) 94%, #000 6%);
   position: relative;
   overflow: hidden;
 }
@@ -179,14 +169,11 @@
 }
 
 .categoryCard {
-  border: 1px solid var(--card-border);
-  border-radius: 24px;
+  border: 1px solid color-mix(in srgb, var(--card-border) 85%, transparent);
+  border-radius: 16px;
   padding: 20px;
   transition: transform 0.2s ease;
-  background: color-mix(in srgb, var(--background-main) 80%, transparent 15%);
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
-  backdrop-filter: blur(16px) saturate(160%);
-  -webkit-backdrop-filter: blur(16px) saturate(160%);
+  background: color-mix(in srgb, var(--background-main) 94%, #000 6%);
   position: relative;
   overflow: hidden;
 }
@@ -289,13 +276,16 @@
 
 @media (max-width: 768px) {
   .container {
-    padding: 16px;
+    padding: 0;
   }
 
-  .header {
-    flex-direction: column;
-    gap: 16px;
-    align-items: flex-start;
+  .toolbar {
+    justify-content: stretch;
+  }
+
+  .toolbar .addButton {
+    width: 100%;
+    justify-content: center;
   }
 
   .categoriesGrid {

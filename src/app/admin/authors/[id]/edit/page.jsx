@@ -9,6 +9,7 @@ import { DEFAULT_UNKNOWN_AUTHOR_ID } from "@/constants/defaultAuthor";
 import { supabase } from "@/services/supabaseClient";
 import { avatarsBucketPathFromPublicUrl } from "@/lib/storage/avatarPublicUrl";
 import { showAppToast } from "@/lib/showAppToast";
+import admin from "@/components/Admin/adminPage.module.css";
 import styles from "../../Authors.module.css";
 
 const MAX_AVATAR_BYTES = 5 * 1024 * 1024;
@@ -209,67 +210,86 @@ export default function EditAuthorPage() {
 
   if (id === DEFAULT_UNKNOWN_AUTHOR_ID) {
     return (
-      <div className={styles.container}>
-        <Link href="/admin/authors" className={styles.backLink}>
-          <ArrowLeft size={18} />
-          Back to authors
-        </Link>
-        <div className={styles.errorBanner} style={{ marginTop: 8 }}>
-          The system &quot;Unknown&quot; author cannot be edited. It is used for
-          unassigned content.
+      <div className={admin.page}>
+        <div className={admin.entityForm}>
+          <section className={admin.filtersSection}>
+            <Link href="/admin/authors" className={admin.backNav}>
+              <ArrowLeft size={18} />
+              Back to authors
+            </Link>
+          </section>
+          <div className={admin.formErrorBanner}>
+            The system &quot;Unknown&quot; author cannot be edited. It is used for
+            unassigned content.
+          </div>
+          <Link href="/admin/authors" className={styles.newButton}>
+            Return to authors
+          </Link>
         </div>
-        <Link href="/admin/authors" className={styles.newButton}>
-          Return to authors
-        </Link>
       </div>
     );
   }
 
   if (loading) {
     return (
-      <div className={styles.container}>
-        <div className={styles.loading}>Loading author…</div>
+      <div className={admin.page}>
+        <div className={admin.loadingPanel}>
+          <div className={admin.loadingSpinner} aria-hidden />
+          <span>Loading author…</span>
+        </div>
       </div>
     );
   }
 
   if (!loading && !authorLoaded && error) {
     return (
-      <div className={styles.container}>
-        <Link href="/admin/authors" className={styles.backLink}>
-          <ArrowLeft size={18} />
-          Back to authors
-        </Link>
-        <div className={styles.errorBanner}>{error}</div>
-        <button type="button" className={styles.sendButton} onClick={loadAuthor}>
-          Try again
-        </button>
+      <div className={admin.page}>
+        <div className={admin.entityForm}>
+          <section className={admin.filtersSection}>
+            <Link href="/admin/authors" className={admin.backNav}>
+              <ArrowLeft size={18} />
+              Back to authors
+            </Link>
+          </section>
+          <div className={admin.formErrorBanner}>{error}</div>
+          <button
+            type="button"
+            className={admin.btnPrimary}
+            onClick={loadAuthor}
+          >
+            Try again
+          </button>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className={styles.container}>
-      <Link href="/admin/authors" className={styles.backLink}>
-        <ArrowLeft size={18} />
-        Back to authors
-      </Link>
+    <div className={admin.page}>
+      <div className={admin.entityForm}>
+        <header className={admin.pageHeader}>
+          <p className={admin.eyebrow}>Content</p>
+          <div className={styles.entityTitleRow}>
+            <Pencil size={26} strokeWidth={2} aria-hidden />
+            <h1 className={admin.pageTitle}>Edit author</h1>
+          </div>
+          <p className={admin.lead}>
+            Update name, role, bio, and photo. Changes apply on blog posts and the
+            public author page.
+          </p>
+        </header>
 
-      <div className={styles.header}>
-        <h1 className={styles.title}>
-          <Pencil size={28} strokeWidth={2} />
-          Edit author
-        </h1>
-        <p className={styles.subtitle}>
-          Update name, role, bio, and photo. Changes apply to how this author appears
-          on blog posts and the public author page.
-        </p>
-      </div>
+        <section className={admin.filtersSection} aria-label="Back">
+          <Link href="/admin/authors" className={admin.backNav}>
+            <ArrowLeft size={18} />
+            Back to authors
+          </Link>
+        </section>
 
-      {error && <div className={styles.errorBanner}>{error}</div>}
+        {error && <div className={admin.formErrorBanner}>{error}</div>}
 
-      <div className={styles.formSection}>
-        <form onSubmit={handleSubmit} className={styles.form}>
+        <div className={admin.formCard}>
+        <form onSubmit={handleSubmit} className={`${styles.form} ${admin.formStack}`}>
           <div className={styles.formRow}>
             <div className={styles.formGroup}>
               <label htmlFor="edit-author-name">Name *</label>
@@ -379,10 +399,10 @@ export default function EditAuthorPage() {
             </div>
           </div>
 
-          <div className={styles.newPageActions}>
+          <div className={`${styles.newPageActions} ${admin.formActions}`}>
             <button
               type="submit"
-              className={styles.sendButton}
+              className={admin.btnPrimary}
               disabled={saving || uploading}
             >
               {uploading ? "Uploading…" : saving ? "Saving…" : "Save changes"}
@@ -392,6 +412,7 @@ export default function EditAuthorPage() {
             </Link>
           </div>
         </form>
+        </div>
       </div>
     </div>
   );

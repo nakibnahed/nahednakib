@@ -8,6 +8,7 @@ import { Upload, X, User, Trash2, UserPlus, ArrowLeft } from "lucide-react";
 import { supabase } from "@/services/supabaseClient";
 import { avatarsBucketPathFromPublicUrl } from "@/lib/storage/avatarPublicUrl";
 import { showAppToast } from "@/lib/showAppToast";
+import admin from "@/components/Admin/adminPage.module.css";
 import styles from "../Authors.module.css";
 
 const MAX_AVATAR_BYTES = 5 * 1024 * 1024;
@@ -150,27 +151,31 @@ export default function NewAuthorPage() {
   }
 
   return (
-    <div className={styles.container}>
-      <Link href="/admin/authors" className={styles.backLink}>
-        <ArrowLeft size={18} />
-        Back to authors
-      </Link>
+    <div className={admin.page}>
+      <div className={admin.entityForm}>
+        <header className={admin.pageHeader}>
+          <p className={admin.eyebrow}>Content</p>
+          <div className={styles.entityTitleRow}>
+            <UserPlus size={26} strokeWidth={2} aria-hidden />
+            <h1 className={admin.pageTitle}>New author</h1>
+          </div>
+          <p className={admin.lead}>
+            Add a content author for blog posts and portfolios. Separate from site
+            user accounts.
+          </p>
+        </header>
 
-      <div className={styles.header}>
-        <h1 className={styles.title}>
-          <UserPlus size={28} strokeWidth={2} />
-          New author
-        </h1>
-        <p className={styles.subtitle}>
-          Add a content author for blog posts and portfolios. This is separate from
-          user accounts.
-        </p>
-      </div>
+        <section className={admin.filtersSection} aria-label="Back">
+          <Link href="/admin/authors" className={admin.backNav}>
+            <ArrowLeft size={18} />
+            Back to authors
+          </Link>
+        </section>
 
-      {error && <div className={styles.errorBanner}>{error}</div>}
+        {error && <div className={admin.formErrorBanner}>{error}</div>}
 
-      <div className={styles.formSection}>
-        <form onSubmit={handleCreate} className={styles.form}>
+        <div className={admin.formCard}>
+        <form onSubmit={handleCreate} className={`${styles.form} ${admin.formStack}`}>
           <div className={styles.formRow}>
             <div className={styles.formGroup}>
               <label htmlFor="new-author-name">Name *</label>
@@ -286,11 +291,11 @@ export default function NewAuthorPage() {
             </p>
           </div>
 
-          <div className={styles.newPageActions}>
+          <div className={`${styles.newPageActions} ${admin.formActions}`}>
             <button
               type="submit"
               disabled={creating || uploading}
-              className={styles.sendButton}
+              className={admin.btnPrimary}
             >
               {uploading ? "Uploading…" : creating ? "Saving…" : "Create author"}
             </button>
@@ -299,6 +304,7 @@ export default function NewAuthorPage() {
             </Link>
           </div>
         </form>
+        </div>
       </div>
     </div>
   );

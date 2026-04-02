@@ -1,5 +1,6 @@
 "use client";
 
+import admin from "@/components/Admin/adminPage.module.css";
 import styles from "./ContactSummary.module.css";
 import { useEffect, useState, useMemo } from "react";
 import { supabase } from "@/services/supabaseClient";
@@ -95,13 +96,13 @@ export default function ContactPage() {
         (msg) =>
           (msg.name && msg.name.toLowerCase().includes(lowerTerm)) ||
           (msg.email && msg.email.toLowerCase().includes(lowerTerm)) ||
-          (msg.message && msg.message.toLowerCase().includes(lowerTerm))
+          (msg.message && msg.message.toLowerCase().includes(lowerTerm)),
       );
     } else if (selectedForm === "newsletter") {
       return currentData.filter(
         (sub) =>
           (sub.email && sub.email.toLowerCase().includes(lowerTerm)) ||
-          (sub.id && sub.id.toLowerCase().includes(lowerTerm))
+          (sub.id && sub.id.toLowerCase().includes(lowerTerm)),
       );
     }
     return [];
@@ -118,14 +119,14 @@ export default function ContactPage() {
           (msg) =>
             `"${msg.name}","${msg.email}","${msg.message.replace(
               /"/g,
-              '""'
-            )}","${new Date(msg.created_at).toLocaleString()}"`
+              '""',
+            )}","${new Date(msg.created_at).toLocaleString()}"`,
         ),
       ].join("\n");
 
       downloadCSV(
         csvContent,
-        `contact_messages_${new Date().toISOString().split("T")[0]}.csv`
+        `contact_messages_${new Date().toISOString().split("T")[0]}.csv`,
       );
     } else if (selectedForm === "newsletter") {
       const csvContent = [
@@ -135,18 +136,18 @@ export default function ContactPage() {
             `"${sub.email}","${
               sub.subscribed ? "Active" : "Unsubscribed"
             }","${new Date(
-              sub.subscribed_at || sub.created_at
+              sub.subscribed_at || sub.created_at,
             ).toLocaleDateString()}","${
               sub.unsubscribed_at
                 ? new Date(sub.unsubscribed_at).toLocaleDateString()
                 : ""
-            }"`
+            }"`,
         ),
       ].join("\n");
 
       downloadCSV(
         csvContent,
-        `newsletter_subscribers_${new Date().toISOString().split("T")[0]}.csv`
+        `newsletter_subscribers_${new Date().toISOString().split("T")[0]}.csv`,
       );
     }
   };
@@ -188,30 +189,31 @@ export default function ContactPage() {
   const stats = getStats();
 
   return (
-    <div className={styles.mainContainer}>
-      <div className={styles.header}>
-        <div>
-          <h1 className={styles.pageTitle}>Forms Management</h1>
-          <p className={styles.subtitle}>
-            Manage all form submissions and data
-          </p>
-        </div>
+    <div className={`${admin.page} ${styles.mainContainer}`}>
+      <header className={admin.pageHeader}>
+        <p className={admin.eyebrow}>Inbound</p>
+        <h1 className={admin.pageTitle}>Forms</h1>
+        <p className={admin.lead}>
+          Manage all form submissions and subscriber data.
+        </p>
+      </header>
 
-        <div className={styles.stats}>
+      <section className={admin.statsSection} aria-label="Summary">
+        <div className={admin.statsGrid}>
           {selectedForm === "contact" && (
             <>
-              <div className={styles.stat}>
-                <MessageSquare size={20} />
+              <div className={admin.statCard}>
+                <MessageSquare size={24} />
                 <div>
-                  <div className={styles.statNumber}>{stats.total}</div>
-                  <div className={styles.statLabel}>Total</div>
+                  <h3>{stats.total}</h3>
+                  <p>Total</p>
                 </div>
               </div>
-              <div className={styles.stat}>
-                <Users size={20} />
+              <div className={admin.statCard}>
+                <Users size={24} />
                 <div>
-                  <div className={styles.statNumber}>{stats.recent}</div>
-                  <div className={styles.statLabel}>Last 24h</div>
+                  <h3>{stats.recent}</h3>
+                  <p>Last 24h</p>
                 </div>
               </div>
             </>
@@ -219,25 +221,26 @@ export default function ContactPage() {
 
           {selectedForm === "newsletter" && (
             <>
-              <div className={styles.stat}>
-                <Users size={20} />
+              <div className={admin.statCard}>
+                <Users size={24} />
                 <div>
-                  <div className={styles.statNumber}>{stats.total}</div>
-                  <div className={styles.statLabel}>Total</div>
+                  <h3>{stats.total}</h3>
+                  <p>Total</p>
                 </div>
               </div>
-              <div className={styles.stat}>
-                <Mail size={20} />
+              <div className={admin.statCard}>
+                <Mail size={24} />
                 <div>
-                  <div className={styles.statNumber}>{stats.active}</div>
-                  <div className={styles.statLabel}>Active</div>
+                  <h3>{stats.active}</h3>
+                  <p>Active</p>
                 </div>
               </div>
             </>
           )}
         </div>
-      </div>
+      </section>
 
+      <section className={admin.filtersSection} aria-label="Filters">
       <div className={styles.controlsRow}>
         <div className={styles.filters}>
           <select
@@ -267,6 +270,7 @@ export default function ContactPage() {
           Export CSV
         </button>
       </div>
+      </section>
 
       {loading && (
         <div className={styles.loading}>
@@ -362,7 +366,7 @@ export default function ContactPage() {
                       <td data-label="Subscribed">
                         {item.subscribed_at || item.created_at
                           ? new Date(
-                              item.subscribed_at || item.created_at
+                              item.subscribed_at || item.created_at,
                             ).toLocaleDateString()
                           : "N/A"}
                       </td>

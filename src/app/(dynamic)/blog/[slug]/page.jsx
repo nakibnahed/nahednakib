@@ -13,7 +13,11 @@ import {
   MAIN_AUTHOR_NAME,
   MAIN_AUTHOR_ROLE,
 } from "@/constants/mainAuthor";
-import { buildArticleJsonLd, buildBlogPostMetadata } from "@/lib/seo/blog";
+import {
+  buildArticleJsonLd,
+  buildBlogPostMetadata,
+  coverImageAltForBlog,
+} from "@/lib/seo/blog";
 
 /**
  * Load post by slug, then by id (legacy). Author is loaded separately so we do not
@@ -118,6 +122,7 @@ export default async function Post({ params }) {
   const baseUrl =
     process.env.NEXT_PUBLIC_SITE_URL || "https://nahednakib.vercel.app";
   const imageUrl = blog.image || `${baseUrl}/images/portfolio.jpg`;
+  const coverAlt = coverImageAltForBlog(blog);
 
   const authorUrl = author?.id
     ? `${baseUrl}/author/${author.id}`
@@ -259,7 +264,7 @@ export default async function Post({ params }) {
       <div className={styles.featuredImageWrapper}>
         <Image
           src={blog.image || "/images/portfolio.jpg"}
-          alt={blog.title}
+          alt={coverAlt}
           fill
           priority
           className={styles.featuredImage}

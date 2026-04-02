@@ -1,9 +1,10 @@
 "use client";
 
+import admin from "@/components/Admin/adminPage.module.css";
 import { useEffect, useState, useCallback, useMemo } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { User, Trash2, Users, Pencil, UserPlus } from "lucide-react";
+import { User, Trash2, Pencil, UserPlus, Users, BookOpen } from "lucide-react";
 import { DEFAULT_UNKNOWN_AUTHOR_ID } from "@/constants/defaultAuthor";
 import { showAppToast } from "@/lib/showAppToast";
 import styles from "./Authors.module.css";
@@ -83,43 +84,54 @@ export default function AdminAuthorsPage() {
 
   if (loading && authors.length === 0) {
     return (
-      <div className={styles.container}>
-        <div className={styles.loading}>Loading authors…</div>
+      <div className={`${admin.page} ${styles.container}`}>
+        <div className={admin.loadingPanel}>
+          <div className={admin.loadingSpinner} aria-hidden />
+          <span>Loading authors…</span>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className={styles.container}>
-      <div className={styles.header}>
-        <h1 className={styles.title}>
-          <Users size={28} strokeWidth={2} />
-          Authors
-        </h1>
-        <p className={styles.subtitle}>
-          Content authors are separate from user accounts. Only the main admin can
-          create, edit, or delete authors. Deleting an author does not delete blog
-          posts — articles are unlinked or reassigned.
+    <div className={`${admin.page} ${styles.container}`}>
+      <header className={admin.pageHeader}>
+        <p className={admin.eyebrow}>Content</p>
+        <h1 className={admin.pageTitle}>Authors</h1>
+        <p className={admin.lead}>
+          Content authors are separate from user accounts. Only the main admin
+          can create, edit, or delete authors. Deleting an author does not delete
+          blog posts — articles are unlinked or reassigned.
         </p>
-      </div>
+      </header>
 
-      <div className={styles.statsGrid}>
-        <div className={styles.statCard}>
-          <h3>Total authors</h3>
-          <p>{stats.totalAuthors}</p>
+      <section className={admin.statsSection} aria-label="Summary">
+        <div className={admin.statsGrid}>
+          <div className={admin.statCard}>
+            <Users size={24} aria-hidden />
+            <div>
+              <h3>{stats.totalAuthors}</h3>
+              <p>Total authors</p>
+            </div>
+          </div>
+          <div className={admin.statCard}>
+            <BookOpen size={24} aria-hidden />
+            <div>
+              <h3>{stats.totalArticles}</h3>
+              <p>Blog posts linked</p>
+            </div>
+          </div>
         </div>
-        <div className={styles.statCard}>
-          <h3>Blog posts linked</h3>
-          <p>{stats.totalArticles}</p>
-        </div>
-      </div>
+      </section>
 
-      <div className={styles.controlsRow}>
-        <Link href="/admin/authors/new" className={styles.newButton}>
-          <UserPlus size={18} />
-          Add author
-        </Link>
-      </div>
+      <section className={admin.filtersSection} aria-label="Actions">
+        <div className={styles.controlsRow}>
+          <Link href="/admin/authors/new" className={styles.newButton}>
+            <UserPlus size={18} />
+            Add author
+          </Link>
+        </div>
+      </section>
 
       {error && <div className={styles.errorBanner}>{error}</div>}
 
@@ -162,8 +174,7 @@ export default function AdminAuthorsPage() {
                     {(a.role || a.bio) && (
                       <p className={styles.authorLine}>
                         {a.role ||
-                          (a.bio &&
-                          a.bio.length > 120
+                          (a.bio && a.bio.length > 120
                             ? `${a.bio.slice(0, 120)}…`
                             : a.bio || "")}
                       </p>
@@ -215,8 +226,8 @@ export default function AdminAuthorsPage() {
           <div className={styles.modal}>
             <h2>Delete author</h2>
             <p>
-              Choose what happens to blog posts and portfolios that reference this
-              author.
+              Choose what happens to blog posts and portfolios that reference
+              this author.
             </p>
             <div className={styles.deleteSection}>
               <h3>Content</h3>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
+import admin from "@/components/Admin/adminPage.module.css";
 import styles from "./NewsletterManagement.module.css";
 import { Mail, Trash2, Download, UserX, Users } from "lucide-react";
 import ConfirmationModal from "@/components/ConfirmationModal/ConfirmationModal";
@@ -36,7 +37,7 @@ export default function NewsletterManagement() {
         (sub) =>
           (sub.email && sub.email.toLowerCase().includes(lowerTerm)) ||
           (sub.id && sub.id.toLowerCase().includes(lowerTerm)) ||
-          (sub.created_at && sub.created_at.toLowerCase().includes(lowerTerm))
+          (sub.created_at && sub.created_at.toLowerCase().includes(lowerTerm)),
       );
     }
 
@@ -81,7 +82,7 @@ export default function NewsletterManagement() {
 
       if (response.ok) {
         setSubscribers(
-          subscribers.filter((sub) => sub.id !== subscriberToDelete)
+          subscribers.filter((sub) => sub.id !== subscriberToDelete),
         );
         showAppToast("Subscriber removed.", "success");
       } else {
@@ -103,8 +104,8 @@ export default function NewsletterManagement() {
       ...activeSubscribers.map(
         (sub) =>
           `${sub.email},${new Date(
-            sub.subscribed_at || sub.created_at
-          ).toLocaleDateString()},"Active"`
+            sub.subscribed_at || sub.created_at,
+          ).toLocaleDateString()},"Active"`,
       ),
     ].join("\n");
 
@@ -126,38 +127,53 @@ export default function NewsletterManagement() {
   };
 
   if (loading) {
-    return <div className={styles.loading}>Loading subscribers...</div>;
+    return (
+      <div className={`${admin.page} ${styles.container}`}>
+        <div className={admin.loadingPanel}>
+          <div className={admin.loadingSpinner} aria-hidden />
+          <span>Loading subscribers…</span>
+        </div>
+      </div>
+    );
   }
 
   return (
-    <div className={styles.container}>
-      <div className={styles.header}>
-        <h1 className={styles.title}>Newsletter Management</h1>
-        <div className={styles.stats}>
-          <div className={styles.stat}>
-            <Users size={20} />
+    <div className={`${admin.page} ${styles.container}`}>
+      <header className={admin.pageHeader}>
+        <p className={admin.eyebrow}>Subscribers</p>
+        <h1 className={admin.pageTitle}>Newsletter</h1>
+        <p className={admin.lead}>
+          Search, filter, export, and remove mailing list subscribers.
+        </p>
+      </header>
+
+      <section className={admin.statsSection} aria-label="Summary">
+        <div className={admin.statsGrid}>
+          <div className={admin.statCard}>
+            <Users size={24} />
             <div>
-              <div className={styles.statNumber}>{stats.total}</div>
-              <div className={styles.statLabel}>Total</div>
+              <h3>{stats.total}</h3>
+              <p>Total</p>
             </div>
           </div>
-          <div className={styles.stat}>
-            <Mail size={20} />
+          <div className={admin.statCard}>
+            <Mail size={24} />
             <div>
-              <div className={styles.statNumber}>{stats.subscribed}</div>
-              <div className={styles.statLabel}>Active</div>
+              <h3>{stats.subscribed}</h3>
+              <p>Active</p>
             </div>
           </div>
-          <div className={styles.stat}>
-            <UserX size={20} />
+          <div className={admin.statCard}>
+            <UserX size={24} />
             <div>
-              <div className={styles.statNumber}>{stats.unsubscribed}</div>
-              <div className={styles.statLabel}>Unsubscribed</div>
+              <h3>{stats.unsubscribed}</h3>
+              <p>Unsubscribed</p>
             </div>
           </div>
         </div>
-      </div>
+      </section>
 
+      <section className={admin.filtersSection} aria-label="Search and filters">
       <div className={styles.controlsRow}>
         <div className={styles.filters}>
           <input
@@ -183,6 +199,7 @@ export default function NewsletterManagement() {
           Export CSV
         </button>
       </div>
+      </section>
 
       <div className={styles.tableContainer}>
         <table className={styles.table}>
@@ -216,7 +233,7 @@ export default function NewsletterManagement() {
                 <td className={styles.dateCell} data-label="Subscribed">
                   {subscriber.subscribed_at || subscriber.created_at
                     ? new Date(
-                        subscriber.subscribed_at || subscriber.created_at
+                        subscriber.subscribed_at || subscriber.created_at,
                       ).toLocaleDateString()
                     : "N/A"}
                 </td>

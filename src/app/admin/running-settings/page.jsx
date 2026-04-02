@@ -1,6 +1,8 @@
 "use client";
 
+import admin from "@/components/Admin/adminPage.module.css";
 import { useState, useEffect } from "react";
+import { Activity, HeartHandshake } from "lucide-react";
 import styles from "./RunningSettings.module.css";
 
 export default function RunningSettingsPage() {
@@ -76,20 +78,55 @@ export default function RunningSettingsPage() {
 
   if (loading) {
     return (
-      <div className={styles.container}>
-        <div className={styles.loading}>Loading settings...</div>
+      <div className={`${admin.page} ${styles.container}`}>
+        <div className={admin.loadingPanel}>
+          <div className={admin.loadingSpinner} aria-hidden />
+          <span>Loading settings…</span>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className={styles.container}>
-      <div className={styles.header}>
-        <h1 className={styles.title}>Running Settings</h1>
-        <p className={styles.description}>
-          Configure how Strava activities are displayed on your Running page
+    <div className={`${admin.page} ${styles.container}`}>
+      <header className={admin.pageHeader}>
+        <p className={admin.eyebrow}>Running</p>
+        <h1 className={admin.pageTitle}>Strava display</h1>
+        <p className={admin.lead}>
+          Configure how Strava activities are displayed on your Running page.
         </p>
-      </div>
+      </header>
+
+      <section className={admin.statsSection} aria-label="Current values">
+        <div className={admin.statsGrid}>
+          <div className={admin.statCard}>
+            <Activity size={24} aria-hidden />
+            <div>
+              <h3
+                className={
+                  settings.show_all_activities
+                    ? admin.statCardValueLong
+                    : undefined
+                }
+              >
+                {settings.show_all_activities
+                  ? "All (incl. private)"
+                  : "Public only"}
+              </h3>
+              <p>Activities</p>
+            </div>
+          </div>
+          <div className={admin.statCard}>
+            <HeartHandshake size={24} aria-hidden />
+            <div>
+              <h3>{settings.show_support_card ? "Visible" : "Hidden"}</h3>
+              <p>Support card</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className={admin.filtersSection} aria-label="Filters" />
 
       <div className={styles.settingsCard}>
         <div className={styles.settingItem}>

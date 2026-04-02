@@ -1,5 +1,6 @@
 "use client";
 
+import admin from "@/components/Admin/adminPage.module.css";
 import styles from "./BlogsList.module.css";
 import { useEffect, useState, useMemo } from "react";
 import Link from "next/link";
@@ -7,7 +8,7 @@ import Image from "next/image";
 import { supabase } from "@/services/supabaseClient";
 import ConfirmationModal from "@/components/ConfirmationModal/ConfirmationModal";
 import { showAppToast } from "@/lib/showAppToast";
-import { Edit, Trash2 } from "lucide-react";
+import { Edit, Trash2, BookOpen, ListFilter } from "lucide-react";
 
 export default function BlogListPage() {
   const [blogs, setBlogs] = useState([]);
@@ -31,10 +32,7 @@ export default function BlogListPage() {
 
     if (blogsError) {
       console.error("Error fetching blogs:", blogsError);
-      showAppToast(
-        blogsError.message || "Could not load blog posts.",
-        "error",
-      );
+      showAppToast(blogsError.message || "Could not load blog posts.", "error");
       setBlogs([]);
       setLoading(false);
       return;
@@ -97,31 +95,71 @@ export default function BlogListPage() {
       (b) =>
         (b.title && b.title.toLowerCase().includes(lowerTerm)) ||
         (b.categoryName && b.categoryName.toLowerCase().includes(lowerTerm)) ||
-        (b.date && b.date.toLowerCase().includes(lowerTerm))
+        (b.date && b.date.toLowerCase().includes(lowerTerm)),
     );
   }, [blogs, searchTerm]);
 
-  return (
-    <div className={styles.mainContainer}>
-      <div className={styles.controlsRow}>
-        <Link href="/admin/blogs/new" className={styles.newButton}>
-          Create New Blog
-        </Link>
+  const listStats = useMemo(
+    () => ({
+      total: blogs.length,
+      showing: filteredBlogs.length,
+    }),
+    [blogs.length, filteredBlogs.length],
+  );
 
-        <input
-          type="text"
-          placeholder="Search by title, category or date..."
-          className={styles.searchInput}
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          autoComplete="off"
-        />
-      </div>
+  return (
+    <div className={`${admin.page} ${styles.mainContainer}`}>
+      <header className={admin.pageHeader}>
+        <p className={admin.eyebrow}>Content</p>
+        <h1 className={admin.pageTitle}>Blog posts</h1>
+        <p className={admin.lead}>
+          Create, search, and manage articles linked to categories and authors.
+        </p>
+      </header>
+
+      <section className={admin.statsSection} aria-label="Summary">
+        <div className={admin.statsGrid}>
+          <div className={admin.statCard}>
+            <BookOpen size={24} aria-hidden />
+            <div>
+              <h3>{listStats.total}</h3>
+              <p>Posts</p>
+            </div>
+          </div>
+          <div className={admin.statCard}>
+            <ListFilter size={24} aria-hidden />
+            <div>
+              <h3>{listStats.showing}</h3>
+              <p>Shown</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className={admin.filtersSection} aria-label="Search and actions">
+        <div className={styles.controlsRow}>
+          <Link href="/admin/blogs/new" className={styles.newButton}>
+            Create New Blog
+          </Link>
+
+          <input
+            type="text"
+            placeholder="Search by title, category or date..."
+            className={styles.searchInput}
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            autoComplete="off"
+          />
+        </div>
+      </section>
 
       {loading ? (
-        <p>Loading...</p>
+        <div className={admin.loadingPanel}>
+          <div className={admin.loadingSpinner} aria-hidden />
+          <span>Loading posts…</span>
+        </div>
       ) : filteredBlogs.length === 0 ? (
-        <p>No blogs found.</p>
+        <p className={admin.emptyPanel}>No blogs found.</p>
       ) : (
         <div className={styles.tableContainer}>
           <table className={styles.table}>

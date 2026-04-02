@@ -1,5 +1,6 @@
 "use client";
 
+import admin from "@/components/Admin/adminPage.module.css";
 import React, { useState, useEffect } from "react";
 import { supabase } from "@/services/supabaseClient";
 import styles from "./Feedback.module.css";
@@ -162,127 +163,134 @@ export default function AdminFeedbackPage() {
 
   if (loading) {
     return (
-      <div className={styles.loading}>
-        <div className={styles.spinner}></div>
-        <p>Loading feedback...</p>
+      <div className={`${admin.page} ${styles.container}`}>
+        <div className={admin.loadingPanel}>
+          <div className={admin.loadingSpinner} aria-hidden />
+          <span>Loading feedback…</span>
+        </div>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className={styles.error}>
-        <AlertCircle size={24} />
-        <p>{error}</p>
-        <button onClick={fetchFeedback} className={styles.retryButton}>
-          Try Again
-        </button>
+      <div className={`${admin.page} ${styles.container}`}>
+        <div className={styles.error}>
+          <AlertCircle size={24} />
+          <p>{error}</p>
+          <button onClick={fetchFeedback} className={styles.retryButton}>
+            Try Again
+          </button>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className={styles.container}>
-      <div className={styles.header}>
-        <h1 className={styles.title}>Feedback Management</h1>
-        <p className={styles.subtitle}>
-          Manage and review user feedback submissions
+    <div className={`${admin.page} ${styles.container}`}>
+      <header className={admin.pageHeader}>
+        <p className={admin.eyebrow}>Product</p>
+        <h1 className={admin.pageTitle}>Feedback</h1>
+        <p className={admin.lead}>
+          Search, filter, and review user feedback submissions.
         </p>
-      </div>
+      </header>
 
-      {/* Filters and Search */}
-      <div className={styles.filters}>
-        <div className={styles.searchContainer}>
-          <Search size={20} className={styles.searchIcon} />
-          <input
-            type="text"
-            placeholder="Search feedback..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className={styles.searchInput}
-          />
-        </div>
-
-        <div className={styles.filterGroup}>
-          <select
-            value={selectedCategory}
-            onChange={(e) => setSelectedCategory(e.target.value)}
-            className={styles.filterSelect}
-          >
-            <option value="all">All Categories</option>
-            <option value="general">General</option>
-            <option value="bug">Bug Report</option>
-            <option value="feature">Feature Request</option>
-            <option value="performance">Performance</option>
-            <option value="ui">User Interface</option>
-          </select>
-
-          <select
-            value={selectedRating}
-            onChange={(e) => setSelectedRating(e.target.value)}
-            className={styles.filterSelect}
-          >
-            <option value="all">All Ratings</option>
-            <option value="5">5 Stars</option>
-            <option value="4">4 Stars</option>
-            <option value="3">3 Stars</option>
-            <option value="2">2 Stars</option>
-            <option value="1">1 Star</option>
-            <option value="no-rating">No Rating</option>
-          </select>
-
-          <select
-            value={sortBy}
-            onChange={(e) => setSortBy(e.target.value)}
-            className={styles.filterSelect}
-          >
-            <option value="newest">Newest First</option>
-            <option value="oldest">Oldest First</option>
-            <option value="rating-high">Highest Rating</option>
-            <option value="rating-low">Lowest Rating</option>
-            <option value="name">Name A-Z</option>
-          </select>
-        </div>
-      </div>
-
-      {/* Stats */}
-      <div className={styles.stats}>
-        <div className={styles.statCard}>
-          <MessageSquare size={24} />
-          <div>
-            <h3>{feedback.length}</h3>
-            <p>Total Feedback</p>
+      <section className={admin.statsSection} aria-label="Summary">
+        <div className={admin.statsGrid}>
+          <div className={admin.statCard}>
+            <MessageSquare size={24} />
+            <div>
+              <h3>{feedback.length}</h3>
+              <p>Total Feedback</p>
+            </div>
+          </div>
+          <div className={admin.statCard}>
+            <Star size={24} />
+            <div>
+              <h3>
+                {feedback.length > 0
+                  ? (
+                      feedback.reduce(
+                        (sum, item) => sum + (item.rating || 0),
+                        0,
+                      ) / feedback.filter((item) => item.rating).length
+                    ).toFixed(1)
+                  : "0.0"}
+              </h3>
+              <p>Average Rating</p>
+            </div>
+          </div>
+          <div className={admin.statCard}>
+            <CheckCircle size={24} />
+            <div>
+              <h3>
+                {
+                  feedback.filter((item) => item.rating && item.rating >= 4)
+                    .length
+                }
+              </h3>
+              <p>Positive Feedback</p>
+            </div>
           </div>
         </div>
-        <div className={styles.statCard}>
-          <Star size={24} />
-          <div>
-            <h3>
-              {feedback.length > 0
-                ? (
-                    feedback.reduce(
-                      (sum, item) => sum + (item.rating || 0),
-                      0
-                    ) / feedback.filter((item) => item.rating).length
-                  ).toFixed(1)
-                : "0.0"}
-            </h3>
-            <p>Average Rating</p>
+      </section>
+
+      <section className={admin.filtersSection} aria-label="Search and filters">
+        <div className={styles.filters}>
+          <div className={styles.searchContainer}>
+            <Search size={20} className={styles.searchIcon} />
+            <input
+              type="text"
+              placeholder="Search feedback..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className={styles.searchInput}
+            />
+          </div>
+
+          <div className={styles.filterGroup}>
+            <select
+              value={selectedCategory}
+              onChange={(e) => setSelectedCategory(e.target.value)}
+              className={styles.filterSelect}
+            >
+              <option value="all">All Categories</option>
+              <option value="general">General</option>
+              <option value="bug">Bug Report</option>
+              <option value="feature">Feature Request</option>
+              <option value="performance">Performance</option>
+              <option value="ui">User Interface</option>
+            </select>
+
+            <select
+              value={selectedRating}
+              onChange={(e) => setSelectedRating(e.target.value)}
+              className={styles.filterSelect}
+            >
+              <option value="all">All Ratings</option>
+              <option value="5">5 Stars</option>
+              <option value="4">4 Stars</option>
+              <option value="3">3 Stars</option>
+              <option value="2">2 Stars</option>
+              <option value="1">1 Star</option>
+              <option value="no-rating">No Rating</option>
+            </select>
+
+            <select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value)}
+              className={styles.filterSelect}
+            >
+              <option value="newest">Newest First</option>
+              <option value="oldest">Oldest First</option>
+              <option value="rating-high">Highest Rating</option>
+              <option value="rating-low">Lowest Rating</option>
+              <option value="name">Name A-Z</option>
+            </select>
           </div>
         </div>
-        <div className={styles.statCard}>
-          <CheckCircle size={24} />
-          <div>
-            <h3>
-              {
-                feedback.filter((item) => item.rating && item.rating >= 4)
-                  .length
-              }
-            </h3>
-            <p>Positive Feedback</p>
-          </div>
-        </div>
-      </div>
+      </section>
 
       {/* Feedback List */}
       <div className={styles.feedbackList}>

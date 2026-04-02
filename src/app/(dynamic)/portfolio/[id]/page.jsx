@@ -113,7 +113,7 @@ export default async function PortfolioPage({ params }) {
           <section className={styles.hero}>
             <Image
               src={portfolio.image || "/images/portfolio.jpg"}
-              alt={portfolio.title}
+              alt={portfolio.title?.trim() || "Portfolio project"}
               className={styles.heroImage}
               fill
             />

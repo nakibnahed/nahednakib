@@ -7,7 +7,6 @@ import { supabase } from "@/services/supabaseClient";
 import LogoutButton from "@/components/Admin/LogoutButton/LogoutButton";
 import styles from "./Sidebar.module.css";
 import {
-  Activity,
   LayoutDashboard,
   Briefcase,
   BookOpen,
@@ -15,17 +14,16 @@ import {
   Users,
   MessageCircle,
   Send,
-  Shield,
-  Crown,
   Bell,
   Tag,
   User,
   Settings,
   MessageSquare,
   PenLine,
+  Sparkles,
 } from "lucide-react";
 
-export default function Sidebar({ adminData }) {
+export default function Sidebar({ adminData, onNavigate }) {
   const router = useRouter();
   const pathname = usePathname();
 
@@ -68,7 +66,11 @@ export default function Sidebar({ adminData }) {
     },
   ];
 
-  // Get admin display name
+  const go = (path) => {
+    onNavigate?.();
+    router.push(path);
+  };
+
   const getAdminDisplayName = () => {
     if (!adminData?.profile) return "Admin";
 
@@ -80,15 +82,13 @@ export default function Sidebar({ adminData }) {
     return adminData.profile.full_name || "Admin";
   };
 
-  // Get admin avatar
   const getAdminAvatar = () => {
     if (adminData?.profile?.avatar_url) {
       return adminData.profile.avatar_url;
     }
-    return "/default-avatar.svg"; // fallback to generic avatar
+    return "/default-avatar.svg";
   };
 
-  // Get admin role
   const getAdminRole = () => {
     if (adminData?.profile?.role === "admin") {
       return "Administrator";
@@ -101,23 +101,60 @@ export default function Sidebar({ adminData }) {
 
   return (
     <div className={styles.sidebarContainer}>
-      <nav className={styles.sidebar}>
-        {/* Admin Profile Section */}
+      <nav className={styles.sidebar} aria-label="Admin navigation">
+        <div className={styles.brandRow}>
+          <span className={styles.brandIcon} aria-hidden>
+            <Sparkles size={20} strokeWidth={2} />
+          </span>
+          <div className={styles.brandText}>
+            <span className={styles.brandTitle}>Admin</span>
+            <span className={styles.brandSub}>Control center</span>
+          </div>
+        </div>
+
+        <div className={styles.navScroll}>
+          <p className={styles.sectionLabel}>Navigation</p>
+          <ul className={styles.menu}>
+            {navItems.map((item) => (
+              <li
+                key={item.path}
+                className={`${styles.menuItem} ${
+                  pathname === item.path ? styles.active : ""
+                }`}
+              >
+                <button
+                  type="button"
+                  className={styles.menuButton}
+                  onClick={() => go(item.path)}
+                >
+                  <span className={styles.menuItemContent}>
+                    {item.icon}
+                    {item.label}
+                  </span>
+                </button>
+              </li>
+            ))}
+            <li className={`${styles.menuItem} ${styles.logoutItem}`}>
+              <LogoutButton />
+            </li>
+          </ul>
+        </div>
+
         <div className={styles.adminInfo}>
           <Link href="/users/profile" className={styles.adminAvatarLink}>
             <div className={styles.adminAvatar}>
               <Image
                 src={getAdminAvatar()}
-                alt="Admin Avatar"
+                alt=""
                 className={styles.avatarImage}
-                width={50}
-                height={50}
+                width={48}
+                height={48}
               />
             </div>
           </Link>
           <div className={styles.adminDetails}>
             <Link href="/users/profile" className={styles.adminNameLink}>
-              <h4 className={styles.adminName}>{getAdminDisplayName()}</h4>
+              <span className={styles.adminName}>{getAdminDisplayName()}</span>
             </Link>
             <p className={styles.adminRole}>
               <User size={12} style={{ color: "var(--primary-color)" }} />
@@ -126,32 +163,11 @@ export default function Sidebar({ adminData }) {
           </div>
           <div className={styles.settingsFloating}>
             <Link href="/users/profile" className={styles.settingsIcon}>
-              <Settings size={14} />
+              <Settings size={16} />
             </Link>
-            <div className={styles.tooltip}>Edit your profile</div>
+            <div className={styles.tooltip}>Edit profile</div>
           </div>
         </div>
-
-        <h3 className={styles.panelTitle}>Admin Panel</h3>
-        <ul className={styles.menu}>
-          {navItems.map((item) => (
-            <li
-              key={item.path}
-              className={`${styles.menuItem} ${
-                pathname === item.path ? styles.active : ""
-              }`}
-              onClick={() => router.push(item.path)}
-            >
-              <span className={styles.menuItemContent}>
-                {item.icon}
-                {item.label}
-              </span>
-            </li>
-          ))}
-          <li className={`${styles.menuItem} ${styles.logoutItem}`}>
-            <LogoutButton />
-          </li>
-        </ul>
       </nav>
     </div>
   );

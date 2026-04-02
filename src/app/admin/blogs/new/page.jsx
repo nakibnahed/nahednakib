@@ -2,13 +2,17 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { ArrowLeft } from "lucide-react";
+import admin from "@/components/Admin/adminPage.module.css";
 import { supabase } from "@/services/supabaseClient";
 import { Editor } from "@tinymce/tinymce-react";
 import { slugify, generateUniqueSlug } from "@/lib/utils/slugify";
 import ConfirmationModal from "@/components/ConfirmationModal/ConfirmationModal";
 import { showAppToast } from "@/lib/showAppToast";
 import { seoKeywordsFromInput } from "@/lib/seo/auto";
-import styles from "./NewBlog.module.css";
+import { coverImageAltForBlog } from "@/lib/seo/blog";
+import { optimizeImageFile } from "@/lib/images/optimizeImage";
 
 export default function NewBlogPage() {
   const router = useRouter();
@@ -26,6 +30,7 @@ export default function NewBlogPage() {
     seo_keywords: "",
     meta_title: "",
     meta_description: "",
+    cover_image_alt: "",
   });
 
   const [categories, setCategories] = useState([]);
@@ -148,17 +153,28 @@ export default function NewBlogPage() {
 
     let imageUrl = "";
 
+    const coverAltSaved = coverImageAltForBlog({
+      cover_image_alt: formData.cover_image_alt,
+      title: formData.title,
+    });
+
     if (formData.imageFile) {
-      const fileExt = formData.imageFile.name.split(".").pop();
+      let uploadFile = formData.imageFile;
+      try {
+        uploadFile = await optimizeImageFile(formData.imageFile);
+      } catch {
+        uploadFile = formData.imageFile;
+      }
+      const fileExt = uploadFile.name.split(".").pop() || "jpg";
       const fileName = `${Date.now()}.${fileExt}`;
       const filePath = fileName;
 
       const { error: uploadError } = await supabase.storage
         .from("blog-images")
-        .upload(filePath, formData.imageFile, {
+        .upload(filePath, uploadFile, {
           cacheControl: "3600",
           upsert: false,
-          contentType: formData.imageFile.type,
+          contentType: uploadFile.type || "image/jpeg",
         });
 
       if (uploadError) {
@@ -196,6 +212,7 @@ export default function NewBlogPage() {
           seo_keywords: seoKeywordsFromInput(formData.seo_keywords),
           meta_title: formData.meta_title.trim() || null,
           meta_description: formData.meta_description.trim() || null,
+          cover_image_alt: coverAltSaved,
         },
       ])
       .select("id")
@@ -234,42 +251,62 @@ export default function NewBlogPage() {
   }
 
   return (
-    <div className={styles.pageContainer}>
-      <h1 className={styles.pageTitle}>Create New Blog</h1>
+    <div className={admin.page}>
+      <div className={admin.entityForm}>
+        <header className={admin.pageHeader}>
+          <p className={admin.eyebrow}>Content</p>
+          <h1 className={admin.pageTitle}>New blog post</h1>
+          <p className={admin.lead}>
+            Draft a new article, set taxonomy and SEO, then publish from the
+            blog list.
+          </p>
+        </header>
 
-      {errorMsg && <p className={styles.errorMsg}>{errorMsg}</p>}
+        <section className={admin.filtersSection} aria-label="Back">
+          <Link href="/admin/blogs" className={admin.backNav}>
+            <ArrowLeft size={18} strokeWidth={2} aria-hidden />
+            Back to blogs
+          </Link>
+        </section>
 
-      <form onSubmit={handleSubmit} className={styles.form}>
-        <div className={styles.formGroup}>
-          <label className={styles.label}>Title:</label>
+        {errorMsg && (
+          <div className={admin.formErrorBanner} role="alert">
+            {errorMsg}
+          </div>
+        )}
+
+        <div className={admin.formCard}>
+          <form onSubmit={handleSubmit} className={admin.formStack}>
+        <div className={admin.formField}>
+          <label className={admin.fieldLabel}>Title:</label>
           <input
             name="title"
             value={formData.title}
             onChange={handleTitleChange}
             required
-            className={styles.input}
+            className={admin.fieldInput}
           />
         </div>
 
-        <div className={styles.formGroup}>
-          <label className={styles.label}>Slug:</label>
+        <div className={admin.formField}>
+          <label className={admin.fieldLabel}>Slug:</label>
           <input
             name="slug"
             value={formData.slug}
             onChange={handleChange}
             required
-            className={styles.input}
+            className={admin.fieldInput}
             placeholder="URL-friendly version of title"
           />
         </div>
 
-        <div className={styles.formGroup}>
-          <label className={styles.label}>Category:</label>
+        <div className={admin.formField}>
+          <label className={admin.fieldLabel}>Category:</label>
           <select
             name="category_id"
             value={formData.category_id}
             onChange={handleChange}
-            className={styles.input}
+            className={`${admin.fieldInput} ${admin.fieldSelect}`}
           >
             <option value="">Select a category</option>
             {categories.map((category) => (
@@ -280,13 +317,13 @@ export default function NewBlogPage() {
           </select>
         </div>
 
-        <div className={styles.formGroup}>
-          <label className={styles.label}>Author:</label>
+        <div className={admin.formField}>
+          <label className={admin.fieldLabel}>Author:</label>
           <select
             name="author_id"
             value={formData.author_id}
             onChange={handleChange}
-            className={styles.input}
+            className={`${admin.fieldInput} ${admin.fieldSelect}`}
           >
             <option value="">Select an author</option>
             {authors.map((a) => (
@@ -295,149 +332,154 @@ export default function NewBlogPage() {
               </option>
             ))}
           </select>
-          <p className={styles.helpText} style={{ marginTop: 8 }}>
-            Manage authors in Admin → Authors. Main admin can add authors
-            below.
+          <p className={admin.fieldHelp}>
+            Manage authors in Admin → Authors. Main admin can add authors below.
           </p>
-          <div
-            style={{
-              display: "flex",
-              gap: 8,
-              marginTop: 8,
-              flexWrap: "wrap",
-              alignItems: "center",
-            }}
-          >
+          <div className={admin.formRowInline}>
             <input
               type="text"
               value={newAuthorName}
               onChange={(e) => setNewAuthorName(e.target.value)}
               placeholder="New author name"
-              className={styles.input}
-              style={{ maxWidth: 280, marginBottom: 0 }}
+              className={admin.fieldInput}
+              style={{ maxWidth: 280 }}
             />
             <button
               type="button"
               onClick={handleAddAuthorQuick}
               disabled={addingAuthor || !newAuthorName.trim()}
-              className={styles.submitBtn}
-              style={{ width: "auto", padding: "8px 16px" }}
+              className={admin.btnPrimary}
             >
               {addingAuthor ? "Adding…" : "Add author"}
             </button>
           </div>
         </div>
 
-        <div className={styles.formGroup}>
-          <label className={styles.label}>Image Upload:</label>
+        <div className={admin.formField}>
+          <label className={admin.fieldLabel}>Image Upload:</label>
           <input
             type="file"
             accept="image/*"
             onChange={handleFileChange}
-            className={styles.input}
+            className={admin.fieldInput}
           />
           {formData.imageFile && (
-            <div className={styles.imagePreview}>
-              <p>Selected: {formData.imageFile.name}</p>
+            <div className={admin.imageThumbWrap}>
+              <p className={admin.fieldHelp}>Selected: {formData.imageFile.name}</p>
               <button
                 type="button"
                 onClick={handleDeleteImage}
-                className={styles.deleteBtn}
+                className={admin.btnDanger}
               >
-                Remove Image
+                Remove image
               </button>
             </div>
           )}
         </div>
 
-        <div className={styles.formGroup}>
-          <label className={styles.label}>Description:</label>
+        <div className={admin.formField}>
+          <label className={admin.fieldLabel} htmlFor="new-blog-cover-alt">
+            Cover Image Alt Text
+          </label>
+          <input
+            id="new-blog-cover-alt"
+            name="cover_image_alt"
+            value={formData.cover_image_alt}
+            onChange={handleChange}
+            className={admin.fieldInput}
+            placeholder="Describe the image for SEO (e.g. A developer coding)"
+          />
+          <p className={admin.fieldHelp}>
+            Used for accessibility and social previews. If empty, the post
+            title is used.
+          </p>
+        </div>
+
+        <div className={admin.formField}>
+          <label className={admin.fieldLabel}>Description:</label>
           <textarea
             name="description"
             value={formData.description}
             onChange={handleChange}
-            className={styles.textarea}
+            className={admin.fieldTextarea}
           />
         </div>
 
-        <div className={styles.formGroup}>
-          <label className={styles.label}>Tags:</label>
+        <div className={admin.formField}>
+          <label className={admin.fieldLabel}>Tags:</label>
           <input
             name="tags"
             value={formData.tags}
             onChange={handleChange}
-            className={styles.input}
+            className={admin.fieldInput}
             placeholder="Enter tags separated by commas (e.g., Next.js, React, Web Development)"
           />
-          <small className={styles.helpText}>
+          <p className={admin.fieldHelp}>
             Separate multiple tags with commas. These will be used for related
-            posts and search. If no tags are provided, "Web Development" will be
-            used as default.
-          </small>
+            posts and search. If no tags are provided, &quot;Web Development&quot;
+            will be used as default.
+          </p>
         </div>
 
-        <div className={styles.formGroup}>
-          <label className={styles.label}>Read Time (minutes):</label>
+        <div className={admin.formField}>
+          <label className={admin.fieldLabel}>Read Time (minutes):</label>
           <input
             name="readTime"
             type="number"
             min="1"
             value={formData.readTime}
             onChange={handleChange}
-            className={styles.input}
+            className={admin.fieldInput}
             placeholder="Leave empty for automatic calculation"
           />
-          <small className={styles.helpText}>
-            Optional: Manually set the read time in minutes. If left empty, it
-            will be automatically calculated based on content length (200 words
-            per minute).
-          </small>
+          <p className={admin.fieldHelp}>
+            Optional: manually set read time. If left empty, it is calculated from
+            content length (200 words per minute).
+          </p>
         </div>
 
-        <div className={styles.formGroup}>
-          <h2 style={{ fontSize: "1.25rem", marginBottom: "0.5rem" }}>
-            SEO (optional)
-          </h2>
-          <p className={styles.helpText}>
+        <div className={admin.formField}>
+          <h2 className={admin.formSubheading}>SEO (optional)</h2>
+          <p className={admin.fieldHelp}>
             Leave blank to auto-generate titles and descriptions. Supporting
             keywords are used for structured data, not the deprecated meta
             keywords tag.
           </p>
-          <label className={styles.label}>Focus keyword</label>
+          <label className={admin.fieldLabel}>Focus keyword</label>
           <input
             name="focus_keyword"
             value={formData.focus_keyword}
             onChange={handleChange}
-            className={styles.input}
+            className={admin.fieldInput}
             placeholder="Primary phrase for this post"
           />
-          <label className={styles.label}>Supporting keywords</label>
+          <label className={admin.fieldLabel}>Supporting keywords</label>
           <input
             name="seo_keywords"
             value={formData.seo_keywords}
             onChange={handleChange}
-            className={styles.input}
+            className={admin.fieldInput}
             placeholder="Comma-separated"
           />
-          <label className={styles.label}>Meta title override</label>
+          <label className={admin.fieldLabel}>Meta title override</label>
           <input
             name="meta_title"
             value={formData.meta_title}
             onChange={handleChange}
-            className={styles.input}
+            className={admin.fieldInput}
           />
-          <label className={styles.label}>Meta description override</label>
+          <label className={admin.fieldLabel}>Meta description override</label>
           <textarea
             name="meta_description"
             value={formData.meta_description}
             onChange={handleChange}
-            className={styles.textarea}
+            className={admin.fieldTextarea}
             rows={3}
           />
         </div>
 
-        <div className={styles.formGroup}>
-          <label className={styles.label}>Content (HTML):</label>
+        <div className={admin.formField}>
+          <span className={admin.fieldLabel}>Content (HTML)</span>
           {process.env.NEXT_PUBLIC_TINYMCE_API_KEY ? (
             <Editor
               apiKey={process.env.NEXT_PUBLIC_TINYMCE_API_KEY}
@@ -445,6 +487,9 @@ export default function NewBlogPage() {
               init={{
                 height: 400,
                 menubar: "file edit view insert format tools table help",
+                image_advtab: true,
+                image_title: true,
+                image_description: true,
                 plugins: [
                   "advlist",
                   "lists",
@@ -470,19 +515,46 @@ export default function NewBlogPage() {
                   "bullist numlist outdent indent | blockquote | code | image | link | removeformat | help",
                 content_style:
                   "body { background: #181818; color: #fff; font-family:Helvetica,Arial,sans-serif; font-size:16px }",
-                images_upload_handler: function (blobInfo) {
-                  return new Promise((resolve, reject) => {
-                    const file = blobInfo.blob();
-                    const fileExt = file.name.split(".").pop();
-                    const fileName = `${Date.now()}.${fileExt}`;
-                    supabase.storage
-                      .from("blog-images")
-                      .upload(fileName, file, {
-                        cacheControl: "3600",
-                        upsert: false,
-                        contentType: file.type,
-                      })
-                      .then(({ error }) => {
+                setup: (editor) => {
+                  editor.on("NodeChange", (e) => {
+                    const el = e.element;
+                    if (el && el.tagName === "IMG") {
+                      const alt = el.getAttribute("alt");
+                      if (!alt || alt.trim() === "") {
+                        const fallback =
+                          el.getAttribute("title") ||
+                          document.querySelector('[name="title"]')?.value ||
+                          "Blog image";
+                        el.setAttribute("alt", fallback);
+                      }
+                    }
+                  });
+                },
+                images_upload_handler: (blobInfo) =>
+                  new Promise((resolve, reject) => {
+                    (async () => {
+                      try {
+                        const raw = blobInfo.blob();
+                        const baseName =
+                          blobInfo.filename() || `inline-${Date.now()}.png`;
+                        let file = new File([raw], baseName, {
+                          type: raw.type || "image/jpeg",
+                        });
+                        try {
+                          file = await optimizeImageFile(file);
+                        } catch {
+                          /* keep original */
+                        }
+                        const fileExt =
+                          file.name.split(".").pop() || baseName.split(".").pop() || "jpg";
+                        const fileName = `${Date.now()}.${fileExt}`;
+                        const { error } = await supabase.storage
+                          .from("blog-images")
+                          .upload(fileName, file, {
+                            cacheControl: "3600",
+                            upsert: false,
+                            contentType: file.type || "image/jpeg",
+                          });
                         if (error) {
                           reject("Upload failed: " + error.message);
                           return;
@@ -491,46 +563,38 @@ export default function NewBlogPage() {
                           .from("blog-images")
                           .getPublicUrl(fileName);
                         resolve(publicData.publicUrl);
-                      })
-                      .catch((err) => {
-                        reject("Upload failed: " + err.message);
-                      });
-                  });
-                },
+                      } catch (err) {
+                        reject("Upload failed: " + (err.message || String(err)));
+                      }
+                    })();
+                  }),
               }}
               onEditorChange={(val) =>
                 setFormData({ ...formData, content: val })
               }
             />
           ) : (
-            <div
-              style={{
-                padding: "20px",
-                border: "1px solid #ccc",
-                borderRadius: "4px",
-                background: "#f5f5f5",
-              }}
-            >
+            <div className={admin.editorFallback}>
               <p>
-                ⚠️ TinyMCE API Key not found. Please check your environment
-                variables.
+                TinyMCE API key not found. Add NEXT_PUBLIC_TINYMCE_API_KEY to
+                your environment.
               </p>
               <p>
-                API Key:{" "}
-                {process.env.NEXT_PUBLIC_TINYMCE_API_KEY
-                  ? "Present"
-                  : "Missing"}
+                API key:{" "}
+                {process.env.NEXT_PUBLIC_TINYMCE_API_KEY ? "Present" : "Missing"}
               </p>
             </div>
           )}
         </div>
 
-        <button type="submit" disabled={loading} className={styles.submitBtn}>
-          {loading ? "Saving..." : "Create"}
-        </button>
+        <div className={admin.formActions}>
+          <button type="submit" disabled={loading} className={admin.btnPrimary}>
+            {loading ? "Saving…" : "Create post"}
+          </button>
+        </div>
       </form>
+        </div>
 
-      {/* Delete Image Confirmation Modal */}
       <ConfirmationModal
         isOpen={showDeleteConfirm}
         onClose={() => setShowDeleteConfirm(false)}
@@ -541,6 +605,7 @@ export default function NewBlogPage() {
         cancelText="Cancel"
         type="warning"
       />
+      </div>
     </div>
   );
 }

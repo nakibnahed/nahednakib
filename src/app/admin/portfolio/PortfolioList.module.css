@@ -42,6 +42,9 @@
 .mainContainer {
   display: flex;
   flex-direction: column;
+  width: 100%;
+  max-width: none;
+  margin: 0;
 }
 
 /* Search input */
@@ -70,12 +73,12 @@
 }
 
 .newButton {
-  padding: 10px 20px;
+  padding: 10px 18px;
   background: var(--button-bg);
   color: var(--button-text);
   text-decoration: none;
   border: none;
-  border-radius: 50px;
+  border-radius: 12px;
   font-size: 14px;
   font-weight: 700;
   cursor: pointer;
@@ -159,12 +162,9 @@
 /* Table container scroll */
 .tableContainer {
   overflow-x: auto;
-  border-radius: 24px;
-  background: color-mix(in srgb, var(--background-main) 80%, transparent 15%);
-  border: 1px solid var(--card-border);
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
-  backdrop-filter: blur(16px) saturate(160%);
-  -webkit-backdrop-filter: blur(16px) saturate(160%);
+  border-radius: 16px;
+  background: color-mix(in srgb, var(--background-main) 94%, #000 6%);
+  border: 1px solid color-mix(in srgb, var(--card-border) 85%, transparent);
 }
 
 /* Table styles */
@@ -178,11 +178,12 @@
 
 .table th,
 .table td {
-  padding: 10px;
-  border: 1px solid var(--card-border);
+  padding: 12px 14px;
+  border: none;
+  border-bottom: 1px solid color-mix(in srgb, var(--card-border) 70%, transparent);
   text-align: center;
-  background-color: var(--background-main);
-  color: var(--text-dark);
+  background-color: transparent;
+  color: var(--card-text, #e4e4e7);
   vertical-align: middle;
 }
 
@@ -204,10 +205,22 @@
   border-bottom-right-radius: 12px;
 }
 
-.table th {
-  background-color: var(--background-main);
-  font-weight: bold;
+.table thead tr th {
+  background: color-mix(in srgb, #fff 4%, transparent);
+  font-weight: 700;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-secondary, #a1a1aa);
   font-family: var(--font-heading), sans-serif;
+}
+
+.table tbody tr:hover td {
+  background: color-mix(in srgb, var(--primary-color) 6%, transparent);
+}
+
+.table tbody tr:last-child td {
+  border-bottom: none;
 }
 
 /* Image styling */

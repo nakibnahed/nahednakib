@@ -1,6 +1,13 @@
 import { getSiteUrl, siteDefaults } from "@/lib/seo/site";
 import { buildMetaDescription, buildTitleSegment, mergeKeywordSignals } from "@/lib/seo/auto";
 
+/** Non-empty alt for cover / OG: custom alt or post title. */
+export function coverImageAltForBlog(blog) {
+  const custom = typeof blog.cover_image_alt === "string" ? blog.cover_image_alt.trim() : "";
+  const title = typeof blog.title === "string" ? blog.title.trim() : "";
+  return custom || title || "Blog post";
+}
+
 export function buildBlogPostMetadata({ blog, authorName }) {
   const baseUrl = getSiteUrl();
   const canonical = `${baseUrl}/blog/${blog.slug}`;
@@ -16,6 +23,7 @@ export function buildBlogPostMetadata({ blog, authorName }) {
     fallback: "Read this article on Nahed Nakib.",
   });
   const imageUrl = blog.image || `${baseUrl}/images/portfolio.jpg`;
+  const coverAlt = coverImageAltForBlog(blog);
 
   return {
     title: titleSeg,
@@ -38,7 +46,7 @@ export function buildBlogPostMetadata({ blog, authorName }) {
           url: imageUrl,
           width: 1200,
           height: 630,
-          alt: blog.title,
+          alt: coverAlt,
         },
       ],
     },
@@ -62,18 +70,19 @@ export function buildArticleJsonLd({
   const baseUrl = getSiteUrl();
   const imageUrl = blog.image || `${baseUrl}/images/portfolio.jpg`;
   const keywords = mergeKeywordSignals(blog.tags, blog.seo_keywords);
+  const description =
+    blog.meta_description?.trim() ||
+    blog.description?.trim() ||
+    "";
 
   return {
     "@context": "https://schema.org",
-    "@type": "Article",
+    "@type": "BlogPosting",
     headline: blog.title,
-    description:
-      blog.meta_description?.trim() ||
-      blog.description?.trim() ||
-      undefined,
+    image: imageUrl,
+    description,
     datePublished: blog.created_at,
     dateModified: blog.updated_at || blog.created_at,
-    image: [imageUrl],
     mainEntityOfPage: {
       "@type": "WebPage",
       "@id": `${baseUrl}/blog/${blog.slug}`,

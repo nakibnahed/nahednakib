@@ -38,7 +38,7 @@ export function buildPortfolioMetadata({ portfolio }) {
           url: imageUrl,
           width: 1200,
           height: 630,
-          alt: portfolio.title,
+          alt: portfolio.title?.trim() || "Portfolio project",
         },
       ],
     },

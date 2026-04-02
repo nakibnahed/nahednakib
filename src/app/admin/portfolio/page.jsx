@@ -1,5 +1,6 @@
 "use client";
 
+import admin from "@/components/Admin/adminPage.module.css";
 import styles from "./PortfolioList.module.css";
 import { useEffect, useState, useMemo } from "react";
 import Link from "next/link";
@@ -7,7 +8,7 @@ import Image from "next/image";
 import { supabase } from "@/services/supabaseClient";
 import ConfirmationModal from "@/components/ConfirmationModal/ConfirmationModal";
 import { showAppToast } from "@/lib/showAppToast";
-import { Edit, Trash2 } from "lucide-react";
+import { Edit, Trash2, Briefcase, ListFilter } from "lucide-react";
 
 export default function PortfolioListPage() {
   const [portfolios, setPortfolios] = useState([]);
@@ -58,7 +59,7 @@ export default function PortfolioListPage() {
     } else {
       showAppToast("Portfolio item deleted.", "success");
       setPortfolios((prev) =>
-        prev.filter((p) => p.id !== portfolioToDelete.id)
+        prev.filter((p) => p.id !== portfolioToDelete.id),
       );
     }
     setLoading(false);
@@ -73,31 +74,71 @@ export default function PortfolioListPage() {
       (p) =>
         (p.title && p.title.toLowerCase().includes(lowerTerm)) ||
         (p.category && p.category.toLowerCase().includes(lowerTerm)) ||
-        (p.date && p.date.toLowerCase().includes(lowerTerm))
+        (p.date && p.date.toLowerCase().includes(lowerTerm)),
     );
   }, [portfolios, searchTerm]);
 
-  return (
-    <div className={styles.mainContainer}>
-      <div className={styles.controlsRow}>
-        <Link href="/admin/portfolio/new" className={styles.newButton}>
-          Create New Portfolio
-        </Link>
+  const listStats = useMemo(
+    () => ({
+      total: portfolios.length,
+      showing: filteredPortfolios.length,
+    }),
+    [portfolios.length, filteredPortfolios.length],
+  );
 
-        <input
-          type="text"
-          placeholder="Search by title, category or date..."
-          className={styles.searchInput}
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          autoComplete="off"
-        />
-      </div>
+  return (
+    <div className={`${admin.page} ${styles.mainContainer}`}>
+      <header className={admin.pageHeader}>
+        <p className={admin.eyebrow}>Showcase</p>
+        <h1 className={admin.pageTitle}>Portfolio</h1>
+        <p className={admin.lead}>
+          Manage projects, imagery, and metadata for your portfolio pages.
+        </p>
+      </header>
+
+      <section className={admin.statsSection} aria-label="Summary">
+        <div className={admin.statsGrid}>
+          <div className={admin.statCard}>
+            <Briefcase size={24} aria-hidden />
+            <div>
+              <h3>{listStats.total}</h3>
+              <p>Projects</p>
+            </div>
+          </div>
+          <div className={admin.statCard}>
+            <ListFilter size={24} aria-hidden />
+            <div>
+              <h3>{listStats.showing}</h3>
+              <p>Shown</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className={admin.filtersSection} aria-label="Search and actions">
+        <div className={styles.controlsRow}>
+          <Link href="/admin/portfolio/new" className={styles.newButton}>
+            Create New Portfolio
+          </Link>
+
+          <input
+            type="text"
+            placeholder="Search by title, category or date..."
+            className={styles.searchInput}
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            autoComplete="off"
+          />
+        </div>
+      </section>
 
       {loading ? (
-        <p>Loading...</p>
+        <div className={admin.loadingPanel}>
+          <div className={admin.loadingSpinner} aria-hidden />
+          <span>Loading portfolio…</span>
+        </div>
       ) : filteredPortfolios.length === 0 ? (
-        <p>No portfolios found.</p>
+        <p className={admin.emptyPanel}>No portfolios found.</p>
       ) : (
         <div className={styles.tableContainer}>
           <table className={styles.table}>

@@ -2,12 +2,14 @@
 
 import { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
+import Link from "next/link";
 import Image from "next/image";
+import { ArrowLeft } from "lucide-react";
+import admin from "@/components/Admin/adminPage.module.css";
 import { supabase } from "@/services/supabaseClient";
 import ConfirmationModal from "@/components/ConfirmationModal/ConfirmationModal";
 import { showAppToast } from "@/lib/showAppToast";
 import { seoKeywordsFromInput, seoKeywordsToInput } from "@/lib/seo/auto";
-import styles from "./EditPortfolio.module.css";
 
 const CATEGORY_OPTIONS = [
   "Web Development",
@@ -219,72 +221,100 @@ export default function EditPortfolioPage() {
     setSaving(false);
   }
 
-  if (loading) return <p>Loading portfolio data...</p>;
+  if (loading) {
+    return (
+      <div className={admin.page}>
+        <div className={admin.loadingPanel}>
+          <div className={admin.loadingSpinner} aria-hidden />
+          <span>Loading portfolio…</span>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className={styles.pageContainer}>
-      <h1 className={styles.pageTitle}>Edit Portfolio</h1>
+    <div className={admin.page}>
+      <div className={admin.entityForm}>
+        <header className={admin.pageHeader}>
+          <p className={admin.eyebrow}>Showcase</p>
+          <h1 className={admin.pageTitle}>Edit portfolio project</h1>
+          <p className={admin.lead}>
+            Update copy, media, links, status, and SEO for this project.
+          </p>
+        </header>
 
-      {errorMsg && <p className={styles.errorMsg}>{errorMsg}</p>}
+        <section className={admin.filtersSection} aria-label="Back">
+          <Link href="/admin/portfolio" className={admin.backNav}>
+            <ArrowLeft size={18} strokeWidth={2} aria-hidden />
+            Back to portfolio
+          </Link>
+        </section>
 
-      <form onSubmit={handleSubmit} className={styles.form}>
-        <div className={styles.formGroup}>
-          <label className={styles.label}>Title:</label>
+        {errorMsg && (
+          <div className={admin.formErrorBanner} role="alert">
+            {errorMsg}
+          </div>
+        )}
+
+        <div className={admin.formCard}>
+          <form onSubmit={handleSubmit} className={admin.formStack}>
+        <div className={admin.formField}>
+          <label className={admin.fieldLabel}>Title:</label>
           <input
             name="title"
             value={formData.title}
             onChange={handleChange}
             required
-            className={styles.input}
+            className={admin.fieldInput}
           />
         </div>
 
-        <div className={styles.formGroup}>
-          <label className={styles.label}>Current Image:</label>
+        <div className={admin.formField}>
+          <span className={admin.fieldLabel}>Cover image</span>
           {formData.image ? (
-            <div style={{ marginBottom: "10px" }}>
+            <div className={admin.imageThumbWrap}>
               <Image
                 src={formData.image}
                 alt="Portfolio image"
                 width={200}
                 height={200}
-                style={{
-                  maxWidth: "200px",
-                  display: "block",
-                  marginBottom: "10px",
-                }}
               />
               <button
                 type="button"
                 onClick={handleDeleteImage}
                 disabled={uploading}
-                className={styles.deleteBtn}
+                className={admin.btnDanger}
               >
-                {uploading ? "Deleting..." : "Delete Image"}
+                {uploading ? "Deleting…" : "Delete image"}
               </button>
             </div>
           ) : (
-            <p>No image uploaded yet</p>
+            <p className={admin.fieldHelp}>No image uploaded yet.</p>
           )}
         </div>
 
-        <div className={styles.formGroup}>
-          <label className={styles.label}>Upload New Image:</label>
+        <div className={admin.formField}>
+          <label className={admin.fieldLabel} htmlFor="edit-portfolio-upload">
+            Upload new image
+          </label>
           <input
+            id="edit-portfolio-upload"
             type="file"
             accept="image/*"
             onChange={handleFileChange}
-            className={styles.input}
+            className={admin.fieldInput}
             disabled={uploading}
           />
-          {uploading && <p>Uploading image...</p>}
+          {uploading && (
+            <p className={admin.fieldHelp}>Uploading image…</p>
+          )}
         </div>
 
-        <div className={styles.formGroup}>
-          <label className={styles.label}>Categories:</label>
-          <div className={styles.checkboxGroup}>
+        <div className={admin.formField}>
+          <label className={admin.fieldLabel}>Categories:</label>
+          <div className={admin.checkboxGrid}>
             {CATEGORY_OPTIONS.map((cat) => (
-              <label key={cat} className={styles.checkboxLabel}>
+              <label key={cat} className={admin.checkboxLabel}>
                 <input
                   type="checkbox"
                   value={cat}
@@ -300,73 +330,73 @@ export default function EditPortfolioPage() {
           </div>
         </div>
 
-        <div className={styles.formGroup}>
-          <label className={styles.label}>Description:</label>
+        <div className={admin.formField}>
+          <label className={admin.fieldLabel}>Description:</label>
           <textarea
             name="description"
             value={formData.description}
             onChange={handleChange}
-            className={styles.textarea}
+            className={admin.fieldTextarea}
           />
         </div>
 
-        <div className={styles.formGroup}>
-          <label className={styles.label}>Project Overview (HTML):</label>
+        <div className={admin.formField}>
+          <label className={admin.fieldLabel}>Project Overview (HTML):</label>
           <textarea
             name="overview"
             value={formData.overview}
             onChange={handleChange}
-            className={styles.textarea}
+            className={admin.fieldTextarea}
           />
         </div>
 
-        <div className={styles.formGroup}>
-          <label className={styles.label}>Achievements (HTML):</label>
+        <div className={admin.formField}>
+          <label className={admin.fieldLabel}>Achievements (HTML):</label>
           <textarea
             name="achievements"
             value={formData.achievements}
             onChange={handleChange}
-            className={styles.textarea}
+            className={admin.fieldTextarea}
           />
         </div>
 
-        <div className={styles.formGroup}>
-          <label className={styles.label}>Key Features (HTML):</label>
+        <div className={admin.formField}>
+          <label className={admin.fieldLabel}>Key Features (HTML):</label>
           <textarea
             name="key_features"
             value={formData.key_features}
             onChange={handleChange}
-            className={styles.textarea}
+            className={admin.fieldTextarea}
           />
         </div>
 
-        <div className={styles.formGroup}>
-          <label className={styles.label}>Live Website URL:</label>
+        <div className={admin.formField}>
+          <label className={admin.fieldLabel}>Live Website URL:</label>
           <input
             name="live_url"
             value={formData.live_url}
             onChange={handleChange}
-            className={styles.input}
+            className={admin.fieldInput}
           />
         </div>
 
-        <div className={styles.formGroup}>
-          <label className={styles.label}>Repo URL (optional):</label>
+        <div className={admin.formField}>
+          <label className={admin.fieldLabel}>Repo URL (optional):</label>
           <input
             name="repo_url"
             value={formData.repo_url}
             onChange={handleChange}
-            className={styles.input}
+            className={admin.fieldInput}
           />
         </div>
 
-        <div className={styles.formGroup}>
-          <label className={styles.label}>Status:</label>
+        <div className={admin.formField}>
+          <label className={admin.fieldLabel}>Status:</label>
           <select
             name="status"
             value={formData.status}
             onChange={handleChange}
-            className={styles.input}
+            className={`${admin.fieldInput} ${admin.fieldSelect}`}
           >
             <option value="Completed">Completed</option>
             <option value="In Progress">In Progress</option>
@@ -375,69 +405,69 @@ export default function EditPortfolioPage() {
           </select>
         </div>
 
-        <div className={styles.formGroup}>
-          <label className={styles.label}>
+        <div className={admin.formField}>
+          <label className={admin.fieldLabel}>
             Technologies (comma-separated):
           </label>
           <input
             name="technologies"
             value={formData.technologies}
             onChange={handleChange}
-            className={styles.input}
+            className={admin.fieldInput}
             placeholder="e.g. React, Next.js, Supabase"
           />
         </div>
 
-        <div className={styles.formGroup}>
-          <h2 style={{ fontSize: "1.25rem", marginBottom: "0.5rem" }}>
-            SEO (optional)
-          </h2>
-          <p className={styles.helpText}>
+        <div className={admin.formField}>
+          <h2 className={admin.formSubheading}>SEO (optional)</h2>
+          <p className={admin.fieldHelp}>
             Leave blank to auto-generate titles and descriptions from project
             fields. Supporting keywords feed structured data only.
           </p>
-          <label className={styles.label}>Focus keyword</label>
+          <label className={admin.fieldLabel}>Focus keyword</label>
           <input
             name="focus_keyword"
             value={formData.focus_keyword}
             onChange={handleChange}
-            className={styles.input}
+            className={admin.fieldInput}
           />
-          <label className={styles.label}>Supporting keywords</label>
+          <label className={admin.fieldLabel}>Supporting keywords</label>
           <input
             name="seo_keywords"
             value={formData.seo_keywords}
             onChange={handleChange}
-            className={styles.input}
+            className={admin.fieldInput}
             placeholder="Comma-separated"
           />
-          <label className={styles.label}>Meta title override</label>
+          <label className={admin.fieldLabel}>Meta title override</label>
           <input
             name="meta_title"
             value={formData.meta_title}
             onChange={handleChange}
-            className={styles.input}
+            className={admin.fieldInput}
           />
-          <label className={styles.label}>Meta description override</label>
+          <label className={admin.fieldLabel}>Meta description override</label>
           <textarea
             name="meta_description"
             value={formData.meta_description}
             onChange={handleChange}
-            className={styles.textarea}
+            className={admin.fieldTextarea}
             rows={3}
           />
         </div>
 
-        <button
-          type="submit"
-          disabled={saving || uploading}
-          className={styles.submitBtn}
-        >
-          {saving ? "Saving..." : "Save Changes"}
-        </button>
+        <div className={admin.formActions}>
+          <button
+            type="submit"
+            disabled={saving || uploading}
+            className={admin.btnPrimary}
+          >
+            {saving ? "Saving…" : "Save changes"}
+          </button>
+        </div>
       </form>
+        </div>
 
-      {/* Delete Image Confirmation Modal */}
       <ConfirmationModal
         isOpen={showDeleteConfirm}
         onClose={() => setShowDeleteConfirm(false)}
@@ -448,6 +478,7 @@ export default function EditPortfolioPage() {
         cancelText="Cancel"
         type="danger"
       />
+      </div>
     </div>
   );
 }

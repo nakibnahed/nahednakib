@@ -1,8 +1,18 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Send, Users, Globe, User, MessageSquare, Info, Mail } from "lucide-react";
+import {
+  Send,
+  Users,
+  Globe,
+  User,
+  MessageSquare,
+  Info,
+  Mail,
+  MailOpen,
+} from "lucide-react";
 import { supabase } from "@/services/supabaseClient";
+import admin from "@/components/Admin/adminPage.module.css";
 import styles from "./NotificationManagement.module.css";
 
 export default function NotificationManagement() {
@@ -157,12 +167,16 @@ export default function NotificationManagement() {
     }
 
     if (formData.type === "new_blog_post") {
-      const selectedBlog = blogOptions.find((item) => String(item.id) === selectedId);
+      const selectedBlog = blogOptions.find(
+        (item) => String(item.id) === selectedId,
+      );
       setFormData((prev) => ({
         ...prev,
         related_content_type: "blog",
         related_content_id: selectedId,
-        title: selectedBlog ? `New Blog Post: ${selectedBlog.title}` : prev.title,
+        title: selectedBlog
+          ? `New Blog Post: ${selectedBlog.title}`
+          : prev.title,
         message: selectedBlog?.description
           ? selectedBlog.description.slice(0, 100)
           : prev.message,
@@ -172,7 +186,7 @@ export default function NotificationManagement() {
 
     if (formData.type === "new_portfolio_post") {
       const selectedPortfolio = portfolioOptions.find(
-        (item) => String(item.id) === selectedId
+        (item) => String(item.id) === selectedId,
       );
       setFormData((prev) => ({
         ...prev,
@@ -316,7 +330,7 @@ export default function NotificationManagement() {
     setSelectedUsers((prev) =>
       prev.includes(userId)
         ? prev.filter((id) => id !== userId)
-        : [...prev, userId]
+        : [...prev, userId],
     );
   };
 
@@ -351,15 +365,18 @@ export default function NotificationManagement() {
 
   if (loading) {
     return (
-      <div className={styles.container}>
-        <div className={styles.loading}>Loading notifications...</div>
+      <div className={`${admin.page} ${styles.container}`}>
+        <div className={admin.loadingPanel}>
+          <div className={admin.loadingSpinner} aria-hidden />
+          <span>Loading notifications…</span>
+        </div>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className={styles.container}>
+      <div className={`${admin.page} ${styles.container}`}>
         <div className={styles.error}>
           <h2>Error</h2>
           <p>{error}</p>
@@ -370,32 +387,44 @@ export default function NotificationManagement() {
   }
 
   return (
-    <div className={styles.container}>
-      <div className={styles.header}>
-        <h1 className={styles.title}>
-          <Send size={24} />
-          Notification Management
-        </h1>
-        <p className={styles.subtitle}>
-          Send notifications to users and track delivery
+    <div className={`${admin.page} ${styles.container}`}>
+      <header className={admin.pageHeader}>
+        <p className={admin.eyebrow}>
+          <Send size={14} strokeWidth={2} aria-hidden /> Outreach
         </p>
-      </div>
+        <h1 className={admin.pageTitle}>Notifications</h1>
+        <p className={admin.lead}>
+          Send notifications to users and track delivery.
+        </p>
+      </header>
 
-      {/* Stats */}
-      <div className={styles.statsGrid}>
-        <div className={styles.statCard}>
-          <h3>Total Sent</h3>
-          <p>{stats.totalSent}</p>
+      <section className={admin.statsSection} aria-label="Summary">
+        <div className={admin.statsGrid}>
+          <div className={admin.statCard}>
+            <Send size={24} aria-hidden />
+            <div>
+              <h3>{stats.totalSent}</h3>
+              <p>Total sent</p>
+            </div>
+          </div>
+          <div className={admin.statCard}>
+            <MailOpen size={24} aria-hidden />
+            <div>
+              <h3>{stats.totalRead}</h3>
+              <p>Read</p>
+            </div>
+          </div>
+          <div className={admin.statCard}>
+            <Mail size={24} aria-hidden />
+            <div>
+              <h3>{stats.totalUnread}</h3>
+              <p>Unread</p>
+            </div>
+          </div>
         </div>
-        <div className={styles.statCard}>
-          <h3>Read</h3>
-          <p>{stats.totalRead}</p>
-        </div>
-        <div className={styles.statCard}>
-          <h3>Unread</h3>
-          <p>{stats.totalUnread}</p>
-        </div>
-      </div>
+      </section>
+
+      <section className={admin.filtersSection} aria-label="Filters" />
 
       {/* Send Notification Form */}
       <div className={styles.formSection}>
