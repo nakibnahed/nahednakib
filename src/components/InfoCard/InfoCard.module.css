@@ -33,8 +33,23 @@
 .headerRow {
   display: flex;
   align-items: center;
-  gap: 0.7em;
+  justify-content: space-between;
+  gap: 0.75rem;
   margin-bottom: 20px;
+}
+
+.headerTitleBlock {
+  display: flex;
+  align-items: center;
+  gap: 0.7em;
+  min-width: 0;
+  flex: 1;
+}
+
+.headerEnd {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
 }
 
 .icon {

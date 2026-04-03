@@ -393,6 +393,37 @@ export default function RunningContent() {
         title="Latest Runs"
         size="medium"
         Icon={SiStrava}
+        headerEnd={
+          !loadingInitial && activities.length > 0 ? (
+            <div className={styles.activityArrowsContainer}>
+              <button
+                onClick={() =>
+                  setCurrent(
+                    (current - 1 + activities.length) % activities.length
+                  )
+                }
+                disabled={activities.length < 2}
+                className={styles.weekNavBtn}
+                aria-label="Previous activity"
+                type="button"
+              >
+                <FiChevronLeft size={14} />
+              </button>
+              <span className={styles.carouselCounter}>
+                {current + 1} / {activities.length}
+              </span>
+              <button
+                onClick={() => setCurrent((current + 1) % activities.length)}
+                disabled={activities.length < 2}
+                className={styles.weekNavBtn}
+                aria-label="Next activity"
+                type="button"
+              >
+                <FiChevronRight size={14} />
+              </button>
+            </div>
+          ) : null
+        }
         details={
           loadingInitial ? (
             <div style={{ padding: "1.5rem 0", textAlign: "center" }}>
@@ -470,32 +501,6 @@ export default function RunningContent() {
                   </button>
                 </div>
               </div>
-              {/* Carousel Arrows */}
-              <div className={styles.activityArrowsContainer}>
-                <button
-                  onClick={() =>
-                    setCurrent(
-                      (current - 1 + activities.length) % activities.length
-                    )
-                  }
-                  disabled={activities.length < 2}
-                  className={styles.weekNavBtn}
-                  aria-label="Previous activity"
-                >
-                  <FiChevronLeft size={14} />
-                </button>
-                <span className={styles.carouselCounter}>
-                  {current + 1} / {activities.length}
-                </span>
-                <button
-                  onClick={() => setCurrent((current + 1) % activities.length)}
-                  disabled={activities.length < 2}
-                  className={styles.weekNavBtn}
-                  aria-label="Next activity"
-                >
-                  <FiChevronRight size={14} />
-                </button>
-              </div>
             </div>
           ) : (
             <div style={{ padding: "1.5rem 0", textAlign: "center" }}>
@@ -517,6 +522,30 @@ export default function RunningContent() {
         }
         size="medium"
         Icon={BarChartIcon}
+        headerEnd={
+          !loadingInitial && !loadingWeekly && weeklyStats ? (
+            <div className={styles.weekArrowsContainer}>
+              <button
+                onClick={goToPreviousWeek}
+                disabled={weekOffset <= -4}
+                className={styles.weekNavBtn}
+                title="Previous week"
+                type="button"
+              >
+                <FiChevronLeft size={14} />
+              </button>
+              <button
+                onClick={goToNextWeek}
+                disabled={weekOffset >= 0}
+                className={styles.weekNavBtn}
+                title="Next week"
+                type="button"
+              >
+                <FiChevronRight size={14} />
+              </button>
+            </div>
+          ) : null
+        }
         details={
           loadingInitial || loadingWeekly ? (
             <div style={{ padding: "1.5rem 0", textAlign: "center" }}>
@@ -525,25 +554,6 @@ export default function RunningContent() {
             </div>
           ) : weeklyStats ? (
             <div>
-              {/* Week Navigation Arrows */}
-              <div className={styles.weekArrowsContainer}>
-                <button
-                  onClick={goToPreviousWeek}
-                  disabled={weekOffset <= -4}
-                  className={styles.weekNavBtn}
-                  title="Previous week"
-                >
-                  <FiChevronLeft size={14} />
-                </button>
-                <button
-                  onClick={goToNextWeek}
-                  disabled={weekOffset >= 0}
-                  className={styles.weekNavBtn}
-                  title="Next week"
-                >
-                  <FiChevronRight size={14} />
-                </button>
-              </div>
               <div className={styles.statsGrid}>
                 <div className={styles.statItem}>
                   <span className={styles.statIcon}>

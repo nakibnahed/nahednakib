@@ -119,7 +119,9 @@
 
 .activityCard {
   position: relative;
-  transition: box-shadow 0.2s, border-color 0.2s;
+  transition:
+    box-shadow 0.2s,
+    border-color 0.2s;
 }
 
 .activityName {
@@ -301,7 +303,9 @@
   justify-content: center;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
   margin: 0;
-  transition: box-shadow 0.2s, border-color 0.2s;
+  transition:
+    box-shadow 0.2s,
+    border-color 0.2s;
 }
 .statBoxIcon {
   color: var(--primary-color, #ee681a);
@@ -351,28 +355,13 @@
   opacity: 0.9;
 }
 
-/* Week navigation arrows container */
-.weekArrowsContainer {
-  position: absolute;
-  top: 0;
-  right: 0;
-  margin: 20px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  z-index: 2;
-}
-
-/* Activity arrows container (Latest Runs card) */
+/* Week / activity nav controls (rendered in InfoCard headerEnd) */
+.weekArrowsContainer,
 .activityArrowsContainer {
-  position: absolute;
-  top: 0;
-  right: 0;
-  margin: 20px;
   display: flex;
   align-items: center;
-  gap: 8px;
-  z-index: 2;
+  gap: 4px;
+  flex-shrink: 0;
 }
 
 /* Week navigation buttons */
