@@ -44,12 +44,13 @@ const NotificationPopup = ({ onClose, buttonPosition = { top: 60, right: 20 } })
     // Store current scroll position
     const scrollY = window.scrollY;
 
-    // Add modal class to body and set scroll position
+    // Lock scroll: html + body so height math matches the viewport on mobile.
+    document.documentElement.classList.add("modal-open");
     document.body.classList.add("modal-open");
     document.body.style.top = `-${scrollY}px`;
 
     return () => {
-      // Remove modal class and restore scroll position
+      document.documentElement.classList.remove("modal-open");
       document.body.classList.remove("modal-open");
       document.body.style.top = "";
 
