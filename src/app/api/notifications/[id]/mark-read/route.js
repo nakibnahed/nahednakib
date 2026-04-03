@@ -3,14 +3,15 @@ import { createClient } from "@/lib/supabase/server";
 
 export async function POST(_request, { params }) {
   try {
-    const { id } = params;
+    const { id } = await params;
 
     const supabase = await createClient();
     const {
-      data: { session },
-    } = await supabase.auth.getSession();
+      data: { user },
+      error: userError,
+    } = await supabase.auth.getUser();
 
-    if (!session?.user) {
+    if (!user || userError) {
       return NextResponse.json(
         { error: "Authentication required" },
         { status: 401 },
@@ -24,7 +25,7 @@ export async function POST(_request, { params }) {
         read_at: new Date().toISOString(),
       })
       .eq("id", id)
-      .eq("recipient_id", session.user.id)
+      .eq("recipient_id", user.id)
       .select();
 
     if (error) {

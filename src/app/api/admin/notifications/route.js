@@ -19,17 +19,17 @@ export async function POST(request) {
 
     const supabase = await createClient();
     const {
-      data: { session },
-      error: sessionError,
-    } = await supabase.auth.getSession();
+      data: { user },
+      error: userError,
+    } = await supabase.auth.getUser();
 
     console.log("Session check:", {
-      hasSession: !!session,
-      sessionError,
-      userId: session?.user?.id,
+      hasSession: !!user,
+      sessionError: userError,
+      userId: user?.id,
     });
 
-    if (!session?.user) {
+    if (!user || userError) {
       console.log("❌ No session found");
       return NextResponse.json(
         { error: "Authentication required" },
@@ -40,7 +40,7 @@ export async function POST(request) {
     // Check if user is admin (simplified check)
     // For now, allow any authenticated user to send notifications
     // You can add more specific admin checks later
-    console.log("✅ Admin access confirmed for user:", session.user.email);
+    console.log("✅ Admin access confirmed for user:", user.email);
 
     const {
       title,
@@ -171,12 +171,12 @@ export async function POST(request) {
     }
 
     // Create notifications for all recipients
-    const notifications = usersToNotify.map((user) => ({
+    const notifications = usersToNotify.map((recipient) => ({
       title,
       message,
       type: type || "admin_message",
-      recipient_id: user.id,
-      sender_id: session.user.id,
+      recipient_id: recipient.id,
+      sender_id: user.id,
       is_admin_notification: true,
       is_read: false,
       related_content_type: related_content_type || null,
@@ -186,7 +186,7 @@ export async function POST(request) {
 
     console.log("Creating notifications:", notifications);
 
-    const { data: createdNotifications, error: createError } = await supabase
+    const { data: createdNotifications, error: createError } = await supabaseAdmin
       .from("notifications")
       .insert(notifications)
       .select();
@@ -240,17 +240,17 @@ export async function GET(request) {
 
     const supabase = await createClient();
     const {
-      data: { session },
-      error: sessionError,
-    } = await supabase.auth.getSession();
+      data: { user },
+      error: userError,
+    } = await supabase.auth.getUser();
 
     console.log("Session check:", {
-      hasSession: !!session,
-      sessionError,
-      userId: session?.user?.id,
+      hasSession: !!user,
+      sessionError: userError,
+      userId: user?.id,
     });
 
-    if (!session?.user) {
+    if (!user || userError) {
       console.log("❌ No session found");
       return NextResponse.json(
         { error: "Authentication required" },
@@ -261,7 +261,7 @@ export async function GET(request) {
     // Check if user is admin (simplified check)
     // For now, allow any authenticated user to send notifications
     // You can add more specific admin checks later
-    console.log("✅ Admin access confirmed for user:", session.user.email);
+    console.log("✅ Admin access confirmed for user:", user.email);
 
     const { searchParams } = new URL(request.url);
     const limit = parseInt(searchParams.get("limit") || "50");
@@ -271,7 +271,7 @@ export async function GET(request) {
 
     // Check if notifications table exists
     try {
-      const { data: tableCheck, error: tableError } = await supabase
+      const { data: tableCheck, error: tableError } = await supabaseAdmin
         .from("notifications")
         .select("count")
         .limit(1);
@@ -301,7 +301,7 @@ export async function GET(request) {
 
     // Test a simple query first
     try {
-      const { data: testData, error: testError } = await supabase
+      const { data: testData, error: testError } = await supabaseAdmin
         .from("notifications")
         .select("id")
         .limit(1);
@@ -332,7 +332,7 @@ export async function GET(request) {
     }
 
     // Get all notifications for admin view
-    const { data: notifications, error } = await supabase
+    const { data: notifications, error } = await supabaseAdmin
       .from("notifications")
       .select(
         `
@@ -369,7 +369,7 @@ export async function GET(request) {
     console.log("✅ Fetched notifications:", notifications?.length || 0);
 
     // Get total count
-    const { count: totalCount, error: countError } = await supabase
+    const { count: totalCount, error: countError } = await supabaseAdmin
       .from("notifications")
       .select("*", { count: "exact", head: true });
 

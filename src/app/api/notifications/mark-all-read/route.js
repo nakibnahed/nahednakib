@@ -5,11 +5,11 @@ export async function POST() {
   try {
     const supabase = await createClient();
     const {
-      data: { session },
-      error: sessionError,
-    } = await supabase.auth.getSession();
+      data: { user },
+      error: userError,
+    } = await supabase.auth.getUser();
 
-    if (!session?.user) {
+    if (!user || userError) {
       return NextResponse.json(
         { error: "Authentication required" },
         { status: 401 }
@@ -23,7 +23,7 @@ export async function POST() {
         is_read: true,
         read_at: new Date().toISOString(),
       })
-      .eq("recipient_id", session.user.id)
+      .eq("recipient_id", user.id)
       .eq("is_read", false);
 
     if (error) {

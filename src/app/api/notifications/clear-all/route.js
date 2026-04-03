@@ -5,10 +5,11 @@ export async function DELETE() {
   try {
     const supabase = await createClient();
     const {
-      data: { session },
-    } = await supabase.auth.getSession();
+      data: { user },
+      error: userError,
+    } = await supabase.auth.getUser();
 
-    if (!session?.user) {
+    if (!user || userError) {
       return NextResponse.json(
         { error: "Authentication required" },
         { status: 401 },
@@ -18,7 +19,7 @@ export async function DELETE() {
     const { error: deleteError } = await supabase
       .from("notifications")
       .delete()
-      .eq("recipient_id", session.user.id)
+      .eq("recipient_id", user.id)
       .select();
 
     if (deleteError) {
