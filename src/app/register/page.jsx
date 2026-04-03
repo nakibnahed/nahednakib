@@ -44,7 +44,8 @@ export default function RegisterPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const nextPath = searchParams.get("next");
-  const [email, setEmail] = useState("");
+  const emailFromQuery = searchParams.get("email") || "";
+  const [email, setEmail] = useState(emailFromQuery);
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [feedback, setFeedback] = useState(null);
