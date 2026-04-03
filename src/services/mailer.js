@@ -205,6 +205,7 @@ export async function sendPracticeIncomingRequestEmail({
   recipientEmail,
   requesterName,
   requestsPageUrl,
+  message = "",
 }) {
   if (!recipientEmail) return;
 
@@ -233,6 +234,14 @@ export async function sendPracticeIncomingRequestEmail({
             Hi <strong>${recipientName || "Student"}</strong>,<br/>
             <strong>${requesterName || "A student"}</strong> sent you a new conversation practice request.
           </p>
+          ${
+            message
+              ? `<div style="margin:16px 0;padding:14px;border:1px solid #fde3d3;background:#fff7f2;border-radius:10px;">
+            <div style="font-size:12px;color:#6b7280;margin-bottom:6px;">Message</div>
+            <div style="font-size:14px;line-height:1.6;color:#111827;white-space:pre-wrap;">${message}</div>
+          </div>`
+              : ""
+          }
 
           <a href="${requestsPageUrl}" style="display:inline-block;margin-top:8px;background:#111827;color:#ffffff;text-decoration:none;padding:12px 18px;border-radius:10px;font-size:14px;font-weight:600;">
             Open Incoming Requests
@@ -251,7 +260,7 @@ export async function sendPracticeIncomingRequestEmail({
     </div>
   `;
 
-  const text = `New Conversation Practice Request\n\nHi ${recipientName || "Student"},\n${requesterName || "A student"} sent you a new conversation practice request.\n\nOpen incoming requests: ${requestsPageUrl}\n\nSent by Nahed Nakib - Conversation Practice System`;
+  const text = `New Conversation Practice Request\n\nHi ${recipientName || "Student"},\n${requesterName || "A student"} sent you a new conversation practice request.${message ? `\n\nMessage: ${message}` : ""}\n\nOpen incoming requests: ${requestsPageUrl}\n\nSent by Nahed Nakib - Conversation Practice System`;
 
   await transporter.sendMail({
     from: `"Practice Meetings" <${process.env.SMTP_USER}>`,

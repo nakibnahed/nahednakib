@@ -25,7 +25,7 @@ export async function POST(req) {
 
     const { data: requestRow, error } = await supabaseAdmin
       .from("practice_requests")
-      .select("id, from_name, from_user_id, to_name, to_email, to_user_id")
+      .select("id, from_name, from_user_id, to_name, to_email, to_user_id, message")
       .eq("id", requestId)
       .maybeSingle();
 
@@ -75,6 +75,7 @@ export async function POST(req) {
         recipientEmail: requestRow.to_email,
         requesterName: requestRow.from_name,
         requestsPageUrl,
+        message: requestRow.message || "",
       });
       } catch (mailErr) {
         console.error("Practice request notify email error:", mailErr);
