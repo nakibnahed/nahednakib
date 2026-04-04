@@ -11,7 +11,7 @@ export default function About() {
       <div className={`${styles.col} ${styles.about_text}`}>
         <h1 className={`${styles.title} ${logoFont.className}`}>About Nahed</h1>
         <p className={styles.description}>
-          I am Nahed Nakib, a professional distance runner and web developer,
+          I am Nahed Nakib, a distance runner and junior web developer,
           passionate about both sports and technology. As a running programmer,
           I bring the same dedication, focus, and precision from the track to
           building high-performance websites.

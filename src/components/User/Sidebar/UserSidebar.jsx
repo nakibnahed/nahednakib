@@ -136,7 +136,10 @@ export default function UserSidebar({ profileData, onNavigate }) {
         </div>
 
         <div className={styles.userCard}>
-          <Link href="/users/profile/settings" className={styles.userAvatarLink}>
+          <Link
+            href="/users/profile/settings"
+            className={styles.userAvatarLink}
+          >
             <div className={styles.userAvatar}>
               <Image
                 src={profileData?.avatar_url || "/default-avatar.svg"}
@@ -148,7 +151,10 @@ export default function UserSidebar({ profileData, onNavigate }) {
             </div>
           </Link>
           <div className={styles.userDetails}>
-            <Link href="/users/profile/settings" className={styles.userNameLink}>
+            <Link
+              href="/users/profile/settings"
+              className={styles.userNameLink}
+            >
               <span className={styles.userName}>{displayName}</span>
             </Link>
             <p className={styles.userRole}>

@@ -45,7 +45,7 @@ export default function FAQPage() {
       category: "general",
       question: "Who is Nahed Nakib?",
       answer:
-        "I'm Nahed Nakib, a professional distance runner and web developer. I bring the same dedication, focus, and precision from the track to building high-performance websites. My unique combination of athletic discipline and coding expertise sets me apart as a developer who understands both performance and precision.",
+        "I'm Nahed Nakib, a distance runner and junior web developer. I bring the same dedication, focus, and precision from the track to building high-performance websites. My unique combination of athletic discipline and coding expertise sets me apart as a developer who understands both performance and precision.",
     },
     {
       id: 3,
@@ -136,7 +136,7 @@ export default function FAQPage() {
       category: "support",
       question: "Do you offer web development services?",
       answer:
-        "Yes! As a professional web developer, I offer custom web development services. If you're interested in working together on a project, please reach out through the Contact page with details about your requirements.",
+        "Yes! As a junior web developer, I offer custom web development services. If you're interested in working together on a project, please reach out through the Contact page with details about your requirements.",
     },
     {
       id: 16,

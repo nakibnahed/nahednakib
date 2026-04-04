@@ -20,7 +20,7 @@ export const siteDefaults = {
   authorName: "Nahed Nakib",
   shortTitle: "Nahed Nakib — Running Programmer & Web Developer",
   description:
-    "Nahed Nakib is a professional distance runner and skilled web developer. Discover how this running programmer combines athletic discipline with coding expertise to create exceptional digital experiences.",
+    "Nahed Nakib is a Distance runner and junior web developer. Discover how this running programmer combines athletic discipline with coding expertise to create exceptional digital experiences.",
   locale: "en_US",
   twitterCreator: "@nahednakib",
   twitterSite: "@nahednakib",

@@ -8,7 +8,7 @@ export const metadata = {
   openGraph: {
     title: `About | ${siteDefaults.authorName}`,
     description:
-      "Professional distance runner and web developer combining athletic discipline with high-performance web development.",
+      "Distance runner and junior web developer combining athletic discipline with high-performance web development.",
     url: `${getSiteUrl()}/about`,
     siteName: siteDefaults.authorName,
     locale: siteDefaults.locale,

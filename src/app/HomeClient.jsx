@@ -13,7 +13,7 @@ export default function HomeClient() {
       <div className={styles.col}>
         <h1 className={styles.title}>Welcome to Nahed</h1>
         <p className={styles.description}>
-          Professional distance runner and web developer.
+          Distance runner and junior web developer.
           <br />
           Clean code. Clear goals. Whether on the web or on the track, I bring
           discipline and precision to every step.
