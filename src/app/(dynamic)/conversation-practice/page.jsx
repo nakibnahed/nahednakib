@@ -307,8 +307,10 @@ export default function ConversationPracticePage() {
     (async () => {
       try {
         setBootState("booting");
-        const user = await loadCurrentUser();
-        await fetchStudents();
+        const [user] = await Promise.all([
+          loadCurrentUser(),
+          fetchStudents(),
+        ]);
         if (user?.id) {
           await fetchRequests({ userId: user.id });
         } else {
