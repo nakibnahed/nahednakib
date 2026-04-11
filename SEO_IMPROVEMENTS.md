@@ -1,4 +1,4 @@
-# SEO Improvements for nahednakib.vercel.app
+# SEO Improvements for nahednakib.com
 
 ## ✅ Completed Improvements
 
