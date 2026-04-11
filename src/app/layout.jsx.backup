@@ -59,8 +59,8 @@ const structuredData = {
   "@context": "https://schema.org",
   "@type": "Person",
   name: "Nahed Nakib",
-  url: "https://nahednakib.vercel.app",
-  image: "https://nahednakib.vercel.app/images/me.jpg",
+  url: "https://nahednakib.com",
+  image: "https://nahednakib.com/images/me.jpg",
   sameAs: [
     "https://github.com/nahednakib",
     "https://linkedin.com/in/nahednakib",

@@ -120,7 +120,7 @@ export default async function Post({ params }) {
   const authorRoleLine = author ? author.role?.trim() || "" : MAIN_AUTHOR_ROLE;
 
   const baseUrl =
-    process.env.NEXT_PUBLIC_SITE_URL || "https://nahednakib.vercel.app";
+    process.env.NEXT_PUBLIC_SITE_URL || "https://nahednakib.com";
   const imageUrl = blog.image || `${baseUrl}/images/portfolio.jpg`;
   const coverAlt = coverImageAltForBlog(blog);
 

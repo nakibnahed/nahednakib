@@ -11,7 +11,7 @@ export function getSiteUrl() {
     const host = vercel.replace(/^https?:\/\//, "");
     return `https://${host}`;
   }
-  return "https://nahednakib.vercel.app";
+  return "https://nahednakib.com";
 }
 
 export const SITE_NAME = "Nahed Nakib";

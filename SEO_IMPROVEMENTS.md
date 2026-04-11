@@ -33,7 +33,7 @@
 ### 1. Google Search Console Setup
 
 1. Go to [Google Search Console](https://search.google.com/search-console)
-2. Add your property: `https://nahednakib.vercel.app`
+2. Add your property: `https://nahednakib.com`
 3. Verify ownership (HTML tag method recommended)
 4. Replace `your-verification-code-here` in `src/app/layout.jsx` with your actual verification code
 

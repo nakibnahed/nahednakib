@@ -38,7 +38,7 @@ export function middleware(request) {
     const origin = request.headers.get("origin");
     const allowedOrigins = [
       process.env.NEXT_PUBLIC_SITE_URL,
-      "https://nahednakib.vercel.app",
+      "https://nahednakib.com",
       "http://localhost:3000",
     ].filter(Boolean);
 
