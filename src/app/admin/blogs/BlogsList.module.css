@@ -85,7 +85,8 @@
   );
   background-color: var(--form-control-bg-focus);
   color: var(--text-dark);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary-color) 18%, transparent);
+  box-shadow: 0 0 0 3px
+    color-mix(in srgb, var(--primary-color) 18%, transparent);
 }
 
 .newButton {
@@ -133,7 +134,6 @@
 .actionButton {
   background: color-mix(in srgb, var(--primary-color) 12%, transparent);
   color: var(--primary-color);
-  border: 1px solid color-mix(in srgb, var(--primary-color) 35%, transparent);
 }
 
 .actionButton:hover {
@@ -204,7 +204,8 @@
 .table td {
   padding: 12px 14px;
   border: none;
-  border-bottom: 1px solid color-mix(in srgb, var(--card-border) 70%, transparent);
+  border-bottom: 1px solid
+    color-mix(in srgb, var(--card-border) 70%, transparent);
   text-align: center;
   background-color: transparent;
   color: var(--text-dark);
