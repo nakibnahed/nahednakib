@@ -18,7 +18,7 @@ export const SITE_NAME = "Nahed Nakib";
 
 export const siteDefaults = {
   authorName: "Nahed Nakib",
-  shortTitle: "Nahed Nakib — Running Programmer & Web Developer",
+  shortTitle: "Nahed Nakib — Runner & Programmer",
   description:
     "Nahed Nakib is a Distance runner and junior web developer. Discover how this running programmer combines athletic discipline with coding expertise to create exceptional digital experiences.",
   locale: "en_US",
