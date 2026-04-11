@@ -8,6 +8,21 @@ import { AuthSessionProvider } from "@/context/AuthSessionContext";
 import NotificationProviderBoundary from "@/components/NotificationProviderBoundary/NotificationProviderBoundary";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { Analytics } from "@vercel/analytics/next";
+import { Unbounded, Montserrat } from "next/font/google";
+
+const unbounded = Unbounded({
+  subsets: ["latin"],
+  weight: ["200", "300", "400", "500", "600", "700", "900"],
+  display: "swap",
+  variable: "--font-unbounded",
+});
+
+const montserrat = Montserrat({
+  subsets: ["latin"],
+  weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
+  display: "swap",
+  variable: "--font-montserrat",
+});
 
 const base = getSiteUrl();
 
@@ -112,7 +127,7 @@ const rootJsonLd = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en">
+    <html lang="en" className={`${unbounded.variable} ${montserrat.variable}`}>
       <head>
         <script
           type="application/ld+json"

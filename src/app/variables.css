@@ -20,8 +20,8 @@
   --text-main: var(--text-dark);
   --text-secondary: #71717a;
 
-  --font-main: "Montserrat", sans-serif;
-  --font-heading: "Unbounded", sans-serif;
+  --font-main: var(--font-montserrat, "Montserrat", sans-serif);
+  --font-heading: var(--font-unbounded, "Unbounded", sans-serif);
 
   --home-bg-image: url("/images/pattern.svg");
 
