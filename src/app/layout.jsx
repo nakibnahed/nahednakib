@@ -113,7 +113,7 @@ const rootJsonLd = {
         "https://linkedin.com/in/nahednakib",
         "https://twitter.com/nahednakib",
       ],
-      jobTitle: "Running Programmer & Web Developer",
+      jobTitle: "Runner & Web Developer",
       knowsAbout: [
         "Web Development",
         "React",

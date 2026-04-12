@@ -46,7 +46,7 @@
 
 ### **1. Homepage Optimization**
 
-- ✅ **Title**: "Nahed Nakib - Running Programmer & Web Developer"
+- ✅ **Title**: "Nahed Nakib - Runner & Web Developer"
 - ✅ **Description**: Emphasizes "running programmer" and "athletic excellence with coding expertise"
 - ✅ **Keywords**: Comprehensive list targeting both niches
 - ✅ **Content**: Added "running programmer" and "athletic excellence with coding expertise"
@@ -59,7 +59,7 @@
 
 ### **3. Structured Data Enhancement**
 
-- ✅ **Job Title**: "Running Programmer & Web Developer"
+- ✅ **Job Title**: "Runner & Web Developer"
 - ✅ **Description**: Emphasizes athletic excellence with coding expertise
 - ✅ **Skills**: Added "Running Programming", "Athlete Developer", "Professional Running"
 
