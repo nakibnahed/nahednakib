@@ -2,6 +2,9 @@ import styles from "./page.module.css";
 import { supabase } from "@/services/supabaseClient";
 import BlogGrid from "./BlogGrid";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export default async function Blog() {
   const [{ data: categoriesData }, { data: blogsData }] = await Promise.all([
     supabase.from("categories").select("*").order("name"),
@@ -16,6 +19,7 @@ export default async function Blog() {
           color
         )`
       )
+      .eq("published", true)
       .order("created_at", { ascending: false }),
   ]);
 
