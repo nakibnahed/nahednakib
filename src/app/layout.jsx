@@ -29,7 +29,7 @@ const base = getSiteUrl();
 export const metadata = {
   metadataBase: new URL(base),
   title: {
-    default: siteDefaults.shortTitle,
+    default: siteDefaults.authorName,
     template: `%s | ${siteDefaults.authorName}`,
   },
   description: siteDefaults.description,

@@ -2,7 +2,7 @@ import HomeClient from "./HomeClient";
 import { getSiteUrl, siteDefaults, getDefaultOgImageUrl } from "@/lib/seo/site";
 
 export const metadata = {
-  title: { absolute: siteDefaults.shortTitle },
+  title: { absolute: siteDefaults.authorName },
   description: siteDefaults.description,
   alternates: { canonical: getSiteUrl() },
   openGraph: {
