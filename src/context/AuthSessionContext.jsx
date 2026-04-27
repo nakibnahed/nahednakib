@@ -1,6 +1,13 @@
 "use client";
 
-import { createContext, useContext, useEffect, useMemo, useRef, useState } from "react";
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { supabase } from "@/lib/supabase/client";
 
 const AUTH_INIT_TIMEOUT_MS = 8000;
@@ -79,7 +86,11 @@ export function AuthSessionProvider({ children }) {
           await recoverInvalidSession();
         } else {
           setSession(currentSession ?? null);
-          setUser(currentSession?.user ?? null);
+          setUser((prev) => {
+            const next = currentSession?.user ?? null;
+            if (prev?.id === next?.id) return prev;
+            return next;
+          });
           setError(null);
         }
       } catch {
@@ -103,7 +114,11 @@ export function AuthSessionProvider({ children }) {
           return;
         }
         setSession(nextSession ?? null);
-        setUser(nextSession?.user ?? null);
+        setUser((prev) => {
+          const next = nextSession?.user ?? null;
+          if (prev?.id === next?.id) return prev;
+          return next;
+        });
         setLoading(false);
         setInitialized(true);
         setError(null);
