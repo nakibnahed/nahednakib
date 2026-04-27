@@ -77,7 +77,9 @@ export function NotificationProvider({ children }) {
         }
 
         if (!response.ok) {
-          throw new Error(`Failed to refresh unread count (${response.status})`);
+          throw new Error(
+            `Failed to refresh unread count (${response.status})`,
+          );
         }
 
         const payload = await response.json();
@@ -94,65 +96,62 @@ export function NotificationProvider({ children }) {
     [isAuthenticated],
   );
 
-  const fetchNotifications = useCallback(
-    async ({ reset = false } = {}) => {
-      if (!currentUserIdRef.current) {
+  const fetchNotifications = useCallback(async ({ reset = false } = {}) => {
+    if (!currentUserIdRef.current) {
+      setNotifications([]);
+      setHasMore(false);
+      setNextCursor(null);
+      nextCursorRef.current = null;
+      return;
+    }
+
+    const cursor = reset ? null : nextCursorRef.current;
+    const query = new URLSearchParams({
+      limit: String(NOTIFICATION_PAGE_SIZE),
+    });
+    if (cursor) query.set("cursor", cursor);
+
+    try {
+      setIsListLoading(true);
+      setError(null);
+
+      const response = await fetch(`/api/notifications?${query.toString()}`, {
+        cache: "no-store",
+      });
+
+      if (response.status === 401) {
+        setIsAuthenticated(false);
         setNotifications([]);
         setHasMore(false);
         setNextCursor(null);
-        nextCursorRef.current = null;
         return;
       }
 
-      const cursor = reset ? null : nextCursorRef.current;
-      const query = new URLSearchParams({
-        limit: String(NOTIFICATION_PAGE_SIZE),
-      });
-      if (cursor) query.set("cursor", cursor);
-
-      try {
-        setIsListLoading(true);
-        setError(null);
-
-        const response = await fetch(`/api/notifications?${query.toString()}`, {
-          cache: "no-store",
-        });
-
-        if (response.status === 401) {
-          setIsAuthenticated(false);
-          setNotifications([]);
-          setHasMore(false);
-          setNextCursor(null);
-          return;
-        }
-
-        if (!response.ok) {
-          throw new Error(`Failed to fetch notifications (${response.status})`);
-        }
-
-        const payload = await response.json();
-        const incoming = payload.notifications || [];
-
-        setNotifications((prev) => {
-          if (reset) return incoming;
-          return mergeUniqueById([...prev, ...incoming]);
-        });
-        setHasMore(Boolean(payload.hasMore));
-        const next = payload.nextCursor || null;
-        setNextCursor(next);
-        nextCursorRef.current = next;
-
-        const nextUnread = payload.unreadCount || 0;
-        unreadCacheRef.current = { value: nextUnread, fetchedAt: Date.now() };
-        setUnreadCount(nextUnread);
-      } catch (fetchError) {
-        setError(fetchError.message || "Failed to load notifications");
-      } finally {
-        setIsListLoading(false);
+      if (!response.ok) {
+        throw new Error(`Failed to fetch notifications (${response.status})`);
       }
-    },
-    [],
-  );
+
+      const payload = await response.json();
+      const incoming = payload.notifications || [];
+
+      setNotifications((prev) => {
+        if (reset) return incoming;
+        return mergeUniqueById([...prev, ...incoming]);
+      });
+      setHasMore(Boolean(payload.hasMore));
+      const next = payload.nextCursor || null;
+      setNextCursor(next);
+      nextCursorRef.current = next;
+
+      const nextUnread = payload.unreadCount || 0;
+      unreadCacheRef.current = { value: nextUnread, fetchedAt: Date.now() };
+      setUnreadCount(nextUnread);
+    } catch (fetchError) {
+      setError(fetchError.message || "Failed to load notifications");
+    } finally {
+      setIsListLoading(false);
+    }
+  }, []);
 
   const markNotificationRead = useCallback(
     async (notificationId) => {
@@ -162,7 +161,9 @@ export function NotificationProvider({ children }) {
 
       if (wasUnread) {
         setNotifications((prev) =>
-          prev.map((n) => (n.id === notificationId ? { ...n, is_read: true } : n)),
+          prev.map((n) =>
+            n.id === notificationId ? { ...n, is_read: true } : n,
+          ),
         );
         setUnreadCount((prev) => {
           const next = Math.max(0, prev - 1);
@@ -243,7 +244,8 @@ export function NotificationProvider({ children }) {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
       });
-      if (!response.ok) throw new Error(`Clear all failed (${response.status})`);
+      if (!response.ok)
+        throw new Error(`Clear all failed (${response.status})`);
     } catch {
       setNotifications(previousNotifications);
       unreadCacheRef.current = { value: previousUnread, fetchedAt: Date.now() };
@@ -280,7 +282,10 @@ export function NotificationProvider({ children }) {
         }
       } catch {
         setNotifications(previousNotifications);
-        unreadCacheRef.current = { value: previousUnread, fetchedAt: Date.now() };
+        unreadCacheRef.current = {
+          value: previousUnread,
+          fetchedAt: Date.now(),
+        };
         setUnreadCount(previousUnread);
         setActionError("Something went wrong, please try again");
       }
@@ -368,12 +373,11 @@ export function NotificationProvider({ children }) {
                 unreadCacheRef.current = { value: next, fetchedAt: Date.now() };
                 return next;
               }
-              if (!payload.old.is_read && payload.new.is_read)
-                {
-                  const next = Math.max(0, prev - 1);
-                  unreadCacheRef.current = { value: next, fetchedAt: Date.now() };
-                  return next;
-                }
+              if (!payload.old.is_read && payload.new.is_read) {
+                const next = Math.max(0, prev - 1);
+                unreadCacheRef.current = { value: next, fetchedAt: Date.now() };
+                return next;
+              }
               return prev;
             });
           }
@@ -388,7 +392,9 @@ export function NotificationProvider({ children }) {
           filter: `recipient_id=eq.${userId}`,
         },
         (payload) => {
-          setNotifications((prev) => prev.filter((n) => n.id !== payload.old.id));
+          setNotifications((prev) =>
+            prev.filter((n) => n.id !== payload.old.id),
+          );
           if (!payload.old.is_read) {
             setUnreadCount((prev) => {
               const next = Math.max(0, prev - 1);
@@ -410,7 +416,7 @@ export function NotificationProvider({ children }) {
         realtimeChannelRef.current = null;
       }
     };
-  }, [isAuthenticated, supabase]);
+  }, [isAuthenticated]);
 
   const value = useMemo(
     () => ({
@@ -459,7 +465,9 @@ export function NotificationProvider({ children }) {
 export function useNotifications() {
   const context = useContext(NotificationContext);
   if (!context) {
-    throw new Error("useNotifications must be used inside NotificationProvider");
+    throw new Error(
+      "useNotifications must be used inside NotificationProvider",
+    );
   }
   return context;
 }
