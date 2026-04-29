@@ -63,7 +63,7 @@ export default function AdminAuthCheck({ children }) {
         clearTimeout(timeoutId);
       }
     };
-  }, [authLoading, router, user]);
+  }, [authLoading, user]);
 
   if (authLoading || checkingRole) return <div>Loading...</div>;
   return children;
