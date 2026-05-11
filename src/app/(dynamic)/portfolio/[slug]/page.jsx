@@ -1,4 +1,3 @@
-import { supabase } from "@/services/supabaseClient";
 import styles from "./page.module.css";
 import ActionBar from "@/components/ActionBar/ActionBar";
 import EngagementSection from "@/components/EngagementSection/EngagementSection";
@@ -11,56 +10,51 @@ import {
 import { notFound, redirect } from "next/navigation";
 import { isUuid } from "@/lib/utils/isUuid";
 
-export async function generateMetadata({ params }) {
-  const { slug } = await params;
-  const { createClient } = await import("@/lib/supabase/server");
-  const supabaseServer = await createClient();
+// ─── Data Loader (shared between generateMetadata and Page) ───────────────────
 
-  // Try slug first, then fall back to id for old links
-  let { data: portfolio } = await supabaseServer
+async function loadPortfolio(slug) {
+  const { createClient } = await import("@/lib/supabase/server");
+  const supabase = await createClient();
+
+  // Try by slug first
+  let { data: portfolio, error } = await supabase
     .from("portfolios")
-    .select(
-      "id, title, description, overview, image, meta_title, meta_description, focus_keyword, seo_keywords, created_at, updated_at, slug",
-    )
+    .select("*")
     .eq("slug", slug)
     .maybeSingle();
 
-  if (!portfolio) {
-    // Old links used UUID in the path — only query by id when it is a valid UUID
-    if (isUuid(slug)) {
-      const { data: byId } = await supabaseServer
-        .from("portfolios")
-        .select("slug")
-        .eq("id", slug)
-        .maybeSingle();
+  if (error) return { portfolio: null, error };
 
-      if (byId?.slug) {
-        return { title: "Redirecting..." };
-      }
-    }
+  // If not found by slug, try by UUID (old links)
+  if (!portfolio && isUuid(slug)) {
+    const { data: byId, error: byIdError } = await supabase
+      .from("portfolios")
+      .select("*")
+      .eq("id", slug)
+      .maybeSingle();
 
-    return {
-      title: "Project Not Found",
-      description: "This portfolio project could not be found.",
-    };
+    if (byIdError) return { portfolio: null, error: byIdError };
+    if (byId?.slug)
+      return { portfolio: byId, redirectTo: `/portfolio/${byId.slug}` };
   }
 
-  return buildPortfolioMetadata({ portfolio });
+  return { portfolio, error: null };
 }
 
-/** Counts from engagement tables (same source as /api/engagement/*), not legacy portfolio columns. */
+// ─── Engagement Counts ────────────────────────────────────────────────────────
+
 async function fetchPortfolioEngagementCounts(portfolioId) {
   if (!portfolioId) return { viewsCount: 0, likesCount: 0 };
   const { createClient } = await import("@/lib/supabase/server");
-  const supabaseServer = await createClient();
+  const supabase = await createClient();
 
   const [viewsResult, likesResult] = await Promise.all([
-    supabaseServer
+    supabase
       .from("user_views")
       .select("*", { count: "exact", head: true })
       .eq("content_type", "portfolio")
       .eq("content_id", portfolioId),
-    supabaseServer
+    supabase
       .from("user_likes")
       .select("*", { count: "exact", head: true })
       .eq("content_type", "portfolio")
@@ -72,6 +66,24 @@ async function fetchPortfolioEngagementCounts(portfolioId) {
     likesCount: likesResult.count ?? 0,
   };
 }
+
+// ─── Metadata ─────────────────────────────────────────────────────────────────
+
+export async function generateMetadata({ params }) {
+  const { slug } = await params;
+  const { portfolio } = await loadPortfolio(slug);
+
+  if (!portfolio) {
+    return {
+      title: "Project Not Found",
+      description: "This portfolio project could not be found.",
+    };
+  }
+
+  return buildPortfolioMetadata({ portfolio });
+}
+
+// ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function formatDate(dateString) {
   if (!dateString) return "Recent";
@@ -246,36 +258,15 @@ function SectionCard({ icon, title, children }) {
 
 export default async function PortfolioPage({ params }) {
   const { slug } = await params;
+  const { portfolio, error, redirectTo } = await loadPortfolio(slug);
 
-  // Try to find by slug first
-  let { data: portfolio, error } = await supabase
-    .from("portfolios")
-    .select("*")
-    .eq("slug", slug)
-    .maybeSingle();
-
-  // If not found by slug, check if it's an old UUID link and redirect
-  if (!portfolio && !error && isUuid(slug)) {
-    const { data: byId } = await supabase
-      .from("portfolios")
-      .select("slug")
-      .eq("id", slug)
-      .maybeSingle();
-
-    if (byId?.slug) {
-      redirect(`/portfolio/${byId.slug}`);
-    }
-  }
-
-  if (!portfolio && !error) {
-    notFound();
-  }
-
+  if (redirectTo) redirect(redirectTo);
   if (error) return <p>Error: {error.message}</p>;
   if (!portfolio) notFound();
 
-  const { viewsCount, likesCount } =
-    await fetchPortfolioEngagementCounts(portfolio.id);
+  const { viewsCount, likesCount } = await fetchPortfolioEngagementCounts(
+    portfolio.id,
+  );
 
   const technologies = portfolio.technologies
     ? portfolio.technologies
@@ -285,11 +276,9 @@ export default async function PortfolioPage({ params }) {
     : [];
 
   const portfolioJsonLd = buildCreativeWorkJsonLd({ portfolio });
-
   const hasLinks =
     (portfolio.live_url && portfolio.live_url.trim()) ||
     (portfolio.repo_url && portfolio.repo_url.trim());
-
   const hasAchievements =
     portfolio.achievements && portfolio.achievements.trim();
   const hasKeyFeatures =
@@ -349,7 +338,6 @@ export default async function PortfolioPage({ params }) {
 
       {/* ── LAYOUT ── */}
       <div className={styles.layout}>
-        {/* LEFT COLUMN — wrap lets engagement sit last on mobile (order) */}
         <div className={styles.mainColWrap}>
           <div className={styles.mainColPrimary}>
             <SectionCard icon={<IconFile />} title="Project Overview">
@@ -387,7 +375,6 @@ export default async function PortfolioPage({ params }) {
           </div>
         </div>
 
-        {/* SIDEBAR — split for mobile: Project Info first under hero, then main, then tech/links */}
         <aside className={styles.sidebar}>
           <div className={styles.sidebarInner}>
             <div className={styles.sidebarProjectInfo}>
