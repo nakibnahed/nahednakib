@@ -178,7 +178,9 @@ export default function PortfolioListPage() {
                   </td>
                   <td data-label="Actions">
                     <div className={styles.actions}>
-                      <Link href={`/admin/portfolio/${portfolio.id}/edit`}>
+                      <Link
+                        href={`/admin/portfolio/${portfolio.slug || portfolio.id}/edit`}
+                      >
                         <button
                           className={styles.actionButton}
                           title="Edit portfolio"

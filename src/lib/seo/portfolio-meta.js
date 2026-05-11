@@ -7,7 +7,7 @@ import {
 
 export function buildPortfolioMetadata({ portfolio }) {
   const baseUrl = getSiteUrl();
-  const canonical = `${baseUrl}/portfolio/${portfolio.id}`;
+  const canonical = `${baseUrl}/portfolio/${portfolio.slug || portfolio.id}`;
   const titleSeg = buildTitleSegment({
     title: portfolio.title,
     metaTitle: portfolio.meta_title,
@@ -70,7 +70,7 @@ export function buildCreativeWorkJsonLd({ portfolio }) {
       portfolio.description?.trim() ||
       undefined,
     image: imageUrl,
-    url: `${baseUrl}/portfolio/${portfolio.id}`,
+    url: `${baseUrl}/portfolio/${portfolio.slug || portfolio.id}`,
     dateCreated: portfolio.created_at,
     dateModified: portfolio.updated_at || portfolio.created_at,
     ...(keywords.length ? { keywords } : {}),

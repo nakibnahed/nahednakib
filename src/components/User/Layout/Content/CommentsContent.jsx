@@ -4,6 +4,7 @@ import { supabase } from "@/services/supabaseClient";
 import { showAppToast } from "@/lib/showAppToast";
 import ConfirmationModal from "@/components/ConfirmationModal/ConfirmationModal";
 import styles from "../../../../app/users/profile/Profile.module.css";
+import { isUuid } from "@/lib/utils/isUuid";
 
 export default function CommentsContent({ user }) {
   const [loading, setLoading] = useState(true);
@@ -43,14 +44,23 @@ export default function CommentsContent({ user }) {
                     postTitle: blogPost?.title || "Unknown Blog Post",
                   };
                 } else if (comment.content_type === "portfolio") {
-                  const { data: portfolioItem } = await supabase
-                    .from("portfolios")
-                    .select("title")
-                    .eq("id", comment.content_id)
-                    .single();
+                  const cid = comment.content_id;
+                  const { data: portfolioItem } = isUuid(cid)
+                    ? await supabase
+                        .from("portfolios")
+                        .select("title, slug")
+                        .eq("id", cid)
+                        .single()
+                    : await supabase
+                        .from("portfolios")
+                        .select("title, slug")
+                        .eq("slug", cid)
+                        .single();
                   return {
                     ...comment,
                     postTitle: portfolioItem?.title || "Unknown Portfolio Item",
+                    portfolioSlug:
+                      portfolioItem?.slug || (isUuid(cid) ? null : cid),
                   };
                 }
                 return comment;
@@ -188,7 +198,7 @@ export default function CommentsContent({ user }) {
                   href={
                     comment.content_type === "blog"
                       ? `/blog/${comment.content_id}`
-                      : `/portfolio/${comment.content_id}`
+                      : `/portfolio/${comment.portfolioSlug || comment.content_id}`
                   }
                   className={styles.viewPostLink}
                 >

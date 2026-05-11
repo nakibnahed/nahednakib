@@ -34,7 +34,7 @@ export default function Showcase() {
       const { data, error } = await supabase
         .from("portfolios")
         .select(
-          "id, title, description, created_at, category, image, technologies"
+          "id, title, description, created_at, category, image, technologies",
         )
         .order("created_at", { ascending: false });
       if (!error && data) {
@@ -94,7 +94,7 @@ export default function Showcase() {
                 >
                   <div className={styles.timelineDot} />
                   <Link
-                    href={`/portfolio/${project.id}`}
+                    href={`/portfolio/${project.slug}`}
                     className={styles.timelineContent}
                     style={{ textDecoration: "none", color: "inherit" }}
                   >

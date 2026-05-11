@@ -18,6 +18,7 @@ import { supabase } from "@/services/supabaseClient";
 import ConfirmationModal from "@/components/ConfirmationModal/ConfirmationModal";
 import { showAppToast } from "@/lib/showAppToast";
 import { seoKeywordsFromInput } from "@/lib/seo/auto";
+import { generateUniqueSlug } from "@/lib/utils/slugify";
 
 const CATEGORY_OPTIONS = [
   "Web Development",
@@ -149,11 +150,31 @@ export default function NewPortfolioPage() {
 
     const createdDate = new Date().toLocaleString();
 
+    const { data: slugRows, error: slugFetchError } = await supabase
+      .from("portfolios")
+      .select("slug");
+
+    if (slugFetchError) {
+      const msg = "Could not prepare slug: " + slugFetchError.message;
+      setErrorMsg(msg);
+      showAppToast(msg, "error");
+      setLoading(false);
+      return;
+    }
+
+    const existingSlugs = (slugRows || [])
+      .map((r) => r.slug)
+      .filter(Boolean);
+    const slug =
+      generateUniqueSlug(formData.title || "project", existingSlugs) ||
+      `portfolio-${Date.now()}`;
+
     const { data: createdPortfolio, error } = await supabase
       .from("portfolios")
       .insert([
         {
           title: formData.title,
+          slug,
           image: imageUrl,
           date: createdDate,
           category: formData.category,

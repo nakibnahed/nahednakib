@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/services/supabaseClient";
 import { showAppToast } from "@/lib/showAppToast";
 import styles from "../../../../app/users/profile/Profile.module.css";
+import { isUuid } from "@/lib/utils/isUuid";
 
 export default function LikesContent({ user }) {
   const [loading, setLoading] = useState(true);
@@ -49,12 +50,19 @@ export default function LikesContent({ user }) {
                     postTitle: blogPost?.title || "Unknown Blog Post",
                   };
                 } else if (like.content_type === "portfolio") {
+                  const cid = like.content_id;
                   const { data: portfolioItem, error: portfolioError } =
-                    await supabase
-                      .from("portfolios")
-                      .select("title")
-                      .eq("id", like.content_id)
-                      .single();
+                    isUuid(cid)
+                      ? await supabase
+                          .from("portfolios")
+                          .select("title, slug")
+                          .eq("id", cid)
+                          .single()
+                      : await supabase
+                          .from("portfolios")
+                          .select("title, slug")
+                          .eq("slug", cid)
+                          .single();
 
                   if (portfolioError) {
                     console.error(
@@ -66,12 +74,15 @@ export default function LikesContent({ user }) {
                     return {
                       ...like,
                       postTitle: "Unknown Portfolio Item",
+                      portfolioSlug: isUuid(cid) ? null : cid,
                     };
                   }
 
                   return {
                     ...like,
                     postTitle: portfolioItem?.title || "Unknown Portfolio Item",
+                    portfolioSlug:
+                      portfolioItem?.slug || (isUuid(cid) ? null : cid),
                   };
                 }
                 return like;
@@ -203,7 +214,7 @@ export default function LikesContent({ user }) {
                   href={
                     like.content_type === "blog"
                       ? `/blog/${like.content_id}`
-                      : `/portfolio/${like.content_id}`
+                      : `/portfolio/${like.portfolioSlug || like.content_id}`
                   }
                   className={styles.viewPostLink}
                 >

@@ -7,6 +7,7 @@ import styles from "./UserDashboard.module.css";
 import be from "@/app/admin/blogs/BlogEditor.module.css";
 import admin from "@/components/Admin/adminPage.module.css";
 import { MessageCircle, Heart, Star, Activity, LayoutGrid } from "lucide-react";
+import { isUuid } from "@/lib/utils/isUuid";
 
 export default function UserDashboard({ user, profileData }) {
   const router = useRouter();
@@ -107,11 +108,18 @@ export default function UserDashboard({ user, profileData }) {
                   date: comment.created_at,
                 };
               } else if (comment.content_type === "portfolio") {
-                const { data: portfolioItem } = await supabase
-                  .from("portfolios")
-                  .select("title")
-                  .eq("id", comment.content_id)
-                  .single();
+                const cid = comment.content_id;
+                const { data: portfolioItem } = isUuid(cid)
+                  ? await supabase
+                      .from("portfolios")
+                      .select("title")
+                      .eq("id", cid)
+                      .single()
+                  : await supabase
+                      .from("portfolios")
+                      .select("title")
+                      .eq("slug", cid)
+                      .single();
                 return {
                   ...comment,
                   type: "comment",
@@ -163,11 +171,18 @@ export default function UserDashboard({ user, profileData }) {
                   date: like.created_at,
                 };
               } else if (like.content_type === "portfolio") {
-                const { data: portfolioItem } = await supabase
-                  .from("portfolios")
-                  .select("title")
-                  .eq("id", like.content_id)
-                  .single();
+                const cid = like.content_id;
+                const { data: portfolioItem } = isUuid(cid)
+                  ? await supabase
+                      .from("portfolios")
+                      .select("title")
+                      .eq("id", cid)
+                      .single()
+                  : await supabase
+                      .from("portfolios")
+                      .select("title")
+                      .eq("slug", cid)
+                      .single();
                 return {
                   ...like,
                   type: "like",
@@ -215,11 +230,18 @@ export default function UserDashboard({ user, profileData }) {
                   date: favorite.created_at,
                 };
               } else if (favorite.content_type === "portfolio") {
-                const { data: portfolioItem } = await supabase
-                  .from("portfolios")
-                  .select("title")
-                  .eq("id", favorite.content_id)
-                  .single();
+                const cid = favorite.content_id;
+                const { data: portfolioItem } = isUuid(cid)
+                  ? await supabase
+                      .from("portfolios")
+                      .select("title")
+                      .eq("id", cid)
+                      .single()
+                  : await supabase
+                      .from("portfolios")
+                      .select("title")
+                      .eq("slug", cid)
+                      .single();
                 return {
                   ...favorite,
                   type: "favorite",

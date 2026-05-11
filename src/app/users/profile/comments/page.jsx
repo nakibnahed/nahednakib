@@ -9,6 +9,7 @@ import { showAppToast } from "@/lib/showAppToast";
 import be from "@/app/admin/blogs/BlogEditor.module.css";
 import admin from "@/components/Admin/adminPage.module.css";
 import styles from "../Profile.module.css";
+import { isUuid } from "@/lib/utils/isUuid";
 
 export default function CommentsPage() {
   const [loading, setLoading] = useState(true);
@@ -16,6 +17,7 @@ export default function CommentsPage() {
   const [profileData, setProfileData] = useState(null);
   const [comments, setComments] = useState([]);
   const [blogIdToSlug, setBlogIdToSlug] = useState({});
+  const [portfolioIdToSlug, setPortfolioIdToSlug] = useState({});
   const [error, setError] = useState(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [commentToDelete, setCommentToDelete] = useState(null);
@@ -81,6 +83,31 @@ export default function CommentsPage() {
               }
               setBlogIdToSlug(map);
             }
+          }
+
+          const portfolioIds = fetched
+            .filter((c) => c.content_type === "portfolio" && c.content_id)
+            .map((c) => c.content_id);
+          const uniquePortfolioIds = Array.from(new Set(portfolioIds));
+          if (uniquePortfolioIds.length > 0) {
+            const map = {};
+            for (const ref of uniquePortfolioIds) {
+              if (!isUuid(ref)) map[ref] = ref;
+            }
+            const uuidPortfolioIds = uniquePortfolioIds.filter(isUuid);
+            if (uuidPortfolioIds.length > 0) {
+              const { data: portfolios, error: portfoliosError } =
+                await supabase
+                  .from("portfolios")
+                  .select("id, slug")
+                  .in("id", uuidPortfolioIds);
+              if (!portfoliosError && portfolios) {
+                for (const p of portfolios) {
+                  if (p?.id && p?.slug) map[p.id] = p.slug;
+                }
+              }
+            }
+            setPortfolioIdToSlug(map);
           }
         }
       } catch (err) {
@@ -183,49 +210,49 @@ export default function CommentsPage() {
           ) : (
             <div className={styles.contentList}>
               {comments.map((comment) => {
-              const isBlog = comment.content_type === "blog";
-              const href = isBlog
-                ? `/blog/${blogIdToSlug[comment.content_id] || ""}`
-                : `/portfolio/${comment.content_id}`;
-              const isDisabled = isBlog && !blogIdToSlug[comment.content_id];
+                const isBlog = comment.content_type === "blog";
+                const href = isBlog
+                  ? `/blog/${blogIdToSlug[comment.content_id] || ""}`
+                  : `/portfolio/${portfolioIdToSlug[comment.content_id] || comment.content_id}`;
+                const isDisabled = isBlog && !blogIdToSlug[comment.content_id];
 
-              return (
-                <div key={comment.id} className={styles.commentItem}>
-                  <div className={styles.commentHeader}>
-                    <div className={styles.postInfo}>
-                      <h3>
-                        Comment on {isBlog ? "Blog Post" : "Portfolio Item"}
-                      </h3>
-                      <span className={styles.commentDate}>
-                        {new Date(comment.created_at).toLocaleDateString()}
-                      </span>
+                return (
+                  <div key={comment.id} className={styles.commentItem}>
+                    <div className={styles.commentHeader}>
+                      <div className={styles.postInfo}>
+                        <h3>
+                          Comment on {isBlog ? "Blog Post" : "Portfolio Item"}
+                        </h3>
+                        <span className={styles.commentDate}>
+                          {new Date(comment.created_at).toLocaleDateString()}
+                        </span>
+                      </div>
+                      <button
+                        onClick={() => confirmDelete(comment.id)}
+                        className={styles.deleteButton}
+                      >
+                        Delete
+                      </button>
                     </div>
-                    <button
-                      onClick={() => confirmDelete(comment.id)}
-                      className={styles.deleteButton}
-                    >
-                      Delete
-                    </button>
-                  </div>
-                  <div className={styles.commentContent}>
-                    <p>{comment.comment || "No content"}</p>
-                  </div>
-                  <div className={styles.commentFooter}>
-                    <span className={styles.postType}>
-                      {isBlog ? "Blog Post" : "Portfolio Item"}
-                    </span>
-                    {isDisabled ? (
-                      <span className={styles.viewPostLink} aria-disabled>
-                        Loading link...
+                    <div className={styles.commentContent}>
+                      <p>{comment.comment || "No content"}</p>
+                    </div>
+                    <div className={styles.commentFooter}>
+                      <span className={styles.postType}>
+                        {isBlog ? "Blog Post" : "Portfolio Item"}
                       </span>
-                    ) : (
-                      <a href={href} className={styles.viewPostLink}>
-                        View Post
-                      </a>
-                    )}
+                      {isDisabled ? (
+                        <span className={styles.viewPostLink} aria-disabled>
+                          Loading link...
+                        </span>
+                      ) : (
+                        <a href={href} className={styles.viewPostLink}>
+                          View Post
+                        </a>
+                      )}
+                    </div>
                   </div>
-                </div>
-              );
+                );
               })}
             </div>
           )}

@@ -19,6 +19,7 @@ import { supabase } from "@/services/supabaseClient";
 import ConfirmationModal from "@/components/ConfirmationModal/ConfirmationModal";
 import { showAppToast } from "@/lib/showAppToast";
 import { seoKeywordsFromInput, seoKeywordsToInput } from "@/lib/seo/auto";
+import { isUuid } from "@/lib/utils/isUuid";
 
 const CATEGORY_OPTIONS = [
   "Web Development",
@@ -58,20 +59,44 @@ export default function EditPortfolioPage() {
   const [errorMsg, setErrorMsg] = useState(null);
   const [uploading, setUploading] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  /** DB primary key — set after load; updates must use this, not the URL segment (may be slug). */
+  const [rowId, setRowId] = useState(null);
 
   useEffect(() => {
     async function fetchPortfolio() {
       setErrorMsg(null);
-      const { data, error } = await supabase
-        .from("portfolios")
-        .select("*")
-        .eq("id", id)
-        .single();
+      setRowId(null);
+      const param = String(id || "").trim();
+      if (
+        !param ||
+        /^null$/i.test(param) ||
+        /^undefined$/i.test(param)
+      ) {
+        setErrorMsg(
+          "Invalid project link. Open the project from the portfolio admin list.",
+        );
+        showAppToast("Invalid project link.", "error");
+        setLoading(false);
+        return;
+      }
+
+      const { data, error } = isUuid(param)
+        ? await supabase
+            .from("portfolios")
+            .select("*")
+            .eq("id", param)
+            .single()
+        : await supabase
+            .from("portfolios")
+            .select("*")
+            .eq("slug", param)
+            .single();
 
       if (error) {
         setErrorMsg(error.message);
         showAppToast(error.message || "Could not load portfolio item.", "error");
       } else {
+        setRowId(data.id);
         setFormData({
           title: data.title || "",
           image: data.image || "",
@@ -196,6 +221,10 @@ export default function EditPortfolioPage() {
 
   async function handleSubmit(e) {
     e.preventDefault();
+    if (!rowId) {
+      showAppToast("Portfolio is not loaded yet.", "error");
+      return;
+    }
     setSaving(true);
     setErrorMsg(null);
 
@@ -218,7 +247,7 @@ export default function EditPortfolioPage() {
         meta_title: formData.meta_title.trim() || null,
         meta_description: formData.meta_description.trim() || null,
       })
-      .eq("id", id);
+      .eq("id", rowId);
 
     if (error) {
       setErrorMsg(error.message);

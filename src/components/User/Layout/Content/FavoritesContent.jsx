@@ -4,6 +4,7 @@ import { supabase } from "@/services/supabaseClient";
 import { showAppToast } from "@/lib/showAppToast";
 import ConfirmationModal from "@/components/ConfirmationModal/ConfirmationModal";
 import styles from "../../../../app/users/profile/Profile.module.css";
+import { isUuid } from "@/lib/utils/isUuid";
 
 export default function FavoritesContent({ user }) {
   const [loading, setLoading] = useState(true);
@@ -43,14 +44,23 @@ export default function FavoritesContent({ user }) {
                     postTitle: blogPost?.title || "Unknown Blog Post",
                   };
                 } else if (favorite.content_type === "portfolio") {
-                  const { data: portfolioItem } = await supabase
-                    .from("portfolios")
-                    .select("title")
-                    .eq("id", favorite.content_id)
-                    .single();
+                  const cid = favorite.content_id;
+                  const { data: portfolioItem } = isUuid(cid)
+                    ? await supabase
+                        .from("portfolios")
+                        .select("title, slug")
+                        .eq("id", cid)
+                        .single()
+                    : await supabase
+                        .from("portfolios")
+                        .select("title, slug")
+                        .eq("slug", cid)
+                        .single();
                   return {
                     ...favorite,
                     postTitle: portfolioItem?.title || "Unknown Portfolio Item",
+                    portfolioSlug:
+                      portfolioItem?.slug || (isUuid(cid) ? null : cid),
                   };
                 }
                 return favorite;
@@ -195,7 +205,7 @@ export default function FavoritesContent({ user }) {
                   href={
                     favorite.content_type === "blog"
                       ? `/blog/${favorite.content_id}`
-                      : `/portfolio/${favorite.content_id}`
+                      : `/portfolio/${favorite.portfolioSlug || favorite.content_id}`
                   }
                   className={styles.viewPostLink}
                 >

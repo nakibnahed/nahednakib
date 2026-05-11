@@ -15,7 +15,7 @@ export default function PortfolioCard({ portfolio }) {
   });
 
   return (
-    <Link href={`/portfolio/${portfolio.id}`} className={styles.post}>
+    <Link href={`/portfolio/${portfolio.slug}`} className={styles.post}>
       <div
         className={styles.card}
         onMouseMove={(e) => {

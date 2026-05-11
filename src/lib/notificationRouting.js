@@ -7,7 +7,7 @@ export function getNotificationUrl(notification) {
     case "new_blog_post":
       return relatedId ? `/blog/${relatedId}` : "/blog";
     case "new_portfolio_post":
-      return relatedId ? `/portfolio/${relatedId}` : "/portfolio";
+      return "/portfolio";
     case "newsletter_subscription":
       return "/blog";
     case "contact_form":

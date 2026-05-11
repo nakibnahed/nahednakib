@@ -18,7 +18,11 @@ export default async function sitemap() {
     { path: "/training", priority: 0.65, changeFrequency: "weekly" },
     { path: "/showcase", priority: 0.6, changeFrequency: "monthly" },
     { path: "/analytics", priority: 0.55, changeFrequency: "weekly" },
-    { path: "/conversation-practice", priority: 0.55, changeFrequency: "weekly" },
+    {
+      path: "/conversation-practice",
+      priority: 0.55,
+      changeFrequency: "weekly",
+    },
   ].map(({ path, priority, changeFrequency }) => ({
     url: `${baseUrl}${path}`,
     lastModified: now,
@@ -49,13 +53,13 @@ export default async function sitemap() {
 
     const { data: portfolios } = await supabase
       .from("portfolios")
-      .select("id, created_at")
+      .select("id, slug, created_at")
       .eq("published", true)
       .order("created_at", { ascending: false });
 
     if (portfolios?.length) {
       portfolioPages = portfolios.map((p) => ({
-        url: `${baseUrl}/portfolio/${p.id}`,
+        url: `${baseUrl}/portfolio/${p.slug || p.id}`,
         lastModified: new Date(p.created_at),
         changeFrequency: "monthly",
         priority: 0.6,

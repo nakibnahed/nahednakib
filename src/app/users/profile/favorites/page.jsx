@@ -9,6 +9,7 @@ import { showAppToast } from "@/lib/showAppToast";
 import be from "@/app/admin/blogs/BlogEditor.module.css";
 import admin from "@/components/Admin/adminPage.module.css";
 import styles from "../Profile.module.css";
+import { isUuid } from "@/lib/utils/isUuid";
 
 export default function FavoritesPage() {
   const [loading, setLoading] = useState(true);
@@ -16,6 +17,7 @@ export default function FavoritesPage() {
   const [profileData, setProfileData] = useState(null);
   const [favorites, setFavorites] = useState([]);
   const [blogIdToSlug, setBlogIdToSlug] = useState({});
+  const [portfolioIdToSlug, setPortfolioIdToSlug] = useState({});
   const [error, setError] = useState(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [favoriteToDelete, setFavoriteToDelete] = useState(null);
@@ -81,6 +83,31 @@ export default function FavoritesPage() {
               }
               setBlogIdToSlug(map);
             }
+          }
+
+          const portfolioIds = fetched
+            .filter((f) => f.content_type === "portfolio" && f.content_id)
+            .map((f) => f.content_id);
+          const uniquePortfolioIds = Array.from(new Set(portfolioIds));
+          if (uniquePortfolioIds.length > 0) {
+            const map = {};
+            for (const ref of uniquePortfolioIds) {
+              if (!isUuid(ref)) map[ref] = ref;
+            }
+            const uuidPortfolioIds = uniquePortfolioIds.filter(isUuid);
+            if (uuidPortfolioIds.length > 0) {
+              const { data: portfolios, error: portfoliosError } =
+                await supabase
+                  .from("portfolios")
+                  .select("id, slug")
+                  .in("id", uuidPortfolioIds);
+              if (!portfoliosError && portfolios) {
+                for (const p of portfolios) {
+                  if (p?.id && p?.slug) map[p.id] = p.slug;
+                }
+              }
+            }
+            setPortfolioIdToSlug(map);
           }
         }
       } catch (err) {
@@ -188,7 +215,7 @@ export default function FavoritesPage() {
               const isBlog = favorite.content_type === "blog";
               const href = isBlog
                 ? `/blog/${blogIdToSlug[favorite.content_id] || ""}`
-                : `/portfolio/${favorite.content_id}`;
+                : `/portfolio/${portfolioIdToSlug[favorite.content_id] || favorite.content_id}`;
               const isDisabled = isBlog && !blogIdToSlug[favorite.content_id];
 
               return (

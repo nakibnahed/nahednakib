@@ -33,7 +33,6 @@ export default async function Portfolio() {
   try {
     const supabase = await createClient();
 
-    // Fetch all needed fields, including technologies
     const { data: portfolios, error } = await supabase
       .from("portfolios")
       .select(
@@ -44,8 +43,9 @@ export default async function Portfolio() {
         created_at,
         category,
         image,
-        technologies
-      `,
+        technologies,
+        slug
+        `,
       )
       .order("created_at", { ascending: false });
 

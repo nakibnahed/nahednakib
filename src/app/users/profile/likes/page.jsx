@@ -7,6 +7,7 @@ import { supabase } from "@/services/supabaseClient";
 import be from "@/app/admin/blogs/BlogEditor.module.css";
 import admin from "@/components/Admin/adminPage.module.css";
 import styles from "../Profile.module.css";
+import { isUuid } from "@/lib/utils/isUuid";
 
 export default function LikesPage() {
   const [loading, setLoading] = useState(true);
@@ -14,6 +15,7 @@ export default function LikesPage() {
   const [profileData, setProfileData] = useState(null);
   const [likes, setLikes] = useState([]);
   const [blogIdToSlug, setBlogIdToSlug] = useState({});
+  const [portfolioIdToSlug, setPortfolioIdToSlug] = useState({});
   const [error, setError] = useState(null);
   const router = useRouter();
 
@@ -83,6 +85,31 @@ export default function LikesPage() {
               }
               setBlogIdToSlug(map);
             }
+          }
+
+          const portfolioIds = fetchedLikes
+            .filter((l) => l.content_type === "portfolio" && l.content_id)
+            .map((l) => l.content_id);
+          const uniquePortfolioIds = Array.from(new Set(portfolioIds));
+          if (uniquePortfolioIds.length > 0) {
+            const map = {};
+            for (const ref of uniquePortfolioIds) {
+              if (!isUuid(ref)) map[ref] = ref;
+            }
+            const uuidPortfolioIds = uniquePortfolioIds.filter(isUuid);
+            if (uuidPortfolioIds.length > 0) {
+              const { data: portfolios, error: portfoliosError } =
+                await supabase
+                  .from("portfolios")
+                  .select("id, slug")
+                  .in("id", uuidPortfolioIds);
+              if (!portfoliosError && portfolios) {
+                for (const p of portfolios) {
+                  if (p?.id && p?.slug) map[p.id] = p.slug;
+                }
+              }
+            }
+            setPortfolioIdToSlug(map);
           }
         }
       } catch (err) {
@@ -177,7 +204,7 @@ export default function LikesPage() {
               const isBlog = like.content_type === "blog";
               const href = isBlog
                 ? `/blog/${blogIdToSlug[like.content_id] || ""}`
-                : `/portfolio/${like.content_id}`;
+                : `/portfolio/${portfolioIdToSlug[like.content_id] || like.content_id}`;
               const isDisabled = isBlog && !blogIdToSlug[like.content_id];
 
               return (
