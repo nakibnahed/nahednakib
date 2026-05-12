@@ -2,7 +2,7 @@ import "./globals.css";
 import Navbar from "@/components/Nav/Navbar";
 import Footer from "@/components/Footer/Footer";
 import ToastContainer from "@/components/Toast/ToastContainer";
-import { getSiteUrl, siteDefaults, getDefaultOgImageUrl } from "@/lib/seo/site";
+import { getSiteUrl, siteDefaults } from "@/lib/seo/site";
 import { ThemeProvider } from "@/context/ThemeContext";
 import { AuthSessionProvider } from "@/context/AuthSessionContext";
 import NotificationProviderBoundary from "@/components/NotificationProviderBoundary/NotificationProviderBoundary";
@@ -50,8 +50,13 @@ export const metadata = {
   },
   manifest: "/manifest.json",
   icons: {
-    icon: "/favicon.ico",
-    apple: "/favicon.ico",
+    icon: [
+      { url: "/favicon.ico", rel: "shortcut icon" },
+      { url: "/favicon.svg", type: "image/svg+xml" },
+      { url: "/favicon-16.png", sizes: "16x16", type: "image/png" },
+      { url: "/favicon-32.png", sizes: "32x32", type: "image/png" },
+    ],
+    apple: [{ url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" }],
   },
   alternates: {
     canonical: base,
@@ -65,18 +70,18 @@ export const metadata = {
     description: siteDefaults.description,
     images: [
       {
-        url: getDefaultOgImageUrl(),
-        width: 1200,
-        height: 630,
+        url: "/og-image.png",
+        width: 512,
+        height: 512,
         alt: `${siteDefaults.authorName} — Web Developer & Distance Runner`,
       },
     ],
   },
   twitter: {
-    card: "summary_large_image",
+    card: "summary",
     title: siteDefaults.shortTitle,
     description: siteDefaults.description,
-    images: [getDefaultOgImageUrl()],
+    images: ["/og-image.png"],
     creator: siteDefaults.twitterCreator,
     site: siteDefaults.twitterSite,
   },
@@ -88,6 +93,7 @@ export const metadata = {
 export const viewport = {
   width: "device-width",
   initialScale: 1,
+  themeColor: "#0a0a0a",
 };
 
 const rootJsonLd = {
