@@ -19,7 +19,7 @@ export default function HomeClient() {
           discipline and precision to every step.
         </p>
         <div className={styles.heroButtons}>
-          <Link href="/info" className={styles.button}>
+          <Link href="/services" className={styles.button}>
             <span>Explore More</span>
             <span className={styles.arrow}>→</span>
           </Link>

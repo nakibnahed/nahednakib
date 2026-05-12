@@ -15,7 +15,7 @@ import {
   Briefcase,
   FileText,
   Mail,
-  Activity,
+  Layers,
   BarChart,
   ChevronDown,
   HelpCircle,
@@ -28,8 +28,8 @@ import NotificationIcon from "../NotificationIcon/NotificationIcon";
 import Image from "next/image";
 
 const navLinks = [
-  { id: 1, url: "/info", title: "Running", icon: Activity },
-  { id: 2, url: "/portfolio", title: "Portfolio", icon: Briefcase },
+  { id: 1, url: "/portfolio", title: "Portfolio", icon: Briefcase },
+  { id: 2, url: "/services", title: "Services", icon: Layers },
   { id: 3, url: "/blog", title: "Blog", icon: FileText },
   { id: 4, url: "/about", title: "About", icon: Info },
   { id: 5, url: "/contact", title: "Contact", icon: Mail },

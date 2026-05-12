@@ -1,0 +1,310 @@
+.container {
+  max-width: var(--container-max-width);
+  margin: 0 auto;
+  padding: 48px 20px 80px;
+}
+
+/* ── Hero ── */
+.hero {
+  text-align: center;
+  margin-bottom: 3.5rem;
+}
+
+.heroTitle {
+  font-size: var(--page-title);
+  font-weight: 900;
+  background: var(--gradient-typography-primary);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 1rem;
+}
+
+.heroSubtitle {
+  font-size: 1.1rem;
+  color: var(--text-dark);
+  opacity: 0.85;
+  line-height: 1.6;
+  margin-bottom: 2rem;
+}
+
+/* ── Tab switcher ── */
+.tabGroup {
+  display: inline-flex;
+  gap: 6px;
+  border: 1px solid var(--card-border);
+  border-radius: 50px;
+  padding: 5px;
+  background: color-mix(in srgb, var(--background-main) 85%, transparent 15%);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.tabBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 22px;
+  border-radius: 50px;
+  border: none;
+  background: transparent;
+  color: var(--text-dark);
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  white-space: nowrap;
+}
+
+.tabBtn:hover:not(.tabBtnActive) {
+  background: color-mix(in srgb, var(--primary-color) 10%, transparent 90%);
+  color: var(--primary-color);
+}
+
+.tabBtnActive {
+  background: var(--button-bg);
+  color: var(--button-text);
+  box-shadow: 0 2px 10px rgba(238, 104, 26, 0.2);
+}
+
+/* ── Section intro ── */
+.sectionIntro {
+  max-width: 620px;
+  margin: 0 auto 2.5rem;
+  text-align: center;
+  color: var(--text-dark);
+  font-size: 1rem;
+  line-height: 1.75;
+  opacity: 0.9;
+}
+
+/* ── Services grid ── */
+.servicesGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+/* ── Service card ── */
+.serviceCard {
+  border-radius: var(--card-border-radius);
+  padding: 28px 24px;
+  background: color-mix(in srgb, var(--background-main) 80%, transparent 15%);
+  border: 1px solid var(--card-border);
+  box-shadow: var(--card-shadow);
+  backdrop-filter: blur(16px) saturate(160%);
+  -webkit-backdrop-filter: blur(16px) saturate(160%);
+  transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.serviceCard::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    145deg,
+    rgba(255, 255, 255, 0.025) 0%,
+    rgba(255, 255, 255, 0.01) 40%,
+    rgba(255, 255, 255, 0) 65%
+  );
+  pointer-events: none;
+  border-radius: inherit;
+}
+
+.serviceCard:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 28px rgba(238, 104, 26, 0.12);
+  border-color: color-mix(in srgb, var(--primary-color) 35%, var(--card-border) 65%);
+}
+
+.cardIcon {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  color: var(--primary-color);
+  margin-bottom: 1rem;
+}
+
+.cardTitle {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text-dark);
+  margin: 0 0 0.6rem;
+}
+
+.cardDesc {
+  font-size: 0.93rem;
+  color: var(--text-dark);
+  line-height: 1.65;
+  opacity: 0.82;
+  margin: 0;
+}
+
+
+/* ── CTA block ── */
+/* ── CTA Section ── */
+.ctaSection {
+  margin-top: 5rem;
+  border-radius: var(--card-border-radius);
+  background: color-mix(in srgb, var(--background-main) 80%, transparent 15%);
+  border: 1px solid var(--card-border);
+  backdrop-filter: blur(16px) saturate(160%);
+  -webkit-backdrop-filter: blur(16px) saturate(160%);
+  position: relative;
+  overflow: hidden;
+}
+
+.ctaGrid {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.4;
+}
+
+
+.ctaInner {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+  padding: 64px 40px;
+}
+
+.ctaEyebrow {
+  display: inline-block;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-dark);
+  border: 1px solid var(--card-border);
+  border-radius: 50px;
+  padding: 5px 16px;
+  margin-bottom: 1.2rem;
+  background: color-mix(in srgb, var(--background-main) 85%, transparent 15%);
+}
+
+.ctaTitle {
+  font-size: clamp(1.8rem, 4vw, 2.8rem);
+  font-weight: 900;
+  background: var(--gradient-typography-primary);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 1.2rem;
+  line-height: 1.15;
+}
+
+.ctaSubtitle {
+  font-size: 1rem;
+  color: var(--text-dark);
+  line-height: 1.75;
+  opacity: 0.85;
+  max-width: 520px;
+  margin: 0 auto 2.5rem;
+}
+
+.ctaBlock {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.ctaButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 20px;
+  background: var(--button-bg);
+  border: none;
+  border-radius: var(--button-radius);
+  color: var(--button-text);
+  font-weight: 700;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.ctaButton:hover {
+  opacity: 0.9;
+}
+
+.ctaSecondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 20px;
+  background: var(--button-bg-no-activ);
+  border: 1px solid var(--card-border);
+  border-radius: var(--button-radius);
+  color: var(--button-text-no-activ);
+  font-weight: 700;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.ctaSecondary:hover {
+  opacity: 0.9;
+}
+
+.arrow {
+  font-size: 18px;
+  transition: transform 0.3s ease;
+}
+
+.ctaButton:hover .arrow,
+.ctaSecondary:hover .arrow {
+  transform: translateX(5px);
+}
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .container {
+    padding: 32px 16px 60px;
+  }
+
+  .servicesGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .tabGroup {
+    flex-direction: column;
+    border-radius: 16px;
+    width: 100%;
+    max-width: 320px;
+  }
+
+  .tabBtn {
+    border-radius: 12px;
+    text-align: center;
+  }
+
+  .ctaInner {
+    padding: 48px 24px;
+  }
+
+  .ctaBlock {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .ctaButton,
+  .ctaSecondary {
+    justify-content: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .heroTitle {
+    font-size: 1.8rem;
+  }
+
+  .heroSubtitle {
+    font-size: 1rem;
+  }
+
+  .serviceCard {
+    padding: 22px 18px;
+  }
+}

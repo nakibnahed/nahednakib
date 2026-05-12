@@ -36,6 +36,91 @@ export async function sendContactEmail({ name, email, message }) {
   await transporter.sendMail(userMailOptions);
 }
 
+export async function sendProjectInquiryEmail({
+  name,
+  email,
+  projectType,
+  description,
+  features,
+  budget,
+  timeline,
+  notes,
+}) {
+  const transporter = nodemailer.createTransport({
+    host: process.env.SMTP_HOST,
+    port: Number(process.env.SMTP_PORT),
+    secure: process.env.SMTP_SECURE === "true",
+    auth: {
+      user: process.env.SMTP_USER,
+      pass: process.env.SMTP_PASS,
+    },
+  });
+
+  if (sendOwnerNotification) {
+    const rows = [
+      `From: ${name} <${email}>`,
+      `Project Type: ${projectType}`,
+      `\nDescription:\n${description}`,
+      features ? `\nKey Features:\n${features}` : null,
+      budget ? `Budget: ${budget}` : null,
+      timeline ? `Timeline: ${timeline}` : null,
+      notes ? `\nAdditional Notes:\n${notes}` : null,
+    ]
+      .filter(Boolean)
+      .join("\n");
+
+    await transporter.sendMail({
+      from: `"Project Inquiry" <${process.env.SMTP_USER}>`,
+      to: process.env.CONTACT_RECEIVER_EMAIL,
+      subject: `New Project Inquiry from ${name}`,
+      text: rows,
+    });
+  }
+
+  const detailsHtml = [
+    `<tr><td style="padding:6px 0;font-size:13px;color:#6b7280;font-weight:600;">Project Type</td><td style="padding:6px 0 6px 16px;font-size:14px;color:#111827;">${projectType}</td></tr>`,
+    budget
+      ? `<tr><td style="padding:6px 0;font-size:13px;color:#6b7280;font-weight:600;">Budget</td><td style="padding:6px 0 6px 16px;font-size:14px;color:#111827;">${budget}</td></tr>`
+      : "",
+    timeline
+      ? `<tr><td style="padding:6px 0;font-size:13px;color:#6b7280;font-weight:600;">Timeline</td><td style="padding:6px 0 6px 16px;font-size:14px;color:#111827;">${timeline}</td></tr>`
+      : "",
+  ].join("");
+
+  await transporter.sendMail({
+    from: `"Nahed Dev" <${process.env.SMTP_USER}>`,
+    to: email,
+    subject: "Got your project brief!",
+    html: `
+      <div style="background:#f6f8fc;padding:28px 12px;font-family:Montserrat,Arial,sans-serif;color:#1f2937;">
+        <div style="max-width:600px;margin:0 auto;background:#ffffff;border:1px solid #e5e7eb;border-radius:16px;overflow:hidden;box-shadow:0 6px 20px rgba(15,23,42,.06);">
+          <div style="background:linear-gradient(135deg,#ee681a,#9b4016);padding:20px 28px;">
+            <div style="font-size:18px;font-weight:700;color:#ffffff;">Nahed Dev</div>
+            <div style="font-size:12px;color:#ffe7d8;margin-top:2px;">Project Inquiry Received</div>
+          </div>
+          <div style="padding:28px;">
+            <h2 style="margin:0 0 10px;font-size:20px;color:#111827;">Thanks, ${name}!</h2>
+            <p style="margin:0 0 20px;font-size:14px;line-height:1.7;color:#374151;">
+              I've received your project brief and will review it carefully. I'll get back to you as soon as possible.
+            </p>
+            <div style="background:#fff7f2;border:1px solid #fde3d3;border-radius:10px;padding:16px 20px;margin-bottom:20px;">
+              <div style="font-size:12px;font-weight:600;color:#9b4016;text-transform:uppercase;letter-spacing:.08em;margin-bottom:12px;">Your Brief Summary</div>
+              <table style="border-collapse:collapse;width:100%;">${detailsHtml}</table>
+            </div>
+            <p style="margin:0;font-size:13px;color:#6b7280;line-height:1.6;">
+              In the meantime, feel free to check out my <a href="${process.env.NEXT_PUBLIC_SITE_URL}/portfolio" style="color:#ee681a;text-decoration:none;">portfolio</a> for examples of past work.
+            </p>
+          </div>
+          <div style="padding:14px 28px;border-top:1px solid #f3f4f6;background:#fafafa;font-size:12px;color:#6b7280;">
+            Nahed Nakib — Web Developer
+          </div>
+        </div>
+      </div>
+    `,
+    text: `Hi ${name},\n\nThanks for sending your project brief! I'll review it and get back to you soon.\n\nProject Type: ${projectType}${budget ? `\nBudget: ${budget}` : ""}${timeline ? `\nTimeline: ${timeline}` : ""}\n\nBest,\nNahed Nakib`,
+  });
+}
+
 export async function sendNewsletterWelcomeEmail(email, unsubscribeToken) {
   const transporter = nodemailer.createTransport({
     host: process.env.SMTP_HOST,

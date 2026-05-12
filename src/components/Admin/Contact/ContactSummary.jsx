@@ -4,23 +4,29 @@ import admin from "@/components/Admin/adminPage.module.css";
 import styles from "./ContactSummary.module.css";
 import { useEffect, useState, useMemo } from "react";
 import { supabase } from "@/services/supabaseClient";
-import { Download, Mail, MessageSquare, Users } from "lucide-react";
+import { Download, Mail, MessageSquare, Users, FolderOpen } from "lucide-react";
 
 export default function ContactPage() {
   const [contactMessages, setContactMessages] = useState([]);
   const [newsletterSubscribers, setNewsletterSubscribers] = useState([]);
+  const [projectInquiries, setProjectInquiries] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedForm, setSelectedForm] = useState("contact"); // contact, newsletter
+  const [selectedForm, setSelectedForm] = useState("contact");
 
-  // Available forms configuration
   const formTypes = [
     {
       id: "contact",
       name: "Contact Form",
       icon: MessageSquare,
       description: "Contact form submissions",
+    },
+    {
+      id: "project",
+      name: "Project Inquiries",
+      icon: FolderOpen,
+      description: "Project inquiry submissions",
     },
     {
       id: "newsletter",
@@ -40,6 +46,8 @@ export default function ContactPage() {
 
     if (selectedForm === "contact") {
       await fetchContactMessages();
+    } else if (selectedForm === "project") {
+      await fetchProjectInquiries();
     } else if (selectedForm === "newsletter") {
       await fetchNewsletterSubscribers();
     }
@@ -62,6 +70,21 @@ export default function ContactPage() {
     }
   }
 
+  async function fetchProjectInquiries() {
+    const { data, error } = await supabase
+      .from("project_inquiries")
+      .select("*")
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      setError(error.message);
+      setProjectInquiries([]);
+    } else {
+      setProjectInquiries(data);
+      setError(null);
+    }
+  }
+
   async function fetchNewsletterSubscribers() {
     const { data, error } = await supabase
       .from("newsletter_subscribers")
@@ -80,6 +103,7 @@ export default function ContactPage() {
   // Get current data and filtered results based on selected form
   const getCurrentData = () => {
     if (selectedForm === "contact") return contactMessages;
+    if (selectedForm === "project") return projectInquiries;
     if (selectedForm === "newsletter") return newsletterSubscribers;
     return [];
   };
@@ -98,6 +122,14 @@ export default function ContactPage() {
           (msg.email && msg.email.toLowerCase().includes(lowerTerm)) ||
           (msg.message && msg.message.toLowerCase().includes(lowerTerm)),
       );
+    } else if (selectedForm === "project") {
+      return currentData.filter(
+        (item) =>
+          (item.name && item.name.toLowerCase().includes(lowerTerm)) ||
+          (item.email && item.email.toLowerCase().includes(lowerTerm)) ||
+          (item.project_type && item.project_type.toLowerCase().includes(lowerTerm)) ||
+          (item.description && item.description.toLowerCase().includes(lowerTerm)),
+      );
     } else if (selectedForm === "newsletter") {
       return currentData.filter(
         (sub) =>
@@ -112,7 +144,19 @@ export default function ContactPage() {
   const exportData = () => {
     const currentFormType = formTypes.find((f) => f.id === selectedForm);
 
-    if (selectedForm === "contact") {
+    if (selectedForm === "project") {
+      const csvContent = [
+        "Name,Email,Project Type,Description,Features,Timeline,Notes,Submitted On",
+        ...filteredData.map(
+          (item) =>
+            `"${item.name}","${item.email}","${item.project_type}","${(item.description || "").replace(/"/g, '""')}","${(item.features || "").replace(/"/g, '""')}","${item.timeline || ""}","${(item.notes || "").replace(/"/g, '""')}","${new Date(item.created_at).toLocaleString()}"`,
+        ),
+      ].join("\n");
+      downloadCSV(
+        csvContent,
+        `project_inquiries_${new Date().toISOString().split("T")[0]}.csv`,
+      );
+    } else if (selectedForm === "contact") {
       const csvContent = [
         "Name,Email,Message,Sent On",
         ...filteredData.map(
@@ -176,6 +220,15 @@ export default function ContactPage() {
           return new Date(m.created_at) > dayAgo;
         }).length,
       };
+    } else if (selectedForm === "project") {
+      return {
+        total: projectInquiries.length,
+        recent: projectInquiries.filter((m) => {
+          const dayAgo = new Date();
+          dayAgo.setDate(dayAgo.getDate() - 1);
+          return new Date(m.created_at) > dayAgo;
+        }).length,
+      };
     } else if (selectedForm === "newsletter") {
       return {
         total: newsletterSubscribers.length,
@@ -200,10 +253,10 @@ export default function ContactPage() {
 
       <section className={admin.statsSection} aria-label="Summary">
         <div className={admin.statsGrid}>
-          {selectedForm === "contact" && (
+          {(selectedForm === "contact" || selectedForm === "project") && (
             <>
               <div className={admin.statCard}>
-                <MessageSquare size={24} />
+                {selectedForm === "contact" ? <MessageSquare size={24} /> : <FolderOpen size={24} />}
                 <div>
                   <h3>{stats.total}</h3>
                   <p>Total</p>
@@ -316,6 +369,18 @@ export default function ContactPage() {
                     <th>Sent On</th>
                   </>
                 )}
+                {selectedForm === "project" && (
+                  <>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Project Type</th>
+                    <th>Description</th>
+                    <th>Features</th>
+                    <th>Timeline</th>
+                    <th>Notes</th>
+                    <th>Submitted On</th>
+                  </>
+                )}
                 {selectedForm === "newsletter" && (
                   <>
                     <th>Email</th>
@@ -340,6 +405,22 @@ export default function ContactPage() {
                         {item.message}
                       </td>
                       <td data-label="Sent On">
+                        {item.created_at
+                          ? new Date(item.created_at).toLocaleString()
+                          : "-"}
+                      </td>
+                    </>
+                  )}
+                  {selectedForm === "project" && (
+                    <>
+                      <td data-label="Name">{item.name}</td>
+                      <td data-label="Email">{item.email}</td>
+                      <td data-label="Project Type">{item.project_type}</td>
+                      <td data-label="Description" style={{ maxWidth: "220px", wordWrap: "break-word" }}>{item.description}</td>
+                      <td data-label="Features" style={{ maxWidth: "180px", wordWrap: "break-word" }}>{item.features || "-"}</td>
+                      <td data-label="Timeline">{item.timeline || "-"}</td>
+                      <td data-label="Notes" style={{ maxWidth: "180px", wordWrap: "break-word" }}>{item.notes || "-"}</td>
+                      <td data-label="Submitted On">
                         {item.created_at
                           ? new Date(item.created_at).toLocaleString()
                           : "-"}
