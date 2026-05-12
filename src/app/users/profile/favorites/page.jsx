@@ -11,13 +11,20 @@ import admin from "@/components/Admin/adminPage.module.css";
 import styles from "../Profile.module.css";
 import { isUuid } from "@/lib/utils/isUuid";
 
+const typeLabel = (type) => {
+  if (type === "blog") return "Blog Posts";
+  if (type === "portfolio") return "Portfolio";
+  return type.charAt(0).toUpperCase() + type.slice(1);
+};
+
 export default function FavoritesPage() {
   const [loading, setLoading] = useState(true);
-  const [user, setUser] = useState(null);
-  const [profileData, setProfileData] = useState(null);
   const [favorites, setFavorites] = useState([]);
   const [blogIdToSlug, setBlogIdToSlug] = useState({});
+  const [blogIdToTitle, setBlogIdToTitle] = useState({});
   const [portfolioIdToSlug, setPortfolioIdToSlug] = useState({});
+  const [portfolioIdToTitle, setPortfolioIdToTitle] = useState({});
+  const [filterType, setFilterType] = useState("all");
   const [error, setError] = useState(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [favoriteToDelete, setFavoriteToDelete] = useState(null);
@@ -36,21 +43,6 @@ export default function FavoritesPage() {
         if (userError || !user) {
           router.push("/login");
           return;
-        }
-
-        setUser(user);
-
-        const { data: profile, error: profileError } = await supabase
-          .from("profiles")
-          .select("*")
-          .eq("id", user.id)
-          .single();
-
-        if (profileError) {
-          console.error("Error fetching profile:", profileError);
-          setError("Could not load profile data");
-        } else {
-          setProfileData(profile);
         }
 
         const { data: userFavorites, error: favoritesError } = await supabase
@@ -74,14 +66,17 @@ export default function FavoritesPage() {
           if (uniqueBlogIds.length > 0) {
             const { data: blogs, error: blogsError } = await supabase
               .from("blogs")
-              .select("id, slug")
+              .select("id, slug, title")
               .in("id", uniqueBlogIds);
             if (!blogsError && blogs) {
-              const map = {};
+              const slugMap = {};
+              const titleMap = {};
               for (const b of blogs) {
-                if (b?.id && b?.slug) map[b.id] = b.slug;
+                if (b?.id && b?.slug) slugMap[b.id] = b.slug;
+                if (b?.id && b?.title) titleMap[b.id] = b.title;
               }
-              setBlogIdToSlug(map);
+              setBlogIdToSlug(slugMap);
+              setBlogIdToTitle(titleMap);
             }
           }
 
@@ -90,24 +85,39 @@ export default function FavoritesPage() {
             .map((f) => f.content_id);
           const uniquePortfolioIds = Array.from(new Set(portfolioIds));
           if (uniquePortfolioIds.length > 0) {
-            const map = {};
+            const slugMap = {};
+            const titleMap = {};
             for (const ref of uniquePortfolioIds) {
-              if (!isUuid(ref)) map[ref] = ref;
+              if (!isUuid(ref)) slugMap[ref] = ref;
+            }
+            const nonUuidRefs = uniquePortfolioIds.filter((id) => !isUuid(id));
+            if (nonUuidRefs.length > 0) {
+              const { data: portfoliosBySlug } = await supabase
+                .from("portfolios")
+                .select("slug, title")
+                .in("slug", nonUuidRefs);
+              if (portfoliosBySlug) {
+                for (const p of portfoliosBySlug) {
+                  if (p?.slug && p?.title) titleMap[p.slug] = p.title;
+                }
+              }
             }
             const uuidPortfolioIds = uniquePortfolioIds.filter(isUuid);
             if (uuidPortfolioIds.length > 0) {
               const { data: portfolios, error: portfoliosError } =
                 await supabase
                   .from("portfolios")
-                  .select("id, slug")
+                  .select("id, slug, title")
                   .in("id", uuidPortfolioIds);
               if (!portfoliosError && portfolios) {
                 for (const p of portfolios) {
-                  if (p?.id && p?.slug) map[p.id] = p.slug;
+                  if (p?.id && p?.slug) slugMap[p.id] = p.slug;
+                  if (p?.id && p?.title) titleMap[p.id] = p.title;
                 }
               }
             }
-            setPortfolioIdToSlug(map);
+            setPortfolioIdToSlug(slugMap);
+            setPortfolioIdToTitle(titleMap);
           }
         }
       } catch (err) {
@@ -169,6 +179,12 @@ export default function FavoritesPage() {
     );
   }
 
+  const contentTypes = [...new Set(favorites.map((f) => f.content_type))];
+  const filtered =
+    filterType === "all"
+      ? favorites
+      : favorites.filter((f) => f.content_type === filterType);
+
   return (
     <div className={be.pageRoot}>
       <header className={be.hero}>
@@ -210,57 +226,78 @@ export default function FavoritesPage() {
               <p>You don&apos;t have any favorites yet.</p>
             </div>
           ) : (
-            <div className={styles.contentList}>
-              {favorites.map((favorite) => {
-              const isBlog = favorite.content_type === "blog";
-              const href = isBlog
-                ? `/blog/${blogIdToSlug[favorite.content_id] || ""}`
-                : `/portfolio/${portfolioIdToSlug[favorite.content_id] || favorite.content_id}`;
-              const isDisabled = isBlog && !blogIdToSlug[favorite.content_id];
+            <>
+              <div className={styles.filterBar}>
+                <button
+                  className={`${styles.filterBtn}${filterType === "all" ? ` ${styles.filterBtnActive}` : ""}`}
+                  onClick={() => setFilterType("all")}
+                >
+                  All
+                </button>
+                {contentTypes.map((type) => (
+                  <button
+                    key={type}
+                    className={`${styles.filterBtn}${filterType === type ? ` ${styles.filterBtnActive}` : ""}`}
+                    onClick={() => setFilterType(type)}
+                  >
+                    {typeLabel(type)}
+                  </button>
+                ))}
+              </div>
 
-              return (
-                <div key={favorite.id} className={styles.favoriteItem}>
-                  <div className={styles.favoriteHeader}>
-                    <div className={styles.postInfo}>
-                      <h3>
-                        Favorite {isBlog ? "Blog Post" : "Portfolio Item"}
-                      </h3>
-                      <span className={styles.favoriteDate}>
-                        Added on{" "}
-                        {new Date(favorite.created_at).toLocaleDateString()}
-                      </span>
-                    </div>
-                    <button
-                      onClick={() => confirmRemoveFavorite(favorite.id)}
-                      className={styles.removeButton}
-                    >
-                      Remove
-                    </button>
-                  </div>
-                  <div className={styles.favoriteContent}>
-                    <p>
-                      You added this {isBlog ? "blog post" : "portfolio item"}{" "}
-                      to your favorites.
-                    </p>
-                  </div>
-                  <div className={styles.favoriteFooter}>
-                    <span className={styles.postType}>
-                      {isBlog ? "Blog Post" : "Portfolio Item"}
-                    </span>
-                    {isDisabled ? (
-                      <span className={styles.viewPostLink} aria-disabled>
-                        Loading link...
-                      </span>
-                    ) : (
-                      <a href={href} className={styles.viewPostLink}>
-                        View Post
-                      </a>
-                    )}
-                  </div>
+              {filtered.length === 0 ? (
+                <div className={styles.emptyState}>
+                  <p>No {typeLabel(filterType).toLowerCase()} in your favorites.</p>
                 </div>
-              );
-              })}
-            </div>
+              ) : (
+                <div className={styles.contentList}>
+                  {filtered.map((favorite) => {
+                    const isBlog = favorite.content_type === "blog";
+                    const href = isBlog
+                      ? `/blog/${blogIdToSlug[favorite.content_id] || ""}`
+                      : `/portfolio/${portfolioIdToSlug[favorite.content_id] || favorite.content_id}`;
+                    const isDisabled = isBlog && !blogIdToSlug[favorite.content_id];
+                    const title = isBlog
+                      ? blogIdToTitle[favorite.content_id]
+                      : portfolioIdToTitle[favorite.content_id];
+
+                    return (
+                      <div key={favorite.id} className={styles.favoriteItem}>
+                        <div className={styles.favoriteHeader}>
+                          <div className={styles.postInfo}>
+                            <h3>{title || (isBlog ? "Blog Post" : "Portfolio Item")}</h3>
+                            <span className={styles.favoriteDate}>
+                              Added on{" "}
+                              {new Date(favorite.created_at).toLocaleDateString()}
+                            </span>
+                          </div>
+                          <button
+                            onClick={() => confirmRemoveFavorite(favorite.id)}
+                            className={styles.removeButton}
+                          >
+                            Remove
+                          </button>
+                        </div>
+                        <div className={styles.favoriteFooter}>
+                          <span className={styles.postType}>
+                            {typeLabel(favorite.content_type)}
+                          </span>
+                          {isDisabled ? (
+                            <span className={styles.viewPostLink} aria-disabled>
+                              Unavailable
+                            </span>
+                          ) : (
+                            <Link href={href} className={styles.viewPostLink}>
+                              View Post
+                            </Link>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </>
           )}
         </section>
       </div>

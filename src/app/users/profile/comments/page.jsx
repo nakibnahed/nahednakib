@@ -11,13 +11,20 @@ import admin from "@/components/Admin/adminPage.module.css";
 import styles from "../Profile.module.css";
 import { isUuid } from "@/lib/utils/isUuid";
 
+const typeLabel = (type) => {
+  if (type === "blog") return "Blog Posts";
+  if (type === "portfolio") return "Portfolio";
+  return type.charAt(0).toUpperCase() + type.slice(1);
+};
+
 export default function CommentsPage() {
   const [loading, setLoading] = useState(true);
-  const [user, setUser] = useState(null);
-  const [profileData, setProfileData] = useState(null);
   const [comments, setComments] = useState([]);
   const [blogIdToSlug, setBlogIdToSlug] = useState({});
+  const [blogIdToTitle, setBlogIdToTitle] = useState({});
   const [portfolioIdToSlug, setPortfolioIdToSlug] = useState({});
+  const [portfolioIdToTitle, setPortfolioIdToTitle] = useState({});
+  const [filterType, setFilterType] = useState("all");
   const [error, setError] = useState(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [commentToDelete, setCommentToDelete] = useState(null);
@@ -36,21 +43,6 @@ export default function CommentsPage() {
         if (userError || !user) {
           router.push("/login");
           return;
-        }
-
-        setUser(user);
-
-        const { data: profile, error: profileError } = await supabase
-          .from("profiles")
-          .select("*")
-          .eq("id", user.id)
-          .single();
-
-        if (profileError) {
-          console.error("Error fetching profile:", profileError);
-          setError("Could not load profile data");
-        } else {
-          setProfileData(profile);
         }
 
         const { data: userComments, error: commentsError } = await supabase
@@ -74,14 +66,17 @@ export default function CommentsPage() {
           if (uniqueBlogIds.length > 0) {
             const { data: blogs, error: blogsError } = await supabase
               .from("blogs")
-              .select("id, slug")
+              .select("id, slug, title")
               .in("id", uniqueBlogIds);
             if (!blogsError && blogs) {
-              const map = {};
+              const slugMap = {};
+              const titleMap = {};
               for (const b of blogs) {
-                if (b?.id && b?.slug) map[b.id] = b.slug;
+                if (b?.id && b?.slug) slugMap[b.id] = b.slug;
+                if (b?.id && b?.title) titleMap[b.id] = b.title;
               }
-              setBlogIdToSlug(map);
+              setBlogIdToSlug(slugMap);
+              setBlogIdToTitle(titleMap);
             }
           }
 
@@ -90,24 +85,39 @@ export default function CommentsPage() {
             .map((c) => c.content_id);
           const uniquePortfolioIds = Array.from(new Set(portfolioIds));
           if (uniquePortfolioIds.length > 0) {
-            const map = {};
+            const slugMap = {};
+            const titleMap = {};
             for (const ref of uniquePortfolioIds) {
-              if (!isUuid(ref)) map[ref] = ref;
+              if (!isUuid(ref)) slugMap[ref] = ref;
+            }
+            const nonUuidRefs = uniquePortfolioIds.filter((id) => !isUuid(id));
+            if (nonUuidRefs.length > 0) {
+              const { data: portfoliosBySlug } = await supabase
+                .from("portfolios")
+                .select("slug, title")
+                .in("slug", nonUuidRefs);
+              if (portfoliosBySlug) {
+                for (const p of portfoliosBySlug) {
+                  if (p?.slug && p?.title) titleMap[p.slug] = p.title;
+                }
+              }
             }
             const uuidPortfolioIds = uniquePortfolioIds.filter(isUuid);
             if (uuidPortfolioIds.length > 0) {
               const { data: portfolios, error: portfoliosError } =
                 await supabase
                   .from("portfolios")
-                  .select("id, slug")
+                  .select("id, slug, title")
                   .in("id", uuidPortfolioIds);
               if (!portfoliosError && portfolios) {
                 for (const p of portfolios) {
-                  if (p?.id && p?.slug) map[p.id] = p.slug;
+                  if (p?.id && p?.slug) slugMap[p.id] = p.slug;
+                  if (p?.id && p?.title) titleMap[p.id] = p.title;
                 }
               }
             }
-            setPortfolioIdToSlug(map);
+            setPortfolioIdToSlug(slugMap);
+            setPortfolioIdToTitle(titleMap);
           }
         }
       } catch (err) {
@@ -167,6 +177,12 @@ export default function CommentsPage() {
     );
   }
 
+  const contentTypes = [...new Set(comments.map((c) => c.content_type))];
+  const filtered =
+    filterType === "all"
+      ? comments
+      : comments.filter((c) => c.content_type === filterType);
+
   return (
     <div className={be.pageRoot}>
       <header className={be.hero}>
@@ -208,53 +224,80 @@ export default function CommentsPage() {
               <p>You haven&apos;t made any comments yet.</p>
             </div>
           ) : (
-            <div className={styles.contentList}>
-              {comments.map((comment) => {
-                const isBlog = comment.content_type === "blog";
-                const href = isBlog
-                  ? `/blog/${blogIdToSlug[comment.content_id] || ""}`
-                  : `/portfolio/${portfolioIdToSlug[comment.content_id] || comment.content_id}`;
-                const isDisabled = isBlog && !blogIdToSlug[comment.content_id];
+            <>
+              <div className={styles.filterBar}>
+                <button
+                  className={`${styles.filterBtn}${filterType === "all" ? ` ${styles.filterBtnActive}` : ""}`}
+                  onClick={() => setFilterType("all")}
+                >
+                  All
+                </button>
+                {contentTypes.map((type) => (
+                  <button
+                    key={type}
+                    className={`${styles.filterBtn}${filterType === type ? ` ${styles.filterBtnActive}` : ""}`}
+                    onClick={() => setFilterType(type)}
+                  >
+                    {typeLabel(type)}
+                  </button>
+                ))}
+              </div>
 
-                return (
-                  <div key={comment.id} className={styles.commentItem}>
-                    <div className={styles.commentHeader}>
-                      <div className={styles.postInfo}>
-                        <h3>
-                          Comment on {isBlog ? "Blog Post" : "Portfolio Item"}
-                        </h3>
-                        <span className={styles.commentDate}>
-                          {new Date(comment.created_at).toLocaleDateString()}
-                        </span>
+              {filtered.length === 0 ? (
+                <div className={styles.emptyState}>
+                  <p>No {typeLabel(filterType).toLowerCase()} comments found.</p>
+                </div>
+              ) : (
+                <div className={styles.contentList}>
+                  {filtered.map((comment) => {
+                    const isBlog = comment.content_type === "blog";
+                    const href = isBlog
+                      ? `/blog/${blogIdToSlug[comment.content_id] || ""}`
+                      : `/portfolio/${portfolioIdToSlug[comment.content_id] || comment.content_id}`;
+                    const isDisabled = isBlog && !blogIdToSlug[comment.content_id];
+                    const title = isBlog
+                      ? blogIdToTitle[comment.content_id]
+                      : portfolioIdToTitle[comment.content_id];
+
+                    return (
+                      <div key={comment.id} className={styles.commentItem}>
+                        <div className={styles.commentHeader}>
+                          <div className={styles.postInfo}>
+                            <h3>{title || (isBlog ? "Blog Post" : "Portfolio Item")}</h3>
+                            <span className={styles.commentDate}>
+                              {new Date(comment.created_at).toLocaleDateString()}
+                            </span>
+                          </div>
+                          <button
+                            onClick={() => confirmDelete(comment.id)}
+                            className={styles.deleteButton}
+                          >
+                            Delete
+                          </button>
+                        </div>
+                        <div className={styles.commentContent}>
+                          <p>{comment.comment || "No content"}</p>
+                        </div>
+                        <div className={styles.commentFooter}>
+                          <span className={styles.postType}>
+                            {typeLabel(comment.content_type)}
+                          </span>
+                          {isDisabled ? (
+                            <span className={styles.viewPostLink} aria-disabled>
+                              Unavailable
+                            </span>
+                          ) : (
+                            <Link href={href} className={styles.viewPostLink}>
+                              View Post
+                            </Link>
+                          )}
+                        </div>
                       </div>
-                      <button
-                        onClick={() => confirmDelete(comment.id)}
-                        className={styles.deleteButton}
-                      >
-                        Delete
-                      </button>
-                    </div>
-                    <div className={styles.commentContent}>
-                      <p>{comment.comment || "No content"}</p>
-                    </div>
-                    <div className={styles.commentFooter}>
-                      <span className={styles.postType}>
-                        {isBlog ? "Blog Post" : "Portfolio Item"}
-                      </span>
-                      {isDisabled ? (
-                        <span className={styles.viewPostLink} aria-disabled>
-                          Loading link...
-                        </span>
-                      ) : (
-                        <a href={href} className={styles.viewPostLink}>
-                          View Post
-                        </a>
-                      )}
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
+                    );
+                  })}
+                </div>
+              )}
+            </>
           )}
         </section>
       </div>

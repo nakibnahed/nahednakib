@@ -51,7 +51,7 @@ export default function ProfileSegmentLayout({ children }) {
     return () => {
       active = false;
     };
-  }, [authLoading, initialized, router, user]);
+  }, [authLoading, initialized, user]);
 
   if (authLoading || !initialized || loading) {
     return (
