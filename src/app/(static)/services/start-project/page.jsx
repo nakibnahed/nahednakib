@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
-import styles from "./start-a-project.module.css";
+import styles from "./start-project.module.css";
 import { logoFont } from "@/lib/fonts/fonts.js";
 
 const PROJECT_TYPES = [

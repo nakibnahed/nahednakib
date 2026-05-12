@@ -225,7 +225,7 @@ export default function ServicesPage() {
                 make it happen.
               </p>
               <div className={styles.ctaBlock}>
-                <Link href="/services/start-a-project" className={styles.ctaButton}>
+                <Link href="/services/start-project" className={styles.ctaButton}>
                   <span>Start a Project</span>
                   <span className={styles.arrow}>→</span>
                 </Link>
