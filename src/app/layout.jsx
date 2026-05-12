@@ -70,9 +70,9 @@ export const metadata = {
     description: siteDefaults.description,
     images: [
       {
-        url: "/og-image.png",
-        width: 512,
-        height: 512,
+        url: "/images/share.png",
+        width: 1200,
+        height: 630,
         alt: `${siteDefaults.authorName} — Web Developer & Distance Runner`,
       },
     ],
@@ -81,7 +81,7 @@ export const metadata = {
     card: "summary",
     title: siteDefaults.shortTitle,
     description: siteDefaults.description,
-    images: ["/og-image.png"],
+    images: ["/images/share.png"],
     creator: siteDefaults.twitterCreator,
     site: siteDefaults.twitterSite,
   },

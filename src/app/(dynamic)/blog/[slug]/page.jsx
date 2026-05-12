@@ -121,7 +121,6 @@ export default async function Post({ params }) {
 
   const baseUrl =
     process.env.NEXT_PUBLIC_SITE_URL || "https://nahednakib.com";
-  const imageUrl = blog.image || `${baseUrl}/images/portfolio.jpg`;
   const coverAlt = coverImageAltForBlog(blog);
 
   const authorUrl = author?.id

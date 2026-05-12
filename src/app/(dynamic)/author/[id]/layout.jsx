@@ -1,11 +1,12 @@
 import { createClient } from "@/lib/supabase/server";
+import { getDefaultOgImageUrl } from "@/lib/seo/site";
 
 export async function generateMetadata({ params }) {
   const { id } = await params;
   const supabase = await createClient();
   const { data } = await supabase
     .from("authors")
-    .select("name, bio")
+    .select("name, bio, avatar_url")
     .eq("id", id)
     .maybeSingle();
 
@@ -22,6 +23,7 @@ export async function generateMetadata({ params }) {
       title: data.name,
       description: data.bio?.trim() || `Articles by ${data.name}`,
       type: "profile",
+      images: [{ url: data.avatar_url || getDefaultOgImageUrl(), width: 1200, height: 630 }],
     },
   };
 }

@@ -24,7 +24,7 @@ export const siteDefaults = {
   locale: "en_US",
   twitterCreator: "@nahednakib",
   twitterSite: "@nahednakib",
-  shareImagePath: "/images/share.jpg",
+  shareImagePath: "/images/share.png",
   googleSiteVerification: "5zi1LXSp9ABxohGs7sj86y3W9GCCwuo2erxRAbMzmNM",
 };
 
