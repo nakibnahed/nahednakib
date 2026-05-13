@@ -261,50 +261,131 @@
 /* ── Responsive ── */
 @media (max-width: 768px) {
   .container {
-    padding: 32px 16px 60px;
+    padding: 28px 16px 56px;
   }
 
-  .servicesGrid {
-    grid-template-columns: 1fr;
+  .hero {
+    margin-bottom: 2rem;
+  }
+
+  .heroSubtitle {
+    font-size: 1rem;
+    margin-bottom: 1.5rem;
   }
 
   .tabGroup {
     flex-direction: column;
     border-radius: 16px;
     width: 100%;
-    max-width: 320px;
+    max-width: 300px;
   }
 
   .tabBtn {
     border-radius: 12px;
-    text-align: center;
+    justify-content: center;
+    padding: 10px 16px;
+  }
+
+  .sectionIntro {
+    font-size: 0.95rem;
+    margin-bottom: 1.75rem;
+  }
+
+  .servicesGrid {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  .ctaSection {
+    margin-top: 3rem;
   }
 
   .ctaInner {
-    padding: 48px 24px;
+    padding: 40px 20px;
+  }
+
+  .ctaSubtitle {
+    font-size: 0.95rem;
+    margin-bottom: 2rem;
   }
 
   .ctaBlock {
     flex-direction: column;
     align-items: center;
+    gap: 12px;
   }
 
   .ctaButton,
   .ctaSecondary {
     justify-content: center;
+    width: 100%;
+    max-width: 280px;
   }
 }
 
 @media (max-width: 480px) {
+  .container {
+    padding: 20px 14px 48px;
+  }
+
+  .hero {
+    margin-bottom: 1.5rem;
+  }
+
   .heroTitle {
-    font-size: 1.8rem;
+    font-size: 1.75rem;
+    margin-bottom: 0.75rem;
   }
 
   .heroSubtitle {
-    font-size: 1rem;
+    font-size: 0.95rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .tabGroup {
+    max-width: 100%;
+  }
+
+  .sectionIntro {
+    font-size: 0.9rem;
+    line-height: 1.65;
+    margin-bottom: 1.25rem;
   }
 
   .serviceCard {
-    padding: 22px 18px;
+    padding: 20px 16px;
+  }
+
+  .cardTitle {
+    font-size: 1rem;
+  }
+
+  .cardDesc {
+    font-size: 0.88rem;
+  }
+
+  .ctaSection {
+    margin-top: 2.5rem;
+  }
+
+  .ctaInner {
+    padding: 32px 16px;
+  }
+
+  .ctaEyebrow {
+    font-size: 0.72rem;
+    padding: 4px 12px;
+    margin-bottom: 1rem;
+  }
+
+  .ctaSubtitle {
+    font-size: 0.9rem;
+    margin-bottom: 1.75rem;
+  }
+
+  .ctaButton,
+  .ctaSecondary {
+    max-width: 100%;
+    padding: 11px 16px;
   }
 }
