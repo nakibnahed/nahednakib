@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -107,6 +107,16 @@ const sectionVariants = {
 export default function ServicesPage() {
   const [activeTab, setActiveTab] = useState("web");
 
+  useEffect(() => {
+    const saved = sessionStorage.getItem("services_tab");
+    if (saved === "running" || saved === "web") setActiveTab(saved);
+  }, []);
+
+  function handleTabChange(tab) {
+    setActiveTab(tab);
+    sessionStorage.setItem("services_tab", tab);
+  }
+
   return (
     <div className={styles.container}>
       {/* Hero */}
@@ -122,14 +132,14 @@ export default function ServicesPage() {
         <div className={styles.tabGroup}>
           <button
             className={`${styles.tabBtn} ${activeTab === "web" ? styles.tabBtnActive : ""}`}
-            onClick={() => setActiveTab("web")}
+            onClick={() => handleTabChange("web")}
           >
             <Monitor size={16} strokeWidth={2} />
             Web Development
           </button>
           <button
             className={`${styles.tabBtn} ${activeTab === "running" ? styles.tabBtnActive : ""}`}
-            onClick={() => setActiveTab("running")}
+            onClick={() => handleTabChange("running")}
           >
             <Activity size={16} strokeWidth={2} />
             Running Plans
