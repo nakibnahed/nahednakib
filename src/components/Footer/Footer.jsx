@@ -6,7 +6,7 @@ export default function Footer() {
   return (
     <div className={styles.container}>
       <div>
-        <p>©2025 Nahed. All Right Reserved.</p>
+        <p>©2026 Nahed. All Right Reserved.</p>
       </div>
       <div className={styles.social}>
         <SocialLinks />
