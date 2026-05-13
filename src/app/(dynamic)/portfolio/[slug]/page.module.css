@@ -18,6 +18,9 @@
   align-items: center;
   justify-content: center;
   overflow: hidden;
+  border-radius: 0 0 16px 16px;
+  border: 1px solid var(--card-border);
+  border-top: none !important;
 }
 
 .heroBg {
@@ -576,9 +579,89 @@
   }
 }
 
+/* ─── LIGHT THEME OVERRIDES ──────────────────────────────── */
+:global(.light) .heroBg {
+  background: linear-gradient(135deg, #f5f0ec 0%, #f8f8f8 50%, #ecf0f5 100%);
+}
+
+:global(.light) .heroBg::before {
+  background:
+    radial-gradient(
+      ellipse 80% 60% at 30% 50%,
+      rgba(238, 104, 26, 0.1) 0%,
+      transparent 65%
+    ),
+    radial-gradient(
+      ellipse 50% 80% at 80% 30%,
+      rgba(238, 104, 26, 0.05) 0%,
+      transparent 60%
+    );
+}
+
+:global(.light) .heroGrid {
+  background-image:
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 59px,
+      rgba(0, 0, 0, 0.04) 59px,
+      rgba(0, 0, 0, 0.04) 60px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      transparent,
+      transparent 59px,
+      rgba(0, 0, 0, 0.04) 59px,
+      rgba(0, 0, 0, 0.04) 60px
+    );
+}
+
+:global(.light) .heroTitle {
+  color: #11181c;
+}
+
+:global(.light) .heroSub {
+  color: rgba(17, 24, 28, 0.45);
+}
+
+:global(.light) .bcLink {
+  color: rgba(17, 24, 28, 0.4);
+}
+
+:global(.light) .bcSep {
+  color: rgba(17, 24, 28, 0.2);
+}
+
+:global(.light) .bcActive {
+  color: rgba(17, 24, 28, 0.6);
+}
+
+:global(.light) .heroStats {
+  border-color: rgba(17, 24, 28, 0.1);
+  background: rgba(17, 24, 28, 0.03);
+}
+
+:global(.light) .heroStatDivider {
+  background: rgba(17, 24, 28, 0.12);
+}
+
+:global(.light) .heroStatKey {
+  color: rgba(17, 24, 28, 0.4);
+}
+
+:global(.light) .heroAccentLine {
+  background: var(--primary-color);
+}
+
 @media (max-width: 480px) {
   .hero {
     min-height: 220px;
+    margin-left: calc(-1 * var(--container-padding-mobile));
+    margin-right: calc(-1 * var(--container-padding-mobile));
+    width: calc(100% + 2 * var(--container-padding-mobile));
+    border-radius: 0;
+    border: none;
+    border-bottom: 1px solid var(--card-border);
   }
 
   .heroContent {
