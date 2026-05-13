@@ -132,86 +132,133 @@ export async function sendNewsletterWelcomeEmail(email, unsubscribeToken) {
     },
   });
 
-  const unsubscribeUrl = `${
-    process.env.NEXT_PUBLIC_BASE_URL ||
-    (process.env.VERCEL_URL
-      ? `https://${process.env.VERCEL_URL}`
-      : "http://localhost:3000")
-  }/api/newsletter/unsubscribe?token=${unsubscribeToken}`;
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://nahednakib.com";
+  const unsubscribeUrl = `${siteUrl}/api/newsletter/unsubscribe?token=${unsubscribeToken}`;
 
-  const mailOptions = {
-    from: `"Nahed Dev Newsletter" <${process.env.SMTP_USER}>`,
+  await transporter.sendMail({
+    from: `"Nahed Nakib" <${process.env.SMTP_USER}>`,
     to: email,
-    subject: "🎉 Welcome to Nahed Dev Newsletter!",
+    subject: "You're subscribed — welcome",
     html: `
-      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f9fafb;">
-        <div style="background: white; padding: 40px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
-          <div style="text-align: center; margin-bottom: 30px;">
-            <h1 style="color: #1f2937; margin: 0; font-size: 28px; font-weight: bold;">
-              🎉 Welcome to Our Newsletter!
-            </h1>
+      <div style="background:#f6f8fc;padding:28px 12px;font-family:Montserrat,Arial,sans-serif;color:#1f2937;">
+        <div style="max-width:600px;margin:0 auto;background:#ffffff;border:1px solid #e5e7eb;border-radius:16px;overflow:hidden;box-shadow:0 6px 20px rgba(15,23,42,.06);">
+
+          <div style="background:linear-gradient(135deg,#ee681a,#9b4016);padding:20px 28px;">
+            <div style="font-size:18px;font-weight:700;color:#ffffff;">Nahed Nakib</div>
+            <div style="font-size:12px;color:#ffe7d8;margin-top:2px;">Newsletter</div>
           </div>
-          
-          <div style="color: #4b5563; font-size: 16px; line-height: 1.6;">
-            <p>Hi there!</p>
-            
-            <p>Thank you for subscribing to the <strong>Nahed Dev Newsletter</strong>! 🚀</p>
-            
-            <p>You're now part of an exclusive community where you'll receive:</p>
-            
-            <ul style="margin: 20px 0; padding-left: 20px;">
-              <li>🔥 Latest web development tips and tricks</li>
-              <li>💻 New project showcases and tutorials</li>
-              <li>📚 Coding insights and best practices</li>
-              <li>🎯 Industry news and trending technologies</li>
-              <li>✨ Exclusive behind-the-scenes content</li>
-            </ul>
-            
-            <p>Stay tuned for amazing content coming your way!</p>
-            
-            <div style="background: #f0f9ff; padding: 20px; border-radius: 8px; margin: 25px 0; border-left: 4px solid #3b82f6;">
-              <p style="margin: 0; color: #1e40af; font-weight: 500;">
-                💡 <strong>Pro Tip:</strong> Make sure to add our email to your contacts so you never miss an update!
-              </p>
-            </div>
-            
-            <p>Best regards,<br>
-            <strong>Nahed Dev Team</strong></p>
-          </div>
-          
-          <div style="border-top: 1px solid #e5e7eb; margin-top: 30px; padding-top: 20px; text-align: center;">
-            <p style="color: #6b7280; font-size: 14px; margin: 0;">
-              Don't want to receive these emails? 
-              <a href="${unsubscribeUrl}" style="color: #3b82f6; text-decoration: none;">Unsubscribe here</a>
+
+          <div style="padding:28px;">
+            <h2 style="margin:0 0 14px;font-size:20px;color:#111827;">Thanks for subscribing.</h2>
+            <p style="margin:0 0 16px;font-size:14px;line-height:1.7;color:#374151;">
+              You'll hear from me when I publish new articles — web development, running, and the occasional lesson learned the hard way. No noise, no schedule, just content worth reading.
             </p>
+            <p style="margin:0 0 24px;font-size:14px;line-height:1.7;color:#374151;">
+              In the meantime, feel free to browse the <a href="${siteUrl}/blog" style="color:#ee681a;text-decoration:none;">blog</a> or check out my <a href="${siteUrl}/portfolio" style="color:#ee681a;text-decoration:none;">portfolio</a>.
+            </p>
+            <p style="margin:0;font-size:14px;color:#374151;">— Nahed</p>
           </div>
+
+          <div style="padding:14px 28px;border-top:1px solid #f3f4f6;background:#fafafa;font-size:12px;color:#9ca3af;">
+            <a href="${unsubscribeUrl}" style="color:#9ca3af;text-decoration:underline;">Unsubscribe</a>
+          </div>
+
         </div>
       </div>
     `,
-    text: `
-Welcome to Nahed Dev Newsletter!
+    text: `Thanks for subscribing.\n\nYou'll hear from me when I publish new articles — web development, running, and the occasional lesson learned the hard way.\n\nBrowse the blog: ${siteUrl}/blog\n\n— Nahed\n\nUnsubscribe: ${unsubscribeUrl}`,
+  });
+}
 
-Hi there!
+export async function sendNewPostEmail(to, unsubscribeToken, blog, siteUrl) {
+  const transporter = nodemailer.createTransport({
+    host: process.env.SMTP_HOST,
+    port: Number(process.env.SMTP_PORT),
+    secure: process.env.SMTP_SECURE === "true",
+    auth: {
+      user: process.env.SMTP_USER,
+      pass: process.env.SMTP_PASS,
+    },
+  });
 
-Thank you for subscribing to the Nahed Dev Newsletter! 🚀
+  const postUrl = `${siteUrl}/blog/${blog.slug || blog.id}`;
+  const unsubscribeUrl = `${siteUrl}/api/newsletter/unsubscribe?token=${unsubscribeToken}`;
+  const excerpt = blog.description ? blog.description.trim() : "";
 
-You're now part of an exclusive community where you'll receive:
-- Latest web development tips and tricks
-- New project showcases and tutorials  
-- Coding insights and best practices
-- Industry news and trending technologies
-- Exclusive behind-the-scenes content
+  await transporter.sendMail({
+    from: `"Nahed Nakib" <${process.env.SMTP_USER}>`,
+    to,
+    subject: `New post: ${blog.title}`,
+    html: `
+      <div style="background:#f0f2f5;padding:36px 12px;font-family:Montserrat,Arial,sans-serif;color:#1f2937;">
+        <div style="max-width:600px;margin:0 auto;">
 
-Stay tuned for amazing content coming your way!
+          <!-- Header -->
+          <div style="background:linear-gradient(135deg,#ee681a,#9b4016);border-radius:16px 16px 0 0;padding:24px 32px;display:flex;align-items:center;justify-content:space-between;">
+            <div>
+              <div style="font-size:20px;font-weight:800;color:#ffffff;letter-spacing:-0.3px;">Nahed Nakib</div>
+              <div style="font-size:12px;color:#ffe7d8;margin-top:3px;letter-spacing:0.05em;text-transform:uppercase;">New article just dropped</div>
+            </div>
+          </div>
 
-Best regards,
-Nahed Dev Team
+          <!-- Body -->
+          <div style="background:#ffffff;padding:36px 32px;border-left:1px solid #e5e7eb;border-right:1px solid #e5e7eb;">
 
-Don't want to receive these emails? Unsubscribe here: ${unsubscribeUrl}
+            <p style="margin:0 0 20px;font-size:13px;font-weight:600;color:#ee681a;text-transform:uppercase;letter-spacing:0.08em;">
+              Fresh off the press
+            </p>
+
+            <h1 style="margin:0 0 16px;font-size:26px;font-weight:800;line-height:1.25;color:#111827;letter-spacing:-0.5px;">
+              ${blog.title}
+            </h1>
+
+            ${excerpt ? `
+            <p style="margin:0 0 28px;font-size:15px;line-height:1.75;color:#4b5563;">
+              ${excerpt}
+            </p>
+            ` : `
+            <p style="margin:0 0 28px;font-size:15px;line-height:1.75;color:#4b5563;">
+              A new article is now live on the blog. Click below to read it in full.
+            </p>
+            `}
+
+            <!-- CTA -->
+            <div style="margin-bottom:32px;">
+              <a href="${postUrl}"
+                style="display:inline-block;background:linear-gradient(135deg,#ee681a,#c2531a);color:#ffffff;text-decoration:none;padding:14px 28px;border-radius:50px;font-size:14px;font-weight:700;letter-spacing:0.02em;box-shadow:0 4px 14px rgba(238,104,26,0.35);">
+                Read the article &rarr;
+              </a>
+            </div>
+
+            <!-- Divider -->
+            <div style="height:1px;background:linear-gradient(to right,#f3f4f6,#e5e7eb,#f3f4f6);margin-bottom:28px;"></div>
+
+            <!-- Personal sign-off -->
+            <p style="margin:0 0 6px;font-size:14px;line-height:1.7;color:#374151;">
+              As always, I write about the things I'm actually working on — building on the web, staying consistent as a runner, and the lessons that come from doing both at the same time.
+            </p>
+            <p style="margin:0 0 20px;font-size:14px;line-height:1.7;color:#374151;">
+              If this one resonates, share it with someone who'd find it useful.
+            </p>
+            <p style="margin:0;font-size:14px;color:#374151;font-weight:600;">— Nahed</p>
+          </div>
+
+          <!-- Footer -->
+          <div style="background:#f9fafb;border:1px solid #e5e7eb;border-top:none;border-radius:0 0 16px 16px;padding:18px 32px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
+            <div style="font-size:12px;color:#9ca3af;">
+              <a href="${siteUrl}/blog" style="color:#6b7280;text-decoration:none;margin-right:16px;">Blog</a>
+              <a href="${siteUrl}/portfolio" style="color:#6b7280;text-decoration:none;">Portfolio</a>
+            </div>
+            <div style="font-size:12px;color:#9ca3af;">
+              <a href="${unsubscribeUrl}" style="color:#9ca3af;text-decoration:underline;">Unsubscribe</a>
+            </div>
+          </div>
+
+        </div>
+      </div>
     `,
-  };
-
-  await transporter.sendMail(mailOptions);
+    text: `${blog.title}\n\n${excerpt ? excerpt + "\n\n" : "A new article is now live on the blog.\n\n"}Read the article: ${postUrl}\n\nAs always, I write about the things I'm actually working on — building on the web, staying consistent as a runner, and the lessons that come from doing both at the same time.\n\n— Nahed\n\n---\nBlog: ${siteUrl}/blog\nPortfolio: ${siteUrl}/portfolio\nUnsubscribe: ${unsubscribeUrl}`,
+  });
 }
 
 export async function sendPracticeMeetingEmail({

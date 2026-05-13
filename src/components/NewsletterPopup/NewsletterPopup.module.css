@@ -1,0 +1,243 @@
+/* Backdrop — dark overlay, centered */
+.backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 99999;
+  padding: 20px;
+  animation: fadeIn 0.25s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* Card — matches NotificationPopup .popup exactly */
+.popup {
+  background: color-mix(in srgb, var(--background-main) 84%, transparent 14%);
+  border: 1px solid var(--card-border);
+  border-radius: 24px;
+  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.35);
+  -webkit-backdrop-filter: blur(16px) saturate(160%);
+  backdrop-filter: blur(16px) saturate(160%);
+  width: 380px;
+  max-width: 100%;
+  overflow: hidden;
+  animation: slideIn 0.3s ease-out;
+  position: relative;
+  isolation: isolate;
+}
+
+/* Subtle gradient shine overlay — matches NotificationPopup .popup::after */
+.popup::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    145deg,
+    rgba(255, 255, 255, 0.02) 0%,
+    rgba(255, 255, 255, 0.01) 35%,
+    rgba(255, 255, 255, 0) 65%
+  );
+  pointer-events: none;
+  border-radius: inherit;
+  z-index: 0;
+}
+
+.popup > * {
+  position: relative;
+  z-index: 1;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Header — matches NotificationPopup .header */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--card-border);
+  background: color-mix(in srgb, var(--background-main) 92%, transparent);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+/* Title — matches NotificationPopup .title gradient */
+.title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+  font-family: var(--font-heading);
+  background: var(--gradient-typography-primary);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Close button — matches NotificationPopup .closeButton */
+.closeButton {
+  background: color-mix(in srgb, var(--background-main) 85%, transparent);
+  border: 1px solid var(--card-border);
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 999px;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  line-height: 1;
+  width: 32px;
+  height: 32px;
+}
+
+.closeButton:hover {
+  background: color-mix(in srgb, var(--primary-color) 10%, transparent);
+  color: var(--primary-color);
+  border-color: color-mix(in srgb, var(--primary-color) 35%, transparent);
+}
+
+/* Body content */
+.body {
+  padding: 20px 16px 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.description {
+  font-size: 14px;
+  color: var(--text-muted);
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* Form */
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.input {
+  width: 100%;
+  padding: 10px 14px;
+  background: var(--form-control-bg);
+  border: 1px solid var(--card-border);
+  border-radius: var(--button-radius);
+  color: var(--text-dark);
+  font-family: var(--font-main);
+  font-size: 13px;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+  box-sizing: border-box;
+}
+
+.input:focus {
+  background: var(--form-control-bg-focus);
+  border-color: color-mix(in srgb, var(--primary-color) 50%, transparent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary-color) 12%, transparent);
+}
+
+.input::placeholder {
+  color: var(--text-muted);
+  opacity: 0.6;
+}
+
+.input:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Submit button — matches NotificationPopup .markAllReadButton */
+.submitBtn {
+  width: 100%;
+  background: var(--button-bg);
+  color: var(--button-text);
+  border: none;
+  padding: 10px 12px;
+  border-radius: 50px;
+  font-size: 13px;
+  font-weight: 600;
+  font-family: var(--font-main);
+  cursor: pointer;
+  transition: opacity 0.2s, transform 0.15s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--button-shadow);
+}
+
+.submitBtn:hover:not(:disabled) {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+.submitBtn:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.submitBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Footer */
+.footer {
+  padding: 10px 16px 14px;
+  border-top: 1px solid var(--card-border);
+  background: color-mix(in srgb, var(--background-main) 88%, transparent);
+}
+
+.note {
+  margin: 0;
+  font-size: 12px;
+  color: var(--text-muted);
+  text-align: center;
+  opacity: 0.7;
+}
+
+/* Feedback messages */
+.successMsg {
+  font-size: 13px;
+  color: var(--primary-color);
+  margin: 4px 0 0;
+  text-align: center;
+  line-height: 1.5;
+}
+
+.errorMsg {
+  font-size: 12px;
+  color: #ef4444;
+  margin: 2px 0 0;
+}
+
+/* Mobile */
+@media (max-width: 480px) {
+  .backdrop {
+    align-items: center;
+    padding: 16px;
+  }
+
+  .popup {
+    width: 100%;
+    border-radius: 20px;
+  }
+}

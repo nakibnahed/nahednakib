@@ -1,5 +1,32 @@
 import { createClient } from "@/lib/supabase/server";
+import { createClient as createAdminClient } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
+import { sendNewPostEmail } from "@/services/mailer";
+
+const supabaseAdmin = createAdminClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL,
+  process.env.SUPABASE_SERVICE_ROLE_KEY
+);
+
+async function broadcastNewPost(blog) {
+  try {
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://nahednakib.com";
+    const { data: subscribers } = await supabaseAdmin
+      .from("newsletter_subscribers")
+      .select("email, unsubscribe_token")
+      .eq("subscribed", true);
+
+    if (!subscribers?.length) return;
+
+    await Promise.allSettled(
+      subscribers.map((sub) =>
+        sendNewPostEmail(sub.email, sub.unsubscribe_token, blog, siteUrl)
+      )
+    );
+  } catch (err) {
+    console.error("Newsletter broadcast error:", err);
+  }
+}
 
 async function requireAdmin(supabase) {
   const {
@@ -70,6 +97,10 @@ export async function POST(request) {
       );
     }
 
+    if (blog.published) {
+      await broadcastNewPost(blog);
+    }
+
     return NextResponse.json({ blog });
   } catch (error) {
     console.error("Error in blog API:", error);
@@ -124,6 +155,14 @@ export async function PUT(request) {
       );
     }
 
+    // Snapshot current published state to detect the unpublished → published transition
+    const { data: current } = await supabase
+      .from("blogs")
+      .select("published")
+      .eq("id", id)
+      .single();
+    const wasUnpublished = current && !current.published;
+
     const updatePayload = {
       title,
       content,
@@ -149,6 +188,10 @@ export async function PUT(request) {
         { error: "Failed to update blog post" },
         { status: 500 },
       );
+    }
+
+    if (wasUnpublished && blog.published) {
+      await broadcastNewPost(blog);
     }
 
     return NextResponse.json({ blog });

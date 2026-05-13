@@ -28,6 +28,7 @@ export default function SettingsContent({ user }) {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deleting, setDeleting] = useState(false);
 
+
   useEffect(() => {
     async function loadProfileData() {
       try {

@@ -265,6 +265,24 @@ export default function NewBlogPage() {
       } catch (error) {
         console.error("Error sending blog notification:", error);
       }
+
+      // Send newsletter email to all subscribers
+      try {
+        await fetch("/api/newsletter/broadcast", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            blog: {
+              id: createdBlog?.id,
+              title: formData.title,
+              slug: uniqueSlug,
+              description: formData.description,
+            },
+          }),
+        });
+      } catch (error) {
+        console.error("Error sending newsletter broadcast:", error);
+      }
       router.push("/admin/blogs");
     }
     setLoading(false);

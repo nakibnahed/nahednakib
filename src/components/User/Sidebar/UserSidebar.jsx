@@ -14,6 +14,7 @@ import {
   Settings,
   LogOut,
   LayoutGrid,
+  Mail,
 } from "lucide-react";
 
 const NAV = [
@@ -46,6 +47,12 @@ const NAV = [
     label: "Meeting requests",
     href: "/conversation-practice?tab=requests",
     icon: CalendarCheck2,
+  },
+  {
+    key: "newsletter",
+    label: "Newsletter",
+    href: "/users/profile/newsletter",
+    icon: Mail,
   },
   {
     key: "settings",

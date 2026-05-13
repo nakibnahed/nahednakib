@@ -1,4 +1,9 @@
-import { supabase } from "@/services/supabaseClient";
+import { createClient } from "@supabase/supabase-js";
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL,
+  process.env.SUPABASE_SERVICE_ROLE_KEY
+);
 
 export async function GET(req) {
   try {
@@ -106,7 +111,7 @@ export async function GET(req) {
             </p>
             <div style="margin-top: 30px; padding: 20px; background-color: #f0f9ff; border-radius: 8px;">
               <p style="color: #1e40af; font-size: 14px; margin: 0;">
-                Changed your mind? You can always <a href="http://localhost:3000/contact" style="color: #3b82f6; text-decoration: none;">subscribe again</a> anytime.
+                Changed your mind? You can always <a href="${process.env.NEXT_PUBLIC_SITE_URL || "https://nahednakib.com"}/contact" style="color: #ee681a; text-decoration: none;">subscribe again</a> anytime.
               </p>
             </div>
             <p style="color: #6b7280; font-size: 14px; margin-top: 30px;">

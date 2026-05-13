@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Suspense } from "react";
 import styles from "./page.module.css";
+import NewsletterPopup from "@/components/NewsletterPopup/NewsletterPopup";
 import ActionBar from "@/components/ActionBar/ActionBar";
 import EngagementSection from "@/components/EngagementSection/EngagementSection";
 import ViewTracker from "./ViewTracker";
@@ -322,6 +323,7 @@ export default async function Post({ params }) {
           </ul>
         </section>
       )}
+      <NewsletterPopup />
     </div>
   );
 }
