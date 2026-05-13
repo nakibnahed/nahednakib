@@ -8,6 +8,7 @@ import { AuthSessionProvider } from "@/context/AuthSessionContext";
 import NotificationProviderBoundary from "@/components/NotificationProviderBoundary/NotificationProviderBoundary";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { Analytics } from "@vercel/analytics/next";
+import ScrollToTop from "@/components/ScrollToTop/ScrollToTop";
 import { Unbounded, Montserrat } from "next/font/google";
 
 const unbounded = Unbounded({
@@ -152,6 +153,7 @@ export default function RootLayout({ children }) {
                 <Footer />
               </div>
               <ToastContainer />
+              <ScrollToTop />
               <SpeedInsights />
               <Analytics />
             </NotificationProviderBoundary>
