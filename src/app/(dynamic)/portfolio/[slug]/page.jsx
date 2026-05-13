@@ -1,4 +1,6 @@
 import styles from "./page.module.css";
+import Link from "next/link";
+import Image from "next/image";
 import ActionBar from "@/components/ActionBar/ActionBar";
 import EngagementSection from "@/components/EngagementSection/EngagementSection";
 import ViewTracker from "./ViewTracker";
@@ -65,6 +67,54 @@ async function fetchPortfolioEngagementCounts(portfolioId) {
     viewsCount: viewsResult.count ?? 0,
     likesCount: likesResult.count ?? 0,
   };
+}
+
+// ─── Related Projects ─────────────────────────────────────────────────────────
+
+async function fetchRelatedProjects(portfolio, technologies) {
+  try {
+    const { createClient } = await import("@/lib/supabase/server");
+    const supabase = await createClient();
+
+    const { data: allProjects, error } = await supabase
+      .from("portfolios")
+      .select("id, title, slug, description, image, category, technologies, created_at")
+      .neq("id", portfolio.id)
+      .order("created_at", { ascending: false })
+      .limit(10);
+
+    if (error || !allProjects) return [];
+
+    const categoryProjects = allProjects.filter(
+      (p) =>
+        p.category &&
+        portfolio.category &&
+        p.category.toLowerCase() === portfolio.category.toLowerCase(),
+    );
+
+    const techProjects = allProjects.filter((p) => {
+      if (!p.technologies || !technologies.length) return false;
+      const pTechs = p.technologies.toLowerCase();
+      return technologies.some((t) => pTechs.includes(t.toLowerCase()));
+    });
+
+    const combined = [...categoryProjects];
+    techProjects.forEach((p) => {
+      if (!combined.find((c) => c.id === p.id)) combined.push(p);
+    });
+
+    if (combined.length < 3) {
+      allProjects.forEach((p) => {
+        if (combined.length >= 3) return;
+        if (!combined.find((c) => c.id === p.id)) combined.push(p);
+      });
+    }
+
+    return combined.slice(0, 3);
+  } catch (e) {
+    console.error("Error fetching related projects:", e);
+    return [];
+  }
 }
 
 // ─── Metadata ─────────────────────────────────────────────────────────────────
@@ -275,6 +325,8 @@ export default async function PortfolioPage({ params }) {
         .filter(Boolean)
     : [];
 
+  const relatedProjects = await fetchRelatedProjects(portfolio, technologies);
+
   const portfolioJsonLd = buildCreativeWorkJsonLd({ portfolio });
   const hasLinks =
     (portfolio.live_url && portfolio.live_url.trim()) ||
@@ -373,6 +425,41 @@ export default async function PortfolioPage({ params }) {
               contentType="portfolio"
             />
           </div>
+
+          {relatedProjects.length > 0 && (
+            <section className={styles.relatedSection}>
+              <h2>Related Projects</h2>
+              <ul className={styles.relatedList}>
+                {relatedProjects.map((project) => (
+                  <li key={project.id}>
+                    <Link
+                      className={styles.relatedListItem}
+                      href={`/portfolio/${project.slug}`}
+                    >
+                      <Image
+                        className={styles.relatedPostThumb}
+                        src={project.image || "/images/portfolio.jpg"}
+                        alt={project.title}
+                        width={48}
+                        height={48}
+                      />
+                      <div className={styles.relatedPostInfo}>
+                        <span className={styles.relatedPostTitle}>
+                          {project.title}
+                        </span>
+                        <span className={styles.relatedPostDesc}>
+                          {project.description || "View this portfolio project..."}
+                        </span>
+                      </div>
+                      <span className={styles.relatedReadMore}>
+                        View Project <span className={styles.arrow}>→</span>
+                      </span>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )}
         </div>
 
         <aside className={styles.sidebar}>
@@ -511,6 +598,7 @@ export default async function PortfolioPage({ params }) {
           </div>
         </aside>
       </div>
+
     </div>
   );
 }

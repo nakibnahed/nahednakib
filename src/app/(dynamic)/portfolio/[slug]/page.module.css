@@ -542,6 +542,11 @@
     gap: 1.25rem;
   }
 
+  .relatedSection {
+    order: 5;
+    width: 100%;
+  }
+
   .hero {
     min-height: 300px;
   }
@@ -678,5 +683,112 @@
 
   .prose {
     font-size: 0.88rem;
+  }
+}
+
+/* ─── Related Projects ────────────────────────────────────── */
+.relatedSection {
+  padding-top: 18px;
+}
+.relatedSection h2 {
+  font-weight: 600;
+  margin-bottom: 14px;
+  color: var(--primary-color);
+  background: var(--gradient-typography-primary);
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-size: 1.2rem;
+}
+.relatedList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.relatedList li {
+  position: relative;
+  padding-left: 16px;
+}
+.relatedList li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--primary-color);
+}
+.relatedListItem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 16px 0;
+  border: none;
+  border-bottom: 1px solid var(--card-border);
+  border-radius: 0;
+  text-decoration: none;
+  transition: opacity 0.18s;
+  background: transparent;
+}
+.relatedListItem:hover {
+  opacity: 0.92;
+}
+.relatedPostThumb {
+  display: none;
+}
+.relatedPostInfo {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+.relatedPostTitle {
+  font-weight: 700;
+  color: var(--text-dark);
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.relatedPostDesc {
+  display: none;
+}
+.relatedReadMore {
+  display: none;
+}
+.arrow {
+  display: inline-block;
+  transition: transform 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.relatedListItem:hover .arrow {
+  transform: translateX(6px);
+}
+@media (max-width: 600px) {
+  .relatedListItem {
+    display: block;
+    align-items: initial;
+    gap: 0;
+    padding: 12px 0;
+  }
+  .relatedList li {
+    padding-left: 14px;
+  }
+  .relatedList li::before {
+    width: 5px;
+    height: 5px;
+  }
+  .relatedPostInfo {
+    gap: 4px;
+    min-width: 0;
+  }
+  .relatedPostTitle {
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
   }
 }
