@@ -101,6 +101,7 @@
   font-weight: 700;
   cursor: pointer;
   text-decoration: none;
+  white-space: nowrap;
 }
 
 .aboutButton {
@@ -142,8 +143,7 @@
   }
 
   .button {
-    padding: 12px;
-    font-size: 18px;
+    padding: 12px 16px;
   }
 }
 
@@ -152,48 +152,46 @@
   .container {
     flex-direction: column;
     gap: 0;
-    padding: 24px 20px;
+    padding: 48px 24px 72px;
     align-items: center;
     justify-content: center;
   }
 
   .col {
-    gap: 20px;
+    gap: 28px;
     width: 100%;
   }
 
   .title {
-    font-size: 32px;
+    font-size: 44px;
+    line-height: 1.1;
   }
 
   .description {
-    font-size: 16px;
-    line-height: 1.7;
+    font-size: 15px;
+    line-height: 1.75;
     max-width: 100%;
+    color: var(--text-muted);
   }
 
   .heroButtons {
-    flex-direction: column;
-    width: 100%;
+    flex-direction: row;
+    flex-wrap: wrap;
     gap: 12px;
   }
 
   .button {
-    width: 100%;
+    flex: 1;
+    min-width: 130px;
     justify-content: center;
-    padding: 14px 20px;
-    font-size: 15px;
+    padding: 12px 16px;
+    font-size: 14px;
     font-weight: 700;
-  }
-
-  .movingElement {
-    width: 80px;
-    height: 80px;
   }
 }
 
 @media (max-width: 480px) {
   .title {
-    font-size: 26px;
+    font-size: 36px;
   }
 }
