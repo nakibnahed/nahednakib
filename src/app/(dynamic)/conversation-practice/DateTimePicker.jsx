@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
+import { FiCalendar, FiClock } from "react-icons/fi";
 import styles from "./DateTimePicker.module.css";
 
 const DAYS = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
@@ -300,19 +301,7 @@ export default function DateTimePicker({
             setView("calendar");
           }}
         >
-          <svg
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-          >
-            <rect x="3" y="4" width="18" height="18" rx="2" />
-            <line x1="16" y1="2" x2="16" y2="6" />
-            <line x1="8" y1="2" x2="8" y2="6" />
-            <line x1="3" y1="10" x2="21" y2="10" />
-          </svg>
+          <FiCalendar size={16} />
           <span className={styles.triggerText}>
             {selected ? formatDisplay(selected) : placeholder}
           </span>
@@ -342,19 +331,7 @@ export default function DateTimePicker({
                 className={`${styles.tabBtn} ${view === "calendar" ? styles.tabActive : ""}`}
                 onClick={() => setView("calendar")}
               >
-                <svg
-                  width="14"
-                  height="14"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                >
-                  <rect x="3" y="4" width="18" height="18" rx="2" />
-                  <line x1="3" y1="10" x2="21" y2="10" />
-                  <line x1="8" y1="2" x2="8" y2="6" />
-                  <line x1="16" y1="2" x2="16" y2="6" />
-                </svg>
+                <FiCalendar size={14} />
                 Date
               </button>
               <button
@@ -362,17 +339,7 @@ export default function DateTimePicker({
                 className={`${styles.tabBtn} ${view === "time" ? styles.tabActive : ""}`}
                 onClick={() => setView("time")}
               >
-                <svg
-                  width="14"
-                  height="14"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                >
-                  <circle cx="12" cy="12" r="9" />
-                  <polyline points="12 7 12 12 15 15" />
-                </svg>
+                <FiClock size={14} />
                 Time
               </button>
             </div>

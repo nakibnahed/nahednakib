@@ -6,6 +6,7 @@ import { Tag } from "lucide-react";
 import { supabase } from "@/services/supabaseClient";
 import { slugify } from "@/lib/utils/slugify";
 import { showAppToast } from "@/lib/showAppToast";
+import ConfirmationModal from "@/components/ConfirmationModal/ConfirmationModal";
 import styles from "./Categories.module.css";
 
 export default function CategoriesPage() {
@@ -13,6 +14,7 @@ export default function CategoriesPage() {
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [editingCategory, setEditingCategory] = useState(null);
+  const [deleteConfirmCategory, setDeleteConfirmCategory] = useState(null);
   const [formData, setFormData] = useState({
     name: "",
     slug: "",
@@ -92,11 +94,16 @@ export default function CategoriesPage() {
     setLoading(false);
   }
 
-  async function deleteCategory(id) {
-    if (!confirm("Are you sure you want to delete this category?")) return;
+  function deleteCategory(category) {
+    setDeleteConfirmCategory(category);
+  }
+
+  async function confirmDeleteCategory() {
+    const category = deleteConfirmCategory;
+    if (!category) return;
 
     setLoading(true);
-    const { error } = await supabase.from("categories").delete().eq("id", id);
+    const { error } = await supabase.from("categories").delete().eq("id", category.id);
 
     if (error) {
       showAppToast(error.message || "Could not delete category.", "error");
@@ -256,7 +263,7 @@ export default function CategoriesPage() {
                   Edit
                 </button>
                 <button
-                  onClick={() => deleteCategory(category.id)}
+                  onClick={() => deleteCategory(category)}
                   className={styles.deleteButton}
                 >
                   Delete
@@ -266,6 +273,17 @@ export default function CategoriesPage() {
           ))}
         </div>
       )}
+
+      <ConfirmationModal
+        isOpen={!!deleteConfirmCategory}
+        onClose={() => setDeleteConfirmCategory(null)}
+        onConfirm={confirmDeleteCategory}
+        title="Delete category"
+        message={`Are you sure you want to delete "${deleteConfirmCategory?.name}"? This cannot be undone.`}
+        confirmText="Delete"
+        cancelText="Cancel"
+        type="danger"
+      />
     </div>
   );
 }

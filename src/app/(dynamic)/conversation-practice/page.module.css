@@ -46,14 +46,14 @@
 }
 
 .logoDot {
-  width: 36px;
-  height: 36px;
+  width: 38px;
+  height: 38px;
   border-radius: 10px;
-  background: var(--button-bg);
+  background: color-mix(in srgb, var(--primary-color) 12%, transparent);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 18px;
+  color: var(--primary-color, #ee681a);
   flex-shrink: 0;
 }
 
@@ -589,9 +589,15 @@
 }
 
 .emptyIcon {
-  font-size: 44px;
-  margin-bottom: 12px;
-  opacity: 0.4;
+  width: 56px;
+  height: 56px;
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--primary-color) 12%, transparent);
+  color: var(--primary-color, #ee681a);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 14px;
 }
 .emptyText {
   font-size: 15px;

@@ -2,6 +2,21 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import {
+  FiMoon,
+  FiSun,
+  FiClock,
+  FiCalendar,
+  FiAlertCircle,
+  FiArrowRight,
+  FiArrowLeft,
+  FiXCircle,
+  FiMessageSquare,
+  FiUsers,
+  FiMail,
+} from "react-icons/fi";
+import { MessageCircle } from "lucide-react";
+import ConfirmationModal from "@/components/ConfirmationModal/ConfirmationModal";
 import DateTimePicker from "./DateTimePicker";
 import { supabase } from "@/services/supabaseClient";
 import { normalizeSuggestedTimeDisplay } from "@/utils/practiceSuggestedTime";
@@ -159,6 +174,7 @@ export default function ConversationPracticePage() {
   const [cancelModalRequest, setCancelModalRequest] = useState(null);
   const [cancelReason, setCancelReason] = useState("");
   const [authPrompt, setAuthPrompt] = useState(null);
+  const [deleteConfirmStudent, setDeleteConfirmStudent] = useState(null);
   const studentsFetchSeqRef = useRef(0);
   const requestsFetchSeqRef = useRef(0);
   const bootSeqRef = useRef(0);
@@ -542,12 +558,14 @@ export default function ConversationPracticePage() {
     setCancelReason("");
   }
 
-  async function deleteAvailabilitySession(student) {
+  function deleteAvailabilitySession(student) {
     if (!isAdmin) return;
-    const ok = window.confirm(
-      `Delete availability session for ${student.name}?`,
-    );
-    if (!ok) return;
+    setDeleteConfirmStudent(student);
+  }
+
+  async function confirmDeleteSession() {
+    const student = deleteConfirmStudent;
+    if (!student) return;
 
     const { error } = await supabase
       .from("practice_students")
@@ -555,11 +573,10 @@ export default function ConversationPracticePage() {
       .eq("id", student.id);
 
     if (error) {
-      showToast("Could not delete this session");
+      showToast("Could not delete this session", "error");
       return;
     }
 
-    // Clean pending requests targeted to the deleted session
     await supabase
       .from("practice_requests")
       .delete()
@@ -569,9 +586,7 @@ export default function ConversationPracticePage() {
     showToast("Availability session deleted");
     await fetchStudents();
     if (currentUser?.id) {
-      await fetchRequests({
-        userId: currentUser?.id,
-      });
+      await fetchRequests({ userId: currentUser?.id });
     }
   }
 
@@ -612,7 +627,7 @@ export default function ConversationPracticePage() {
     <div className={styles.page} dir="ltr" lang="en">
       <header className={styles.header}>
         <div className={styles.logo}>
-          <div className={styles.logoDot}>💬</div>
+          <div className={styles.logoDot}><MessageCircle size={22} /></div>
           <div>
             <div className={styles.logoText}>Conversation Practice</div>
             <div className={styles.logoSub}>
@@ -704,7 +719,7 @@ export default function ConversationPracticePage() {
         <div className={styles.studentsGrid}>
           {filtered.length === 0 ? (
             <div className={styles.empty}>
-              <div className={styles.emptyIcon}>👥</div>
+              <div className={styles.emptyIcon}><FiUsers size={32} /></div>
               <div className={styles.emptyText}>
                 No students currently available.
               </div>
@@ -749,37 +764,7 @@ export default function ConversationPracticePage() {
                     const isNight = sl === "night" || sl === "evening";
                     return (
                       <span key={sl} className={styles.slotPill}>
-                        {isNight ? (
-                          <svg
-                            width="12"
-                            height="12"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            strokeWidth="2"
-                          >
-                            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
-                          </svg>
-                        ) : (
-                          <svg
-                            width="12"
-                            height="12"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            strokeWidth="2"
-                          >
-                            <circle cx="12" cy="12" r="5" />
-                            <line x1="12" y1="1" x2="12" y2="3" />
-                            <line x1="12" y1="21" x2="12" y2="23" />
-                            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
-                            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
-                            <line x1="1" y1="12" x2="3" y2="12" />
-                            <line x1="21" y1="12" x2="23" y2="12" />
-                            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
-                            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
-                          </svg>
-                        )}
+                        {isNight ? <FiMoon size={12} /> : <FiSun size={12} />}
                         {slotLabel(sl)}
                       </span>
                     );
@@ -790,42 +775,16 @@ export default function ConversationPracticePage() {
                       return (
                         <>
                           <div className={styles.cardTime}>
-                            <svg
-                              width="13"
-                              height="13"
-                              viewBox="0 0 24 24"
-                              fill="none"
-                              stroke="currentColor"
-                              strokeWidth="2"
-                            >
-                              <circle cx="12" cy="12" r="10" />
-                              <polyline points="12 6 12 12 16 14" />
-                            </svg>
+                            <FiClock size={13} />
                             {parts.time}
                           </div>
                           <div className={styles.cardTime}>
-                            <svg
-                              width="13"
-                              height="13"
-                              viewBox="0 0 24 24"
-                              fill="none"
-                              stroke="currentColor"
-                              strokeWidth="2"
-                            >
-                              <rect x="3" y="4" width="18" height="18" rx="2" />
-                              <line x1="16" y1="2" x2="16" y2="6" />
-                              <line x1="8" y1="2" x2="8" y2="6" />
-                              <line x1="3" y1="10" x2="21" y2="10" />
-                            </svg>
+                            <FiCalendar size={13} />
                             {parts.date}
                           </div>
                           {isPast && (
                             <div className={styles.cardTimePast}>
-                              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                <circle cx="12" cy="12" r="10" />
-                                <line x1="12" y1="8" x2="12" y2="12" />
-                                <line x1="12" y1="16" x2="12.01" y2="16" />
-                              </svg>
+                              <FiAlertCircle size={12} />
                               Time passed
                             </div>
                           )}
@@ -968,7 +927,7 @@ export default function ConversationPracticePage() {
         </div>
         {visibleRequests.length === 0 ? (
           <div className={styles.empty}>
-            <div className={styles.emptyIcon}>📨</div>
+            <div className={styles.emptyIcon}><FiMail size={32} /></div>
             <div className={styles.emptyText}>No requests in this status</div>
           </div>
         ) : (
@@ -1000,18 +959,12 @@ export default function ConversationPracticePage() {
                       <span className={styles.reqDirectionPill}>
                         {isIncoming ? (
                           <>
-                            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                              <line x1="5" y1="12" x2="19" y2="12" />
-                              <polyline points="12 5 19 12 12 19" />
-                            </svg>
+                            <FiArrowRight size={11} />
                             Incoming
                           </>
                         ) : (
                           <>
-                            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                              <line x1="19" y1="12" x2="5" y2="12" />
-                              <polyline points="12 19 5 12 12 5" />
-                            </svg>
+                            <FiArrowLeft size={11} />
                             Outgoing
                           </>
                         )}
@@ -1036,39 +989,24 @@ export default function ConversationPracticePage() {
                       {splitTimeDisplay(timeDisplay) ? (
                         <>
                           <span className={styles.cardTime}>
-                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                              <circle cx="12" cy="12" r="10" />
-                              <polyline points="12 6 12 12 16 14" />
-                            </svg>
+                            <FiClock size={12} />
                             {splitTimeDisplay(timeDisplay).time}
                           </span>
                           <span className={styles.cardTime}>
-                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                              <rect x="3" y="4" width="18" height="18" rx="2" />
-                              <line x1="16" y1="2" x2="16" y2="6" />
-                              <line x1="8" y1="2" x2="8" y2="6" />
-                              <line x1="3" y1="10" x2="21" y2="10" />
-                            </svg>
+                            <FiCalendar size={12} />
                             {splitTimeDisplay(timeDisplay).date}
                           </span>
                         </>
                       ) : timeDisplay ? (
                         <span className={styles.cardTime}>
-                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                            <circle cx="12" cy="12" r="10" />
-                            <polyline points="12 6 12 12 16 14" />
-                          </svg>
+                          <FiClock size={12} />
                           {timeDisplay}
                         </span>
                       ) : null}
                       {/* cancelled by */}
                       {r.status === "cancelled" && r.cancelled_by_name && (
                         <span className={styles.cardTime}>
-                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                            <circle cx="12" cy="12" r="10" />
-                            <line x1="15" y1="9" x2="9" y2="15" />
-                            <line x1="9" y1="9" x2="15" y2="15" />
-                          </svg>
+                          <FiXCircle size={12} />
                           {r.cancelled_by_name}
                         </span>
                       )}
@@ -1076,17 +1014,13 @@ export default function ConversationPracticePage() {
                     {/* message / reason */}
                     {r.status === "cancelled" && r.cancellation_reason && (
                       <div className={styles.reqMessage}>
-                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-                        </svg>
+                        <FiMessageSquare size={11} />
                         {r.cancellation_reason}
                       </div>
                     )}
                     {r.status !== "cancelled" && r.status !== "declined" && r.message && (
                       <div className={styles.reqMessage}>
-                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-                        </svg>
+                        <FiMessageSquare size={11} />
                         {r.message}
                       </div>
                     )}
@@ -1228,6 +1162,17 @@ export default function ConversationPracticePage() {
           </div>
         )}
       </div>
+
+      <ConfirmationModal
+        isOpen={!!deleteConfirmStudent}
+        onClose={() => setDeleteConfirmStudent(null)}
+        onConfirm={confirmDeleteSession}
+        title="Delete availability session"
+        message={`Delete the availability session for ${deleteConfirmStudent?.name}? Any pending requests to this session will also be removed.`}
+        confirmText="Delete"
+        cancelText="Cancel"
+        type="danger"
+      />
     </div>
   );
 }
