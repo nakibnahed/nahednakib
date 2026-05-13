@@ -132,7 +132,7 @@ export default function ServicesPage() {
             onClick={() => setActiveTab("running")}
           >
             <Activity size={16} strokeWidth={2} />
-            Running Coaching
+            Running Plans
           </button>
         </div>
       </div>

@@ -1,14 +1,14 @@
 import { getSiteUrl, siteDefaults, getDefaultOgImageUrl } from "@/lib/seo/site";
 
-const title = "Web Development & Running Coaching Services | Nahed Nakib";
+const title = "Web Development & Running Plans Services | Nahed Nakib";
 const description =
-  "Hire Nahed Nakib for custom web development — Next.js websites, full-stack apps, CMS, SEO, and API integrations — or get a personalised running coaching plan built around your goals.";
+  "Hire Nahed Nakib for custom web development — Next.js websites, full-stack apps, CMS, SEO, and API integrations — or get a personalised running plan built around your goals.";
 const url = `${getSiteUrl()}/services`;
 const ogImage = {
   url: getDefaultOgImageUrl(),
   width: 1200,
   height: 630,
-  alt: "Nahed Nakib — Web Development & Running Coaching Services",
+  alt: "Nahed Nakib — Web Development & Running Plans Services",
 };
 
 const jsonLd = [
@@ -32,10 +32,10 @@ const jsonLd = [
   {
     "@context": "https://schema.org",
     "@type": "Service",
-    "@id": `${url}#running-coaching`,
-    name: "Running Coaching",
+    "@id": `${url}#running-plans`,
+    name: "Running Plans",
     description:
-      "Personalised distance running coaching — custom training plans, race preparation, pacing strategy, and injury prevention for runners of all levels.",
+      "Personalised distance running plans — custom training plans, race preparation, pacing strategy, and injury prevention for runners of all levels.",
     provider: {
       "@type": "Person",
       "@id": `${getSiteUrl()}#person`,
