@@ -11,12 +11,11 @@ export default function HomeClient() {
         <GridBackground />
       </div>
       <div className={styles.col}>
+        <span className={styles.badge}>Runner & Web Developer</span>
         <h1 className={styles.title}>Welcome to Nahed</h1>
         <p className={styles.description}>
-          Distance runner and junior web developer.
-          <br />
-          Clean code. Clear goals. Whether on the web or on the track, I bring
-          discipline and precision to every step.
+          Distance runner and junior web developer. Clean code, clear goals —
+          discipline and precision on the web and on the track.
         </p>
         <div className={styles.heroButtons}>
           <Link href="/services" className={styles.button}>
