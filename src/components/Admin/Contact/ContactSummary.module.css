@@ -208,7 +208,219 @@
   margin-top: 20px;
 }
 
-/* Dark mode adjustments */
+.clickableRow {
+  cursor: pointer;
+}
+
+.clickableRow {
+  cursor: pointer;
+}
+
+.truncatedCell {
+  color: var(--text-muted);
+  font-size: 0.875rem;
+}
+
+/* ── Modal ── */
+
+/*
+  Overlay starts at 70px (--admin-top-offset) so the modal is never
+  hidden under the site navbar. Z-index is above the sidebar (40) and
+  the mobile drawer (10001).
+*/
+.modalOverlay {
+  position: fixed;
+  top: 70px;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 10002;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.25rem;
+  animation: overlayIn 0.18s ease;
+}
+
+@keyframes overlayIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* Glass card — same recipe as WarmingPop / statCard */
+.modal {
+  position: relative;
+  width: 100%;
+  max-width: 600px;
+  max-height: calc(100dvh - 70px - 2.5rem);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  border-radius: 24px;
+  border: 1px solid var(--card-border);
+  background: color-mix(in srgb, var(--background-main) 94%, #000 6%);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.35);
+  animation: modalIn 0.22s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Same subtle inner glow used by WarmingPop */
+.modal::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    145deg,
+    rgba(255, 255, 255, 0.025) 0%,
+    rgba(255, 255, 255, 0.01) 35%,
+    rgba(255, 255, 255, 0) 65%
+  );
+  pointer-events: none;
+  border-radius: inherit;
+  z-index: 0;
+}
+
+.modal > * {
+  position: relative;
+  z-index: 1;
+}
+
+@keyframes modalIn {
+  from { opacity: 0; transform: scale(0.96) translateY(10px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.modalHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.5rem 1.5rem 1.25rem;
+  border-bottom: 1px solid color-mix(in srgb, var(--card-border) 70%, transparent);
+}
+
+.modalHeaderInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+/* Gradient name — same pattern as .pageTitle */
+.modalName {
+  margin: 0;
+  font-size: clamp(1.1rem, 2.5vw, 1.35rem);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+  background: var(--gradient-typography-secondery);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-family: var(--font-heading, inherit);
+}
+
+.modalEmail {
+  font-size: 0.875rem;
+  color: var(--primary-color);
+  text-decoration: none;
+  opacity: 0.8;
+  transition: opacity 0.15s;
+}
+
+.modalEmail:hover {
+  opacity: 1;
+}
+
+.modalClose {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid color-mix(in srgb, var(--card-border) 60%, transparent);
+  background: color-mix(in srgb, var(--background-main) 70%, transparent);
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+
+.modalClose:hover {
+  background: color-mix(in srgb, var(--primary-color) 15%, transparent);
+  border-color: color-mix(in srgb, var(--primary-color) 40%, transparent);
+  color: var(--text-dark);
+}
+
+.modalBody {
+  padding: 1.25rem 1.5rem 1.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+/* Inline meta row — Project Type · Timeline · Date */
+.modalMeta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid color-mix(in srgb, var(--card-border) 50%, transparent);
+}
+
+.modalMetaItem {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.modalMetaLabel {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  font-family: var(--font-heading), sans-serif;
+}
+
+.modalMetaValue {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-dark);
+}
+
+/* Long-form content fields */
+.modalField {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.modalFieldLabel {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  font-family: var(--font-heading), sans-serif;
+}
+
+.modalFieldValue {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  line-height: 1.7;
+  white-space: pre-wrap;
+  padding: 0.85rem 1rem;
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--background-main) 92%, #000 8%);
+  border: 1px solid color-mix(in srgb, var(--card-border) 55%, transparent);
+}
+
+/* Dark mode badge colours */
 @media (prefers-color-scheme: dark) {
   .statusBadge.active {
     background: rgba(22, 163, 74, 0.2);
@@ -221,7 +433,7 @@
   }
 }
 
-/* Responsive design */
+/* ── Responsive ── */
 @media (max-width: 768px) {
   .mainContainer {
     padding: 1rem;
@@ -289,6 +501,33 @@
     letter-spacing: 0.05em;
     text-align: left;
     flex-basis: 50%;
+  }
+
+  /* Bottom sheet on mobile */
+  .modalOverlay {
+    top: 0;
+    padding: 0;
+    align-items: flex-end;
+  }
+
+  .modal {
+    max-width: 100%;
+    max-height: 88dvh;
+    border-radius: 24px 24px 0 0;
+    animation: sheetIn 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  @keyframes sheetIn {
+    from { transform: translateY(100%); opacity: 0.6; }
+    to   { transform: translateY(0);    opacity: 1;   }
+  }
+
+  .modalHeader {
+    padding: 1.25rem 1.25rem 1rem;
+  }
+
+  .modalBody {
+    padding: 1rem 1.25rem 2rem;
   }
 }
 

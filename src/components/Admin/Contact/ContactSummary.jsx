@@ -4,7 +4,7 @@ import admin from "@/components/Admin/adminPage.module.css";
 import styles from "./ContactSummary.module.css";
 import { useEffect, useState, useMemo } from "react";
 import { supabase } from "@/services/supabaseClient";
-import { Download, Mail, MessageSquare, Users, FolderOpen } from "lucide-react";
+import { Download, Mail, MessageSquare, Users, FolderOpen, X } from "lucide-react";
 
 export default function ContactPage() {
   const [contactMessages, setContactMessages] = useState([]);
@@ -14,6 +14,20 @@ export default function ContactPage() {
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedForm, setSelectedForm] = useState("contact");
+  const [selectedItem, setSelectedItem] = useState(null);
+
+  // Lock body scroll and handle Escape when modal is open
+  useEffect(() => {
+    if (!selectedItem) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    const onKey = (e) => { if (e.key === "Escape") setSelectedItem(null); };
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.body.style.overflow = prev;
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [selectedItem]);
 
   const formTypes = [
     {
@@ -374,10 +388,7 @@ export default function ContactPage() {
                     <th>Name</th>
                     <th>Email</th>
                     <th>Project Type</th>
-                    <th>Description</th>
-                    <th>Features</th>
                     <th>Timeline</th>
-                    <th>Notes</th>
                     <th>Submitted On</th>
                   </>
                 )}
@@ -393,16 +404,19 @@ export default function ContactPage() {
             </thead>
             <tbody>
               {filteredData.map((item) => (
-                <tr key={item.id}>
+                <tr
+                  key={item.id}
+                  className={selectedForm !== "newsletter" ? styles.clickableRow : undefined}
+                  onClick={selectedForm !== "newsletter" ? () => setSelectedItem(item) : undefined}
+                >
                   {selectedForm === "contact" && (
                     <>
                       <td data-label="Name">{item.name}</td>
                       <td data-label="Email">{item.email}</td>
-                      <td
-                        data-label="Message"
-                        style={{ maxWidth: "300px", wordWrap: "break-word" }}
-                      >
-                        {item.message}
+                      <td data-label="Message" className={styles.truncatedCell}>
+                        {item.message?.length > 80
+                          ? item.message.slice(0, 80) + "…"
+                          : item.message}
                       </td>
                       <td data-label="Sent On">
                         {item.created_at
@@ -416,10 +430,7 @@ export default function ContactPage() {
                       <td data-label="Name">{item.name}</td>
                       <td data-label="Email">{item.email}</td>
                       <td data-label="Project Type">{item.project_type}</td>
-                      <td data-label="Description" style={{ maxWidth: "220px", wordWrap: "break-word" }}>{item.description}</td>
-                      <td data-label="Features" style={{ maxWidth: "180px", wordWrap: "break-word" }}>{item.features || "-"}</td>
                       <td data-label="Timeline">{item.timeline || "-"}</td>
-                      <td data-label="Notes" style={{ maxWidth: "180px", wordWrap: "break-word" }}>{item.notes || "-"}</td>
                       <td data-label="Submitted On">
                         {item.created_at
                           ? new Date(item.created_at).toLocaleString()
@@ -462,6 +473,108 @@ export default function ContactPage() {
               ))}
             </tbody>
           </table>
+        </div>
+      )}
+
+      {selectedItem && (
+        <div
+          className={styles.modalOverlay}
+          onClick={() => setSelectedItem(null)}
+        >
+          <div
+            className={styles.modal}
+            onClick={(e) => e.stopPropagation()}
+            role="dialog"
+            aria-modal="true"
+          >
+            <div className={styles.modalHeader}>
+              <div className={styles.modalHeaderInfo}>
+                <h2 className={styles.modalName}>{selectedItem.name}</h2>
+                <a
+                  href={`mailto:${selectedItem.email}`}
+                  className={styles.modalEmail}
+                >
+                  {selectedItem.email}
+                </a>
+              </div>
+              <button
+                className={styles.modalClose}
+                onClick={() => setSelectedItem(null)}
+                aria-label="Close"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            {selectedForm === "project" && (
+              <div className={styles.modalBody}>
+                <div className={styles.modalMeta}>
+                  <div className={styles.modalMetaItem}>
+                    <span className={styles.modalMetaLabel}>Project Type</span>
+                    <span className={styles.modalMetaValue}>{selectedItem.project_type}</span>
+                  </div>
+                  <div className={styles.modalMetaItem}>
+                    <span className={styles.modalMetaLabel}>Timeline</span>
+                    <span className={styles.modalMetaValue}>{selectedItem.timeline || "—"}</span>
+                  </div>
+                  <div className={styles.modalMetaItem}>
+                    <span className={styles.modalMetaLabel}>Submitted</span>
+                    <span className={styles.modalMetaValue}>
+                      {selectedItem.created_at
+                        ? new Date(selectedItem.created_at).toLocaleString()
+                        : "—"}
+                    </span>
+                  </div>
+                </div>
+
+                <div className={styles.modalField}>
+                  <span className={styles.modalFieldLabel}>Description</span>
+                  <p className={styles.modalFieldValue}>
+                    {selectedItem.description || "—"}
+                  </p>
+                </div>
+
+                {selectedItem.features && (
+                  <div className={styles.modalField}>
+                    <span className={styles.modalFieldLabel}>Features</span>
+                    <p className={styles.modalFieldValue}>
+                      {selectedItem.features}
+                    </p>
+                  </div>
+                )}
+
+                {selectedItem.notes && selectedItem.notes !== "-" && (
+                  <div className={styles.modalField}>
+                    <span className={styles.modalFieldLabel}>Notes</span>
+                    <p className={styles.modalFieldValue}>
+                      {selectedItem.notes}
+                    </p>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {selectedForm === "contact" && (
+              <div className={styles.modalBody}>
+                <div className={styles.modalMeta}>
+                  <div className={styles.modalMetaItem}>
+                    <span className={styles.modalMetaLabel}>Sent</span>
+                    <span className={styles.modalMetaValue}>
+                      {selectedItem.created_at
+                        ? new Date(selectedItem.created_at).toLocaleString()
+                        : "—"}
+                    </span>
+                  </div>
+                </div>
+                <div className={styles.modalField}>
+                  <span className={styles.modalFieldLabel}>Message</span>
+                  <p className={styles.modalFieldValue}>
+                    {selectedItem.message}
+                  </p>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       )}
     </div>
