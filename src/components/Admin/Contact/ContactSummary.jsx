@@ -2,9 +2,12 @@
 
 import admin from "@/components/Admin/adminPage.module.css";
 import styles from "./ContactSummary.module.css";
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useRef } from "react";
 import { supabase } from "@/services/supabaseClient";
-import { Download, Mail, MessageSquare, Users, FolderOpen, X } from "lucide-react";
+import * as XLSX from "xlsx";
+import { Download, Mail, MessageSquare, Users, FolderOpen, X, Copy, Check, ChevronLeft, ChevronRight, FileSpreadsheet, FileJson } from "lucide-react";
+
+const PAGE_SIZE = 10;
 
 export default function ContactPage() {
   const [contactMessages, setContactMessages] = useState([]);
@@ -15,16 +18,34 @@ export default function ContactPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedForm, setSelectedForm] = useState("contact");
   const [selectedItem, setSelectedItem] = useState(null);
+  const [copiedEmail, setCopiedEmail] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [showExportMenu, setShowExportMenu] = useState(false);
+  const exportMenuRef = useRef(null);
 
-  // Lock body scroll and handle Escape when modal is open
+  useEffect(() => {
+    if (!showExportMenu) return;
+    const handler = (e) => {
+      if (exportMenuRef.current && !exportMenuRef.current.contains(e.target)) {
+        setShowExportMenu(false);
+      }
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [showExportMenu]);
+
+  // Lock scroll on both html and body, handle Escape
   useEffect(() => {
     if (!selectedItem) return;
-    const prev = document.body.style.overflow;
+    const prevBody = document.body.style.overflow;
+    const prevHtml = document.documentElement.style.overflow;
     document.body.style.overflow = "hidden";
+    document.documentElement.style.overflow = "hidden";
     const onKey = (e) => { if (e.key === "Escape") setSelectedItem(null); };
     document.addEventListener("keydown", onKey);
     return () => {
-      document.body.style.overflow = prev;
+      document.body.style.overflow = prevBody;
+      document.documentElement.style.overflow = prevHtml;
       document.removeEventListener("keydown", onKey);
     };
   }, [selectedItem]);
@@ -100,17 +121,19 @@ export default function ContactPage() {
   }
 
   async function fetchNewsletterSubscribers() {
-    const { data, error } = await supabase
-      .from("newsletter_subscribers")
-      .select("*")
-      .order("created_at", { ascending: false });
-
-    if (error) {
-      setError(error.message);
+    try {
+      const res = await fetch("/api/newsletter");
+      const json = await res.json();
+      if (!res.ok) {
+        setError(json.error || "Failed to load newsletter subscribers");
+        setNewsletterSubscribers([]);
+      } else {
+        setNewsletterSubscribers(json.subscribers);
+        setError(null);
+      }
+    } catch (err) {
+      setError(err.message);
       setNewsletterSubscribers([]);
-    } else {
-      setNewsletterSubscribers(data);
-      setError(null);
     }
   }
 
@@ -154,70 +177,86 @@ export default function ContactPage() {
     return [];
   }, [currentData, searchTerm, selectedForm]);
 
-  // Export functionality
-  const exportData = () => {
-    const currentFormType = formTypes.find((f) => f.id === selectedForm);
+  // Reset to page 1 whenever form type or search changes
+  useEffect(() => { setCurrentPage(1); }, [selectedForm, searchTerm]);
 
+  const totalPages = Math.ceil(filteredData.length / PAGE_SIZE);
+  const pagedData = filteredData.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
+
+  // ── Export helpers ──
+  const getExportRows = () => {
     if (selectedForm === "project") {
-      const csvContent = [
-        "Name,Email,Project Type,Description,Features,Timeline,Notes,Submitted On",
-        ...filteredData.map(
-          (item) =>
-            `"${item.name}","${item.email}","${item.project_type}","${(item.description || "").replace(/"/g, '""')}","${(item.features || "").replace(/"/g, '""')}","${item.timeline || ""}","${(item.notes || "").replace(/"/g, '""')}","${new Date(item.created_at).toLocaleString()}"`,
-        ),
-      ].join("\n");
-      downloadCSV(
-        csvContent,
-        `project_inquiries_${new Date().toISOString().split("T")[0]}.csv`,
-      );
-    } else if (selectedForm === "contact") {
-      const csvContent = [
-        "Name,Email,Message,Sent On",
-        ...filteredData.map(
-          (msg) =>
-            `"${msg.name}","${msg.email}","${msg.message.replace(
-              /"/g,
-              '""',
-            )}","${new Date(msg.created_at).toLocaleString()}"`,
-        ),
-      ].join("\n");
-
-      downloadCSV(
-        csvContent,
-        `contact_messages_${new Date().toISOString().split("T")[0]}.csv`,
-      );
-    } else if (selectedForm === "newsletter") {
-      const csvContent = [
-        "Email,Status,Subscribed Date,Unsubscribed Date",
-        ...filteredData.map(
-          (sub) =>
-            `"${sub.email}","${
-              sub.subscribed ? "Active" : "Unsubscribed"
-            }","${new Date(
-              sub.subscribed_at || sub.created_at,
-            ).toLocaleDateString()}","${
-              sub.unsubscribed_at
-                ? new Date(sub.unsubscribed_at).toLocaleDateString()
-                : ""
-            }"`,
-        ),
-      ].join("\n");
-
-      downloadCSV(
-        csvContent,
-        `newsletter_subscribers_${new Date().toISOString().split("T")[0]}.csv`,
-      );
+      return filteredData.map((item) => ({
+        Name: item.name,
+        Email: item.email,
+        "Project Type": item.project_type,
+        Description: item.description || "",
+        Features: item.features || "",
+        Timeline: item.timeline || "",
+        Notes: item.notes || "",
+        "Submitted On": item.created_at ? new Date(item.created_at).toLocaleString() : "",
+      }));
     }
+    if (selectedForm === "contact") {
+      return filteredData.map((msg) => ({
+        Name: msg.name,
+        Email: msg.email,
+        Message: msg.message,
+        "Sent On": msg.created_at ? new Date(msg.created_at).toLocaleString() : "",
+      }));
+    }
+    if (selectedForm === "newsletter") {
+      return filteredData.map((sub) => ({
+        Email: sub.email,
+        Status: sub.subscribed ? "Active" : "Unsubscribed",
+        "Subscribed Date": sub.subscribed_at || sub.created_at ? new Date(sub.subscribed_at || sub.created_at).toLocaleDateString() : "",
+        "Unsubscribed Date": sub.unsubscribed_at ? new Date(sub.unsubscribed_at).toLocaleDateString() : "",
+      }));
+    }
+    return [];
   };
 
-  const downloadCSV = (csvContent, filename) => {
-    const blob = new Blob([csvContent], { type: "text/csv" });
-    const url = window.URL.createObjectURL(blob);
+  const baseFilename = `${selectedForm}_${new Date().toISOString().split("T")[0]}`;
+
+  const exportCSV = () => {
+    const rows = getExportRows();
+    if (!rows.length) return;
+    const headers = Object.keys(rows[0]);
+    const csv = [
+      headers.join(","),
+      ...rows.map((r) => headers.map((h) => `"${String(r[h]).replace(/"/g, '""')}"`).join(",")),
+    ].join("\n");
+    triggerDownload(new Blob([csv], { type: "text/csv" }), `${baseFilename}.csv`);
+    setShowExportMenu(false);
+  };
+
+  const exportExcel = () => {
+    const rows = getExportRows();
+    if (!rows.length) return;
+    const ws = XLSX.utils.json_to_sheet(rows);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, selectedForm);
+    XLSX.writeFile(wb, `${baseFilename}.xlsx`);
+    setShowExportMenu(false);
+  };
+
+  const exportJSON = () => {
+    const rows = getExportRows();
+    if (!rows.length) return;
+    triggerDownload(
+      new Blob([JSON.stringify(rows, null, 2)], { type: "application/json" }),
+      `${baseFilename}.json`
+    );
+    setShowExportMenu(false);
+  };
+
+  const triggerDownload = (blob, filename) => {
+    const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
     a.download = filename;
     a.click();
-    window.URL.revokeObjectURL(url);
+    URL.revokeObjectURL(url);
   };
 
   const getCurrentFormType = () => formTypes.find((f) => f.id === selectedForm);
@@ -332,10 +371,50 @@ export default function ContactPage() {
           />
         </div>
 
-        <button onClick={exportData} className={styles.exportBtn}>
-          <Download size={16} />
-          Export CSV
-        </button>
+        {totalPages > 1 && (
+          <div className={styles.paginationInline}>
+            <button
+              className={styles.pageBtn}
+              onClick={() => setCurrentPage((p) => p - 1)}
+              disabled={currentPage === 1}
+              aria-label="Previous page"
+            >
+              <ChevronLeft size={15} />
+            </button>
+            <span className={styles.pageInfo}>{currentPage} / {totalPages}</span>
+            <button
+              className={styles.pageBtn}
+              onClick={() => setCurrentPage((p) => p + 1)}
+              disabled={currentPage === totalPages}
+              aria-label="Next page"
+            >
+              <ChevronRight size={15} />
+            </button>
+          </div>
+        )}
+
+        <div className={styles.exportWrap} ref={exportMenuRef}>
+          <button
+            className={styles.exportBtn}
+            onClick={() => setShowExportMenu((v) => !v)}
+          >
+            <Download size={14} />
+            Export
+          </button>
+          {showExportMenu && (
+            <div className={styles.exportMenu}>
+              <button onClick={exportCSV} className={styles.exportMenuItem}>
+                <Download size={13} /> CSV
+              </button>
+              <button onClick={exportExcel} className={styles.exportMenuItem}>
+                <FileSpreadsheet size={13} /> Excel
+              </button>
+              <button onClick={exportJSON} className={styles.exportMenuItem}>
+                <FileJson size={13} /> JSON
+              </button>
+            </div>
+          )}
+        </div>
       </div>
       </section>
 
@@ -403,7 +482,7 @@ export default function ContactPage() {
               </tr>
             </thead>
             <tbody>
-              {filteredData.map((item) => (
+              {pagedData.map((item) => (
                 <tr
                   key={item.id}
                   className={selectedForm !== "newsletter" ? styles.clickableRow : undefined}
@@ -476,6 +555,30 @@ export default function ContactPage() {
         </div>
       )}
 
+      {!loading && !error && totalPages > 1 && (
+        <div className={styles.pagination}>
+          <button
+            className={styles.pageBtn}
+            onClick={() => setCurrentPage((p) => p - 1)}
+            disabled={currentPage === 1}
+            aria-label="Previous page"
+          >
+            <ChevronLeft size={16} />
+          </button>
+          <span className={styles.pageInfo}>
+            {currentPage} / {totalPages}
+          </span>
+          <button
+            className={styles.pageBtn}
+            onClick={() => setCurrentPage((p) => p + 1)}
+            disabled={currentPage === totalPages}
+            aria-label="Next page"
+          >
+            <ChevronRight size={16} />
+          </button>
+        </div>
+      )}
+
       {selectedItem && (
         <div
           className={styles.modalOverlay}
@@ -490,12 +593,25 @@ export default function ContactPage() {
             <div className={styles.modalHeader}>
               <div className={styles.modalHeaderInfo}>
                 <h2 className={styles.modalName}>{selectedItem.name}</h2>
-                <a
-                  href={`mailto:${selectedItem.email}`}
-                  className={styles.modalEmail}
-                >
-                  {selectedItem.email}
-                </a>
+                <div className={styles.modalEmailRow}>
+                  <a
+                    href={`mailto:${selectedItem.email}`}
+                    className={styles.modalEmail}
+                  >
+                    {selectedItem.email}
+                  </a>
+                  <button
+                    className={styles.copyBtn}
+                    aria-label="Copy email"
+                    onClick={() => {
+                      navigator.clipboard.writeText(selectedItem.email);
+                      setCopiedEmail(true);
+                      setTimeout(() => setCopiedEmail(false), 2000);
+                    }}
+                  >
+                    {copiedEmail ? <Check size={13} /> : <Copy size={13} />}
+                  </button>
+                </div>
               </div>
               <button
                 className={styles.modalClose}

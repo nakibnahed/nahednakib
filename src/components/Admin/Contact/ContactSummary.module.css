@@ -7,13 +7,17 @@
   margin: 0;
 }
 
+.mainContainer :global(.filtersSection) {
+  margin-bottom: 0;
+}
+
 .controlsRow {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
   gap: 1rem;
   flex-wrap: wrap;
-  margin-bottom: 20px;
+  margin-bottom: 8px;
 }
 
 .filters {
@@ -68,25 +72,77 @@
 .exportBtn {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  padding: 10px 20px;
+  gap: 0.4rem;
+  padding: 8px 14px;
   background: var(--button-bg);
   color: var(--button-text);
   border: none;
   border-radius: 50px;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 600;
   cursor: pointer;
-  transition:
-    opacity 0.2s,
-    transform 0.15s;
+  flex-shrink: 0;
   white-space: nowrap;
+  transition: opacity 0.2s, transform 0.15s;
   box-shadow: var(--button-shadow);
 }
 
 .exportBtn:hover {
   opacity: 0.9;
   transform: translateY(-1px);
+}
+
+.exportWrap {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.exportMenu {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  z-index: 200;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 6px;
+  border-radius: 14px;
+  border: 1px solid var(--card-border);
+  background: color-mix(in srgb, var(--background-main) 94%, #000 6%);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+  min-width: 130px;
+  animation: overlayIn 0.15s ease;
+}
+
+.exportMenuItem {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 8px 10px;
+  border: none;
+  border-radius: 9px;
+  background: transparent;
+  color: var(--text-dark);
+  font-size: 13px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+  text-align: left;
+}
+
+.exportMenuItem:hover {
+  background: color-mix(in srgb, var(--primary-color) 12%, transparent);
+  color: var(--primary-color);
+}
+
+.paginationInline {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
 }
 
 .loading {
@@ -124,13 +180,14 @@
 
 .table th,
 .table td {
-  padding: 12px 14px;
+  padding: 9px 12px;
   border: none;
   border-bottom: 1px solid color-mix(in srgb, var(--card-border) 70%, transparent);
   text-align: center;
   background-color: transparent;
   color: var(--text-dark);
   vertical-align: middle;
+  font-size: 13px;
 }
 
 /* First row header corners */
@@ -212,8 +269,46 @@
   cursor: pointer;
 }
 
-.clickableRow {
+.pagination {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding-top: 0.5rem;
+}
+
+.pageBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid var(--card-border);
+  background: color-mix(in srgb, var(--background-main) 80%, transparent);
+  color: var(--text-dark);
   cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+
+.pageBtn:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--primary-color) 12%, transparent);
+  border-color: color-mix(in srgb, var(--primary-color) 40%, transparent);
+  color: var(--primary-color);
+}
+
+.pageBtn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.pageInfo {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  min-width: 60px;
+  text-align: center;
 }
 
 .truncatedCell {
@@ -322,6 +417,12 @@
   font-family: var(--font-heading, inherit);
 }
 
+.modalEmailRow {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
 .modalEmail {
   font-size: 0.875rem;
   color: var(--primary-color);
@@ -332,6 +433,27 @@
 
 .modalEmail:hover {
   opacity: 1;
+}
+
+.copyBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  border: 1px solid color-mix(in srgb, var(--card-border) 60%, transparent);
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+
+.copyBtn:hover {
+  background: color-mix(in srgb, var(--primary-color) 12%, transparent);
+  border-color: color-mix(in srgb, var(--primary-color) 35%, transparent);
+  color: var(--primary-color);
 }
 
 .modalClose {
@@ -366,30 +488,37 @@
 .modalMeta {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.35rem 1.5rem;
-  padding-bottom: 1rem;
+  justify-content: space-around;
+  gap: 0.5rem;
+  padding-bottom: 1.1rem;
   border-bottom: 1px solid color-mix(in srgb, var(--card-border) 50%, transparent);
 }
 
 .modalMetaItem {
   display: flex;
   flex-direction: column;
-  gap: 0.2rem;
+  gap: 0.25rem;
+  padding: 0.55rem 0.9rem;
+  border-radius: 12px;
+  border: 1px solid color-mix(in srgb, var(--card-border) 55%, transparent);
+  background: color-mix(in srgb, var(--background-main) 92%, #000 8%);
 }
 
 .modalMetaLabel {
-  font-size: 10px;
+  font-size: 9px;
   font-weight: 700;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: var(--text-muted);
+  color: var(--primary-color);
+  opacity: 0.7;
   font-family: var(--font-heading), sans-serif;
 }
 
 .modalMetaValue {
-  font-size: 0.875rem;
-  font-weight: 600;
+  font-size: 0.9rem;
+  font-weight: 700;
   color: var(--text-dark);
+  line-height: 1.3;
 }
 
 /* Long-form content fields */

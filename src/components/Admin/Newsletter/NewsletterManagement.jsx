@@ -1,9 +1,10 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import admin from "@/components/Admin/adminPage.module.css";
 import styles from "./NewsletterManagement.module.css";
-import { Mail, Trash2, Download, UserX, Users } from "lucide-react";
+import { Mail, Trash2, Download, UserX, Users, FileSpreadsheet, FileJson } from "lucide-react";
+import * as XLSX from "xlsx";
 import ConfirmationModal from "@/components/ConfirmationModal/ConfirmationModal";
 import { showAppToast } from "@/lib/showAppToast";
 
@@ -14,6 +15,18 @@ export default function NewsletterManagement() {
   const [filterStatus, setFilterStatus] = useState("all"); // all, subscribed, unsubscribed
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [subscriberToDelete, setSubscriberToDelete] = useState(null);
+  const [showExportMenu, setShowExportMenu] = useState(false);
+  const exportMenuRef = useRef(null);
+
+  useEffect(() => {
+    if (!showExportMenu) return;
+    const handler = (e) => {
+      if (exportMenuRef.current && !exportMenuRef.current.contains(e.target))
+        setShowExportMenu(false);
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [showExportMenu]);
 
   useEffect(() => {
     fetchSubscribers();
@@ -97,27 +110,59 @@ export default function NewsletterManagement() {
     }
   };
 
-  const exportSubscribers = () => {
-    const activeSubscribers = subscribers.filter((sub) => sub.subscribed);
-    const csvContent = [
-      "Email,Subscribed Date,Status",
-      ...activeSubscribers.map(
-        (sub) =>
-          `${sub.email},${new Date(
-            sub.subscribed_at || sub.created_at,
-          ).toLocaleDateString()},"Active"`,
-      ),
-    ].join("\n");
+  const getExportRows = () =>
+    filteredSubscribers.map((sub) => ({
+      Email: sub.email,
+      Status: sub.subscribed ? "Active" : "Unsubscribed",
+      "Subscribed Date": sub.subscribed_at || sub.created_at
+        ? new Date(sub.subscribed_at || sub.created_at).toLocaleDateString()
+        : "",
+      "Unsubscribed Date": sub.unsubscribed_at
+        ? new Date(sub.unsubscribed_at).toLocaleDateString()
+        : "",
+    }));
 
-    const blob = new Blob([csvContent], { type: "text/csv" });
-    const url = window.URL.createObjectURL(blob);
+  const baseFilename = `newsletter_${new Date().toISOString().split("T")[0]}`;
+
+  const triggerDownload = (blob, filename) => {
+    const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `newsletter_subscribers_${
-      new Date().toISOString().split("T")[0]
-    }.csv`;
+    a.download = filename;
     a.click();
-    window.URL.revokeObjectURL(url);
+    URL.revokeObjectURL(url);
+  };
+
+  const exportCSV = () => {
+    const rows = getExportRows();
+    if (!rows.length) return;
+    const headers = Object.keys(rows[0]);
+    const csv = [
+      headers.join(","),
+      ...rows.map((r) => headers.map((h) => `"${String(r[h]).replace(/"/g, '""')}"`).join(",")),
+    ].join("\n");
+    triggerDownload(new Blob([csv], { type: "text/csv" }), `${baseFilename}.csv`);
+    setShowExportMenu(false);
+  };
+
+  const exportExcel = () => {
+    const rows = getExportRows();
+    if (!rows.length) return;
+    const ws = XLSX.utils.json_to_sheet(rows);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Newsletter");
+    XLSX.writeFile(wb, `${baseFilename}.xlsx`);
+    setShowExportMenu(false);
+  };
+
+  const exportJSON = () => {
+    const rows = getExportRows();
+    if (!rows.length) return;
+    triggerDownload(
+      new Blob([JSON.stringify(rows, null, 2)], { type: "application/json" }),
+      `${baseFilename}.json`
+    );
+    setShowExportMenu(false);
   };
 
   const stats = {
@@ -194,10 +239,28 @@ export default function NewsletterManagement() {
             <option value="unsubscribed">Unsubscribed Only</option>
           </select>
         </div>
-        <button onClick={exportSubscribers} className={styles.exportBtn}>
-          <Download size={16} />
-          Export CSV
-        </button>
+        <div className={styles.exportWrap} ref={exportMenuRef}>
+          <button
+            className={styles.exportBtn}
+            onClick={() => setShowExportMenu((v) => !v)}
+          >
+            <Download size={14} />
+            Export
+          </button>
+          {showExportMenu && (
+            <div className={styles.exportMenu}>
+              <button onClick={exportCSV} className={styles.exportMenuItem}>
+                <Download size={13} /> CSV
+              </button>
+              <button onClick={exportExcel} className={styles.exportMenuItem}>
+                <FileSpreadsheet size={13} /> Excel
+              </button>
+              <button onClick={exportJSON} className={styles.exportMenuItem}>
+                <FileJson size={13} /> JSON
+              </button>
+            </div>
+          )}
+        </div>
       </div>
       </section>
 
