@@ -11,8 +11,8 @@ export default function HomeClient() {
         <GridBackground />
       </div>
       <div className={styles.col}>
-        <span className={styles.badge}>Runner & Web Developer</span>
-        <h1 className={styles.title}>Welcome to Nahed</h1>
+        <span className={styles.badge}>Code · Run · Repeat</span>
+        <h1 className={styles.title}>Nahed Nakib</h1>
         <p className={styles.description}>
           Distance runner and junior web developer. <br /> Clean code, clear
           goals — discipline and precision on the web and on the track.

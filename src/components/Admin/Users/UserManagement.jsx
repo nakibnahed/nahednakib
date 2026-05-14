@@ -1,9 +1,10 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import admin from "@/components/Admin/adminPage.module.css";
 import styles from "./UserManagement.module.css";
-import { Edit, Trash2, User, Shield, Eye, Ban, Users } from "lucide-react";
+import { Edit, Trash2, User, Shield, Eye, Ban, Users, Download, FileSpreadsheet, FileJson } from "lucide-react";
+import * as XLSX from "xlsx";
 import ConfirmationModal from "@/components/ConfirmationModal/ConfirmationModal";
 import { showAppToast } from "@/lib/showAppToast";
 
@@ -18,6 +19,18 @@ export default function UserManagement() {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [userToDelete, setUserToDelete] = useState(null);
   const [currentUser, setCurrentUser] = useState(null);
+  const [showExportMenu, setShowExportMenu] = useState(false);
+  const exportMenuRef = useRef(null);
+
+  useEffect(() => {
+    if (!showExportMenu) return;
+    const handler = (e) => {
+      if (exportMenuRef.current && !exportMenuRef.current.contains(e.target))
+        setShowExportMenu(false);
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [showExportMenu]);
 
   useEffect(() => {
     fetchUsers();
@@ -157,6 +170,54 @@ export default function UserManagement() {
 
   const isMainAdmin = currentUser?.email === MAIN_ADMIN_EMAIL;
 
+  const getExportRows = () =>
+    filteredUsers.map((user) => ({
+      Email: user.email || "",
+      Role: user.email === MAIN_ADMIN_EMAIL ? "Owner" : user.role,
+      "Created At": user.created_at ? new Date(user.created_at).toLocaleDateString() : "",
+    }));
+
+  const baseFilename = `users_${new Date().toISOString().split("T")[0]}`;
+
+  const triggerDownload = (blob, filename) => {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url; a.download = filename; a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const exportCSV = () => {
+    const rows = getExportRows();
+    if (!rows.length) return;
+    const headers = Object.keys(rows[0]);
+    const csv = [
+      headers.join(","),
+      ...rows.map((r) => headers.map((h) => `"${String(r[h]).replace(/"/g, '""')}"`).join(",")),
+    ].join("\n");
+    triggerDownload(new Blob([csv], { type: "text/csv" }), `${baseFilename}.csv`);
+    setShowExportMenu(false);
+  };
+
+  const exportExcel = () => {
+    const rows = getExportRows();
+    if (!rows.length) return;
+    const ws = XLSX.utils.json_to_sheet(rows);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Users");
+    XLSX.writeFile(wb, `${baseFilename}.xlsx`);
+    setShowExportMenu(false);
+  };
+
+  const exportJSON = () => {
+    const rows = getExportRows();
+    if (!rows.length) return;
+    triggerDownload(
+      new Blob([JSON.stringify(rows, null, 2)], { type: "application/json" }),
+      `${baseFilename}.json`
+    );
+    setShowExportMenu(false);
+  };
+
   if (loading) {
     return (
       <div className={`${admin.page} ${styles.container}`}>
@@ -212,6 +273,28 @@ export default function UserManagement() {
             onChange={(e) => setSearchTerm(e.target.value)}
             autoComplete="off"
           />
+          <div className={styles.exportWrap} ref={exportMenuRef}>
+            <button
+              className={styles.exportBtn}
+              onClick={() => setShowExportMenu((v) => !v)}
+            >
+              <Download size={14} />
+              Export
+            </button>
+            {showExportMenu && (
+              <div className={styles.exportMenu}>
+                <button onClick={exportCSV} className={styles.exportMenuItem}>
+                  <Download size={13} /> CSV
+                </button>
+                <button onClick={exportExcel} className={styles.exportMenuItem}>
+                  <FileSpreadsheet size={13} /> Excel
+                </button>
+                <button onClick={exportJSON} className={styles.exportMenuItem}>
+                  <FileJson size={13} /> JSON
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       </section>
 
