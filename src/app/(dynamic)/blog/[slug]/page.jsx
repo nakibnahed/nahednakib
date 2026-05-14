@@ -6,6 +6,11 @@ import NewsletterPopup from "@/components/NewsletterPopup/NewsletterPopup";
 import ActionBar from "@/components/ActionBar/ActionBar";
 import EngagementSection from "@/components/EngagementSection/EngagementSection";
 import ViewTracker from "./ViewTracker";
+import {
+  TableOfContentsProvider,
+  TableOfContentsMobile,
+} from "@/components/TableOfContents/TableOfContents";
+import { extractHeadings } from "@/lib/blog/headings";
 import { supabase } from "@/services/supabaseClient";
 import { calculateReadTime, formatReadTime } from "@/lib/utils/readTime";
 import {
@@ -147,6 +152,8 @@ export default async function Post({ params }) {
           .filter((t) => t.length > 0)
       : [];
 
+  const { html: contentHtml, headings } = extractHeadings(blog.content);
+
   let relatedPosts = [];
 
   try {
@@ -209,6 +216,7 @@ export default async function Post({ params }) {
   }
 
   return (
+    <TableOfContentsProvider headings={headings}>
     <div className={styles.container}>
       <script
         type="application/ld+json"
@@ -271,10 +279,11 @@ export default async function Post({ params }) {
           style={{ objectFit: "cover" }}
         />
       </div>
+      <TableOfContentsMobile />
       <main className={styles.content}>
         <div
           className={styles.prose}
-          dangerouslySetInnerHTML={{ __html: blog.content }}
+          dangerouslySetInnerHTML={{ __html: contentHtml }}
         />
       </main>
       <Suspense
@@ -325,5 +334,6 @@ export default async function Post({ params }) {
       )}
       <NewsletterPopup />
     </div>
+    </TableOfContentsProvider>
   );
 }

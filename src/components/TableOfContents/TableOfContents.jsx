@@ -82,7 +82,7 @@ function TocNavLinks({ className, navClassName }) {
       className={navClassName}
       aria-label="Table of contents"
     >
-      <p className={styles.tocTitle}>On this page</p>
+      <p className={styles.tocTitle}>Table of contents</p>
       <ul className={className}>
         {headings.map((h) => (
           <li
@@ -119,14 +119,58 @@ export function TableOfContentsDesktop() {
   );
 }
 
-/** Inline TOC — visible below 1200px, between featured image and article body. */
+/** Collapsible TOC — visible below 1200px, between featured image and article body. */
 export function TableOfContentsMobile() {
   const ctx = useContext(TocContext);
+  const [open, setOpen] = useState(false);
   if (!ctx) return null;
+  const { headings, activeId } = ctx;
+
   return (
-    <TocNavLinks
-      navClassName={`${styles.inline} ${styles.mobileOnly}`}
-      className={styles.list}
-    />
+    <nav
+      className={styles.collapsible}
+      aria-label="Table of contents"
+    >
+      <button
+        type="button"
+        className={styles.collapsibleToggle}
+        onClick={() => setOpen((o) => !o)}
+        aria-expanded={open}
+        aria-controls="toc-collapsible-list"
+      >
+        <span>Table of contents</span>
+        <span
+          className={`${styles.collapsibleChevron} ${
+            open ? styles.collapsibleChevronOpen : ""
+          }`}
+          aria-hidden="true"
+        >
+          ▾
+        </span>
+      </button>
+      {open ? (
+        <ul id="toc-collapsible-list" className={styles.collapsibleList}>
+          {headings.map((h) => (
+            <li
+              key={h.id}
+              className={h.level === 3 ? styles.itemH3 : styles.itemH2}
+            >
+              <button
+                type="button"
+                className={
+                  activeId === h.id ? styles.linkActive : styles.link
+                }
+                onClick={() => {
+                  scrollToHeading(h.id);
+                  setOpen(false);
+                }}
+              >
+                {h.text}
+              </button>
+            </li>
+          ))}
+        </ul>
+      ) : null}
+    </nav>
   );
 }
