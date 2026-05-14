@@ -128,6 +128,76 @@
   background: var(--form-control-bg-focus);
 }
 
+.exportWrap {
+  position: relative;
+  flex-shrink: 0;
+  margin-left: auto;
+}
+
+.exportBtn {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 8px 14px;
+  background: var(--button-bg);
+  color: var(--button-text);
+  border: none;
+  border-radius: 50px;
+  font-size: 13px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: opacity 0.2s, transform 0.15s;
+  box-shadow: var(--button-shadow);
+}
+
+.exportBtn:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+.exportMenu {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  z-index: 200;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 6px;
+  border-radius: 14px;
+  border: 1px solid var(--card-border);
+  background: color-mix(in srgb, var(--background-main) 94%, #000 6%);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+  min-width: 130px;
+}
+
+.exportMenuItem {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 8px 10px;
+  border: none;
+  border-radius: 9px;
+  background: transparent;
+  color: var(--text-dark);
+  font-size: 13px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+  text-align: left;
+}
+
+.exportMenuItem:hover {
+  background: color-mix(in srgb, var(--primary-color) 12%, transparent);
+  color: var(--primary-color);
+}
+
 /* Feedback List */
 .feedbackList {
   display: flex;

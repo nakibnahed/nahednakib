@@ -1,11 +1,12 @@
 "use client";
 
 import admin from "@/components/Admin/adminPage.module.css";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { supabase } from "@/services/supabaseClient";
 import styles from "./Feedback.module.css";
 import ConfirmationModal from "@/components/ConfirmationModal/ConfirmationModal";
 import { showAppToast } from "@/lib/showAppToast";
+import * as XLSX from "xlsx";
 import {
   MessageSquare,
   Star,
@@ -22,6 +23,9 @@ import {
   Zap,
   Monitor,
   HelpCircle,
+  Download,
+  FileSpreadsheet,
+  FileJson,
 } from "lucide-react";
 
 const categoryIcons = {
@@ -52,6 +56,18 @@ export default function AdminFeedbackPage() {
   const [showModal, setShowModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [feedbackToDelete, setFeedbackToDelete] = useState(null);
+  const [showExportMenu, setShowExportMenu] = useState(false);
+  const exportMenuRef = useRef(null);
+
+  useEffect(() => {
+    if (!showExportMenu) return;
+    const handler = (e) => {
+      if (exportMenuRef.current && !exportMenuRef.current.contains(e.target))
+        setShowExportMenu(false);
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [showExportMenu]);
 
   useEffect(() => {
     fetchFeedback();
@@ -138,6 +154,57 @@ export default function AdminFeedbackPage() {
         return 0;
     }
   });
+
+  const getExportRows = () =>
+    sortedFeedback.map((item) => ({
+      Name: item.name,
+      Email: item.email,
+      Category: item.category,
+      Rating: item.rating ?? "",
+      Feedback: item.feedback,
+      "Submitted On": item.created_at ? new Date(item.created_at).toLocaleString() : "",
+    }));
+
+  const baseFilename = `feedback_${new Date().toISOString().split("T")[0]}`;
+
+  const triggerDownload = (blob, filename) => {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url; a.download = filename; a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const exportCSV = () => {
+    const rows = getExportRows();
+    if (!rows.length) return;
+    const headers = Object.keys(rows[0]);
+    const csv = [
+      headers.join(","),
+      ...rows.map((r) => headers.map((h) => `"${String(r[h]).replace(/"/g, '""')}"`).join(",")),
+    ].join("\n");
+    triggerDownload(new Blob([csv], { type: "text/csv" }), `${baseFilename}.csv`);
+    setShowExportMenu(false);
+  };
+
+  const exportExcel = () => {
+    const rows = getExportRows();
+    if (!rows.length) return;
+    const ws = XLSX.utils.json_to_sheet(rows);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Feedback");
+    XLSX.writeFile(wb, `${baseFilename}.xlsx`);
+    setShowExportMenu(false);
+  };
+
+  const exportJSON = () => {
+    const rows = getExportRows();
+    if (!rows.length) return;
+    triggerDownload(
+      new Blob([JSON.stringify(rows, null, 2)], { type: "application/json" }),
+      `${baseFilename}.json`
+    );
+    setShowExportMenu(false);
+  };
 
   const renderStars = (rating) => {
     if (!rating) return <span className={styles.noRating}>No rating</span>;
@@ -288,6 +355,29 @@ export default function AdminFeedbackPage() {
               <option value="rating-low">Lowest Rating</option>
               <option value="name">Name A-Z</option>
             </select>
+          </div>
+
+          <div className={styles.exportWrap} ref={exportMenuRef}>
+            <button
+              className={styles.exportBtn}
+              onClick={() => setShowExportMenu((v) => !v)}
+            >
+              <Download size={14} />
+              Export
+            </button>
+            {showExportMenu && (
+              <div className={styles.exportMenu}>
+                <button onClick={exportCSV} className={styles.exportMenuItem}>
+                  <Download size={13} /> CSV
+                </button>
+                <button onClick={exportExcel} className={styles.exportMenuItem}>
+                  <FileSpreadsheet size={13} /> Excel
+                </button>
+                <button onClick={exportJSON} className={styles.exportMenuItem}>
+                  <FileJson size={13} /> JSON
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </section>
