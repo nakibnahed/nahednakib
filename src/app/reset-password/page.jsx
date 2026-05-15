@@ -20,13 +20,37 @@ export default function ResetPasswordPage() {
   const [guarded, setGuarded] = useState(false);
 
   useEffect(() => {
-    // Only allow access if the user arrived via the email recovery link.
-    // The callback page sets this flag before redirecting here.
     if (!sessionStorage.getItem("pwd_reset_pending")) {
+      // Not a legitimate recovery flow — send them to request a new link.
       router.replace("/forgot-password");
-    } else {
-      setGuarded(true);
+      return;
     }
+
+    // Store the recovery tokens then immediately sign the user out so they
+    // appear logged-out in the navbar. The tokens are restored at submit time
+    // just long enough to call updateUser, then discarded.
+    const prepareRecovery = async () => {
+      const { createClient } = await import("@/lib/supabase/client");
+      const supabase = createClient();
+      const { data: { session } } = await supabase.auth.getSession();
+
+      if (session?.access_token) {
+        sessionStorage.setItem("pwd_reset_access", session.access_token);
+        sessionStorage.setItem("pwd_reset_refresh", session.refresh_token);
+        await supabase.auth.signOut();
+      } else {
+        // No active session — the recovery link was already used or expired.
+        sessionStorage.removeItem("pwd_reset_pending");
+        setFeedback({
+          type: "error",
+          text: "This reset link has expired. Please request a new one.",
+        });
+      }
+
+      setGuarded(true);
+    };
+
+    prepareRecovery();
   }, [router]);
 
   async function handleSubmit(e) {
@@ -45,19 +69,55 @@ export default function ResetPasswordPage() {
       return;
     }
 
+    const accessToken = sessionStorage.getItem("pwd_reset_access");
+    const refreshToken = sessionStorage.getItem("pwd_reset_refresh");
+
+    if (!accessToken || !refreshToken) {
+      setFeedback({
+        type: "error",
+        text: "Reset session expired. Please request a new reset link.",
+      });
+      return;
+    }
+
     setLoading(true);
     try {
-      const { supabase } = await import("@/services/supabaseClient");
+      const { createClient } = await import("@/lib/supabase/client");
+      const supabase = createClient();
+
+      // Restore the recovery session just long enough to update the password.
+      const { error: sessionError } = await supabase.auth.setSession({
+        access_token: accessToken,
+        refresh_token: refreshToken,
+      });
+
+      if (sessionError) {
+        setFeedback({
+          type: "error",
+          text: "Reset session expired. Please request a new reset link.",
+        });
+        sessionStorage.removeItem("pwd_reset_pending");
+        sessionStorage.removeItem("pwd_reset_access");
+        sessionStorage.removeItem("pwd_reset_refresh");
+        setLoading(false);
+        return;
+      }
+
       const { error } = await supabase.auth.updateUser({ password });
+
       if (error) {
         setFeedback({ type: "error", text: mapAuthError(error, "reset") });
+        // Sign back out since we restored the session above.
+        await supabase.auth.signOut();
       } else {
-        // Clear the recovery session — the user must log in with their new password.
+        // Clean up and sign out — user must log in with the new password.
         sessionStorage.removeItem("pwd_reset_pending");
+        sessionStorage.removeItem("pwd_reset_access");
+        sessionStorage.removeItem("pwd_reset_refresh");
         await supabase.auth.signOut();
         router.replace("/login?reset=1");
       }
-    } catch (error) {
+    } catch {
       setFeedback({
         type: "error",
         text: "Could not reset password. Please request a new reset link.",
