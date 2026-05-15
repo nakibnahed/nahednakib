@@ -1,7 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
-import { useRouter } from "next/navigation";
+import { useState } from "react";
 import styles from "../login/Login.module.css";
 import {
   getPasswordChecks,
@@ -10,43 +9,12 @@ import {
 } from "@/utils/authFeedback";
 
 export default function ResetPasswordPage() {
-  const router = useRouter();
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [feedback, setFeedback] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [validSession, setValidSession] = useState(false);
-  const [checking, setChecking] = useState(true);
-  const didReset = useRef(false);
-
-  useEffect(() => {
-    // Only allow access if arrived via the password reset email link
-    const flag = sessionStorage.getItem("pendingPasswordReset");
-    if (!flag) {
-      // No valid reset session — sign out and redirect
-      import("@/lib/supabase/client").then(({ createClient }) => {
-        createClient().auth.signOut();
-      });
-      router.replace("/forgot-password");
-      return;
-    }
-    sessionStorage.removeItem("pendingPasswordReset");
-    setValidSession(true);
-    setChecking(false);
-
-    // If the user navigates away without resetting, sign them out
-    const handleUnload = () => {
-      if (!didReset.current) {
-        import("@/lib/supabase/client").then(({ createClient }) => {
-          createClient().auth.signOut();
-        });
-      }
-    };
-    window.addEventListener("beforeunload", handleUnload);
-    return () => window.removeEventListener("beforeunload", handleUnload);
-  }, [router]);
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -66,18 +34,19 @@ export default function ResetPasswordPage() {
 
     setLoading(true);
     try {
-      const { createClient } = await import("@/lib/supabase/client");
-      const supabase = createClient();
+      const { supabase } = await import("@/services/supabaseClient");
       const { error } = await supabase.auth.updateUser({ password });
       if (error) {
         setFeedback({ type: "error", text: mapAuthError(error, "reset") });
       } else {
-        didReset.current = true;
-        // Sign out so they must log in with the new password
-        await supabase.auth.signOut();
-        router.replace("/login?reset=success");
+        setFeedback({
+          type: "success",
+          text: "Password updated successfully. You can now login with your new password.",
+        });
+        setPassword("");
+        setConfirmPassword("");
       }
-    } catch {
+    } catch (error) {
       setFeedback({
         type: "error",
         text: "Could not reset password. Please request a new reset link.",
@@ -88,9 +57,6 @@ export default function ResetPasswordPage() {
   }
 
   const checks = getPasswordChecks(password);
-
-  if (checking) return null;
-  if (!validSession) return null;
 
   return (
     <div className="pageMainContainer">
@@ -173,6 +139,9 @@ export default function ResetPasswordPage() {
         <div className={styles.links}>
           <a href="/forgot-password" className={styles.link}>
             Need a new reset link?
+          </a>
+          <a href="/login" className={styles.link}>
+            Back to login
           </a>
         </div>
       </div>

@@ -18,21 +18,9 @@ export default function AuthCallbackPage() {
         const next = searchParams.get("next") || "/users/profile";
         const safeNext = next.startsWith("/") && !next.startsWith("//") ? next : "/users/profile";
 
-        // PKCE flow: exchange the code from the URL for a session
-        const code = searchParams.get("code");
-        if (code) {
-          const { error } = await supabase.auth.exchangeCodeForSession(code);
-          if (error) throw error;
-        } else {
-          // Implicit flow fallback (hash-based tokens)
-          await supabase.auth.getSession();
-        }
-
+        // Covers email link and OAuth callback variants.
+        await supabase.auth.getSession();
         if (!mounted) return;
-        // Mark recovery sessions so reset-password page can validate and sign out after
-        if (safeNext === "/reset-password") {
-          sessionStorage.setItem("pendingPasswordReset", "true");
-        }
         router.replace(safeNext);
       } catch (error) {
         if (!mounted) return;
