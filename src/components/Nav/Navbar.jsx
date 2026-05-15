@@ -37,7 +37,6 @@ const navLinks = [
 
 export default function Navbar() {
   const { user } = useAuthSession();
-  const [userRole, setUserRole] = useState(null);
   const [userProfile, setUserProfile] = useState(null);
   const [menuOpen, setMenuOpen] = useState(false);
   const [contactDropdownOpen, setContactDropdownOpen] = useState(false);
@@ -53,12 +52,10 @@ export default function Navbar() {
 
     const loadProfile = async () => {
       if (!user) {
-        setUserRole(null);
         setUserProfile(null);
         return;
       }
 
-      setUserRole("user");
       profileFetchTimeout = setTimeout(async () => {
         if (!mounted) return;
         try {
@@ -75,7 +72,6 @@ export default function Navbar() {
           }
 
           setUserProfile(profile);
-          if (profile?.role === "admin") setUserRole("admin");
         } catch {
           if (!mounted) return;
           setUserProfile(null);
@@ -140,11 +136,10 @@ export default function Navbar() {
     };
   }, [mobileContactDropdownOpen]);
 
-  // Get the correct profile URL based on user role
   const getProfileUrl = useCallback(() => {
     if (!user) return "/login";
-    return userRole === "admin" ? "/admin/" : "/users/profile";
-  }, [user, userRole]);
+    return "/users/profile";
+  }, [user]);
 
   // Render user avatar or icon
   const renderUserIcon = useCallback(() => {

@@ -6,7 +6,7 @@ import { supabase } from "@/services/supabaseClient";
 import styles from "./UserDashboard.module.css";
 import be from "@/app/admin/blogs/BlogEditor.module.css";
 import admin from "@/components/Admin/adminPage.module.css";
-import { MessageCircle, Heart, Star, Activity, LayoutGrid } from "lucide-react";
+import { MessageCircle, Heart, Star, Activity, LayoutGrid, ShieldCheck, User } from "lucide-react";
 import { isUuid } from "@/lib/utils/isUuid";
 
 export default function UserDashboard({ user, profileData }) {
@@ -354,17 +354,63 @@ export default function UserDashboard({ user, profileData }) {
         <div className={be.heroMeta}>
           <p className={admin.eyebrow}>Account</p>
           <span className={be.metaChip}>Overview</span>
+          <span className={be.metaChip} style={{ display: "inline-flex", alignItems: "center", gap: "4px" }}>
+            {profileData?.role === "admin" ? (
+              <><ShieldCheck size={12} /> Administrator</>
+            ) : (
+              <><User size={12} /> Member</>
+            )}
+          </span>
         </div>
         <h1 className={admin.pageTitle}>
           Welcome back, {getUserDisplayName()}!
         </h1>
         <p className={admin.lead}>
-          Here&apos;s an overview of your account activity and shortcuts to
-          your content.
+          {profileData?.role === "admin"
+            ? "You're signed in as an administrator. Manage your profile below or jump to the admin panel."
+            : "Here's an overview of your account activity and shortcuts to your content."}
         </p>
       </header>
 
       <div className={be.formFlow}>
+        {profileData?.role === "admin" && (
+          <section className={be.section} aria-label="Admin access">
+            <div className={be.sectionHead}>
+              <div className={be.sectionIcon} aria-hidden>
+                <ShieldCheck size={20} strokeWidth={1.75} />
+              </div>
+              <div className={be.sectionHeadText}>
+                <p className={be.sectionKicker}>Admin</p>
+                <h2 className={be.sectionTitle}>Admin Panel</h2>
+                <p className={be.sectionLead}>
+                  Manage content, users, and site settings.
+                </p>
+              </div>
+            </div>
+            <div
+              className={styles.card}
+              role="button"
+              tabIndex={0}
+              onClick={() => router.push("/admin")}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  router.push("/admin");
+                }
+              }}
+            >
+              <div className={styles.cardIcon}>
+                <ShieldCheck size={24} />
+              </div>
+              <div className={styles.cardContent}>
+                <h3 className={styles.cardTitle}>Admin Panel</h3>
+                <p className={styles.cardDescription}>
+                  Manage blogs, portfolio, users & settings
+                </p>
+              </div>
+            </div>
+          </section>
+        )}
         <section className={be.section} aria-labelledby="user-dash-stats">
           <div className={be.sectionHead}>
             <div className={be.sectionIcon} aria-hidden>
