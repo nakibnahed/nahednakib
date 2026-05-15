@@ -40,6 +40,14 @@ export function mapAuthError(error, context = "generic") {
     return "Password is too weak. Use at least 8 characters.";
   }
   if (
+    msg.includes("same password") ||
+    msg.includes("different from the old") ||
+    msg.includes("should be different") ||
+    msg.includes("password has been used before")
+  ) {
+    return "Your new password must be different from your current password.";
+  }
+  if (
     status === 429 ||
     msg.includes("rate limit") ||
     msg.includes("too many requests") ||
