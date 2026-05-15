@@ -18,8 +18,16 @@ export default function AuthCallbackPage() {
         const next = searchParams.get("next") || "/users/profile";
         const safeNext = next.startsWith("/") && !next.startsWith("//") ? next : "/users/profile";
 
-        // Covers email link and OAuth callback variants.
-        await supabase.auth.getSession();
+        // PKCE flow: exchange the code from the URL for a session
+        const code = searchParams.get("code");
+        if (code) {
+          const { error } = await supabase.auth.exchangeCodeForSession(code);
+          if (error) throw error;
+        } else {
+          // Implicit flow fallback (hash-based tokens)
+          await supabase.auth.getSession();
+        }
+
         if (!mounted) return;
         router.replace(safeNext);
       } catch (error) {
