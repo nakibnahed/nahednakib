@@ -37,7 +37,9 @@ export default function ResetPasswordPage() {
       if (session?.access_token) {
         sessionStorage.setItem("pwd_reset_access", session.access_token);
         sessionStorage.setItem("pwd_reset_refresh", session.refresh_token);
-        await supabase.auth.signOut();
+        // local scope: clears the browser session so the navbar shows logged-out,
+        // but does NOT revoke the token server-side — we need it for updateUser.
+        await supabase.auth.signOut({ scope: "local" });
       } else {
         // No active session — the recovery link was already used or expired.
         sessionStorage.removeItem("pwd_reset_pending");
