@@ -21,6 +21,13 @@ export default function AuthCallbackPage() {
         // Covers email link and OAuth callback variants.
         await supabase.auth.getSession();
         if (!mounted) return;
+
+        // Mark password-reset flows so reset-password page can enforce completion
+        // and sign out the recovery session afterwards.
+        if (safeNext === "/reset-password") {
+          sessionStorage.setItem("pwd_reset_pending", "1");
+        }
+
         router.replace(safeNext);
       } catch (error) {
         if (!mounted) return;

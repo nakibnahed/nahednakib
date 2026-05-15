@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import styles from "../login/Login.module.css";
 import {
   getPasswordChecks,
@@ -9,12 +10,24 @@ import {
 } from "@/utils/authFeedback";
 
 export default function ResetPasswordPage() {
+  const router = useRouter();
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [feedback, setFeedback] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [guarded, setGuarded] = useState(false);
+
+  useEffect(() => {
+    // Only allow access if the user arrived via the email recovery link.
+    // The callback page sets this flag before redirecting here.
+    if (!sessionStorage.getItem("pwd_reset_pending")) {
+      router.replace("/forgot-password");
+    } else {
+      setGuarded(true);
+    }
+  }, [router]);
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -39,12 +52,10 @@ export default function ResetPasswordPage() {
       if (error) {
         setFeedback({ type: "error", text: mapAuthError(error, "reset") });
       } else {
-        setFeedback({
-          type: "success",
-          text: "Password updated successfully. You can now login with your new password.",
-        });
-        setPassword("");
-        setConfirmPassword("");
+        // Clear the recovery session — the user must log in with their new password.
+        sessionStorage.removeItem("pwd_reset_pending");
+        await supabase.auth.signOut();
+        router.replace("/login?reset=1");
       }
     } catch (error) {
       setFeedback({
@@ -57,6 +68,8 @@ export default function ResetPasswordPage() {
   }
 
   const checks = getPasswordChecks(password);
+
+  if (!guarded) return null;
 
   return (
     <div className="pageMainContainer">

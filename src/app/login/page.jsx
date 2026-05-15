@@ -51,6 +51,7 @@ export default function LoginPage() {
   const passwordInputRef = useRef(null);
   const searchParams = useSearchParams();
   const confirmed = searchParams.get("confirmed");
+  const reset = searchParams.get("reset");
   const nextPath = searchParams.get("next");
   const router = useRouter();
 
@@ -69,6 +70,15 @@ export default function LoginPage() {
       );
     }
   }, [confirmed]);
+
+  useEffect(() => {
+    if (reset === "1") {
+      showAppToast(
+        "Password updated successfully. Please sign in with your new password.",
+        "success",
+      );
+    }
+  }, [reset]);
 
   function resolveSafeNextPath(rawPath) {
     if (!rawPath || typeof rawPath !== "string") return null;
