@@ -29,6 +29,10 @@ export default function AuthCallbackPage() {
         }
 
         if (!mounted) return;
+        // Mark recovery sessions so reset-password page can validate and sign out after
+        if (safeNext === "/reset-password") {
+          sessionStorage.setItem("pendingPasswordReset", "true");
+        }
         router.replace(safeNext);
       } catch (error) {
         if (!mounted) return;

@@ -51,6 +51,7 @@ export default function LoginPage() {
   const passwordInputRef = useRef(null);
   const searchParams = useSearchParams();
   const confirmed = searchParams.get("confirmed");
+  const resetSuccess = searchParams.get("reset");
   const nextPath = searchParams.get("next");
   const router = useRouter();
 
@@ -63,12 +64,12 @@ export default function LoginPage() {
 
   useEffect(() => {
     if (confirmed === "1") {
-      showAppToast(
-        "Email confirmed successfully. You can sign in now.",
-        "success",
-      );
+      showAppToast("Email confirmed successfully. You can sign in now.", "success");
     }
-  }, [confirmed]);
+    if (resetSuccess === "success") {
+      showAppToast("Password updated successfully. Please sign in.", "success");
+    }
+  }, [confirmed, resetSuccess]);
 
   function resolveSafeNextPath(rawPath) {
     if (!rawPath || typeof rawPath !== "string") return null;
