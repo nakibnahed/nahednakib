@@ -18,6 +18,10 @@ export default function ProfileSegmentLayout({ children }) {
 
   useEffect(() => {
     if (!initialized || authLoading) return;
+    if (sessionStorage.getItem("pwd_reset_pending")) {
+      router.replace("/reset-password");
+      return;
+    }
     if (!user) {
       router.push("/login");
       return;

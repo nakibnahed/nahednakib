@@ -23,7 +23,7 @@ import {
   MessageSquare,
   Video,
 } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import NotificationIcon from "../NotificationIcon/NotificationIcon";
 import Image from "next/image";
 
@@ -39,12 +39,13 @@ export default function Navbar() {
   const { user: rawUser, initialized } = useAuthSession();
   const [resetPending, setResetPending] = useState(false);
   const [userProfile, setUserProfile] = useState(undefined);
+  const pathname = usePathname();
 
-  // While the user is on the password-reset flow, treat them as logged-out in
-  // the navbar so they cannot navigate to profile via the avatar.
+  // Re-check on every navigation so the flag set by auth/callback is picked up
+  // before the navbar renders the avatar on /reset-password.
   useEffect(() => {
     setResetPending(!!sessionStorage.getItem("pwd_reset_pending"));
-  }, []);
+  }, [pathname]);
 
   const user = resetPending ? null : rawUser;
 
