@@ -36,8 +36,17 @@ const navLinks = [
 ];
 
 export default function Navbar() {
-  const { user, initialized } = useAuthSession();
+  const { user: rawUser, initialized } = useAuthSession();
+  const [resetPending, setResetPending] = useState(false);
   const [userProfile, setUserProfile] = useState(undefined);
+
+  // While the user is on the password-reset flow, treat them as logged-out in
+  // the navbar so they cannot navigate to profile via the avatar.
+  useEffect(() => {
+    setResetPending(!!sessionStorage.getItem("pwd_reset_pending"));
+  }, []);
+
+  const user = resetPending ? null : rawUser;
 
   // Runs synchronously after render but before paint, so the placeholder is
   // shown immediately when user changes without a stale-profile frame.
