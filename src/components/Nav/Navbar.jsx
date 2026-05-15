@@ -4,7 +4,7 @@ import Link from "next/link";
 import styles from "./Navbar.module.css";
 import Logo from "@/elements/Logo/Logo";
 import DarkMoodToggle from "../DarkMoodToggle/DarkMoodToggle";
-import { useEffect, useState, useRef, useCallback } from "react";
+import { useEffect, useLayoutEffect, useState, useRef, useCallback } from "react";
 import { supabase } from "@/lib/supabase/client";
 import { useAuthSession } from "@/context/AuthSessionContext";
 import {
@@ -36,8 +36,17 @@ const navLinks = [
 ];
 
 export default function Navbar() {
-  const { user } = useAuthSession();
-  const [userProfile, setUserProfile] = useState(null);
+  const { user, initialized } = useAuthSession();
+  const [userProfile, setUserProfile] = useState(undefined);
+
+  // Runs synchronously after render but before paint, so the placeholder is
+  // shown immediately when user changes without a stale-profile frame.
+  useLayoutEffect(() => {
+    if (user) {
+      setUserProfile(undefined);
+    }
+  }, [user]);
+
   const [menuOpen, setMenuOpen] = useState(false);
   const [contactDropdownOpen, setContactDropdownOpen] = useState(false);
   const [mobileContactDropdownOpen, setMobileContactDropdownOpen] =
@@ -48,44 +57,34 @@ export default function Navbar() {
 
   useEffect(() => {
     let mounted = true;
-    let profileFetchTimeout;
+
+    if (!user) {
+      setUserProfile(null);
+      return () => {
+        mounted = false;
+      };
+    }
 
     const loadProfile = async () => {
-      if (!user) {
-        setUserProfile(null);
-        return;
-      }
+      try {
+        const { data: profile, error: profileError } = await supabase
+          .from("profiles")
+          .select("*")
+          .eq("id", user.id)
+          .single();
 
-      profileFetchTimeout = setTimeout(async () => {
         if (!mounted) return;
-        try {
-          const { data: profile, error: profileError } = await supabase
-            .from("profiles")
-            .select("*")
-            .eq("id", user.id)
-            .single();
-
-          if (!mounted) return;
-          if (profileError) {
-            setUserProfile(null);
-            return;
-          }
-
-          setUserProfile(profile);
-        } catch {
-          if (!mounted) return;
-          setUserProfile(null);
-        }
-      }, 100);
+        setUserProfile(profileError ? null : profile);
+      } catch {
+        if (!mounted) return;
+        setUserProfile(null);
+      }
     };
 
     loadProfile();
 
     return () => {
       mounted = false;
-      if (profileFetchTimeout) {
-        clearTimeout(profileFetchTimeout);
-      }
     };
   }, [user]);
 
@@ -141,8 +140,10 @@ export default function Navbar() {
     return "/users/profile";
   }, [user]);
 
-  // Render user avatar or icon
   const renderUserIcon = useCallback(() => {
+    if (!initialized || (user && userProfile === undefined)) {
+      return <div className={styles.userIconPlaceholder} />;
+    }
     if (user && userProfile?.avatar_url) {
       return (
         <Image
@@ -155,7 +156,7 @@ export default function Navbar() {
       );
     }
     return <User size={32} strokeWidth={3} />;
-  }, [user, userProfile]);
+  }, [initialized, user, userProfile]);
 
   return (
     <div className={styles.navbarFixedBg}>
@@ -288,7 +289,9 @@ export default function Navbar() {
               className={styles.profileButton}
               onClick={() => setMenuOpen(false)}
             >
-              {user && userProfile?.avatar_url ? (
+              {!initialized || (user && userProfile === undefined) ? (
+                <div className={styles.userIconPlaceholderSm} />
+              ) : user && userProfile?.avatar_url ? (
                 <Image
                   src={userProfile.avatar_url}
                   alt="User Avatar"

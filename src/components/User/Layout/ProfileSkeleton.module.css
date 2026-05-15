@@ -1,0 +1,273 @@
+@keyframes shimmer {
+  from {
+    background-position: -200% 0;
+  }
+  to {
+    background-position: 200% 0;
+  }
+}
+
+.bone {
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--card-border) 80%, transparent) 25%,
+    color-mix(in srgb, var(--text-muted) 18%, transparent) 50%,
+    color-mix(in srgb, var(--card-border) 80%, transparent) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.6s ease-in-out infinite;
+  border-radius: 6px;
+  flex-shrink: 0;
+}
+
+/* ── Sidebar ── */
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 20px 16px;
+  gap: 24px;
+}
+
+.brandRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 8px;
+}
+
+.brandIcon {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+}
+
+.brandLines {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+}
+
+.brandTitle {
+  height: 14px;
+  width: 80px;
+  border-radius: 4px;
+}
+
+.brandSub {
+  height: 11px;
+  width: 60px;
+  border-radius: 4px;
+}
+
+.navSection {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+}
+
+.navLabel {
+  height: 10px;
+  width: 70px;
+  border-radius: 4px;
+  margin-bottom: 8px;
+}
+
+.navItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: 10px;
+}
+
+.navItemIcon {
+  width: 20px;
+  height: 20px;
+  border-radius: 6px;
+}
+
+.navItemText {
+  height: 13px;
+  border-radius: 4px;
+  flex: 1;
+}
+
+.userCard {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 12px;
+  border-radius: 16px;
+  border: 1px solid color-mix(in srgb, var(--card-border) 60%, transparent);
+}
+
+.userAvatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.userLines {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+}
+
+.userName {
+  height: 13px;
+  width: 90px;
+  border-radius: 4px;
+}
+
+.userRole {
+  height: 11px;
+  width: 60px;
+  border-radius: 4px;
+}
+
+/* ── Content ── */
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.hero {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding-bottom: 8px;
+}
+
+.heroEyebrow {
+  display: flex;
+  gap: 8px;
+}
+
+.chip {
+  height: 22px;
+  width: 64px;
+  border-radius: 999px;
+}
+
+.heroTitle {
+  height: 34px;
+  width: 55%;
+  border-radius: 8px;
+}
+
+.heroLead1 {
+  height: 16px;
+  width: 90%;
+  border-radius: 4px;
+}
+
+.heroLead2 {
+  height: 16px;
+  width: 65%;
+  border-radius: 4px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 14px;
+}
+
+.card {
+  padding: 22px;
+  border-radius: 24px;
+  border: 1px solid color-mix(in srgb, var(--card-border) 70%, transparent);
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.cardIcon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+}
+
+.cardLines {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+}
+
+.cardTitle {
+  height: 14px;
+  width: 70%;
+  border-radius: 4px;
+}
+
+.cardCount {
+  height: 26px;
+  width: 40px;
+  border-radius: 5px;
+}
+
+.cardDesc {
+  height: 11px;
+  width: 85%;
+  border-radius: 4px;
+}
+
+.activityCard {
+  padding: 16px;
+  border-radius: 24px;
+  border: 1px solid color-mix(in srgb, var(--card-border) 70%, transparent);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.activityItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  border-radius: 16px;
+  border: 1px solid color-mix(in srgb, var(--card-border) 50%, transparent);
+}
+
+.activityIcon {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+}
+
+.activityLines {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+}
+
+.activityText {
+  height: 13px;
+  width: 75%;
+  border-radius: 4px;
+}
+
+.activityDate {
+  height: 10px;
+  width: 45px;
+  border-radius: 4px;
+}
+
+@media (max-width: 768px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+
+  .heroTitle {
+    width: 80%;
+  }
+}

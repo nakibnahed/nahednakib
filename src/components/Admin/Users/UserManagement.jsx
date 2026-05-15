@@ -3,6 +3,7 @@
 import { useState, useEffect, useMemo, useRef } from "react";
 import admin from "@/components/Admin/adminPage.module.css";
 import styles from "./UserManagement.module.css";
+import AdminListSkeleton from "@/components/Skeletons/AdminListSkeleton";
 import { Edit, Trash2, User, Shield, Eye, Ban, Users, Download, FileSpreadsheet, FileJson } from "lucide-react";
 import * as XLSX from "xlsx";
 import ConfirmationModal from "@/components/ConfirmationModal/ConfirmationModal";
@@ -219,14 +220,7 @@ export default function UserManagement() {
   };
 
   if (loading) {
-    return (
-      <div className={`${admin.page} ${styles.container}`}>
-        <div className={admin.loadingPanel}>
-          <div className={admin.loadingSpinner} aria-hidden />
-          <span>Loading users…</span>
-        </div>
-      </div>
-    );
+    return <AdminListSkeleton />;
   }
 
   return (

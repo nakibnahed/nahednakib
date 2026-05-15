@@ -1,6 +1,7 @@
 "use client";
 
 import admin from "@/components/Admin/adminPage.module.css";
+import AdminListSkeleton from "@/components/Skeletons/AdminListSkeleton";
 import { useEffect, useState, useCallback, useMemo } from "react";
 import Image from "next/image";
 import Link from "next/link";
@@ -83,14 +84,7 @@ export default function AdminAuthorsPage() {
   }
 
   if (loading && authors.length === 0) {
-    return (
-      <div className={`${admin.page} ${styles.container}`}>
-        <div className={admin.loadingPanel}>
-          <div className={admin.loadingSpinner} aria-hidden />
-          <span>Loading authors…</span>
-        </div>
-      </div>
-    );
+    return <AdminListSkeleton />;
   }
 
   return (

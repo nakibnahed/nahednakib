@@ -1,6 +1,7 @@
 "use client";
 
 import admin from "@/components/Admin/adminPage.module.css";
+import AdminListSkeleton from "@/components/Skeletons/AdminListSkeleton";
 import React, { useState, useEffect, useRef } from "react";
 import { supabase } from "@/services/supabaseClient";
 import styles from "./Feedback.module.css";
@@ -229,14 +230,7 @@ export default function AdminFeedbackPage() {
   };
 
   if (loading) {
-    return (
-      <div className={`${admin.page} ${styles.container}`}>
-        <div className={admin.loadingPanel}>
-          <div className={admin.loadingSpinner} aria-hidden />
-          <span>Loading feedback…</span>
-        </div>
-      </div>
-    );
+    return <AdminListSkeleton />;
   }
 
   if (error) {

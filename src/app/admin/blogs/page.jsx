@@ -2,6 +2,7 @@
 
 import admin from "@/components/Admin/adminPage.module.css";
 import styles from "./BlogsList.module.css";
+import AdminListSkeleton from "@/components/Skeletons/AdminListSkeleton";
 import { useEffect, useState, useMemo } from "react";
 import Link from "next/link";
 import Image from "next/image";
@@ -154,10 +155,7 @@ export default function BlogListPage() {
       </section>
 
       {loading ? (
-        <div className={admin.loadingPanel}>
-          <div className={admin.loadingSpinner} aria-hidden />
-          <span>Loading posts…</span>
-        </div>
+        <AdminListSkeleton compact />
       ) : filteredBlogs.length === 0 ? (
         <p className={admin.emptyPanel}>No blogs found.</p>
       ) : (

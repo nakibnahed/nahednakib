@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/services/supabaseClient";
 import Sidebar from "@/components/Admin/Sidebar/Sidebar";
+import AdminSkeleton from "./AdminSkeleton";
 import { Menu, X } from "lucide-react";
 import styles from "./AdminLayout.module.css";
 
@@ -67,12 +68,7 @@ export default function AdminLayout({ children }) {
   }, [navOpen]);
 
   if (loading) {
-    return (
-      <div className={styles.loadingContainer}>
-        <div className={styles.loadingPulse} aria-hidden />
-        <p>Loading admin panel…</p>
-      </div>
-    );
+    return <AdminSkeleton />;
   }
 
   return (

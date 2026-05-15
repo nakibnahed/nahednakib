@@ -1,6 +1,7 @@
 "use client";
 
 import admin from "@/components/Admin/adminPage.module.css";
+import AdminListSkeleton from "@/components/Skeletons/AdminListSkeleton";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/services/supabaseClient";
@@ -161,14 +162,7 @@ export default function CommentsPage() {
   };
 
   if (loading) {
-    return (
-      <div className={`${admin.page} ${styles.container}`}>
-        <div className={admin.loadingPanel}>
-          <div className={admin.loadingSpinner} aria-hidden />
-          <span>Loading comments…</span>
-        </div>
-      </div>
-    );
+    return <AdminListSkeleton />;
   }
 
   return (

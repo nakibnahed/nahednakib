@@ -18,7 +18,6 @@ export default function UserDashboard({ user, profileData }) {
     activities: 0,
   });
   const [recentActivities, setRecentActivities] = useState([]);
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function fetchUserStats() {
@@ -55,8 +54,6 @@ export default function UserDashboard({ user, profileData }) {
         });
       } catch (error) {
         console.error("Error fetching user stats:", error);
-      } finally {
-        setLoading(false);
       }
     }
 
@@ -339,14 +336,6 @@ export default function UserDashboard({ user, profileData }) {
       href: "/users/profile/favorites",
     },
   ];
-
-  if (loading) {
-    return (
-      <div className={styles.loading}>
-        <p>Loading your dashboard...</p>
-      </div>
-    );
-  }
 
   return (
     <div className={be.pageRoot}>

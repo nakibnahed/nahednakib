@@ -16,6 +16,7 @@ import {
 } from "chart.js";
 import { Line, Doughnut, Bar } from "react-chartjs-2";
 import styles from "./PublicAnalytics.module.css";
+import AnalyticsSkeleton from "@/components/Skeletons/AnalyticsSkeleton";
 import {
   BarChart3,
   Users,
@@ -83,14 +84,7 @@ export default function PublicAnalytics() {
   }, []);
 
   if (loading) {
-    return (
-      <div className={styles.container}>
-        <div className={styles.loadingState}>
-          <div className={styles.loadingSpinner}></div>
-          <p>Loading analytics data...</p>
-        </div>
-      </div>
-    );
+    return <AnalyticsSkeleton />;
   }
 
   if (error) {
@@ -110,14 +104,7 @@ export default function PublicAnalytics() {
   }
 
   if (!analytics || !analytics.totals) {
-    return (
-      <div className={styles.container}>
-        <div className={styles.loadingState}>
-          <div className={styles.loadingSpinner}></div>
-          <p>Loading analytics data...</p>
-        </div>
-      </div>
-    );
+    return <AnalyticsSkeleton />;
   }
 
   const kpiCards = [

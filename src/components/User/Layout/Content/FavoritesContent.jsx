@@ -5,6 +5,7 @@ import { showAppToast } from "@/lib/showAppToast";
 import ConfirmationModal from "@/components/ConfirmationModal/ConfirmationModal";
 import styles from "../../../../app/users/profile/Profile.module.css";
 import { isUuid } from "@/lib/utils/isUuid";
+import UserCardListSkeleton from "@/components/Skeletons/UserCardListSkeleton";
 
 export default function FavoritesContent({ user }) {
   const [loading, setLoading] = useState(true);
@@ -125,19 +126,7 @@ export default function FavoritesContent({ user }) {
   };
 
   if (loading) {
-    return (
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          minHeight: "60vh",
-          color: "#fff",
-        }}
-      >
-        <p>Loading your favorites...</p>
-      </div>
-    );
+    return <UserCardListSkeleton />;
   }
 
   if (error) {

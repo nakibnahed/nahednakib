@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import admin from "@/components/Admin/adminPage.module.css";
 import be from "../../../blogs/BlogEditor.module.css";
+import AdminFormSkeleton from "@/components/Skeletons/AdminFormSkeleton";
 import { supabase } from "@/services/supabaseClient";
 import ConfirmationModal from "@/components/ConfirmationModal/ConfirmationModal";
 import { showAppToast } from "@/lib/showAppToast";
@@ -260,16 +261,7 @@ export default function EditPortfolioPage() {
   }
 
   if (loading) {
-    return (
-      <div className={admin.page}>
-        <div className={be.pageRoot}>
-          <div className={admin.loadingPanel}>
-            <div className={admin.loadingSpinner} aria-hidden />
-            <span>Loading portfolio…</span>
-          </div>
-        </div>
-      </div>
-    );
+    return <AdminFormSkeleton />;
   }
 
   return (

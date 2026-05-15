@@ -15,6 +15,7 @@ import { useEngagement } from "@/hooks/useEngagement";
 import ConfirmationModal from "@/components/ConfirmationModal/ConfirmationModal";
 import { showAppToast } from "@/lib/showAppToast";
 import styles from "./EngagementSection.module.css";
+import EngagementSkeleton from "@/components/Skeletons/EngagementSkeleton";
 
 export default function EngagementSection({
   contentType,
@@ -171,14 +172,7 @@ export default function EngagementSection({
   };
 
   if (loading) {
-    return (
-      <div className={styles.container}>
-        <div className={styles.loadingBar}>
-          <FiLoader className={styles.spinner} size={20} />
-          <span>Loading engagement...</span>
-        </div>
-      </div>
-    );
+    return <EngagementSkeleton />;
   }
 
   return (

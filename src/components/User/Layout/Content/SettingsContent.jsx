@@ -8,6 +8,7 @@ import admin from "@/components/Admin/adminPage.module.css";
 import Image from "next/image";
 import { Upload, X, User, Trash2, ArrowLeft, Settings } from "lucide-react";
 import ConfirmationModal from "@/components/ConfirmationModal/ConfirmationModal";
+import UserSettingsSkeleton from "@/components/Skeletons/UserSettingsSkeleton";
 
 export default function SettingsContent({ user }) {
   const [loading, setLoading] = useState(true);
@@ -244,11 +245,7 @@ export default function SettingsContent({ user }) {
   };
 
   if (loading) {
-    return (
-      <div className={be.pageRoot}>
-        <p className={styles.pageLoading}>Loading settings…</p>
-      </div>
-    );
+    return <UserSettingsSkeleton />;
   }
 
   if (error && !formData.first_name) {

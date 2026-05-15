@@ -2,6 +2,7 @@
 
 import admin from "@/components/Admin/adminPage.module.css";
 import styles from "./PortfolioList.module.css";
+import AdminListSkeleton from "@/components/Skeletons/AdminListSkeleton";
 import { useEffect, useState, useMemo } from "react";
 import Link from "next/link";
 import Image from "next/image";
@@ -133,10 +134,7 @@ export default function PortfolioListPage() {
       </section>
 
       {loading ? (
-        <div className={admin.loadingPanel}>
-          <div className={admin.loadingSpinner} aria-hidden />
-          <span>Loading portfolio…</span>
-        </div>
+        <AdminListSkeleton compact />
       ) : filteredPortfolios.length === 0 ? (
         <p className={admin.emptyPanel}>No portfolios found.</p>
       ) : (

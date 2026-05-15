@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import admin from "@/components/Admin/adminPage.module.css";
 import be from "../../BlogEditor.module.css";
+import AdminFormSkeleton from "@/components/Skeletons/AdminFormSkeleton";
 import { supabase } from "@/services/supabaseClient";
 import { Editor } from "@tinymce/tinymce-react";
 import { slugify, generateUniqueSlug } from "@/lib/utils/slugify";
@@ -302,16 +303,7 @@ export default function EditBlogPage() {
   }
 
   if (loading) {
-    return (
-      <div className={admin.page}>
-        <div className={be.pageRoot}>
-          <div className={admin.loadingPanel}>
-            <div className={admin.loadingSpinner} aria-hidden />
-            <span>Loading blog…</span>
-          </div>
-        </div>
-      </div>
-    );
+    return <AdminFormSkeleton />;
   }
 
   return (

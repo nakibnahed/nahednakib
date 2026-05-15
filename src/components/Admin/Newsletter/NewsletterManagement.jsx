@@ -3,6 +3,7 @@
 import { useState, useEffect, useMemo, useRef } from "react";
 import admin from "@/components/Admin/adminPage.module.css";
 import styles from "./NewsletterManagement.module.css";
+import AdminListSkeleton from "@/components/Skeletons/AdminListSkeleton";
 import { Mail, Trash2, Download, UserX, Users, FileSpreadsheet, FileJson } from "lucide-react";
 import * as XLSX from "xlsx";
 import ConfirmationModal from "@/components/ConfirmationModal/ConfirmationModal";
@@ -172,14 +173,7 @@ export default function NewsletterManagement() {
   };
 
   if (loading) {
-    return (
-      <div className={`${admin.page} ${styles.container}`}>
-        <div className={admin.loadingPanel}>
-          <div className={admin.loadingSpinner} aria-hidden />
-          <span>Loading subscribers…</span>
-        </div>
-      </div>
-    );
+    return <AdminListSkeleton />;
   }
 
   return (

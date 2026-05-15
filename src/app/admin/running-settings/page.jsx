@@ -1,6 +1,7 @@
 "use client";
 
 import admin from "@/components/Admin/adminPage.module.css";
+import AdminListSkeleton from "@/components/Skeletons/AdminListSkeleton";
 import { useState, useEffect } from "react";
 import { Activity, HeartHandshake } from "lucide-react";
 import styles from "./RunningSettings.module.css";
@@ -77,14 +78,7 @@ export default function RunningSettingsPage() {
   }
 
   if (loading) {
-    return (
-      <div className={`${admin.page} ${styles.container}`}>
-        <div className={admin.loadingPanel}>
-          <div className={admin.loadingSpinner} aria-hidden />
-          <span>Loading settings…</span>
-        </div>
-      </div>
-    );
+    return <AdminListSkeleton stats={0} />;
   }
 
   return (

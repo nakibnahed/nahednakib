@@ -1,6 +1,7 @@
 "use client";
 
 import admin from "@/components/Admin/adminPage.module.css";
+import AdminListSkeleton from "@/components/Skeletons/AdminListSkeleton";
 import { useState, useEffect } from "react";
 import { Tag } from "lucide-react";
 import { supabase } from "@/services/supabaseClient";
@@ -236,10 +237,7 @@ export default function CategoriesPage() {
       )}
 
       {loading ? (
-        <div className={admin.loadingPanel}>
-          <div className={admin.loadingSpinner} aria-hidden />
-          <span>Loading categories…</span>
-        </div>
+        <AdminListSkeleton compact />
       ) : (
         <div className={styles.categoriesGrid}>
           {categories.map((category) => (

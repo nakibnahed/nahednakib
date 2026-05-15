@@ -14,6 +14,7 @@ import {
 import { supabase } from "@/services/supabaseClient";
 import admin from "@/components/Admin/adminPage.module.css";
 import styles from "./NotificationManagement.module.css";
+import AdminListSkeleton from "@/components/Skeletons/AdminListSkeleton";
 
 export default function NotificationManagement() {
   const [users, setUsers] = useState([]);
@@ -364,14 +365,7 @@ export default function NotificationManagement() {
   };
 
   if (loading) {
-    return (
-      <div className={`${admin.page} ${styles.container}`}>
-        <div className={admin.loadingPanel}>
-          <div className={admin.loadingSpinner} aria-hidden />
-          <span>Loading notifications…</span>
-        </div>
-      </div>
-    );
+    return <AdminListSkeleton />;
   }
 
   if (error) {

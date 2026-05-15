@@ -4,6 +4,7 @@ import { supabase } from "@/services/supabaseClient";
 import { showAppToast } from "@/lib/showAppToast";
 import styles from "../../../../app/users/profile/Profile.module.css";
 import { isUuid } from "@/lib/utils/isUuid";
+import UserCardListSkeleton from "@/components/Skeletons/UserCardListSkeleton";
 
 export default function LikesContent({ user }) {
   const [loading, setLoading] = useState(true);
@@ -135,19 +136,7 @@ export default function LikesContent({ user }) {
   };
 
   if (loading) {
-    return (
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          minHeight: "60vh",
-          color: "#fff",
-        }}
-      >
-        <p>Loading your liked posts...</p>
-      </div>
-    );
+    return <UserCardListSkeleton />;
   }
 
   if (error) {

@@ -6,6 +6,7 @@ import { supabase } from "@/lib/supabase/client";
 import UserLayout from "@/components/User/Layout/UserLayout";
 import { ProfileShellProvider } from "@/components/User/Layout/ProfileShellContext";
 import { useAuthSession } from "@/context/AuthSessionContext";
+import ProfileSkeleton from "@/components/User/Layout/ProfileSkeleton";
 import styles from "@/components/User/Layout/UserLayout.module.css";
 
 export default function ProfileSegmentLayout({ children }) {
@@ -54,11 +55,7 @@ export default function ProfileSegmentLayout({ children }) {
   }, [authLoading, initialized, user]);
 
   if (authLoading || !initialized || loading) {
-    return (
-      <div className={styles.shellLoading}>
-        <p>Loading your profile…</p>
-      </div>
-    );
+    return <ProfileSkeleton />;
   }
 
   if (error || !user || !profileData) {
