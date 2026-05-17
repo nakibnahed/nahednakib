@@ -43,7 +43,7 @@ export async function POST(request) {
       if (error) {
         console.error("Error sending welcome notification:", error);
         return NextResponse.json(
-          { error: "Failed to send welcome notification" },
+          { error: "Failed to send welcome notification", details: error.message, code: error.code },
           { status: 500 }
         );
       }
