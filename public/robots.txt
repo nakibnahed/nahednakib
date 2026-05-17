@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /auth/
+Disallow: /private/
+
+Content-Signal: ai-train=no, search=yes, ai-input=no
+
+Sitemap: https://nahednakib.com/sitemap.xml

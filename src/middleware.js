@@ -1,6 +1,15 @@
 import { NextResponse } from "next/server";
 
 export function middleware(request) {
+  const { pathname } = request.nextUrl;
+
+  // Markdown-for-Agents: serve markdown when Accept: text/markdown is requested
+  const accept = request.headers.get("accept") ?? "";
+  if (pathname === "/" && accept.includes("text/markdown")) {
+    const markdownUrl = new URL("/.well-known/markdown", request.url);
+    return NextResponse.rewrite(markdownUrl);
+  }
+
   const response = NextResponse.next();
 
   // ----------------------------
@@ -29,6 +38,24 @@ export function middleware(request) {
       "upgrade-insecure-requests",
     ].join("; ")
   );
+
+  // ----------------------------
+  // LINK HEADERS FOR AGENT DISCOVERY (RFC 8288)
+  // ----------------------------
+  if (pathname === "/") {
+    response.headers.append(
+      "Link",
+      '</.well-known/api-catalog>; rel="api-catalog"'
+    );
+    response.headers.append(
+      "Link",
+      '</.well-known/markdown>; rel="alternate"; type="text/markdown"'
+    );
+    response.headers.append(
+      "Link",
+      '</.well-known/agent-skills/index.json>; rel="https://agentskills.io/rels/skill-index"'
+    );
+  }
 
   // ----------------------------
   // CORS ONLY FOR API ROUTES

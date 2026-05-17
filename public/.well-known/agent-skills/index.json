@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agentskills.io/schema/v0.2.0/index.json",
+  "skills": [
+    {
+      "name": "read-blog",
+      "type": "api",
+      "description": "Fetch blog posts about running and web development from nahednakib.com",
+      "url": "https://nahednakib.com/.well-known/agent-skills/read-blog.md",
+      "sha256": "e0e8af5f1bcd4bb06d539efd355a63c36ab3187658c6f0adf5a9709b601f9280"
+    },
+    {
+      "name": "read-portfolio",
+      "type": "api",
+      "description": "Fetch portfolio projects showcasing web development work from nahednakib.com",
+      "url": "https://nahednakib.com/.well-known/agent-skills/read-portfolio.md",
+      "sha256": "3831fbd93ef55cf5c0824fe1ccd81b989c0b4af8fa0416fe3572fa4bea90810c"
+    }
+  ]
+}

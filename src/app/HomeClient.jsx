@@ -1,10 +1,53 @@
 "use client";
 
+import { useEffect } from "react";
 import styles from "./page.module.css";
 import Link from "next/link";
 import GridBackground from "@/components/GridBackground/GridBackground";
 
+function useWebMCP() {
+  useEffect(() => {
+    if (typeof navigator === "undefined" || !navigator.modelContext?.provideContext) return;
+
+    navigator.modelContext.provideContext({
+      tools: [
+        {
+          name: "get_blog_posts",
+          description: "Fetch published blog posts from nahednakib.com about running and web development",
+          inputSchema: {
+            type: "object",
+            properties: {
+              page: { type: "integer", description: "Page number (default: 1)" },
+              limit: { type: "integer", description: "Posts per page (default: 10)" },
+            },
+          },
+          execute: async ({ page = 1, limit = 10 } = {}) => {
+            const res = await fetch(`/api/blog?page=${page}&limit=${limit}`);
+            return res.json();
+          },
+        },
+        {
+          name: "get_portfolio_projects",
+          description: "Fetch portfolio projects showcasing web development work on nahednakib.com",
+          inputSchema: {
+            type: "object",
+            properties: {
+              page: { type: "integer", description: "Page number (default: 1)" },
+              limit: { type: "integer", description: "Projects per page (default: 10)" },
+            },
+          },
+          execute: async ({ page = 1, limit = 10 } = {}) => {
+            const res = await fetch(`/api/portfolio?page=${page}&limit=${limit}`);
+            return res.json();
+          },
+        },
+      ],
+    });
+  }, []);
+}
+
 export default function HomeClient() {
+  useWebMCP();
   return (
     <div className={styles.container}>
       <div className={styles.animatedBg}>

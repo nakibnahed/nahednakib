@@ -1,0 +1,20 @@
+{
+  "serverInfo": {
+    "name": "Nahed Nakib Portfolio",
+    "version": "1.0.0",
+    "description": "Read-only access to blog posts, portfolio projects, and running statistics for nahednakib.com"
+  },
+  "transport": null,
+  "capabilities": {
+    "tools": false,
+    "resources": true,
+    "prompts": false
+  },
+  "resources": {
+    "blog": "https://nahednakib.com/api/blog",
+    "portfolio": "https://nahednakib.com/api/portfolio",
+    "strava": "https://nahednakib.com/api/strava"
+  },
+  "contact": "nahednakibyos@gmail.com",
+  "homepage": "https://nahednakib.com"
+}
