@@ -28,6 +28,9 @@ export default function AuthCallbackPage() {
           sessionStorage.setItem("pwd_reset_pending", "1");
         }
 
+        // Send welcome notification for OAuth logins (e.g. Google)
+        fetch("/api/notifications/send-welcome", { method: "POST" }).catch(() => {});
+
         router.replace(safeNext);
       } catch (error) {
         if (!mounted) return;
