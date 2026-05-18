@@ -2,6 +2,10 @@ import { NextResponse } from "next/server";
 import { createClient as createSupabaseClient } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/server";
 import { sendPracticeIncomingRequestEmail } from "@/services/mailer";
+import { createRateLimiter, getIp } from "@/lib/rateLimit";
+
+// Max 3 notification emails per user per 10 minutes per request
+const isNotifyRateLimited = createRateLimiter("practice-notify", 3, 10 * 60 * 1000);
 
 const supabaseAdmin = createSupabaseClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL,
@@ -10,6 +14,11 @@ const supabaseAdmin = createSupabaseClient(
 
 export async function POST(req) {
   try {
+    const ip = getIp(req);
+    if (isNotifyRateLimited(ip)) {
+      return NextResponse.json({ error: "Too many requests. Please wait before sending another notification." }, { status: 429 });
+    }
+
     const supabase = await createClient();
     const {
       data: { user },

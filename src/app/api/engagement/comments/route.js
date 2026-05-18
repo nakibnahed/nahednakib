@@ -36,6 +36,13 @@ export async function POST(request) {
       );
     }
 
+    if (typeof comment !== "string" || comment.trim().length > 2000) {
+      return NextResponse.json(
+        { error: "Comment must be 2000 characters or less" },
+        { status: 400 }
+      );
+    }
+
     if (!["portfolio", "blog"].includes(contentType)) {
       return NextResponse.json(
         { error: "Invalid content type" },
