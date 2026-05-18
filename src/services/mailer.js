@@ -1,6 +1,15 @@
 import nodemailer from "nodemailer";
 import { normalizeSuggestedTimeDisplay } from "@/utils/practiceSuggestedTime";
 
+function escapeHtml(str) {
+  return String(str ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
 const sendOwnerNotification = process.env.SEND_OWNER_NOTIFICATION === "true";
 
 export async function sendContactEmail({ name, email, message }) {
@@ -78,12 +87,12 @@ export async function sendProjectInquiryEmail({
   }
 
   const detailsHtml = [
-    `<tr><td style="padding:6px 0;font-size:13px;color:#6b7280;font-weight:600;">Project Type</td><td style="padding:6px 0 6px 16px;font-size:14px;color:#111827;">${projectType}</td></tr>`,
+    `<tr><td style="padding:6px 0;font-size:13px;color:#6b7280;font-weight:600;">Project Type</td><td style="padding:6px 0 6px 16px;font-size:14px;color:#111827;">${escapeHtml(projectType)}</td></tr>`,
     budget
-      ? `<tr><td style="padding:6px 0;font-size:13px;color:#6b7280;font-weight:600;">Budget</td><td style="padding:6px 0 6px 16px;font-size:14px;color:#111827;">${budget}</td></tr>`
+      ? `<tr><td style="padding:6px 0;font-size:13px;color:#6b7280;font-weight:600;">Budget</td><td style="padding:6px 0 6px 16px;font-size:14px;color:#111827;">${escapeHtml(budget)}</td></tr>`
       : "",
     timeline
-      ? `<tr><td style="padding:6px 0;font-size:13px;color:#6b7280;font-weight:600;">Timeline</td><td style="padding:6px 0 6px 16px;font-size:14px;color:#111827;">${timeline}</td></tr>`
+      ? `<tr><td style="padding:6px 0;font-size:13px;color:#6b7280;font-weight:600;">Timeline</td><td style="padding:6px 0 6px 16px;font-size:14px;color:#111827;">${escapeHtml(timeline)}</td></tr>`
       : "",
   ].join("");
 
@@ -99,7 +108,7 @@ export async function sendProjectInquiryEmail({
             <div style="font-size:12px;color:#ffe7d8;margin-top:2px;">Project Inquiry Received</div>
           </div>
           <div style="padding:28px;">
-            <h2 style="margin:0 0 10px;font-size:20px;color:#111827;">Thanks, ${name}!</h2>
+            <h2 style="margin:0 0 10px;font-size:20px;color:#111827;">Thanks, ${escapeHtml(name)}!</h2>
             <p style="margin:0 0 20px;font-size:14px;line-height:1.7;color:#374151;">
               I've received your project brief and will review it carefully. I'll get back to you as soon as possible.
             </p>
@@ -293,7 +302,7 @@ export async function sendPracticeMeetingEmail({
         <div style="padding:24px;">
           <h2 style="margin:0 0 12px;font-size:20px;line-height:1.3;color:#111827;">Your session is confirmed</h2>
           <p style="margin:0 0 14px;font-size:14px;line-height:1.7;color:#374151;">
-            Hi <strong>${requesterName}</strong> and <strong>${recipientName}</strong>,<br/>
+            Hi <strong>${escapeHtml(requesterName)}</strong> and <strong>${escapeHtml(recipientName)}</strong>,<br/>
             your conversation practice request has been accepted.
           </p>
 
@@ -363,14 +372,14 @@ export async function sendPracticeIncomingRequestEmail({
         <div style="padding:24px;">
           <h2 style="margin:0 0 12px;font-size:20px;line-height:1.3;color:#111827;">You have a new request</h2>
           <p style="margin:0 0 14px;font-size:14px;line-height:1.7;color:#374151;">
-            Hi <strong>${recipientName || "Student"}</strong>,<br/>
-            <strong>${requesterName || "A student"}</strong> sent you a new conversation practice request.
+            Hi <strong>${escapeHtml(recipientName || "Student")}</strong>,<br/>
+            <strong>${escapeHtml(requesterName || "A student")}</strong> sent you a new conversation practice request.
           </p>
           ${
             message
               ? `<div style="margin:16px 0;padding:14px;border:1px solid #fde3d3;background:#fff7f2;border-radius:10px;">
             <div style="font-size:12px;color:#6b7280;margin-bottom:6px;">Message</div>
-            <div style="font-size:14px;line-height:1.6;color:#111827;white-space:pre-wrap;">${message}</div>
+            <div style="font-size:14px;line-height:1.6;color:#111827;white-space:pre-wrap;">${escapeHtml(message)}</div>
           </div>`
               : ""
           }
@@ -436,16 +445,16 @@ export async function sendPracticeCancellationEmail({
         <div style="padding:24px;">
           <h2 style="margin:0 0 12px;font-size:20px;line-height:1.3;color:#111827;">This meeting has been cancelled</h2>
           <p style="margin:0 0 14px;font-size:14px;line-height:1.7;color:#374151;">
-            Hi <strong>${recipientName || "Student"}</strong>,<br/>
-            <strong>${cancelledByName || "The other participant"}</strong> cancelled your conversation practice meeting.
+            Hi <strong>${escapeHtml(recipientName || "Student")}</strong>,<br/>
+            <strong>${escapeHtml(cancelledByName || "The other participant")}</strong> cancelled your conversation practice meeting.
           </p>
 
           <div style="margin:16px 0;padding:14px;border:1px solid #fecaca;background:#fff5f5;border-radius:10px;">
             <div style="font-size:12px;color:#6b7280;margin-bottom:6px;">Scheduled time</div>
-            <div style="font-size:14px;font-weight:600;color:#111827;">${timeLine}</div>
+            <div style="font-size:14px;font-weight:600;color:#111827;">${escapeHtml(timeLine)}</div>
             ${
               reason
-                ? `<div style="margin-top:10px;font-size:12px;color:#6b7280;">Reason</div><div style="font-size:14px;color:#111827;">${reason}</div>`
+                ? `<div style="margin-top:10px;font-size:12px;color:#6b7280;">Reason</div><div style="font-size:14px;color:#111827;">${escapeHtml(reason)}</div>`
                 : ""
             }
           </div>

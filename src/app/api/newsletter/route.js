@@ -1,6 +1,9 @@
 import { createClient as createSupabaseClient } from "@supabase/supabase-js";
 import { createClient as createServerClient } from "@/lib/supabase/server";
 import { sendNewsletterWelcomeEmail } from "@/services/mailer";
+import { createRateLimiter, getIp } from "@/lib/rateLimit";
+
+const isSubscribeRateLimited = createRateLimiter("newsletter-subscribe", 5, 60 * 1000);
 
 // Server-side admin client (bypasses RLS). Ensure SUPABASE_SERVICE_ROLE_KEY is set in env.
 const supabaseAdmin = createSupabaseClient(
@@ -22,6 +25,14 @@ async function requireAdmin() {
 
 export async function POST(req) {
   try {
+    const ip = getIp(req);
+    if (isSubscribeRateLimited(ip)) {
+      return new Response(JSON.stringify({ error: "Too many requests. Please wait a moment." }), {
+        status: 429,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+
     const { email } = await req.json();
 
     console.log("Newsletter API called with email:", email);

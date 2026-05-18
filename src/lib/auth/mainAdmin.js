@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 
 /** Only this account may manage authors (create/update/delete). */
-export const MAIN_ADMIN_EMAIL = "nahednakibyos@gmail.com";
+export const MAIN_ADMIN_EMAIL = process.env.MAIN_ADMIN_EMAIL;
 
 export async function requireMainAdmin() {
   const supabase = await createClient();
