@@ -18,6 +18,7 @@ import {
   Tag,
   PenLine,
   Bell,
+  Activity,
 } from "lucide-react";
 
 const statConfig = [
@@ -103,19 +104,6 @@ const statConfig = [
   },
 ];
 
-const quickLinks = [
-  { label: "Manage users", path: "/admin/users" },
-  { label: "Portfolio library", path: "/admin/portfolio" },
-  { label: "Blog posts", path: "/admin/blogs" },
-  { label: "Categories", path: "/admin/categories" },
-  { label: "Authors", path: "/admin/authors" },
-  { label: "Forms inbox", path: "/admin/contact" },
-  { label: "Feedback", path: "/admin/feedback" },
-  { label: "Newsletter", path: "/admin/newsletter" },
-  { label: "Comments", path: "/admin/comments" },
-  { label: "Notifications", path: "/admin/notifications" },
-  { label: "Site settings", path: "/admin/running-settings" },
-];
 
 export default function DashboardSummary() {
   const [counts, setCounts] = useState({
@@ -200,52 +188,88 @@ export default function DashboardSummary() {
       try {
         const { data: recentMessages } = await supabase
           .from("contact_messages")
-          .select("*")
+          .select("id, name, email, created_at")
           .order("created_at", { ascending: false })
-          .limit(3);
+          .limit(4);
 
         const { data: recentUsers } = await supabase
           .from("profiles")
-          .select("*")
+          .select("id, first_name, last_name, full_name, created_at")
           .order("created_at", { ascending: false })
-          .limit(3);
+          .limit(4);
 
         const { data: recentComments } = await supabase
           .from("user_comments")
-          .select("*")
+          .select("id, content_type, content_id, created_at")
           .eq("is_approved", true)
           .order("created_at", { ascending: false })
-          .limit(3);
+          .limit(4);
+
+        const commentActivities = await Promise.all(
+          (recentComments || []).map(async (comment) => {
+            let postTitle = null;
+            try {
+              if (comment.content_type === "blog") {
+                const { data } = await supabase
+                  .from("blogs")
+                  .select("title")
+                  .eq("id", comment.content_id)
+                  .single();
+                postTitle = data?.title;
+              } else if (comment.content_type === "portfolio") {
+                const { data } = await supabase
+                  .from("portfolios")
+                  .select("title")
+                  .eq("id", comment.content_id)
+                  .single();
+                postTitle = data?.title;
+              }
+            } catch {}
+            return {
+              type: "comment",
+              label: "Comment",
+              icon: <MessageCircle size={15} strokeWidth={2} />,
+              text: postTitle
+                ? `New comment on "${postTitle}"`
+                : `New comment on ${comment.content_type}`,
+              date: comment.created_at,
+              color: "#f59e0b",
+              href: "/admin/comments",
+            };
+          })
+        );
 
         const activities = [
           ...(recentMessages || []).map((msg) => ({
             type: "message",
-            icon: <Mail size={16} strokeWidth={2} />,
-            text: `New message from ${msg.name || msg.email}`,
+            label: "Message",
+            icon: <Mail size={15} strokeWidth={2} />,
+            text: `New message from ${msg.name || msg.email || "Unknown"}`,
             date: msg.created_at,
             color: "#3b82f6",
+            href: "/admin/contact",
           })),
-          ...(recentUsers || []).map((user) => ({
-            type: "user",
-            icon: <Users size={16} strokeWidth={2} />,
-            text: `New user registered: ${
-              user.first_name || user.full_name || "User"
-            }`,
-            date: user.created_at,
-            color: "#22c55e",
-          })),
-          ...(recentComments || []).map((comment) => ({
-            type: "comment",
-            icon: <MessageCircle size={16} strokeWidth={2} />,
-            text: `New comment on ${comment.content_type}`,
-            date: comment.created_at,
-            color: "#f59e0b",
-          })),
+          ...(recentUsers || []).map((user) => {
+            const name =
+              [user.first_name, user.last_name].filter(Boolean).join(" ") ||
+              user.full_name ||
+              "Unknown";
+            return {
+              type: "user",
+              label: "Signup",
+              icon: <Users size={15} strokeWidth={2} />,
+              text: `${name} signed up`,
+              date: user.created_at,
+              color: "#22c55e",
+              href: "/admin/users",
+            };
+          }),
+          ...commentActivities,
         ];
 
         const sortedActivities = activities
           .sort((a, b) => new Date(b.date) - new Date(a.date))
-          .slice(0, 8);
+          .slice(0, 10);
 
         setRecentActivity(sortedActivities);
       } catch (error) {
@@ -348,71 +372,90 @@ export default function DashboardSummary() {
         </div>
       </section>
 
-      <div className={styles.lower}>
-        <section
-          className={styles.activitySection}
-          aria-labelledby="activity-heading"
-        >
-          <div className={styles.sectionHead}>
-            <h2 id="activity-heading" className={styles.sectionTitle}>
-              Recent activity
-            </h2>
-            <p className={styles.sectionSub}>
-              Latest messages, signups, and comments
-            </p>
+      <section
+        className={styles.activitySection}
+        aria-labelledby="activity-heading"
+      >
+        <div className={styles.sectionHead}>
+          <div className={styles.sectionHeadInner}>
+            <span className={styles.sectionIcon} aria-hidden>
+              <Activity size={18} strokeWidth={1.75} />
+            </span>
+            <div>
+              <p className={styles.sectionKicker}>Timeline</p>
+              <h2 id="activity-heading" className={styles.sectionTitle}>
+                Recent activity
+              </h2>
+            </div>
           </div>
-          <div className={styles.activityCard}>
-            {recentActivity.length === 0 ? (
-              <p className={styles.emptyState}>No recent activity yet.</p>
-            ) : (
-              <ul className={styles.activityList}>
-                {recentActivity.map((activity, index) => (
-                  <li
-                    key={`${activity.type}-${index}`}
-                    className={styles.activityItem}
+          <button
+            type="button"
+            className={styles.viewAllBtn}
+            onClick={() => router.push("/admin/contact")}
+          >
+            View all
+            <ArrowUpRight size={14} strokeWidth={2} aria-hidden />
+          </button>
+        </div>
+        <div className={styles.activityCard}>
+          {recentActivity.length === 0 ? (
+            <p className={styles.emptyState}>No recent activity yet.</p>
+          ) : (
+            <ul className={styles.activityList}>
+              {recentActivity.map((activity, index) => (
+                <li
+                  key={`${activity.type}-${index}`}
+                  className={styles.activityItem}
+                  role="button"
+                  tabIndex={0}
+                  onClick={() => router.push(activity.href)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      router.push(activity.href);
+                    }
+                  }}
+                >
+                  <div
+                    className={styles.activityIcon}
+                    style={{
+                      backgroundColor: `color-mix(in srgb, ${activity.color} 18%, transparent)`,
+                      borderColor: `color-mix(in srgb, ${activity.color} 40%, transparent)`,
+                      color: activity.color,
+                    }}
                   >
-                    <div
-                      className={styles.activityIcon}
-                      style={{
-                        backgroundColor: `color-mix(in srgb, ${activity.color} 22%, transparent)`,
-                        borderColor: `color-mix(in srgb, ${activity.color} 45%, transparent)`,
-                        color: activity.color,
-                      }}
-                    >
-                      {activity.icon}
-                    </div>
-                    <div className={styles.activityContent}>
+                    {activity.icon}
+                  </div>
+                  <div className={styles.activityContent}>
+                    <div className={styles.activityRow}>
                       <p className={styles.activityText}>{activity.text}</p>
-                      <span className={styles.activityDate}>
-                        {formatDate(activity.date)}
+                      <span
+                        className={styles.activityBadge}
+                        style={{
+                          color: activity.color,
+                          background: `color-mix(in srgb, ${activity.color} 14%, transparent)`,
+                          borderColor: `color-mix(in srgb, ${activity.color} 35%, transparent)`,
+                        }}
+                      >
+                        {activity.label}
                       </span>
                     </div>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
-        </section>
-
-        <aside className={styles.quickPanel} aria-label="Quick links">
-          <h2 className={styles.quickTitle}>Shortcuts</h2>
-          <p className={styles.quickSub}>Jump to common admin tasks</p>
-          <ul className={styles.quickList}>
-            {quickLinks.map((link) => (
-              <li key={link.path}>
-                <button
-                  type="button"
-                  className={styles.quickLink}
-                  onClick={() => router.push(link.path)}
-                >
-                  <span>{link.label}</span>
-                  <ArrowUpRight size={16} strokeWidth={2} aria-hidden />
-                </button>
-              </li>
-            ))}
-          </ul>
-        </aside>
-      </div>
+                    <span className={styles.activityDate}>
+                      {formatDate(activity.date)}
+                    </span>
+                  </div>
+                  <ChevronRight
+                    className={styles.activityArrow}
+                    size={16}
+                    strokeWidth={2}
+                    aria-hidden
+                  />
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      </section>
     </div>
   );
 }

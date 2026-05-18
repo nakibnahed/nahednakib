@@ -6,7 +6,7 @@ import { supabase } from "@/services/supabaseClient";
 import styles from "./UserDashboard.module.css";
 import be from "@/app/admin/blogs/BlogEditor.module.css";
 import admin from "@/components/Admin/adminPage.module.css";
-import { MessageCircle, Heart, Star, Activity, LayoutGrid, ShieldCheck, User } from "lucide-react";
+import { MessageCircle, Heart, Star, Activity, LayoutGrid, ShieldCheck, User, FileText, Briefcase, Users, Bell } from "lucide-react";
 import { isUuid } from "@/lib/utils/isUuid";
 
 export default function UserDashboard({ user, profileData }) {
@@ -342,7 +342,6 @@ export default function UserDashboard({ user, profileData }) {
       <header className={be.hero}>
         <div className={be.heroMeta}>
           <p className={admin.eyebrow}>Account</p>
-          <span className={be.metaChip}>Overview</span>
           <span className={be.metaChip} style={{ display: "inline-flex", alignItems: "center", gap: "4px" }}>
             {profileData?.role === "admin" ? (
               <><ShieldCheck size={12} /> Administrator</>
@@ -363,42 +362,48 @@ export default function UserDashboard({ user, profileData }) {
 
       <div className={be.formFlow}>
         {profileData?.role === "admin" && (
-          <section className={be.section} aria-label="Admin access">
-            <div className={be.sectionHead}>
-              <div className={be.sectionIcon} aria-hidden>
-                <ShieldCheck size={20} strokeWidth={1.75} />
+          <div className={styles.adminBanner} aria-label="Admin access">
+            <div className={styles.adminBannerMain}>
+              <div className={styles.adminBannerIcon}>
+                <ShieldCheck size={28} strokeWidth={1.5} />
               </div>
-              <div className={be.sectionHeadText}>
-                <p className={be.sectionKicker}>Admin</p>
-                <h2 className={be.sectionTitle}>Admin Panel</h2>
-                <p className={be.sectionLead}>
-                  Manage content, users, and site settings.
+              <div className={styles.adminBannerText}>
+                <div className={styles.adminBannerBadgeRow}>
+                  <span className={styles.adminBadge}>Admin Access</span>
+                </div>
+                <h2 className={styles.adminBannerTitle}>Admin Panel</h2>
+                <p className={styles.adminBannerDesc}>
+                  You have administrator privileges. Manage the site&apos;s content, users, and settings from the panel below.
                 </p>
               </div>
+              <button
+                type="button"
+                className={styles.adminBannerCta}
+                onClick={() => router.push("/admin")}
+              >
+                Open Panel
+              </button>
             </div>
-            <div
-              className={styles.card}
-              role="button"
-              tabIndex={0}
-              onClick={() => router.push("/admin")}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" || e.key === " ") {
-                  e.preventDefault();
-                  router.push("/admin");
-                }
-              }}
-            >
-              <div className={styles.cardIcon}>
-                <ShieldCheck size={24} />
-              </div>
-              <div className={styles.cardContent}>
-                <h3 className={styles.cardTitle}>Admin Panel</h3>
-                <p className={styles.cardDescription}>
-                  Manage blogs, portfolio, users & settings
-                </p>
-              </div>
+            <div className={styles.adminQuickLinks}>
+              {[
+                { label: "Dashboard", href: "/admin", icon: <LayoutGrid size={14} /> },
+                { label: "Blog", href: "/admin/blogs", icon: <FileText size={14} /> },
+                { label: "Portfolio", href: "/admin/portfolio", icon: <Briefcase size={14} /> },
+                { label: "Users", href: "/admin/users", icon: <Users size={14} /> },
+                { label: "Notifications", href: "/admin/notifications", icon: <Bell size={14} /> },
+              ].map(({ label, href, icon }) => (
+                <button
+                  key={label}
+                  type="button"
+                  className={styles.adminQuickLink}
+                  onClick={() => router.push(href)}
+                >
+                  {icon}
+                  {label}
+                </button>
+              ))}
             </div>
-          </section>
+          </div>
         )}
         <section className={be.section} aria-labelledby="user-dash-stats">
           <div className={be.sectionHead}>

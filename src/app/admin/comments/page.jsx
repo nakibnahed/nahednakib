@@ -2,74 +2,147 @@
 
 import admin from "@/components/Admin/adminPage.module.css";
 import AdminListSkeleton from "@/components/Skeletons/AdminListSkeleton";
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useEffect, useState, useMemo } from "react";
 import { supabase } from "@/services/supabaseClient";
 import ConfirmationModal from "@/components/ConfirmationModal/ConfirmationModal";
 import { showAppToast } from "@/lib/showAppToast";
+import { isUuid } from "@/lib/utils/isUuid";
 import styles from "./Comments.module.css";
 import {
   MessageCircle,
-  ArrowLeft,
-  Eye,
-  Trash2,
   CheckCircle,
   Clock,
   XCircle,
+  Trash2,
+  ExternalLink,
+  BookOpen,
+  Briefcase,
+  MessageSquare,
 } from "lucide-react";
+
+async function enrichComments(rawComments) {
+  const blogIds = [
+    ...new Set(
+      rawComments
+        .filter((c) => c.content_type === "blog")
+        .map((c) => c.content_id)
+    ),
+  ];
+  const portfolioIds = [
+    ...new Set(
+      rawComments
+        .filter((c) => c.content_type === "portfolio")
+        .map((c) => c.content_id)
+    ),
+  ];
+
+  const blogMap = {};
+  const portfolioMap = {};
+
+  if (blogIds.length > 0) {
+    const { data } = await supabase
+      .from("blogs")
+      .select("id, title, slug")
+      .in("id", blogIds);
+    (data || []).forEach((b) => {
+      blogMap[b.id] = b;
+    });
+  }
+
+  if (portfolioIds.length > 0) {
+    const uuidIds = portfolioIds.filter((id) => isUuid(id));
+    const slugIds = portfolioIds.filter((id) => !isUuid(id));
+
+    if (uuidIds.length > 0) {
+      const { data } = await supabase
+        .from("portfolios")
+        .select("id, title, slug")
+        .in("id", uuidIds);
+      (data || []).forEach((p) => {
+        portfolioMap[p.id] = p;
+        portfolioMap[p.slug] = p;
+      });
+    }
+    if (slugIds.length > 0) {
+      const { data } = await supabase
+        .from("portfolios")
+        .select("id, title, slug")
+        .in("slug", slugIds);
+      (data || []).forEach((p) => {
+        portfolioMap[p.slug] = p;
+        portfolioMap[p.id] = p;
+      });
+    }
+  }
+
+  return rawComments.map((comment) => {
+    let post = null;
+    if (comment.content_type === "blog") {
+      post = blogMap[comment.content_id];
+    } else if (comment.content_type === "portfolio") {
+      post = portfolioMap[comment.content_id];
+    }
+    return {
+      ...comment,
+      postTitle: post?.title ?? null,
+      postUrl: post
+        ? comment.content_type === "blog"
+          ? `/blog/${post.slug}`
+          : `/portfolio/${post.slug}`
+        : null,
+    };
+  });
+}
+
+const FILTERS = ["all", "pending", "approved"];
 
 export default function CommentsPage() {
   const [comments, setComments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState({ total: 0, approved: 0, pending: 0 });
+  const [filter, setFilter] = useState("all");
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [commentToDelete, setCommentToDelete] = useState(null);
-  const router = useRouter();
 
   useEffect(() => {
-    fetchComments();
-    fetchStats();
+    fetchAll();
   }, []);
+
+  const fetchAll = async () => {
+    setLoading(true);
+    await Promise.all([fetchComments(), fetchStats()]);
+    setLoading(false);
+  };
 
   const fetchComments = async () => {
     try {
       const { data, error } = await supabase
         .from("user_comments")
         .select(
-          `
-          id,
-          comment,
-          content_type,
-          content_id,
-          is_approved,
-          created_at,
-          profiles!inner(email)
-        `,
+          `id, comment, content_type, content_id, is_approved, created_at,
+           profiles!inner(email, first_name, last_name, full_name)`
         )
         .order("created_at", { ascending: false })
-        .limit(50);
+        .limit(100);
 
       if (error) throw error;
-      setComments(data || []);
+      const enriched = await enrichComments(data || []);
+      setComments(enriched);
     } catch (error) {
       console.error("Error fetching comments:", error);
       setComments([]);
-    } finally {
-      setLoading(false);
     }
   };
 
   const fetchStats = async () => {
     try {
-      const { count: total } = await supabase
-        .from("user_comments")
-        .select("*", { count: "exact", head: true });
-
-      const { count: approved } = await supabase
-        .from("user_comments")
-        .select("*", { count: "exact", head: true })
-        .eq("is_approved", true);
-
+      const [{ count: total }, { count: approved }] = await Promise.all([
+        supabase.from("user_comments").select("*", { count: "exact", head: true }),
+        supabase
+          .from("user_comments")
+          .select("*", { count: "exact", head: true })
+          .eq("is_approved", true),
+      ]);
       setStats({
         total: total || 0,
         approved: approved || 0,
@@ -82,43 +155,31 @@ export default function CommentsPage() {
 
   const handleApprove = async (commentId) => {
     try {
-      const response = await fetch(`/api/engagement/comments?id=${commentId}`, {
+      const res = await fetch(`/api/engagement/comments?id=${commentId}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ is_approved: true }),
       });
-
-      if (!response.ok) {
-        throw new Error("Failed to approve comment");
-      }
-
-      await fetchComments();
-      await fetchStats();
+      if (!res.ok) throw new Error();
+      await fetchAll();
       showAppToast("Comment approved.", "success");
-    } catch (error) {
-      console.error("Error approving comment:", error);
-      showAppToast("Failed to approve comment. Please try again.", "error");
+    } catch {
+      showAppToast("Failed to approve comment.", "error");
     }
   };
 
   const handleReject = async (commentId) => {
     try {
-      const response = await fetch(`/api/engagement/comments?id=${commentId}`, {
+      const res = await fetch(`/api/engagement/comments?id=${commentId}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ is_approved: false }),
       });
-
-      if (!response.ok) {
-        throw new Error("Failed to reject comment");
-      }
-
-      await fetchComments();
-      await fetchStats();
-      showAppToast("Comment rejected.", "success");
-    } catch (error) {
-      console.error("Error rejecting comment:", error);
-      showAppToast("Failed to reject comment. Please try again.", "error");
+      if (!res.ok) throw new Error();
+      await fetchAll();
+      showAppToast("Comment unapproved.", "success");
+    } catch {
+      showAppToast("Failed to unapprove comment.", "error");
     }
   };
 
@@ -129,31 +190,16 @@ export default function CommentsPage() {
 
   const handleDelete = async () => {
     if (!commentToDelete) return;
-
     try {
-      console.log("Attempting to delete comment:", commentToDelete);
-
-      const response = await fetch(
-        `/api/engagement/comments?id=${commentToDelete}`,
-        {
-          method: "DELETE",
-          headers: { "Content-Type": "application/json" },
-        },
-      );
-
-      const data = await response.json();
-      console.log("Delete response:", { status: response.status, data });
-
-      if (!response.ok) {
-        throw new Error(data.error || "Failed to delete comment");
-      }
-
-      console.log("Comment deleted successfully");
-      await fetchComments();
-      await fetchStats();
+      const res = await fetch(`/api/engagement/comments?id=${commentToDelete}`, {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed");
+      await fetchAll();
       showAppToast("Comment deleted.", "success");
     } catch (error) {
-      console.error("Error deleting comment:", error);
       showAppToast(error.message || "Failed to delete comment.", "error");
     } finally {
       setShowDeleteConfirm(false);
@@ -161,17 +207,37 @@ export default function CommentsPage() {
     }
   };
 
-  if (loading) {
-    return <AdminListSkeleton />;
-  }
+  const filteredComments = useMemo(() => {
+    if (filter === "pending") return comments.filter((c) => !c.is_approved);
+    if (filter === "approved") return comments.filter((c) => c.is_approved);
+    return comments;
+  }, [comments, filter]);
+
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffH = Math.floor((now - date) / 3_600_000);
+    if (diffH < 1) return "Just now";
+    if (diffH < 24) return `${diffH}h ago`;
+    if (diffH < 48) return "Yesterday";
+    return date.toLocaleDateString();
+  };
+
+  const getDisplayName = (profile) => {
+    if (!profile) return "Anonymous";
+    const full = [profile.first_name, profile.last_name].filter(Boolean).join(" ");
+    return full || profile.full_name || profile.email?.split("@")[0] || "Anonymous";
+  };
+
+  if (loading) return <AdminListSkeleton />;
 
   return (
-    <div className={`${admin.page} ${styles.container}`}>
+    <div className={admin.page}>
       <header className={admin.pageHeader}>
         <p className={admin.eyebrow}>Moderation</p>
         <h1 className={admin.pageTitle}>Comments</h1>
         <p className={admin.lead}>
-          Approve, unapprove, or delete user comments on your content.
+          Review, approve, and manage user comments across all content.
         </p>
       </header>
 
@@ -195,110 +261,148 @@ export default function CommentsPage() {
             <Clock size={24} aria-hidden />
             <div>
               <h3>{stats.pending}</h3>
-              <p>Pending</p>
+              <p>Pending review</p>
             </div>
           </div>
         </div>
       </section>
 
-      <section className={admin.filtersSection} aria-label="Navigation">
-        <div className={styles.topBar}>
-          <button
-            type="button"
-            onClick={() => router.back()}
-            className={styles.backButton}
-          >
-            <ArrowLeft size={20} />
-            Back
-          </button>
-        </div>
-      </section>
-
-      {/* Comments List */}
-      <div className={styles.commentsContainer}>
-        {comments.length === 0 ? (
-          <div className={styles.noComments}>
-            <MessageCircle size={64} className={styles.icon} />
-            <h2>No Comments Yet</h2>
-            <p>
-              Comments will appear here once users start engaging with your
-              content.
-            </p>
-          </div>
-        ) : (
-          <div className={styles.commentsList}>
-            {comments.map((comment) => (
-              <div
-                key={comment.id}
-                className={`${styles.commentCard} ${
-                  !comment.is_approved ? styles.pending : ""
-                }`}
-              >
-                <div className={styles.commentHeader}>
-                  <div className={styles.commentMeta}>
-                    <span className={styles.author}>
-                      {comment.profiles?.email?.split("@")[0] || "Anonymous"}
-                    </span>
-                    <span className={styles.contentType}>
-                      on {comment.content_type}
-                    </span>
-                    <span className={styles.date}>
-                      {new Date(comment.created_at).toLocaleDateString()}
-                    </span>
-                  </div>
-                  <div className={styles.status}>
-                    {comment.is_approved ? (
-                      <span className={styles.approved}>
-                        <CheckCircle size={16} />
-                        Approved
-                      </span>
-                    ) : (
-                      <span className={styles.pendingStatus}>
-                        <XCircle size={16} />
-                        Pending
-                      </span>
-                    )}
-                  </div>
-                </div>
-
-                <div className={styles.commentContent}>
-                  <p>{comment.comment}</p>
-                </div>
-
-                <div className={styles.commentActions}>
-                  {!comment.is_approved ? (
-                    <button
-                      onClick={() => handleApprove(comment.id)}
-                      className={styles.approveBtn}
-                    >
-                      <CheckCircle size={16} />
-                      Approve
-                    </button>
-                  ) : (
-                    <button
-                      onClick={() => handleReject(comment.id)}
-                      className={styles.rejectBtn}
-                    >
-                      <XCircle size={16} />
-                      Unapprove
-                    </button>
-                  )}
-
-                  <button
-                    onClick={() => confirmDelete(comment.id)}
-                    className={styles.deleteBtn}
-                  >
-                    <Trash2 size={16} />
-                    Delete
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
+      <div className={styles.filterBar} role="tablist" aria-label="Filter comments">
+        {FILTERS.map((f) => {
+          const count =
+            f === "all" ? stats.total : f === "pending" ? stats.pending : stats.approved;
+          return (
+            <button
+              key={f}
+              type="button"
+              role="tab"
+              aria-selected={filter === f}
+              className={`${styles.filterTab} ${filter === f ? styles.filterTabActive : ""}`}
+              onClick={() => setFilter(f)}
+            >
+              {f.charAt(0).toUpperCase() + f.slice(1)}
+              <span className={styles.filterCount}>{count}</span>
+            </button>
+          );
+        })}
       </div>
 
-      {/* Delete Confirmation Modal */}
+      {filteredComments.length === 0 ? (
+        <div className={admin.emptyPanel}>
+          <MessageCircle size={40} style={{ opacity: 0.3, marginBottom: 12 }} />
+          <p style={{ margin: 0 }}>
+            {filter === "all"
+              ? "No comments yet."
+              : `No ${filter} comments.`}
+          </p>
+        </div>
+      ) : (
+        <div className={styles.list}>
+          {filteredComments.map((comment) => (
+            <div
+              key={comment.id}
+              className={`${styles.card} ${!comment.is_approved ? styles.cardPending : ""}`}
+            >
+              {/* Avatar */}
+              <div className={styles.avatar}>
+                {(comment.profiles?.email?.[0] ?? "?").toUpperCase()}
+              </div>
+
+              {/* Info */}
+              <div className={styles.info}>
+                {/* Name row */}
+                <div className={styles.nameRow}>
+                  <span className={styles.authorName}>
+                    {getDisplayName(comment.profiles)}
+                  </span>
+                  <span className={styles.authorEmail}>
+                    {comment.profiles?.email}
+                  </span>
+                  <span className={styles.typePill}>
+                    {comment.content_type === "blog" ? (
+                      <><BookOpen size={10} /> Blog</>
+                    ) : (
+                      <><Briefcase size={10} /> Portfolio</>
+                    )}
+                  </span>
+                </div>
+
+                {/* Pills row: status + time + post link */}
+                <div className={styles.pillsRow}>
+                  {comment.is_approved ? (
+                    <span className={styles.badgeApproved}>
+                      <CheckCircle size={10} />
+                      Approved
+                    </span>
+                  ) : (
+                    <span className={styles.badgePending}>
+                      <Clock size={10} />
+                      Pending
+                    </span>
+                  )}
+                  <span className={styles.timeChip}>
+                    <Clock size={11} />
+                    {formatDate(comment.created_at)}
+                  </span>
+                  {comment.postUrl ? (
+                    <a
+                      href={comment.postUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className={styles.postChip}
+                    >
+                      {comment.postTitle ?? comment.content_id}
+                      <ExternalLink size={10} />
+                    </a>
+                  ) : (
+                    <span className={styles.postChipUnknown}>
+                      {comment.postTitle ?? comment.content_id}
+                    </span>
+                  )}
+                </div>
+
+                {/* Comment body — left-bordered quote */}
+                <p className={styles.body}>
+                  <MessageSquare size={12} style={{ flexShrink: 0, marginTop: 2, opacity: 0.5 }} />
+                  {comment.comment}
+                </p>
+              </div>
+
+              {/* Actions — right side, stacked */}
+              <div className={styles.actions}>
+                {!comment.is_approved ? (
+                  <button
+                    type="button"
+                    className={styles.approveBtn}
+                    onClick={() => handleApprove(comment.id)}
+                  >
+                    <CheckCircle size={13} />
+                    Approve
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    className={styles.unapproveBtn}
+                    onClick={() => handleReject(comment.id)}
+                  >
+                    <XCircle size={13} />
+                    Unapprove
+                  </button>
+                )}
+                <button
+                  type="button"
+                  className={styles.deleteBtn}
+                  onClick={() => confirmDelete(comment.id)}
+                >
+                  <Trash2 size={13} />
+                  Delete
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
       <ConfirmationModal
         isOpen={showDeleteConfirm}
         onClose={() => setShowDeleteConfirm(false)}
