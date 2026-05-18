@@ -44,7 +44,7 @@ export default function EngagementSection({
       if (!user) return;
 
       try {
-        const response = await fetch("/api/test-session");
+        const response = await fetch("/api/profile");
         const data = await response.json();
         if (data.user?.role === "admin") {
           setIsAdmin(true);
