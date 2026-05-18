@@ -216,9 +216,15 @@ export default function SettingsContent({ user }) {
       }
 
       // Update profile data
+      const full_name = [formData.first_name, formData.last_name]
+        .filter(Boolean)
+        .join(" ")
+        .trim();
+
       const updateData = {
         ...formData,
         avatar_url: avatarUrl,
+        full_name: full_name || null,
         updated_at: new Date().toISOString(),
       };
 
