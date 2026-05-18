@@ -10,6 +10,23 @@ const supabase = createClient(
 // Fallback to in-memory store if database fails
 const fallbackStore = {};
 
+// Rate limiter: max 10 activity likes per IP per minute
+const ACTIVITY_LIKE_LIMIT = 10;
+const ACTIVITY_LIKE_WINDOW_MS = 60 * 1000;
+const activityLikeRateMap = new Map();
+
+function isActivityLikeRateLimited(ip) {
+  const now = Date.now();
+  const entry = activityLikeRateMap.get(ip);
+  if (!entry || now > entry.resetAt) {
+    activityLikeRateMap.set(ip, { count: 1, resetAt: now + ACTIVITY_LIKE_WINDOW_MS });
+    return false;
+  }
+  if (entry.count >= ACTIVITY_LIKE_LIMIT) return true;
+  entry.count += 1;
+  return false;
+}
+
 export async function GET(request) {
   const { searchParams } = new URL(request.url);
 
@@ -158,7 +175,14 @@ async function handleContentLikesGet(contentType, contentId, userId) {
 async function handleActivityLikesPost(activity_id, request) {
   // Get client IP and user agent for anonymous tracking
   const forwarded = request.headers.get("x-forwarded-for");
-  const ip = forwarded ? forwarded.split(",")[0] : "unknown";
+  const ip = forwarded ? forwarded.split(",")[0].trim() : (request.headers.get("x-real-ip") ?? "unknown");
+
+  if (isActivityLikeRateLimited(ip)) {
+    return new Response(
+      JSON.stringify({ error: "Too many requests. Please wait a moment." }),
+      { status: 429, headers: { "Content-Type": "application/json" } }
+    );
+  }
   const userAgent = request.headers.get("user-agent") || "unknown";
 
   // Create a unique identifier for this user (IP + user agent hash)

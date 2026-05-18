@@ -14,7 +14,7 @@ if (!supabaseUrl || !supabaseServiceKey) {
 const supabaseAdmin = createAdminClient(supabaseUrl, supabaseServiceKey);
 
 // Main admin hard guard
-const MAIN_ADMIN_EMAIL = "nahednakibyos@gmail.com";
+const MAIN_ADMIN_EMAIL = process.env.MAIN_ADMIN_EMAIL;
 
 export async function GET() {
   try {
@@ -280,19 +280,20 @@ export async function PUT(request) {
     const supabase = await createClient();
     const { userId, role } = await request.json();
 
-    // Check if user is authenticated and is admin
+    // Use getUser() for server-side token verification (not getSession which trusts the JWT locally)
     const {
-      data: { session },
-    } = await supabase.auth.getSession();
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser();
 
-    if (!session?.user) {
+    if (authError || !user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const { data: profile } = await supabase
       .from("profiles")
       .select("role")
-      .eq("id", session.user.id)
+      .eq("id", user.id)
       .single();
 
     if (!profile || profile.role !== "admin") {

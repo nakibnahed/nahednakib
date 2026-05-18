@@ -2,9 +2,20 @@
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
+import { createRateLimiter, getIp } from "@/lib/rateLimit";
+
+const isRateLimited = createRateLimiter("feedback", 5, 60 * 1000);
 
 export async function POST(request) {
   try {
+    const ip = getIp(request);
+    if (isRateLimited(ip)) {
+      return NextResponse.json(
+        { error: "Too many requests. Please wait a moment." },
+        { status: 429 }
+      );
+    }
+
     const supabase = createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL,
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
@@ -31,6 +42,14 @@ export async function POST(request) {
         { error: "Name, email, and feedback are required" },
         { status: 400 }
       );
+    }
+
+    if (
+      typeof name !== "string" || name.length > 100 ||
+      typeof email !== "string" || email.length > 254 ||
+      typeof feedback !== "string" || feedback.length > 5000
+    ) {
+      return NextResponse.json({ error: "Invalid input" }, { status: 400 });
     }
 
     const { data, error } = await supabase

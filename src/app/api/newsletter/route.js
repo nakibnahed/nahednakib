@@ -1,4 +1,5 @@
 import { createClient as createSupabaseClient } from "@supabase/supabase-js";
+import { createClient as createServerClient } from "@/lib/supabase/server";
 import { sendNewsletterWelcomeEmail } from "@/services/mailer";
 
 // Server-side admin client (bypasses RLS). Ensure SUPABASE_SERVICE_ROLE_KEY is set in env.
@@ -6,6 +7,18 @@ const supabaseAdmin = createSupabaseClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL,
   process.env.SUPABASE_SERVICE_ROLE_KEY
 );
+
+async function requireAdmin() {
+  const supabase = await createServerClient();
+  const { data: { user }, error } = await supabase.auth.getUser();
+  if (error || !user) return null;
+  const { data: profile } = await supabaseAdmin
+    .from("profiles")
+    .select("role")
+    .eq("id", user.id)
+    .single();
+  return profile?.role === "admin" ? user : null;
+}
 
 export async function POST(req) {
   try {
@@ -196,6 +209,14 @@ export async function POST(req) {
 // GET endpoint to retrieve newsletter subscribers (admin only)
 export async function GET(req) {
   try {
+    const admin = await requireAdmin();
+    if (!admin) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+
     const { data: subscribers, error } = await supabaseAdmin
       .from("newsletter_subscribers")
       .select("*")
@@ -225,6 +246,14 @@ export async function GET(req) {
 // DELETE endpoint to remove newsletter subscribers (admin only)
 export async function DELETE(req) {
   try {
+    const admin = await requireAdmin();
+    if (!admin) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+
     const { subscriberId } = await req.json();
 
     if (!subscriberId) {
