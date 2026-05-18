@@ -12,9 +12,10 @@ export async function POST(req) {
   try {
     const supabase = await createClient();
     const {
-      data: { session },
-    } = await supabase.auth.getSession();
-    if (!session?.user) {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser();
+    if (authError || !user) {
       return NextResponse.json({ error: "Authentication required" }, { status: 401 });
     }
 
@@ -36,14 +37,14 @@ export async function POST(req) {
     }
 
     const isParticipant =
-      row.from_user_id === session.user.id || row.to_user_id === session.user.id;
+      row.from_user_id === user.id || row.to_user_id === user.id;
 
     if (!isParticipant) {
       return NextResponse.json({ error: "Not allowed" }, { status: 403 });
     }
 
     const cancelledByName =
-      row.from_user_id === session.user.id ? row.from_name : row.to_name;
+      row.from_user_id === user.id ? row.from_name : row.to_name;
     const cancelledAt = new Date().toISOString();
     const safeReason = (reason || "").trim().slice(0, 300);
 
@@ -63,7 +64,7 @@ export async function POST(req) {
     }
 
     const actorIsFrom =
-      row.from_user_id === session.user.id;
+      row.from_user_id === user.id;
 
     const recipientName = actorIsFrom ? row.to_name : row.from_name;
     const recipientEmail = actorIsFrom ? row.to_email : row.from_email;
@@ -75,7 +76,7 @@ export async function POST(req) {
         message: `${cancelledByName} cancelled your conversation practice meeting.`,
         type: "practice_cancelled",
         recipient_id: recipientUserId,
-        sender_id: session.user.id,
+        sender_id: user.id,
         is_admin_notification: false,
         is_read: false,
       });

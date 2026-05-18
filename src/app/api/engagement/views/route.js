@@ -1,8 +1,17 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { createRateLimiter, getIp } from "@/lib/rateLimit";
+
+// 30 view records per IP per 10 minutes — enough for normal browsing, blocks spam
+const isViewRateLimited = createRateLimiter("views", 30, 10 * 60 * 1000);
 
 export async function POST(request) {
   try {
+    const ip = getIp(request);
+    if (isViewRateLimited(ip)) {
+      return NextResponse.json({ error: "Too many requests" }, { status: 429 });
+    }
+
     const supabase = await createClient();
     const { contentType, contentId } = await request.json();
 

@@ -12,9 +12,10 @@ export async function POST(req) {
   try {
     const supabase = await createClient();
     const {
-      data: { session },
-    } = await supabase.auth.getSession();
-    if (!session?.user) {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser();
+    if (authError || !user) {
       return NextResponse.json({ error: "Authentication required" }, { status: 401 });
     }
 
@@ -43,7 +44,7 @@ export async function POST(req) {
       );
     }
 
-    if (requestRow.to_user_id !== session.user.id) {
+    if (requestRow.to_user_id !== user.id) {
       return NextResponse.json(
         { error: "Only the recipient can accept this request" },
         { status: 403 },

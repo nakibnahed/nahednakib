@@ -37,10 +37,15 @@ export async function POST(request) {
       );
     }
 
-    // Check if user is admin (simplified check)
-    // For now, allow any authenticated user to send notifications
-    // You can add more specific admin checks later
-    console.log("✅ Admin access confirmed for user:", user.email);
+    const { data: profile } = await supabaseAdmin
+      .from("profiles")
+      .select("role")
+      .eq("id", user.id)
+      .single();
+
+    if (profile?.role !== "admin") {
+      return NextResponse.json({ error: "Forbidden - Admin only" }, { status: 403 });
+    }
 
     const {
       title,
@@ -258,10 +263,15 @@ export async function GET(request) {
       );
     }
 
-    // Check if user is admin (simplified check)
-    // For now, allow any authenticated user to send notifications
-    // You can add more specific admin checks later
-    console.log("✅ Admin access confirmed for user:", user.email);
+    const { data: profileGet } = await supabaseAdmin
+      .from("profiles")
+      .select("role")
+      .eq("id", user.id)
+      .single();
+
+    if (profileGet?.role !== "admin") {
+      return NextResponse.json({ error: "Forbidden - Admin only" }, { status: 403 });
+    }
 
     const { searchParams } = new URL(request.url);
     const limit = parseInt(searchParams.get("limit") || "50");

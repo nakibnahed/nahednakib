@@ -12,9 +12,10 @@ export async function POST(req) {
   try {
     const supabase = await createClient();
     const {
-      data: { session },
-    } = await supabase.auth.getSession();
-    if (!session?.user) {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser();
+    if (authError || !user) {
       return NextResponse.json({ error: "Authentication required" }, { status: 401 });
     }
 
@@ -33,7 +34,7 @@ export async function POST(req) {
       return NextResponse.json({ error: "Request not found" }, { status: 404 });
     }
 
-    if (requestRow.from_user_id !== session.user.id) {
+    if (requestRow.from_user_id !== user.id) {
       return NextResponse.json(
         { error: "Only the requester can send request notification" },
         { status: 403 },
