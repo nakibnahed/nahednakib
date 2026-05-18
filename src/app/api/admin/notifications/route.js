@@ -331,24 +331,11 @@ export async function GET(request) {
       );
     }
 
-    // Get all notifications for admin view
+    // Fetch all notifications (admin-sent + system events like login, registration, etc.)
     const { data: notifications, error } = await supabaseAdmin
       .from("notifications")
       .select(
-        `
-        id,
-        title,
-        message,
-        type,
-        is_read,
-        is_admin_notification,
-        related_content_type,
-        related_content_id,
-        created_at,
-        read_at,
-        sender_id,
-        recipient_id
-      `
+        `id, title, message, type, is_read, is_admin_notification, created_at, recipient_id, sender_id`
       )
       .order("created_at", { ascending: false })
       .range(offset, offset + limit - 1);
@@ -368,20 +355,53 @@ export async function GET(request) {
 
     console.log("✅ Fetched notifications:", notifications?.length || 0);
 
-    // Get total count
-    const { count: totalCount, error: countError } = await supabaseAdmin
-      .from("notifications")
-      .select("*", { count: "exact", head: true });
+    // Enrich with recipient profile data
+    const recipientIds = [
+      ...new Set((notifications || []).map((n) => n.recipient_id).filter(Boolean)),
+    ];
 
-    if (countError) {
-      console.error("❌ Error counting total:", countError);
+    let profileMap = {};
+    if (recipientIds.length > 0) {
+      const { data: profiles } = await supabaseAdmin
+        .from("profiles")
+        .select("id, full_name, first_name, email")
+        .in("id", recipientIds);
+      if (profiles) {
+        profileMap = Object.fromEntries(profiles.map((p) => [p.id, p]));
+      }
     }
 
-    console.log("✅ Total count:", totalCount || 0);
+    const enriched = (notifications || []).map((n) => ({
+      ...n,
+      profile: profileMap[n.recipient_id] || null,
+    }));
+
+    // Stats across all notifications in the system
+    const [
+      { count: totalSent },
+      { count: totalRead },
+      { count: totalUnread },
+    ] = await Promise.all([
+      supabaseAdmin
+        .from("notifications")
+        .select("*", { count: "exact", head: true }),
+      supabaseAdmin
+        .from("notifications")
+        .select("*", { count: "exact", head: true })
+        .eq("is_read", true),
+      supabaseAdmin
+        .from("notifications")
+        .select("*", { count: "exact", head: true })
+        .eq("is_read", false),
+    ]);
 
     return NextResponse.json({
-      notifications: notifications || [],
-      totalCount: totalCount || 0,
+      notifications: enriched,
+      stats: {
+        totalSent: totalSent || 0,
+        totalRead: totalRead || 0,
+        totalUnread: totalUnread || 0,
+      },
     });
   } catch (error) {
     console.error("❌ Unexpected error in admin notifications API:", error);

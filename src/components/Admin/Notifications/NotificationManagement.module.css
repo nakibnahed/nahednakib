@@ -5,6 +5,8 @@
   margin: 0;
 }
 
+/* ── Form section card ─────────────────────────────────── */
+
 .formSection {
   background: color-mix(in srgb, var(--background-main) 94%, #000 6%);
   border: 1px solid color-mix(in srgb, var(--card-border) 85%, transparent);
@@ -89,108 +91,280 @@
   min-height: 100px;
 }
 
+/* ── Recipients section ────────────────────────────────── */
+
 .recipientSection {
-  border: 1px solid var(--card-border);
-  border-radius: 16px;
-  padding: 20px;
-  background: rgba(255, 255, 255, 0.02);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
 
 .recipientSection h3 {
-  margin: 0 0 16px 0;
-  font-size: 16px;
+  margin: 0;
+  font-size: 14px;
+  font-weight: 500;
   color: var(--text-primary, #fff);
 }
 
-.recipientOptions {
+/* Three recipient type cards */
+.recipientCards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.recipientCard {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  padding: 14px 16px;
+  background: color-mix(in srgb, var(--background-main) 80%, #000 20%);
+  border: 1.5px solid color-mix(in srgb, var(--card-border) 70%, transparent);
+  border-radius: 14px;
+  cursor: pointer;
+  transition: border-color 0.2s ease, background 0.2s ease;
+  text-align: left;
+  color: var(--text-primary, #fff);
+}
+
+.recipientCard:hover {
+  border-color: color-mix(in srgb, var(--primary-color) 50%, transparent);
+  background: color-mix(in srgb, var(--primary-color) 5%, transparent);
+}
+
+.recipientCardActive {
+  border-color: var(--primary-color);
+  background: color-mix(in srgb, var(--primary-color) 8%, transparent);
+}
+
+.recipientCardIcon {
+  color: var(--primary-color);
+  margin-bottom: 4px;
+}
+
+.recipientCardLabel {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary, #fff);
+}
+
+.recipientCardDesc {
+  font-size: 11px;
+  color: var(--text-secondary, #aaa);
+}
+
+.recipientCardCheck {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  background: var(--primary-color);
+  border-radius: 50%;
+  color: #fff;
+}
+
+/* ── User picker ───────────────────────────────────────── */
+
+.userPicker {
   display: flex;
   flex-direction: column;
   gap: 12px;
-  margin-bottom: 20px;
+  border: 1px solid color-mix(in srgb, var(--card-border) 60%, transparent);
+  border-radius: 14px;
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.02);
 }
 
-.radioLabel {
+/* Selected user chips */
+.selectedChips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  background: color-mix(in srgb, var(--primary-color) 15%, transparent);
+  border: 1px solid color-mix(in srgb, var(--primary-color) 40%, transparent);
+  border-radius: 999px;
+  font-size: 12px;
+  color: var(--text-primary, #fff);
+}
+
+.chipRemove {
   display: flex;
   align-items: center;
-  gap: 8px;
+  justify-content: center;
+  background: none;
+  border: none;
+  color: var(--text-secondary, #aaa);
   cursor: pointer;
-  padding: 8px;
-  border-radius: 6px;
-  transition: background 0.2s ease;
+  padding: 0;
+  line-height: 1;
+  transition: color 0.15s ease;
 }
 
-.radioLabel:hover {
-  background: color-mix(in srgb, var(--primary-color) 8%, transparent);
-  border-radius: 10px;
+.chipRemove:hover {
+  color: var(--text-primary, #fff);
 }
 
-.radio {
-  margin: 0;
-}
-
-.userSelector {
+/* Search */
+.userSearchWrap {
   position: relative;
-}
-
-.userSelectorButton {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 10px 16px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 6px;
-  color: white;
-  cursor: pointer;
-  transition: all 0.2s ease;
 }
 
-.userSelectorButton:hover {
-  background: rgba(255, 255, 255, 0.08);
-  border-color: var(--primary-color, #ee681a);
-}
-
-.userList {
+.userSearchIcon {
   position: absolute;
-  top: 100%;
-  left: 0;
-  right: 0;
-  background: color-mix(
-    in srgb,
-    var(--background-main, #121212) 95%,
-    transparent 5%
-  );
-  border: 1px solid var(--card-border, rgba(255, 255, 255, 0.14));
-  border-radius: 8px;
-  max-height: 200px;
-  overflow-y: auto;
-  z-index: 1000;
-  margin-top: 4px;
+  left: 12px;
+  color: var(--text-secondary, #aaa);
+  pointer-events: none;
+  flex-shrink: 0;
 }
 
-.userCheckbox {
+.userSearchInput {
+  width: 100%;
+  padding: 9px 36px 9px 36px;
+  border: 1px solid color-mix(in srgb, var(--card-border) 80%, transparent);
+  border-radius: 10px;
+  background: var(--form-control-bg);
+  color: var(--text-dark);
+  font-size: 13px;
+  transition: border-color 0.2s ease;
+}
+
+.userSearchInput:focus {
+  outline: none;
+  border-color: var(--primary-color);
+}
+
+.userSearchClear {
+  position: absolute;
+  right: 10px;
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 8px 12px;
+  background: none;
+  border: none;
+  color: var(--text-secondary, #aaa);
   cursor: pointer;
-  transition: background 0.2s ease;
+  padding: 2px;
+  transition: color 0.15s ease;
 }
 
-.userCheckbox:hover {
-  background: rgba(255, 255, 255, 0.05);
+.userSearchClear:hover {
+  color: var(--text-primary, #fff);
 }
 
-.checkbox {
+/* User list grid */
+.userGrid {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-height: 220px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.1) transparent;
+}
+
+.userGrid::-webkit-scrollbar {
+  width: 4px;
+}
+.userGrid::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 4px;
+}
+
+.userItem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  border: 1px solid transparent;
+  background: none;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.15s ease, border-color 0.15s ease;
+  color: var(--text-primary, #fff);
+}
+
+.userItem:hover {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.userItemSelected {
+  background: color-mix(in srgb, var(--primary-color) 8%, transparent);
+  border-color: color-mix(in srgb, var(--primary-color) 30%, transparent);
+}
+
+.userAvatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--primary-color) 20%, transparent);
+  border: 1px solid color-mix(in srgb, var(--primary-color) 30%, transparent);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--primary-color);
+  flex-shrink: 0;
+  letter-spacing: 0.02em;
+}
+
+.userItemLabel {
+  flex: 1;
+  font-size: 13px;
+  color: var(--text-primary, #fff);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.userItemCheck {
+  color: var(--primary-color);
+  flex-shrink: 0;
+}
+
+.userGridEmpty {
+  text-align: center;
+  padding: 16px;
+  font-size: 13px;
+  color: var(--text-secondary, #aaa);
   margin: 0;
 }
+
+/* ── Form error ────────────────────────────────────────── */
+
+.formError {
+  font-size: 13px;
+  color: #f87171;
+  background: rgba(248, 113, 113, 0.08);
+  border: 1px solid rgba(248, 113, 113, 0.2);
+  border-radius: 10px;
+  padding: 10px 14px;
+  margin: 0;
+}
+
+/* ── Send button ───────────────────────────────────────── */
 
 .sendButton {
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  padding: 12px 24px;
+  padding: 12px 20px;
   background: var(--button-bg);
   color: var(--button-text);
   border: none;
@@ -198,21 +372,21 @@
   font-size: 16px;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: opacity 0.2s ease;
   align-self: flex-start;
   box-shadow: var(--button-shadow);
 }
 
 .sendButton:hover:not(:disabled) {
   opacity: 0.9;
-  transform: translateY(-1px);
 }
 
 .sendButton:disabled {
   opacity: 0.5;
   cursor: not-allowed;
-  transform: none;
 }
+
+/* ── Recent notifications ──────────────────────────────── */
 
 .recentSection {
   background: color-mix(in srgb, var(--background-main) 94%, #000 6%);
@@ -313,6 +487,32 @@
   flex: 1;
 }
 
+.notificationTitleRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+  flex-wrap: wrap;
+}
+
+.notificationTitleRow h4 {
+  margin: 0;
+  font-size: 14px;
+  color: var(--text-primary, #fff);
+}
+
+.typeBadge {
+  font-size: 10px;
+  font-weight: 500;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.07);
+  color: var(--text-secondary, #aaa);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
 .notificationInfo h4 {
   margin: 0 0 4px 0;
   font-size: 14px;
@@ -325,7 +525,42 @@
   color: var(--text-secondary, #aaa);
 }
 
+.recipientRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.recipientAvatars {
+  display: flex;
+}
+
+.recipientAvatars .recipientAvatar + .recipientAvatar {
+  margin-left: -6px;
+}
+
+.recipientAvatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--primary-color) 20%, transparent);
+  border: 1.5px solid var(--background-main, #121212);
+  font-size: 9px;
+  font-weight: 600;
+  color: var(--primary-color);
+  flex-shrink: 0;
+}
+
 .recipientInfo {
+  font-size: 11px;
+  color: var(--text-secondary, #aaa);
+}
+
+.readBadge {
   font-size: 11px;
   color: var(--text-secondary, #aaa);
 }
@@ -360,27 +595,49 @@
   color: var(--primary-color);
 }
 
+.status.partial {
+  background: rgba(234, 179, 8, 0.12);
+  color: #eab308;
+}
+
 .emptyMessage {
   text-align: center;
   color: var(--text-secondary, #aaa);
   font-style: italic;
 }
 
-.loading {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 200px;
-  color: var(--text-secondary, #aaa);
+/* ── Page-level error ──────────────────────────────────── */
+
+.errorPage {
+  padding: 40px;
+  text-align: center;
+  color: var(--text-primary, #fff);
 }
 
-/* Mobile responsiveness */
+.errorPage button {
+  margin-top: 16px;
+  padding: 10px 20px;
+  background: var(--button-bg);
+  color: var(--button-text);
+  border: none;
+  border-radius: 50px;
+  cursor: pointer;
+  font-size: 14px;
+  opacity: 0.9;
+}
+
+/* ── Mobile ────────────────────────────────────────────── */
+
 @media (max-width: 768px) {
   .container {
     padding: 16px;
   }
 
   .formRow {
+    grid-template-columns: 1fr;
+  }
+
+  .recipientCards {
     grid-template-columns: 1fr;
   }
 
