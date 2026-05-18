@@ -12,6 +12,22 @@ import {
 import { showAppToast } from "@/lib/showAppToast";
 import { createClient } from "@/lib/supabase/client";
 
+function LockIcon() {
+  return (
+    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <defs>
+        <linearGradient id="lg" x1="12" y1="0" x2="12" y2="24" gradientUnits="userSpaceOnUse">
+          <stop offset="0%" stopColor="#ee681a" />
+          <stop offset="100%" stopColor="#9b4016" />
+        </linearGradient>
+      </defs>
+      <rect x="5" y="11" width="14" height="10" rx="2.5" fill="url(#lg)" />
+      <path d="M8 11V7a4 4 0 0 1 8 0v4" stroke="url(#lg)" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
+      <circle cx="12" cy="16.5" r="1.4" fill="#0a0a0a" />
+    </svg>
+  );
+}
+
 function GoogleIcon() {
   return (
     <svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true">
@@ -268,17 +284,25 @@ export default function LoginPage() {
     setShowPassword(false);
   }
 
+  const headings = {
+    email: "Welcome back",
+    password: "Enter your password",
+    google_only: "Continue with Google",
+  };
   const subtitle =
     step === "email"
-      ? "Enter your email to sign in or create an account."
+      ? "Sign in to your account or create a new one."
       : step === "password"
-        ? "Enter your password for this email."
-        : "This email is linked to Google.";
+        ? "You're signing in as:"
+        : "This account uses Google sign-in.";
 
   return (
     <div className="pageMainContainer">
       <div className={styles.container}>
-        <h1 className={styles.title}>Login</h1>
+        <div className={styles.iconWrap}>
+          <LockIcon />
+        </div>
+        <h1 className={styles.title}>{headings[step]}</h1>
         <p className={styles.subtitle}>{subtitle}</p>
         {feedback && (
           <span
@@ -293,11 +317,11 @@ export default function LoginPage() {
         {step === "email" && (
           <form onSubmit={handleCheckEmail} className={styles.form}>
             <div className={styles.field}>
-              <label htmlFor="login-email">Email</label>
+              <label htmlFor="login-email">Email address</label>
               <input
                 id="login-email"
                 type="email"
-                placeholder="Email"
+                placeholder="you@example.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
@@ -315,11 +339,14 @@ export default function LoginPage() {
                 "Checking..."
               ) : (
                 <>
-                  <span>Continue</span>
+                  <span>Continue with Email</span>
                   <span className={styles.arrow}>→</span>
                 </>
               )}
             </button>
+            <div className={styles.divider}>
+              <span>or</span>
+            </div>
             <button
               type="button"
               className={`${styles.secondaryButton} ${styles.googleButton}`}
@@ -337,22 +364,28 @@ export default function LoginPage() {
                 </>
               )}
             </button>
+            <p className={styles.signupPrompt}>
+              New here?{" "}
+              <a href="/register" className={styles.link}>
+                Create an account
+              </a>
+            </p>
           </form>
         )}
 
         {step === "password" && (
           <form onSubmit={handlePasswordSubmit} className={styles.form}>
-            <div className={styles.field}>
-              <label htmlFor="login-email-readonly">Email</label>
-              <input
-                id="login-email-readonly"
-                type="email"
-                value={email}
-                readOnly
-                className={styles.input}
-                autoComplete="email"
+            <div className={styles.emailBadge}>
+              <span className={styles.emailBadgeAddress}>{email}</span>
+              <button
+                type="button"
+                className={styles.emailBadgeEdit}
+                onClick={handleUseDifferentEmail}
                 disabled={Boolean(loadingMode)}
-              />
+                aria-label="Change email"
+              >
+                Change
+              </button>
             </div>
             <div className={styles.field}>
               <label htmlFor="login-password">Password</label>
@@ -361,7 +394,7 @@ export default function LoginPage() {
                   ref={passwordInputRef}
                   id="login-password"
                   type={showPassword ? "text" : "password"}
-                  placeholder="Password"
+                  placeholder="Enter your password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
@@ -380,16 +413,13 @@ export default function LoginPage() {
                 </button>
               </div>
             </div>
-            <p className={styles.hint}>
-              Having trouble? You can reset your password anytime.
-            </p>
             <button
               type="submit"
               className={styles.button}
               disabled={Boolean(loadingMode)}
             >
               {loadingMode === "email" ? (
-                "Logging in..."
+                "Signing in..."
               ) : (
                 <>
                   <span>Sign in</span>
@@ -401,14 +431,6 @@ export default function LoginPage() {
               <a href={forgotHref} className={styles.link}>
                 Forgot password?
               </a>
-              <button
-                type="button"
-                className={styles.linkButton}
-                onClick={handleUseDifferentEmail}
-                disabled={Boolean(loadingMode)}
-              >
-                ← Use a different email
-              </button>
             </div>
           </form>
         )}

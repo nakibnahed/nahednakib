@@ -1,25 +1,45 @@
 .container {
   width: 100%;
   max-width: 440px;
-  margin: 88px auto;
-  padding: 28px;
+  margin: 72px auto;
+  padding: 36px 32px;
   background: var(--background-main);
   border: 1px solid var(--card-border, rgba(255, 255, 255, 0.14));
+  border-top: 2px solid var(--primary-color);
   color: var(--card-text);
   border-radius: 16px;
-  box-shadow: 0 14px 36px rgba(0, 0, 0, 0.2);
+  box-shadow:
+    0 14px 40px rgba(0, 0, 0, 0.35),
+    0 0 64px rgba(238, 104, 26, 0.07);
   text-align: left;
 }
 
+.iconWrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  background: linear-gradient(
+    135deg,
+    rgba(238, 104, 26, 0.14),
+    rgba(238, 104, 26, 0.04)
+  );
+  border: 1px solid rgba(238, 104, 26, 0.22);
+  margin: 0 auto 18px;
+}
+
 .title {
-  margin-bottom: 8px;
+  margin-bottom: 6px;
   text-align: center;
+  font-size: 1.6rem;
 }
 
 .subtitle {
-  margin: 0 0 18px;
+  margin: 0 0 22px;
   color: var(--text-muted, #9da3af);
-  font-size: 0.95rem;
+  font-size: 0.9rem;
   text-align: center;
 }
 
@@ -111,6 +131,58 @@
 .passwordToggle:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+}
+
+.emailBadge {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  background: color-mix(in srgb, var(--background-main) 70%, var(--card-bg) 30%);
+  border: 1px solid var(--card-border);
+  border-radius: 10px;
+  margin-bottom: 2px;
+}
+
+.emailBadgeAddress {
+  flex: 1;
+  font-size: 0.9rem;
+  color: var(--card-text);
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.emailBadgeEdit {
+  flex-shrink: 0;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--primary-color);
+  font-size: 0.78rem;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 6px;
+  line-height: 1;
+  transition: color 0.2s, background 0.2s;
+  font-family: inherit;
+}
+
+.emailBadgeEdit:hover {
+  background: rgba(238, 104, 26, 0.1);
+}
+
+.emailBadgeEdit:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.signupPrompt {
+  text-align: center;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-top: 2px;
 }
 
 .hint {
@@ -295,8 +367,8 @@
 
 @media (max-width: 540px) {
   .container {
-    margin: 62px auto;
-    padding: 22px;
+    margin: 48px auto;
+    padding: 28px 20px;
   }
 
   .ruleList {
