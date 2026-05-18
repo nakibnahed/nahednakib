@@ -798,6 +798,240 @@
   border: 1px solid var(--card-border);
 }
 
+/* ── Shared item card (comments, likes, favorites) ────────── */
+
+.itemCard {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 18px 20px;
+  border-radius: 20px;
+  background: color-mix(in srgb, var(--background-main) 80%, transparent 15%);
+  border: 1px solid var(--card-border);
+  position: relative;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  backdrop-filter: blur(16px) saturate(160%);
+  -webkit-backdrop-filter: blur(16px) saturate(160%);
+  opacity: 0.98;
+  transition: opacity 0.2s;
+}
+
+.itemCard::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(145deg, rgba(255,255,255,0.02) 0%, rgba(255,255,255,0) 65%);
+  pointer-events: none;
+  border-radius: inherit;
+  z-index: 0;
+}
+
+.itemCard > * { position: relative; z-index: 1; }
+.itemCard:hover { opacity: 1; }
+
+/* Type icon */
+.itemIcon {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  align-self: flex-start;
+  border: 1px solid;
+}
+
+.itemIconBlog {
+  background: color-mix(in srgb, var(--primary-color) 12%, transparent);
+  color: var(--primary-color);
+  border-color: color-mix(in srgb, var(--primary-color) 35%, transparent);
+}
+
+.itemIconPortfolio {
+  background: color-mix(in srgb, #a855f7 12%, transparent);
+  color: #a855f7;
+  border-color: color-mix(in srgb, #a855f7 35%, transparent);
+}
+
+/* Info block */
+.itemInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.itemTitleRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+  flex-wrap: wrap;
+}
+
+.itemTitle {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary, #fafafa);
+  flex: 1;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.itemTypePill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  border: 1px solid color-mix(in srgb, var(--card-border) 80%, transparent);
+  background: color-mix(in srgb, var(--background-main) 60%, transparent);
+}
+
+.itemPillsRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.itemTimeChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 9px;
+  border-radius: 10px;
+  font-size: 11px;
+  font-weight: 500;
+  background: color-mix(in srgb, var(--background-main) 90%, transparent 10%);
+  border: 1px solid var(--card-border);
+  color: var(--text-muted);
+  opacity: 0.85;
+}
+
+.itemBadgeApproved,
+.itemBadgePending {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  border: 1px solid;
+}
+
+.itemBadgeApproved {
+  color: #22c55e;
+  background: color-mix(in srgb, #22c55e 12%, transparent);
+  border-color: color-mix(in srgb, #22c55e 35%, transparent);
+}
+
+.itemBadgePending {
+  color: #f59e0b;
+  background: color-mix(in srgb, #f59e0b 12%, transparent);
+  border-color: color-mix(in srgb, #f59e0b 35%, transparent);
+}
+
+/* Comment body quote */
+.itemBody {
+  display: flex;
+  align-items: flex-start;
+  padding: 8px 12px;
+  border-radius: 10px;
+  border-left: 2px solid var(--card-border);
+  background: color-mix(in srgb, var(--background-main) 60%, transparent);
+  font-size: 13px;
+  color: var(--text-primary, #e4e4e7);
+  line-height: 1.55;
+  margin: 0;
+  word-break: break-word;
+}
+
+/* Actions column */
+.itemActions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  flex-shrink: 0;
+  align-self: center;
+}
+
+.itemViewBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  padding: 7px 14px;
+  border-radius: var(--button-radius);
+  font-size: 12px;
+  font-weight: 600;
+  font-family: inherit;
+  text-decoration: none;
+  background: var(--button-bg);
+  color: var(--button-text);
+  border: none;
+  box-shadow: var(--button-shadow);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: opacity 0.2s ease;
+}
+
+.itemViewBtn:hover { opacity: 0.9; }
+
+.itemViewDisabled {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 7px 14px;
+  border-radius: var(--button-radius);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-muted);
+  border: 1px solid var(--card-border);
+  background: transparent;
+  opacity: 0.45;
+  cursor: default;
+  white-space: nowrap;
+}
+
+.itemRemoveBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  padding: 7px 14px;
+  border-radius: var(--button-radius);
+  font-size: 12px;
+  font-weight: 600;
+  font-family: inherit;
+  border: 1px solid var(--card-border);
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: opacity 0.2s ease;
+}
+
+.itemRemoveBtn:hover { opacity: 0.9; }
+
+@media (max-width: 640px) {
+  .itemCard { flex-wrap: wrap; gap: 12px; }
+  .itemActions { flex-direction: row; width: 100%; align-self: auto; }
+  .itemViewBtn,
+  .itemViewDisabled,
+  .itemRemoveBtn { flex: 1; }
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
   .profileContent {

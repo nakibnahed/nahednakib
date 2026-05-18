@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, Heart } from "lucide-react";
+import { ArrowLeft, Heart, BookOpen, Briefcase, Clock, ExternalLink, HeartOff } from "lucide-react";
 import { supabase } from "@/services/supabaseClient";
 import be from "@/app/admin/blogs/BlogEditor.module.css";
 import admin from "@/components/Admin/adminPage.module.css";
@@ -10,10 +10,20 @@ import styles from "../Profile.module.css";
 import { isUuid } from "@/lib/utils/isUuid";
 
 const typeLabel = (type) => {
-  if (type === "blog") return "Blog Posts";
+  if (type === "blog") return "Blog";
   if (type === "portfolio") return "Portfolio";
   return type.charAt(0).toUpperCase() + type.slice(1);
 };
+
+function formatDate(dateString) {
+  const date = new Date(dateString);
+  const now = new Date();
+  const diffH = Math.floor((now - date) / 3_600_000);
+  if (diffH < 1) return "Just now";
+  if (diffH < 24) return `${diffH}h ago`;
+  if (diffH < 48) return "Yesterday";
+  return date.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+}
 
 export default function LikesPage() {
   const [loading, setLoading] = useState(true);
@@ -30,150 +40,68 @@ export default function LikesPage() {
     async function loadUserData() {
       try {
         setLoading(true);
-
-        const {
-          data: { user },
-          error: userError,
-        } = await supabase.auth.getUser();
-
-        if (userError || !user) {
-          router.push("/login");
-          return;
-        }
+        const { data: { user }, error: userError } = await supabase.auth.getUser();
+        if (userError || !user) { router.push("/login"); return; }
 
         const { data: userLikes, error: likesError } = await supabase
-          .from("user_likes")
-          .select("*")
-          .eq("user_id", user.id)
+          .from("user_likes").select("*").eq("user_id", user.id)
           .order("created_at", { ascending: false });
 
-        if (likesError) {
-          console.error("Error fetching likes:", likesError);
-          setError("Could not load liked posts");
-          setLikes([]);
-        } else {
-          const fetchedLikes = userLikes || [];
-          setLikes(fetchedLikes);
+        if (likesError) { setError("Could not load liked posts"); setLikes([]); return; }
 
-          const blogIds = fetchedLikes
-            .filter((l) => l.content_type === "blog" && l.content_id)
-            .map((l) => l.content_id);
-          const uniqueBlogIds = Array.from(new Set(blogIds));
-          if (uniqueBlogIds.length > 0) {
-            const { data: blogs, error: blogsError } = await supabase
-              .from("blogs")
-              .select("id, slug, title")
-              .in("id", uniqueBlogIds);
-            if (!blogsError && blogs) {
-              const slugMap = {};
-              const titleMap = {};
-              for (const b of blogs) {
-                if (b?.id && b?.slug) slugMap[b.id] = b.slug;
-                if (b?.id && b?.title) titleMap[b.id] = b.title;
-              }
-              setBlogIdToSlug(slugMap);
-              setBlogIdToTitle(titleMap);
-            }
-          }
+        const fetched = userLikes || [];
+        setLikes(fetched);
 
-          const portfolioIds = fetchedLikes
-            .filter((l) => l.content_type === "portfolio" && l.content_id)
-            .map((l) => l.content_id);
-          const uniquePortfolioIds = Array.from(new Set(portfolioIds));
-          if (uniquePortfolioIds.length > 0) {
-            const slugMap = {};
-            const titleMap = {};
-            for (const ref of uniquePortfolioIds) {
-              if (!isUuid(ref)) slugMap[ref] = ref;
-            }
-            const nonUuidRefs = uniquePortfolioIds.filter((id) => !isUuid(id));
-            if (nonUuidRefs.length > 0) {
-              const { data: portfoliosBySlug } = await supabase
-                .from("portfolios")
-                .select("slug, title")
-                .in("slug", nonUuidRefs);
-              if (portfoliosBySlug) {
-                for (const p of portfoliosBySlug) {
-                  if (p?.slug && p?.title) titleMap[p.slug] = p.title;
-                }
-              }
-            }
-            const uuidPortfolioIds = uniquePortfolioIds.filter(isUuid);
-            if (uuidPortfolioIds.length > 0) {
-              const { data: portfolios, error: portfoliosError } =
-                await supabase
-                  .from("portfolios")
-                  .select("id, slug, title")
-                  .in("id", uuidPortfolioIds);
-              if (!portfoliosError && portfolios) {
-                for (const p of portfolios) {
-                  if (p?.id && p?.slug) slugMap[p.id] = p.slug;
-                  if (p?.id && p?.title) titleMap[p.id] = p.title;
-                }
-              }
-            }
-            setPortfolioIdToSlug(slugMap);
-            setPortfolioIdToTitle(titleMap);
-          }
+        const blogIds = [...new Set(fetched.filter((l) => l.content_type === "blog" && l.content_id).map((l) => l.content_id))];
+        if (blogIds.length > 0) {
+          const { data: blogs } = await supabase.from("blogs").select("id, slug, title").in("id", blogIds);
+          const slugMap = {}, titleMap = {};
+          (blogs || []).forEach((b) => { if (b?.id) { slugMap[b.id] = b.slug; titleMap[b.id] = b.title; } });
+          setBlogIdToSlug(slugMap); setBlogIdToTitle(titleMap);
         }
-      } catch (err) {
-        console.error("Error loading user data:", err);
-        setError("An error occurred while loading your data");
-      } finally {
-        setLoading(false);
-      }
-    }
 
+        const portfolioIds = [...new Set(fetched.filter((l) => l.content_type === "portfolio" && l.content_id).map((l) => l.content_id))];
+        if (portfolioIds.length > 0) {
+          const slugMap = {}, titleMap = {};
+          portfolioIds.filter((id) => !isUuid(id)).forEach((ref) => { slugMap[ref] = ref; });
+          const nonUuids = portfolioIds.filter((id) => !isUuid(id));
+          if (nonUuids.length > 0) {
+            const { data } = await supabase.from("portfolios").select("slug, title").in("slug", nonUuids);
+            (data || []).forEach((p) => { if (p?.slug) titleMap[p.slug] = p.title; });
+          }
+          const uuids = portfolioIds.filter(isUuid);
+          if (uuids.length > 0) {
+            const { data } = await supabase.from("portfolios").select("id, slug, title").in("id", uuids);
+            (data || []).forEach((p) => { if (p?.id) { slugMap[p.id] = p.slug; titleMap[p.id] = p.title; } });
+          }
+          setPortfolioIdToSlug(slugMap); setPortfolioIdToTitle(titleMap);
+        }
+      } catch { setError("An error occurred while loading your data"); }
+      finally { setLoading(false); }
+    }
     loadUserData();
   }, [router]);
 
   const handleUnlike = async (likeId) => {
     try {
-      const { error } = await supabase
-        .from("user_likes")
-        .delete()
-        .eq("id", likeId);
-
-      if (error) {
-        console.error("Error unliking post:", error);
-        return;
-      }
-
+      const { error } = await supabase.from("user_likes").delete().eq("id", likeId);
+      if (error) return;
       setLikes((prev) => prev.filter((l) => l.id !== likeId));
-    } catch (err) {
-      console.error("Error:", err);
-    }
+    } catch {}
   };
 
-  if (loading) {
-    return (
-      <div className={be.pageRoot}>
-        <p className={styles.pageLoading}>Loading…</p>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className={be.pageRoot}>
-        <p className={styles.error}>{error}</p>
-      </div>
-    );
-  }
+  if (loading) return <div className={be.pageRoot}><p className={styles.pageLoading}>Loading…</p></div>;
+  if (error) return <div className={be.pageRoot}><p className={styles.error}>{error}</p></div>;
 
   const contentTypes = [...new Set(likes.map((l) => l.content_type))];
-  const filtered =
-    filterType === "all"
-      ? likes
-      : likes.filter((l) => l.content_type === filterType);
+  const filtered = filterType === "all" ? likes : likes.filter((l) => l.content_type === filterType);
 
   return (
     <div className={be.pageRoot}>
       <header className={be.hero}>
         <div className={be.heroBack}>
           <Link href="/users/profile" className={admin.backNav}>
-            <ArrowLeft size={18} strokeWidth={2} aria-hidden />
-            Back to dashboard
+            <ArrowLeft size={18} strokeWidth={2} aria-hidden /> Back to dashboard
           </Link>
         </div>
         <div className={be.heroMeta}>
@@ -181,99 +109,79 @@ export default function LikesPage() {
           <span className={be.metaChip}>Likes</span>
         </div>
         <h1 className={admin.pageTitle}>Liked posts</h1>
-        <p className={admin.lead}>
-          Posts and portfolio items you&apos;ve liked. Unlike to remove from this
-          list.
-        </p>
+        <p className={admin.lead}>Posts and portfolio items you&apos;ve liked. Unlike to remove from this list.</p>
       </header>
 
       <div className={be.formFlow}>
         <section className={be.section} aria-labelledby="user-likes-section">
           <div className={be.sectionHead}>
-            <div className={be.sectionIcon} aria-hidden>
-              <Heart size={20} strokeWidth={1.75} />
-            </div>
+            <div className={be.sectionIcon} aria-hidden><Heart size={20} strokeWidth={1.75} /></div>
             <div className={be.sectionHeadText}>
               <p className={be.sectionKicker}>Engagement</p>
-              <h2 id="user-likes-section" className={be.sectionTitle}>
-                Your likes
-              </h2>
-              <p className={be.sectionLead}>
-                Open a post or remove a like from here.
-              </p>
+              <h2 id="user-likes-section" className={be.sectionTitle}>Your likes</h2>
+              <p className={be.sectionLead}>Open a post or remove a like from here.</p>
             </div>
           </div>
 
           {likes.length === 0 ? (
-            <div className={styles.emptyState}>
-              <p>You haven&apos;t liked any posts yet.</p>
-            </div>
+            <div className={styles.emptyState}><p>You haven&apos;t liked any posts yet.</p></div>
           ) : (
             <>
               <div className={styles.filterBar}>
-                <button
-                  className={`${styles.filterBtn}${filterType === "all" ? ` ${styles.filterBtnActive}` : ""}`}
-                  onClick={() => setFilterType("all")}
-                >
-                  All
-                </button>
-                {contentTypes.map((type) => (
+                {["all", ...contentTypes].map((t) => (
                   <button
-                    key={type}
-                    className={`${styles.filterBtn}${filterType === type ? ` ${styles.filterBtnActive}` : ""}`}
-                    onClick={() => setFilterType(type)}
+                    key={t}
+                    type="button"
+                    className={`${styles.filterBtn}${filterType === t ? ` ${styles.filterBtnActive}` : ""}`}
+                    onClick={() => setFilterType(t)}
                   >
-                    {typeLabel(type)}
+                    {t === "all" ? "All" : typeLabel(t)}
                   </button>
                 ))}
               </div>
 
               {filtered.length === 0 ? (
-                <div className={styles.emptyState}>
-                  <p>No {typeLabel(filterType).toLowerCase()} in your likes.</p>
-                </div>
+                <div className={styles.emptyState}><p>No {typeLabel(filterType).toLowerCase()} in your likes.</p></div>
               ) : (
                 <div className={styles.contentList}>
                   {filtered.map((like) => {
                     const isBlog = like.content_type === "blog";
-                    const href = isBlog
-                      ? `/blog/${blogIdToSlug[like.content_id] || ""}`
-                      : `/portfolio/${portfolioIdToSlug[like.content_id] || like.content_id}`;
+                    const slug = isBlog ? blogIdToSlug[like.content_id] : (portfolioIdToSlug[like.content_id] || like.content_id);
+                    const href = isBlog ? `/blog/${slug || ""}` : `/portfolio/${slug}`;
                     const isDisabled = isBlog && !blogIdToSlug[like.content_id];
-                    const title = isBlog
-                      ? blogIdToTitle[like.content_id]
-                      : portfolioIdToTitle[like.content_id];
+                    const title = isBlog ? blogIdToTitle[like.content_id] : portfolioIdToTitle[like.content_id];
 
                     return (
-                      <div key={like.id} className={styles.likeItem}>
-                        <div className={styles.likeHeader}>
-                          <div className={styles.postInfo}>
-                            <h3>{title || (isBlog ? "Blog Post" : "Portfolio Item")}</h3>
-                            <span className={styles.likeDate}>
-                              Liked on{" "}
-                              {new Date(like.created_at).toLocaleDateString()}
-                            </span>
-                          </div>
-                          <button
-                            onClick={() => handleUnlike(like.id)}
-                            className={styles.unlikeButton}
-                          >
-                            Unlike
-                          </button>
+                      <div key={like.id} className={styles.itemCard}>
+                        <div className={`${styles.itemIcon} ${isBlog ? styles.itemIconBlog : styles.itemIconPortfolio}`}>
+                          {isBlog ? <BookOpen size={18} strokeWidth={1.75} /> : <Briefcase size={18} strokeWidth={1.75} />}
                         </div>
-                        <div className={styles.likeFooter}>
-                          <span className={styles.postType}>
-                            {typeLabel(like.content_type)}
-                          </span>
+
+                        <div className={styles.itemInfo}>
+                          <div className={styles.itemTitleRow}>
+                            <span className={styles.itemTitle}>{title || (isBlog ? "Blog Post" : "Portfolio Item")}</span>
+                          </div>
+                          <div className={styles.itemPillsRow}>
+                            <span className={styles.itemTypePill}>{typeLabel(like.content_type)}</span>
+                            <span className={styles.itemTimeChip}><Clock size={11} />{formatDate(like.created_at)}</span>
+                          </div>
+                        </div>
+
+                        <div className={styles.itemActions}>
                           {isDisabled ? (
-                            <span className={styles.viewPostLink} aria-disabled>
-                              Unavailable
-                            </span>
+                            <span className={styles.itemViewDisabled}>Unavailable</span>
                           ) : (
-                            <Link href={href} className={styles.viewPostLink}>
-                              View Post
+                            <Link href={href} className={styles.itemViewBtn}>
+                              <ExternalLink size={13} /> View
                             </Link>
                           )}
+                          <button
+                            type="button"
+                            className={styles.itemRemoveBtn}
+                            onClick={() => handleUnlike(like.id)}
+                          >
+                            <HeartOff size={13} /> Unlike
+                          </button>
                         </div>
                       </div>
                     );

@@ -363,7 +363,7 @@ export default function CommentsPage() {
 
                 {/* Comment body — left-bordered quote */}
                 <p className={styles.body}>
-                  <MessageSquare size={12} style={{ flexShrink: 0, marginTop: 2, opacity: 0.5 }} />
+                  <MessageSquare size={12} style={{ flexShrink: 0, marginTop: 2, marginRight: 8, opacity: 0.5 }} />
                   {comment.comment}
                 </p>
               </div>
