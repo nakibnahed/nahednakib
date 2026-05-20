@@ -40,6 +40,14 @@
   text-align: justify;
 }
 
+/* ✅ Button Row */
+.buttonRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
 /* ✅ Button */
 .button {
   display: inline-flex;
@@ -65,6 +73,24 @@
 
 .button:hover .arrow {
   transform: translateX(5px);
+}
+
+/* ✅ Secondary Button (ghost) */
+.buttonSecondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 20px;
+  background: var(--button-bg-no-activ);
+  border: 1px solid var(--card-border);
+  border-radius: var(--button-radius);
+  color: var(--button-text-no-activ);
+  font-weight: 700;
+  cursor: pointer;
+  text-decoration: none;
+}
+.buttonSecondary:hover {
+  opacity: 0.9;
 }
 
 /* ✅ Image Grid Section */

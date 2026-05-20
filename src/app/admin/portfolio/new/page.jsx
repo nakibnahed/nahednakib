@@ -39,6 +39,8 @@ export default function NewPortfolioPage() {
     category: "",
     description: "",
     overview: "",
+    problem_statement: "",
+    challenges: "",
     achievements: "",
     key_features: "",
     live_url: "",
@@ -180,6 +182,8 @@ export default function NewPortfolioPage() {
           category: formData.category,
           description: formData.description,
           overview: formData.overview,
+          problem_statement: formData.problem_statement,
+          challenges: formData.challenges,
           achievements: formData.achievements,
           key_features: formData.key_features,
           live_url: formData.live_url,
@@ -440,6 +444,36 @@ export default function NewPortfolioPage() {
                 id="new-portfolio-overview"
                 name="overview"
                 value={formData.overview}
+                onChange={handleChange}
+                className={`${admin.fieldTextarea} ${be.htmlTextarea}`}
+              />
+            </div>
+            <div className={admin.formField}>
+              <label
+                className={admin.fieldLabel}
+                htmlFor="new-portfolio-problem"
+              >
+                Problem statement (HTML)
+              </label>
+              <textarea
+                id="new-portfolio-problem"
+                name="problem_statement"
+                value={formData.problem_statement}
+                onChange={handleChange}
+                className={`${admin.fieldTextarea} ${be.htmlTextarea}`}
+              />
+            </div>
+            <div className={admin.formField}>
+              <label
+                className={admin.fieldLabel}
+                htmlFor="new-portfolio-challenges"
+              >
+                Challenges &amp; solutions (HTML)
+              </label>
+              <textarea
+                id="new-portfolio-challenges"
+                name="challenges"
+                value={formData.challenges}
                 onChange={handleChange}
                 className={`${admin.fieldTextarea} ${be.htmlTextarea}`}
               />

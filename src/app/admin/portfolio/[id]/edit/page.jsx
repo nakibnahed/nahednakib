@@ -43,6 +43,8 @@ export default function EditPortfolioPage() {
     category: "",
     description: "",
     overview: "",
+    problem_statement: "",
+    challenges: "",
     achievements: "",
     key_features: "",
     live_url: "",
@@ -104,6 +106,8 @@ export default function EditPortfolioPage() {
           category: data.category || "",
           description: data.description || "",
           overview: data.overview || "",
+          problem_statement: data.problem_statement || "",
+          challenges: data.challenges || "",
           achievements: data.achievements || "",
           key_features: data.key_features || "",
           live_url: data.live_url || "",
@@ -237,6 +241,8 @@ export default function EditPortfolioPage() {
         category: formData.category,
         description: formData.description,
         overview: formData.overview,
+        problem_statement: formData.problem_statement,
+        challenges: formData.challenges,
         achievements: formData.achievements,
         key_features: formData.key_features,
         live_url: formData.live_url,
@@ -486,6 +492,36 @@ export default function EditPortfolioPage() {
                 id="edit-portfolio-overview"
                 name="overview"
                 value={formData.overview}
+                onChange={handleChange}
+                className={`${admin.fieldTextarea} ${be.htmlTextarea}`}
+              />
+            </div>
+            <div className={admin.formField}>
+              <label
+                className={admin.fieldLabel}
+                htmlFor="edit-portfolio-problem"
+              >
+                Problem statement (HTML)
+              </label>
+              <textarea
+                id="edit-portfolio-problem"
+                name="problem_statement"
+                value={formData.problem_statement}
+                onChange={handleChange}
+                className={`${admin.fieldTextarea} ${be.htmlTextarea}`}
+              />
+            </div>
+            <div className={admin.formField}>
+              <label
+                className={admin.fieldLabel}
+                htmlFor="edit-portfolio-challenges"
+              >
+                Challenges &amp; solutions (HTML)
+              </label>
+              <textarea
+                id="edit-portfolio-challenges"
+                name="challenges"
+                value={formData.challenges}
                 onChange={handleChange}
                 className={`${admin.fieldTextarea} ${be.htmlTextarea}`}
               />

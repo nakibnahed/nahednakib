@@ -258,6 +258,49 @@
   transform: translateX(-50%) translateY(-2px);
 }
 
+/* CV download button — desktop */
+.cvBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  background: var(--button-bg);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  border-radius: 8px;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: opacity 0.2s ease;
+}
+
+.cvBtn:hover {
+  opacity: 0.9;
+}
+
+/* CV download — mobile menu row */
+.cvBtnMobile {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 20px 24px;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--primary-color);
+  text-decoration: none;
+  border-bottom: 1px solid var(--card-border);
+  transition: opacity 0.2s ease;
+}
+
+.cvBtnMobile svg {
+  color: var(--primary-color);
+  flex-shrink: 0;
+}
+
+.cvBtnMobile:hover {
+  opacity: 0.9;
+}
+
 /* Test button for notifications */
 .testButton {
   background: var(--primary-color);

@@ -23,6 +23,7 @@ import {
   MessageSquare,
   Video,
   BookOpen,
+  Download,
 } from "lucide-react";
 import { useRouter, usePathname } from "next/navigation";
 import NotificationIcon from "../NotificationIcon/NotificationIcon";

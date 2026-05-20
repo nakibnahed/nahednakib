@@ -22,10 +22,16 @@ export default function About() {
           unique combination of athletic discipline and coding expertise sets me
           apart as a developer who understands both performance and precision.
         </p>
-        <Link href="/info" className={styles.button}>
-          <span>More Info</span>
-          <span className={styles.arrow}>→</span>
-        </Link>
+        <div className={styles.buttonRow}>
+          <Link href="/info" className={styles.button}>
+            <span>More Info</span>
+            <span className={styles.arrow}>→</span>
+          </Link>
+          <a href="/cv.pdf" download className={styles.buttonSecondary}>
+            <span>Download CV</span>
+            <span className={styles.arrow}>↓</span>
+          </a>
+        </div>
       </div>
 
       {/* Right Column - Single Responsive Image */}
