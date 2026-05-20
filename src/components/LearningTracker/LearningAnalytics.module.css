@@ -1,0 +1,113 @@
+.wrap { display: flex; flex-direction: column; gap: 1.5rem; }
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.iconBox {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--primary-color) 12%, transparent);
+  color: var(--primary-color);
+  border: 1px solid color-mix(in srgb, var(--primary-color) 35%, transparent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.sub {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+/* Completion rate block */
+.completionBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 20px;
+  border-radius: 16px;
+  background: color-mix(in srgb, var(--background-main) 85%, transparent 15%);
+  border: 1px solid color-mix(in srgb, var(--card-border) 70%, transparent);
+}
+
+.completionLabel {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-secondary, #a1a1aa);
+  margin: 0;
+}
+
+.barRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.barLabel {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  width: 76px;
+  flex-shrink: 0;
+}
+
+.barTrack {
+  flex: 1;
+  height: 6px;
+  background: color-mix(in srgb, var(--card-border) 55%, transparent);
+  border-radius: 99px;
+  overflow: hidden;
+}
+
+.barFill {
+  height: 100%;
+  background: var(--primary-color);
+  border-radius: 99px;
+  transition: width 0.5s ease;
+}
+
+.barPct {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text-primary, #fafafa);
+  width: 36px;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+/* Best day */
+.bestDay {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  padding: 12px 16px;
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--card-border) 30%, transparent);
+  border: 1px solid color-mix(in srgb, var(--card-border) 50%, transparent);
+}
+
+.bestDay strong {
+  color: var(--text-primary, #fafafa);
+  font-weight: 600;
+}
+
+/* ── Mobile ──────────────────────────────────────────────── */
+@media (max-width: 767px) {
+  .grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+  .completionBlock { padding: 16px; gap: 12px; }
+  .barLabel { width: 66px; font-size: 0.75rem; }
+}
+
+@media (max-width: 480px) {
+  .completionBlock { padding: 14px; }
+}
+
+@media (max-width: 360px) {
+  .grid { grid-template-columns: 1fr; }
+}

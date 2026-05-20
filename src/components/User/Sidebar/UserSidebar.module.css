@@ -26,6 +26,7 @@
   margin-bottom: 18px;
   padding: 0 4px;
   flex-shrink: 0;
+  overflow: hidden;
 }
 
 .brandIcon {
@@ -49,6 +50,8 @@
   flex-direction: column;
   gap: 2px;
   min-width: 0;
+  flex: 1;
+  overflow: hidden;
 }
 
 .brandTitle {
@@ -136,7 +139,16 @@
   transition:
     background 0.18s ease,
     color 0.18s ease,
-    box-shadow 0.18s ease;
+    box-shadow 0.18s ease,
+    justify-content 0.18s;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.menuLabel {
+  overflow: hidden;
+  transition: opacity 0.18s, max-width 0.26s;
+  max-width: 160px;
 }
 
 .menuItem:hover:not(.active):not(.logoutItem) .menuItemContent {
@@ -317,12 +329,89 @@
   visibility: visible;
 }
 
-@media (max-width: 1024px) {
-  .sidebar {
-    padding-top: 56px;
-  }
+/* ── Collapsed state ─────────────────────────────────────── */
 
-  .brandRow {
-    margin-bottom: 14px;
-  }
+.collapsed .sidebar {
+  padding-inline: 8px;
+}
+
+/* Hide brand row entirely — cleaner icon-only column, saves vertical space */
+.collapsed .brandRow {
+  display: none;
+}
+
+.collapsed .navScroll {
+  padding-top: 4px;
+}
+
+.collapsed .sectionLabel {
+  opacity: 0;
+  overflow: hidden;
+  height: 0;
+  margin: 0;
+  pointer-events: none;
+}
+
+/* gap: 0 is the key fix — with a zero-width label still in flex flow,
+   a non-zero gap shifts the icon off-center */
+.collapsed .menuItemContent {
+  justify-content: center;
+  padding: 10px 0;
+  gap: 0;
+}
+
+.collapsed .menuLabel {
+  opacity: 0;
+  max-width: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.collapsed .userDetails,
+.collapsed .settingsFloating {
+  display: none;
+}
+
+/* Shrink card + avatar to fit the 72px column without overflow */
+.collapsed .userCard {
+  justify-content: center;
+  padding: 10px;
+}
+
+.collapsed .userAvatar {
+  width: 34px;
+  height: 34px;
+}
+
+/* Next.js Image renders inline width/height — override so it respects the container */
+.collapsed .avatarImage {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+/* Hover tooltip when collapsed */
+.collapsed .menuLink {
+  position: relative;
+}
+
+.collapsed .menuLink:hover::after {
+  content: attr(data-tooltip);
+  position: fixed;
+  left: 80px;
+  background: color-mix(in srgb, var(--background-main) 88%, #fff 12%);
+  color: var(--text-primary, #fafafa);
+  border: 1px solid color-mix(in srgb, var(--card-border) 70%, transparent);
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+  padding: 6px 12px;
+  border-radius: 8px;
+  pointer-events: none;
+  z-index: 9999;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+}
+
+@media (max-width: 1024px) {
+  .sidebar { padding-top: 56px; }
+  .brandRow { margin-bottom: 14px; }
 }

@@ -1,0 +1,26 @@
+.card {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 14px;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  transition: border-color 0.2s;
+}
+
+.card:hover { border-color: color-mix(in srgb, var(--primary-color) 25%, transparent); }
+
+.icon { color: var(--primary-color); display: flex; align-items: center; margin-bottom: 2px; }
+
+.value {
+  font-family: var(--font-montserrat, var(--font-main));
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-light);
+  line-height: 1;
+}
+
+.label { font-size: 0.72rem; color: var(--text-muted); letter-spacing: 0.03em; }
+
+.sub { font-size: 0.7rem; color: var(--text-secondary); }

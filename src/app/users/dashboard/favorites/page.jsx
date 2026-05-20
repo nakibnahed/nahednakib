@@ -2,10 +2,11 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, Heart, BookOpen, Briefcase, Clock, ExternalLink, HeartOff } from "lucide-react";
+import { Star, BookOpen, Briefcase, Clock, ExternalLink, StarOff } from "lucide-react";
 import { supabase } from "@/services/supabaseClient";
+import ConfirmationModal from "@/components/ConfirmationModal/ConfirmationModal";
+import { showAppToast } from "@/lib/showAppToast";
 import be from "@/app/admin/blogs/BlogEditor.module.css";
-import admin from "@/components/Admin/adminPage.module.css";
 import styles from "../Profile.module.css";
 import { isUuid } from "@/lib/utils/isUuid";
 
@@ -25,15 +26,17 @@ function formatDate(dateString) {
   return date.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
 }
 
-export default function LikesPage() {
+export default function FavoritesPage() {
   const [loading, setLoading] = useState(true);
-  const [likes, setLikes] = useState([]);
+  const [favorites, setFavorites] = useState([]);
   const [blogIdToSlug, setBlogIdToSlug] = useState({});
   const [blogIdToTitle, setBlogIdToTitle] = useState({});
   const [portfolioIdToSlug, setPortfolioIdToSlug] = useState({});
   const [portfolioIdToTitle, setPortfolioIdToTitle] = useState({});
   const [filterType, setFilterType] = useState("all");
   const [error, setError] = useState(null);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [favoriteToDelete, setFavoriteToDelete] = useState(null);
   const router = useRouter();
 
   useEffect(() => {
@@ -43,16 +46,16 @@ export default function LikesPage() {
         const { data: { user }, error: userError } = await supabase.auth.getUser();
         if (userError || !user) { router.push("/login"); return; }
 
-        const { data: userLikes, error: likesError } = await supabase
-          .from("user_likes").select("*").eq("user_id", user.id)
+        const { data: userFavorites, error: favoritesError } = await supabase
+          .from("user_favorites").select("*").eq("user_id", user.id)
           .order("created_at", { ascending: false });
 
-        if (likesError) { setError("Could not load liked posts"); setLikes([]); return; }
+        if (favoritesError) { setError("Could not load favorite posts"); setFavorites([]); return; }
 
-        const fetched = userLikes || [];
-        setLikes(fetched);
+        const fetched = userFavorites || [];
+        setFavorites(fetched);
 
-        const blogIds = [...new Set(fetched.filter((l) => l.content_type === "blog" && l.content_id).map((l) => l.content_id))];
+        const blogIds = [...new Set(fetched.filter((f) => f.content_type === "blog" && f.content_id).map((f) => f.content_id))];
         if (blogIds.length > 0) {
           const { data: blogs } = await supabase.from("blogs").select("id, slug, title").in("id", blogIds);
           const slugMap = {}, titleMap = {};
@@ -60,7 +63,7 @@ export default function LikesPage() {
           setBlogIdToSlug(slugMap); setBlogIdToTitle(titleMap);
         }
 
-        const portfolioIds = [...new Set(fetched.filter((l) => l.content_type === "portfolio" && l.content_id).map((l) => l.content_id))];
+        const portfolioIds = [...new Set(fetched.filter((f) => f.content_type === "portfolio" && f.content_id).map((f) => f.content_id))];
         if (portfolioIds.length > 0) {
           const slugMap = {}, titleMap = {};
           portfolioIds.filter((id) => !isUuid(id)).forEach((ref) => { slugMap[ref] = ref; });
@@ -82,49 +85,40 @@ export default function LikesPage() {
     loadUserData();
   }, [router]);
 
-  const handleUnlike = async (likeId) => {
+  const handleRemoveFavorite = async () => {
+    if (!favoriteToDelete) return;
     try {
-      const { error } = await supabase.from("user_likes").delete().eq("id", likeId);
-      if (error) return;
-      setLikes((prev) => prev.filter((l) => l.id !== likeId));
-    } catch {}
+      const { error } = await supabase.from("user_favorites").delete().eq("id", favoriteToDelete);
+      if (error) { showAppToast("Failed to remove favorite.", "error"); return; }
+      setFavorites((prev) => prev.filter((f) => f.id !== favoriteToDelete));
+      showAppToast("Favorite removed.", "success");
+    } catch { showAppToast("An error occurred.", "error"); }
+    finally { setShowDeleteConfirm(false); setFavoriteToDelete(null); }
   };
 
   if (loading) return <div className={be.pageRoot}><p className={styles.pageLoading}>Loading…</p></div>;
   if (error) return <div className={be.pageRoot}><p className={styles.error}>{error}</p></div>;
 
-  const contentTypes = [...new Set(likes.map((l) => l.content_type))];
-  const filtered = filterType === "all" ? likes : likes.filter((l) => l.content_type === filterType);
+  const contentTypes = [...new Set(favorites.map((f) => f.content_type))];
+  const filtered = filterType === "all" ? favorites : favorites.filter((f) => f.content_type === filterType);
 
   return (
     <div className={be.pageRoot}>
-      <header className={be.hero}>
-        <div className={be.heroBack}>
-          <Link href="/users/profile" className={admin.backNav}>
-            <ArrowLeft size={18} strokeWidth={2} aria-hidden /> Back to dashboard
-          </Link>
+      <header className={styles.hero}>
+        <div className={styles.heroTop}>
+          <span className={styles.heroChip}>Saved</span>
         </div>
-        <div className={be.heroMeta}>
-          <p className={admin.eyebrow}>Account</p>
-          <span className={be.metaChip}>Likes</span>
+        <div className={styles.heroTitleRow}>
+          <div className={styles.heroIcon}><Star size={17} strokeWidth={1.75} /></div>
+          <h1 className={styles.heroTitle}>Favorites</h1>
         </div>
-        <h1 className={admin.pageTitle}>Liked posts</h1>
-        <p className={admin.lead}>Posts and portfolio items you&apos;ve liked. Unlike to remove from this list.</p>
+        <p className={styles.heroLead}>Remove items or jump to the original post.</p>
       </header>
 
       <div className={be.formFlow}>
-        <section className={be.section} aria-labelledby="user-likes-section">
-          <div className={be.sectionHead}>
-            <div className={be.sectionIcon} aria-hidden><Heart size={20} strokeWidth={1.75} /></div>
-            <div className={be.sectionHeadText}>
-              <p className={be.sectionKicker}>Engagement</p>
-              <h2 id="user-likes-section" className={be.sectionTitle}>Your likes</h2>
-              <p className={be.sectionLead}>Open a post or remove a like from here.</p>
-            </div>
-          </div>
-
-          {likes.length === 0 ? (
-            <div className={styles.emptyState}><p>You haven&apos;t liked any posts yet.</p></div>
+        <section className={be.section}>
+          {favorites.length === 0 ? (
+            <div className={styles.emptyState}><p>You don&apos;t have any favorites yet.</p></div>
           ) : (
             <>
               <div className={styles.filterBar}>
@@ -141,18 +135,18 @@ export default function LikesPage() {
               </div>
 
               {filtered.length === 0 ? (
-                <div className={styles.emptyState}><p>No {typeLabel(filterType).toLowerCase()} in your likes.</p></div>
+                <div className={styles.emptyState}><p>No {typeLabel(filterType).toLowerCase()} in your favorites.</p></div>
               ) : (
                 <div className={styles.contentList}>
-                  {filtered.map((like) => {
-                    const isBlog = like.content_type === "blog";
-                    const slug = isBlog ? blogIdToSlug[like.content_id] : (portfolioIdToSlug[like.content_id] || like.content_id);
+                  {filtered.map((favorite) => {
+                    const isBlog = favorite.content_type === "blog";
+                    const slug = isBlog ? blogIdToSlug[favorite.content_id] : (portfolioIdToSlug[favorite.content_id] || favorite.content_id);
                     const href = isBlog ? `/blog/${slug || ""}` : `/portfolio/${slug}`;
-                    const isDisabled = isBlog && !blogIdToSlug[like.content_id];
-                    const title = isBlog ? blogIdToTitle[like.content_id] : portfolioIdToTitle[like.content_id];
+                    const isDisabled = isBlog && !blogIdToSlug[favorite.content_id];
+                    const title = isBlog ? blogIdToTitle[favorite.content_id] : portfolioIdToTitle[favorite.content_id];
 
                     return (
-                      <div key={like.id} className={styles.itemCard}>
+                      <div key={favorite.id} className={styles.itemCard}>
                         <div className={`${styles.itemIcon} ${isBlog ? styles.itemIconBlog : styles.itemIconPortfolio}`}>
                           {isBlog ? <BookOpen size={18} strokeWidth={1.75} /> : <Briefcase size={18} strokeWidth={1.75} />}
                         </div>
@@ -162,8 +156,8 @@ export default function LikesPage() {
                             <span className={styles.itemTitle}>{title || (isBlog ? "Blog Post" : "Portfolio Item")}</span>
                           </div>
                           <div className={styles.itemPillsRow}>
-                            <span className={styles.itemTypePill}>{typeLabel(like.content_type)}</span>
-                            <span className={styles.itemTimeChip}><Clock size={11} />{formatDate(like.created_at)}</span>
+                            <span className={styles.itemTypePill}>{typeLabel(favorite.content_type)}</span>
+                            <span className={styles.itemTimeChip}><Clock size={11} />{formatDate(favorite.created_at)}</span>
                           </div>
                         </div>
 
@@ -178,9 +172,9 @@ export default function LikesPage() {
                           <button
                             type="button"
                             className={styles.itemRemoveBtn}
-                            onClick={() => handleUnlike(like.id)}
+                            onClick={() => { setFavoriteToDelete(favorite.id); setShowDeleteConfirm(true); }}
                           >
-                            <HeartOff size={13} /> Unlike
+                            <StarOff size={13} /> Remove
                           </button>
                         </div>
                       </div>
@@ -192,6 +186,17 @@ export default function LikesPage() {
           )}
         </section>
       </div>
+
+      <ConfirmationModal
+        isOpen={showDeleteConfirm}
+        onClose={() => setShowDeleteConfirm(false)}
+        onConfirm={handleRemoveFavorite}
+        title="Remove from Favorites"
+        message="Are you sure you want to remove this from your favorites?"
+        confirmText="Remove"
+        cancelText="Cancel"
+        type="warning"
+      />
     </div>
   );
 }

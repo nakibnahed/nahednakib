@@ -1,11 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Link from "next/link";
-import { ArrowLeft, Mail } from "lucide-react";
-import styles from "../../../../app/users/profile/Profile.module.css";
+import styles from "../../../../app/users/dashboard/Profile.module.css";
 import be from "@/app/admin/blogs/BlogEditor.module.css";
-import admin from "@/components/Admin/adminPage.module.css";
+import { Mail } from "lucide-react";
 
 export default function NewsletterContent({ user }) {
   const [subscribed, setSubscribed] = useState(null); // null = loading
@@ -45,37 +43,19 @@ export default function NewsletterContent({ user }) {
 
   return (
     <div className={be.pageRoot}>
-      <header className={be.hero}>
-        <div className={be.heroBack}>
-          <Link href="/users/profile" className={admin.backNav}>
-            <ArrowLeft size={18} strokeWidth={2} aria-hidden />
-            Back to dashboard
-          </Link>
+      <header className={styles.hero}>
+        <div className={styles.heroTop}>
+          <span className={styles.heroChip}>Settings</span>
         </div>
-        <div className={be.heroMeta}>
-          <p className={admin.eyebrow}>Email</p>
-          <span className={be.metaChip}>Newsletter</span>
+        <div className={styles.heroTitleRow}>
+          <div className={styles.heroIcon}><Mail size={17} strokeWidth={1.75} /></div>
+          <h1 className={styles.heroTitle}>Settings</h1>
         </div>
-        <h1 className={admin.pageTitle}>Newsletter</h1>
-        <p className={admin.lead}>Manage your newsletter subscription.</p>
+        <p className={styles.heroLead}>Manage your account preferences and subscriptions.</p>
       </header>
 
       <div className={be.formFlow}>
-        <section className={be.section} aria-labelledby="newsletter-heading">
-          <div className={be.sectionHead}>
-            <div className={be.sectionIcon} aria-hidden>
-              <Mail size={20} strokeWidth={1.75} />
-            </div>
-            <div className={be.sectionHeadText}>
-              <p className={be.sectionKicker}>Subscription</p>
-              <h2 id="newsletter-heading" className={be.sectionTitle}>
-                Email updates
-              </h2>
-              <p className={be.sectionLead}>
-                Get notified when new articles are published.
-              </p>
-            </div>
-          </div>
+        <section className={be.section}>
 
           <div className={styles.settingsForm}>
             <div className={styles.settingsFormBody}>

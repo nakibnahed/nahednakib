@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/services/supabaseClient";
 import { showAppToast } from "@/lib/showAppToast";
 import ConfirmationModal from "@/components/ConfirmationModal/ConfirmationModal";
-import styles from "../../../../app/users/profile/Profile.module.css";
+import styles from "../../../../app/users/dashboard/Profile.module.css";
 import { isUuid } from "@/lib/utils/isUuid";
 import UserCardListSkeleton from "@/components/Skeletons/UserCardListSkeleton";
 

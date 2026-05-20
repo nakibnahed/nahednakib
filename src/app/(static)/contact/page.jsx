@@ -143,7 +143,7 @@ export default function ContactTabsPage() {
           );
         } else {
           const userId = loginData?.user?.id;
-          let target = "/users/profile";
+          let target = "/users/dashboard";
           if (userId) {
             const { data: profile } = await supabase
               .from("profiles")

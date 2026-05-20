@@ -1,0 +1,87 @@
+.wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 20px;
+  border-radius: 16px;
+  background: color-mix(in srgb, var(--background-main) 85%, transparent 15%);
+  border: 1px solid color-mix(in srgb, var(--card-border) 70%, transparent);
+}
+
+.label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-secondary, #a1a1aa);
+  margin: 0;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(15, 1fr);
+  gap: 4px;
+}
+
+.cell {
+  aspect-ratio: 1;
+  border-radius: 4px;
+  min-width: 0;
+  cursor: default;
+  transition: opacity 0.12s;
+}
+
+.cell:hover { opacity: 0.75; }
+
+.level0 { background: color-mix(in srgb, var(--card-border) 45%, transparent); }
+.level1 { background: color-mix(in srgb, var(--primary-color) 25%, transparent); }
+.level2 { background: color-mix(in srgb, var(--primary-color) 48%, transparent); }
+.level3 { background: color-mix(in srgb, var(--primary-color) 70%, transparent); }
+.level4 { background: var(--primary-color); }
+
+.tooltip {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  min-height: 1.1rem;
+  padding: 6px 10px;
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--card-border) 30%, transparent);
+  border: 1px solid color-mix(in srgb, var(--card-border) 50%, transparent);
+  align-self: flex-start;
+}
+
+.legend {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.legendLabel {
+  font-size: 0.68rem;
+  color: var(--text-muted);
+  margin: 0 6px;
+  letter-spacing: 0.04em;
+}
+
+.legendCell {
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+
+/* ── Mobile ──────────────────────────────────────────────── */
+@media (max-width: 767px) {
+  .wrap { padding: 16px; gap: 12px; }
+  .grid { grid-template-columns: repeat(13, 1fr); gap: 3px; }
+}
+
+@media (max-width: 480px) {
+  .grid { grid-template-columns: repeat(10, 1fr); gap: 3px; }
+  .tooltip { font-size: 0.74rem; }
+}
+
+@media (max-width: 360px) {
+  .grid { grid-template-columns: repeat(9, 1fr); }
+  .wrap { padding: 12px; }
+}

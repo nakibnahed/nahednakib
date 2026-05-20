@@ -1,0 +1,339 @@
+.emptyWrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2.5rem 1rem;
+  text-align: center;
+  gap: 0.5rem;
+}
+
+.emptyIcon { color: var(--text-muted); margin-bottom: 0.5rem; }
+
+.emptyText {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-primary, #fafafa);
+  font-family: var(--font-heading);
+}
+
+.emptySub { font-size: 0.8rem; color: var(--text-muted); }
+
+/* ── Sidebar list (≥768px) ───────────────────────────────── */
+
+.listWrap {
+  --goal-orange: var(--primary-color);
+  --goal-blue: royalblue;
+  --goal-green: mediumseagreen;
+  --goal-purple: mediumpurple;
+  --goal-red: crimson;
+  --danger-color: crimson;
+
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.listHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 0 0.75rem;
+  margin-bottom: 0.25rem;
+}
+
+.listLabel {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.newBtnSmall {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  border: 1px solid var(--card-border);
+  background: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s;
+}
+
+.newBtnSmall:hover { border-color: var(--primary-color); color: var(--primary-color); }
+
+.list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 4px; }
+
+.item {
+  display: flex;
+  align-items: center;
+  border-radius: 12px;
+  border: 1px solid transparent;
+  transition: all 0.15s;
+  overflow: hidden;
+}
+
+.item:hover { background: color-mix(in srgb, var(--background-main) 85%, transparent 15%); }
+
+.itemActive {
+  background: color-mix(in srgb, var(--item-accent, var(--primary-color)) 10%, transparent) !important;
+  border-color: color-mix(in srgb, var(--item-accent, var(--primary-color)) 35%, transparent) !important;
+}
+
+.color-orange { --item-accent: var(--goal-orange, var(--primary-color)); }
+.color-blue   { --item-accent: var(--goal-blue, royalblue); }
+.color-green  { --item-accent: var(--goal-green, mediumseagreen); }
+.color-purple { --item-accent: var(--goal-purple, mediumpurple); }
+.color-red    { --item-accent: var(--goal-red, crimson); }
+
+.itemBtn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 0.6rem 0.75rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  color: var(--text-primary, #fafafa);
+  min-width: 0;
+}
+
+.itemDot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--item-accent, var(--primary-color));
+  flex-shrink: 0;
+}
+
+.itemText {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  flex: 1;
+}
+
+.itemTitle {
+  font-size: 0.85rem;
+  color: var(--text-primary, #fafafa);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-weight: 500;
+}
+
+.itemMeta { font-size: 0.7rem; color: var(--text-muted); }
+
+.streakBadge {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 0.7rem;
+  color: var(--primary-color);
+  flex-shrink: 0;
+}
+
+.pinBtn {
+  padding: 0.5rem 0.4rem;
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  opacity: 0;
+  transition: opacity 0.15s, color 0.15s;
+}
+
+.pinBtnActive {
+  opacity: 1 !important;
+  color: var(--primary-color);
+}
+
+.item:hover .pinBtn { opacity: 1; }
+.pinBtn:hover { color: var(--primary-color); }
+
+.itemPinned {
+  border-color: color-mix(in srgb, var(--item-accent, var(--primary-color)) 20%, transparent) !important;
+}
+
+.editBtn,
+.archiveBtn {
+  padding: 0.5rem 0.45rem;
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  opacity: 0;
+  transition: opacity 0.15s, color 0.15s;
+}
+
+.item:hover .editBtn,
+.item:hover .archiveBtn { opacity: 1; }
+
+.editBtn:hover { color: var(--primary-color); }
+.archiveBtn:hover { color: var(--danger-color, crimson); }
+
+/* ── Delete confirm overlay ──────────────────────────────── */
+.confirmOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(6px);
+  z-index: 300;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.confirmBox {
+  background: color-mix(in srgb, var(--background-main) 80%, transparent 15%);
+  border: 1px solid var(--card-border);
+  border-radius: var(--card-border-radius);
+  padding: 2rem;
+  max-width: 360px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  backdrop-filter: blur(16px) saturate(160%);
+  -webkit-backdrop-filter: blur(16px) saturate(160%);
+}
+
+.confirmText {
+  font-size: 0.95rem;
+  color: var(--text-muted);
+  line-height: 1.55;
+  margin: 0;
+}
+
+.confirmText strong { color: var(--text-primary, #fafafa); }
+
+.confirmBtns {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+.confirmCancel {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 18px;
+  border-radius: 999px;
+  border: 1px solid var(--card-border);
+  background: var(--button-bg-no-activ);
+  color: var(--button-text-no-activ);
+  font-family: var(--font-main);
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+
+.confirmCancel:hover { opacity: 0.85; }
+
+.confirmDo {
+  padding: 10px 18px !important;
+  font-size: 0.875rem !important;
+}
+
+/* ── Mobile: compact pill row ────────────────────────────── */
+@media (max-width: 767px) {
+  .listWrap { height: auto; }
+
+  .listHeader { padding-bottom: 0.5rem; margin-bottom: 0; }
+
+  /* Horizontal scroll pill row */
+  .list {
+    flex-direction: row;
+    overflow-x: auto;
+    overflow-y: hidden;
+    gap: 6px;
+    padding-bottom: 4px;
+    /* hide scrollbar visually while keeping it functional */
+    scrollbar-width: none;
+  }
+  .list::-webkit-scrollbar { display: none; }
+
+  .item {
+    flex-direction: row;
+    flex-shrink: 0;
+    border-radius: 999px;
+    border: 1px solid var(--card-border);
+  }
+
+  /* Active pill gets accent border + background */
+  .itemActive {
+    background: color-mix(in srgb, var(--item-accent, var(--primary-color)) 14%, transparent) !important;
+    border-color: color-mix(in srgb, var(--item-accent, var(--primary-color)) 45%, transparent) !important;
+  }
+
+  .item:hover { background: color-mix(in srgb, var(--background-main) 80%, transparent 20%); }
+
+  .itemBtn {
+    flex-direction: row;
+    gap: 6px;
+    padding: 8px 12px 8px 10px;
+    align-items: center;
+  }
+
+  /* Hide the sub-label in pill mode — too cramped */
+  .itemMeta { display: none; }
+
+  /* Compact title */
+  .itemTitle {
+    font-size: 0.8rem;
+    white-space: nowrap;
+    max-width: 100px;
+  }
+
+  /* Pin + edit + archive always visible on mobile pills */
+  .pinBtn,
+  .editBtn,
+  .archiveBtn {
+    opacity: 1;
+    padding: 8px 6px;
+  }
+  .pinBtn { padding-left: 2px; }
+  .editBtn { padding-left: 2px; }
+  .archiveBtn { padding-right: 10px; }
+
+  /* streak badge stays inline */
+  .streakBadge { font-size: 0.68rem; }
+}
+
+@media (max-width: 480px) {
+  .emptyWrap { padding: 2rem 0.75rem; }
+
+  /* Confirm → bottom sheet */
+  .confirmOverlay { align-items: flex-end; padding: 0; }
+  .confirmBox {
+    max-width: 100%;
+    border-radius: 24px 24px 0 0;
+    border-bottom: none;
+    padding: 1.5rem 1.25rem calc(1.5rem + env(safe-area-inset-bottom, 0px));
+    animation: sheetUp 0.25s cubic-bezier(0.32, 0.72, 0, 1);
+  }
+  .confirmBtns { flex-direction: column-reverse; }
+  .confirmCancel, .confirmDo {
+    width: 100% !important;
+    justify-content: center;
+    padding: 13px !important;
+    font-size: 0.9rem !important;
+  }
+}
+
+@keyframes sheetUp {
+  from { transform: translateY(100%); opacity: 0.6; }
+  to   { transform: translateY(0);    opacity: 1; }
+}

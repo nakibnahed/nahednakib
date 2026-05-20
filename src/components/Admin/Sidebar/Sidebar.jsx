@@ -141,7 +141,7 @@ export default function Sidebar({ adminData, onNavigate }) {
         </div>
 
         <div className={styles.adminInfo}>
-          <Link href="/users/profile" className={styles.adminAvatarLink}>
+          <Link href="/users/dashboard" className={styles.adminAvatarLink}>
             <div className={styles.adminAvatar}>
               <Image
                 src={getAdminAvatar()}
@@ -153,7 +153,7 @@ export default function Sidebar({ adminData, onNavigate }) {
             </div>
           </Link>
           <div className={styles.adminDetails}>
-            <Link href="/users/profile" className={styles.adminNameLink}>
+            <Link href="/users/dashboard" className={styles.adminNameLink}>
               <span className={styles.adminName}>{getAdminDisplayName()}</span>
             </Link>
             <p className={styles.adminRole}>
@@ -162,7 +162,7 @@ export default function Sidebar({ adminData, onNavigate }) {
             </p>
           </div>
           <div className={styles.settingsFloating}>
-            <Link href="/users/profile" className={styles.settingsIcon}>
+            <Link href="/users/dashboard" className={styles.settingsIcon}>
               <Settings size={16} />
             </Link>
             <div className={styles.tooltip}>Edit profile</div>

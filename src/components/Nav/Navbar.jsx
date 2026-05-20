@@ -22,6 +22,7 @@ import {
   Shield,
   MessageSquare,
   Video,
+  BookOpen,
 } from "lucide-react";
 import { useRouter, usePathname } from "next/navigation";
 import NotificationIcon from "../NotificationIcon/NotificationIcon";
@@ -147,7 +148,7 @@ export default function Navbar() {
 
   const getProfileUrl = useCallback(() => {
     if (!user) return "/login";
-    return "/users/profile";
+    return "/users/dashboard";
   }, [user]);
 
   const renderUserIcon = useCallback(() => {
@@ -203,6 +204,13 @@ export default function Navbar() {
                         <Link href="/contact" className={styles.dropdownItem}>
                           <Mail size={16} />
                           Contact Us
+                        </Link>
+                        <Link
+                          href="/learning-tracker"
+                          className={styles.dropdownItem}
+                        >
+                          <BookOpen size={16} />
+                          Learning Tracker
                         </Link>
                         <Link
                           href="/conversation-practice"
@@ -378,6 +386,23 @@ export default function Navbar() {
                         >
                           <Mail size={18} />
                           <span>Contact Us</span>
+                        </Link>
+                        <Link
+                          href="/learning-tracker"
+                          className={styles.mobileDropdownItem}
+                          onClick={() => {
+                            setMenuOpen(false);
+                            setMobileContactDropdownOpen(false);
+                          }}
+                          onTouchEnd={(e) => {
+                            e.preventDefault();
+                            setMenuOpen(false);
+                            setMobileContactDropdownOpen(false);
+                            router.push("/learning-tracker");
+                          }}
+                        >
+                          <BookOpen size={18} />
+                          <span>Learning Tracker</span>
                         </Link>
                         <Link
                           href="/conversation-practice"

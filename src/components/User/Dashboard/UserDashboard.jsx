@@ -319,21 +319,21 @@ export default function UserDashboard({ user, profileData }) {
       icon: <MessageCircle size={24} />,
       count: stats.comments,
       description: "View all your comments on posts",
-      href: "/users/profile/comments",
+      href: "/users/dashboard/comments",
     },
     {
       title: "Liked Posts",
       icon: <Heart size={24} />,
       count: stats.likes,
       description: "Posts you've liked",
-      href: "/users/profile/likes",
+      href: "/users/dashboard/likes",
     },
     {
       title: "Favorites",
       icon: <Star size={24} />,
       count: stats.favorites,
       description: "Your favorite posts and content",
-      href: "/users/profile/favorites",
+      href: "/users/dashboard/favorites",
     },
   ];
 
@@ -341,7 +341,6 @@ export default function UserDashboard({ user, profileData }) {
     <div className={be.pageRoot}>
       <header className={be.hero}>
         <div className={be.heroMeta}>
-          <p className={admin.eyebrow}>Account</p>
           <span className={be.metaChip} style={{ display: "inline-flex", alignItems: "center", gap: "4px" }}>
             {profileData?.role === "admin" ? (
               <><ShieldCheck size={12} /> Administrator</>

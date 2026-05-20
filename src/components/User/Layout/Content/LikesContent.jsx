@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/services/supabaseClient";
 import { showAppToast } from "@/lib/showAppToast";
-import styles from "../../../../app/users/profile/Profile.module.css";
+import styles from "../../../../app/users/dashboard/Profile.module.css";
 import { isUuid } from "@/lib/utils/isUuid";
 import UserCardListSkeleton from "@/components/Skeletons/UserCardListSkeleton";
 

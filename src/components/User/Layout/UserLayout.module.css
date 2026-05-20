@@ -2,6 +2,7 @@
 .shell {
   --user-shell-top: 70px;
   --user-sidebar-width: 280px;
+  --user-sidebar-collapsed-width: 72px;
   display: flex;
   min-height: calc(100vh - var(--user-shell-top));
   min-height: calc(100dvh - var(--user-shell-top));
@@ -13,6 +14,48 @@
   color: var(--text-primary, #f4f4f5);
 }
 
+.shellCollapsed {
+  --user-sidebar-width: var(--user-sidebar-collapsed-width);
+}
+
+/* Desktop collapse toggle — sits at the sidebar's right edge */
+.sidebarToggle {
+  display: none; /* shown only at desktop via min-width below */
+  position: fixed;
+  top: 82px;
+  left: calc(var(--user-sidebar-width) - 14px);
+  z-index: 50;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--background-main) 95%, transparent);
+  border: 1px solid var(--card-border);
+  color: var(--text-muted);
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
+  transition:
+    left 0.26s cubic-bezier(0.4, 0, 0.2, 1),
+    background 0.15s,
+    color 0.15s,
+    border-color 0.15s;
+}
+
+.sidebarToggle:hover {
+  background: color-mix(in srgb, var(--primary-color) 12%, transparent);
+  border-color: color-mix(in srgb, var(--primary-color) 40%, transparent);
+  color: var(--primary-color);
+}
+
+.toggleFlipped {
+  transform: rotate(180deg);
+}
+
+@media (min-width: 1025px) {
+  .sidebarToggle { display: flex; }
+}
+
 .sidebarWrap {
   display: flex;
   flex-direction: column;
@@ -21,6 +64,7 @@
   top: var(--user-shell-top);
   z-index: 40;
   width: var(--user-sidebar-width);
+  transition: width 0.26s cubic-bezier(0.4, 0, 0.2, 1);
   height: calc(100vh - var(--user-shell-top));
   height: calc(100dvh - var(--user-shell-top));
   max-height: calc(100dvh - var(--user-shell-top));
@@ -39,6 +83,7 @@
   display: flex;
   flex-direction: column;
   margin-left: var(--user-sidebar-width);
+  transition: margin-left 0.26s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .topBar {
@@ -95,6 +140,10 @@
     clamp(32px, 4vw, 56px);
   min-height: min(70vh, 800px);
   position: relative;
+  /* globals.css sets overflow-x: hidden on every <main> which creates a scroll
+     container and breaks position:sticky for all descendants.
+     overflow-x: clip clips visually without creating a scroll container. */
+  overflow-x: clip;
 }
 
 .drawerClose {
