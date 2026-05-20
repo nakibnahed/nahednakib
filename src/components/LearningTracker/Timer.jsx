@@ -108,6 +108,12 @@ export default function Timer({ goal, onSessionSave }) {
     return () => { if (intervalRef.current) clearInterval(intervalRef.current); };
   }, []);
 
+  useEffect(() => {
+    if (!showReset && !idlePrompt) return;
+    document.body.style.overflow = "hidden";
+    return () => { document.body.style.overflow = ""; };
+  }, [showReset, idlePrompt]);
+
   function handleStart() {
     if (!startedAtRef.current) startedAtRef.current = new Date();
     if (pauseStartRef.current) {

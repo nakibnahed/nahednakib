@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { X, BookOpen, Code2, Music, Languages, FlaskConical, Palette } from "lucide-react";
 import styles from "./GoalForm.module.css";
 
@@ -31,6 +31,11 @@ export default function GoalForm({ onSubmit, onClose, initialData }) {
   const [submitting, setSubmitting] = useState(false);
   const [fieldError, setFieldError] = useState("");
 
+  useEffect(() => {
+    document.body.style.overflow = "hidden";
+    return () => { document.body.style.overflow = ""; };
+  }, []);
+
   async function handleSubmit(e) {
     e.preventDefault();
     const trimmed = title.trim();
@@ -48,6 +53,7 @@ export default function GoalForm({ onSubmit, onClose, initialData }) {
   return (
     <div className={styles.overlay} role="dialog" aria-modal="true" aria-label="Goal form">
       <div className={styles.panel}>
+        <div className={styles.dragHandle} aria-hidden="true" />
         <div className={styles.panelHeader}>
           <h2 className={styles.panelTitle}>{initialData ? "Edit goal" : "New goal"}</h2>
           <button type="button" className={styles.closeBtn} onClick={onClose} aria-label="Close">
