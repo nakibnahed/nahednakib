@@ -1,7 +1,8 @@
 .hero {
   margin-bottom: clamp(16px, 2vw, 22px);
   padding-bottom: clamp(14px, 2vw, 20px);
-  border-bottom: 1px solid color-mix(in srgb, var(--card-border) 85%, transparent);
+  border-bottom: 1px solid
+    color-mix(in srgb, var(--card-border) 85%, transparent);
 }
 
 .heroTop {
@@ -24,8 +25,11 @@
   );
   backdrop-filter: blur(20px) saturate(180%);
   -webkit-backdrop-filter: blur(20px) saturate(180%);
-  border: 1px solid color-mix(in srgb, var(--primary-color) 25%, var(--card-border) 75%);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12), 0 2px 8px rgba(238, 104, 26, 0.08);
+  border: 1px solid
+    color-mix(in srgb, var(--primary-color) 25%, var(--card-border) 75%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.12),
+    0 2px 8px rgba(238, 104, 26, 0.08);
 }
 
 .heroTitleRow {
@@ -78,7 +82,7 @@
    With align-items: flex-start, the trackerLayout is as tall as the
    detailColumn, giving the sticky column a large scroll range. */
 .goalListColumn {
-  width: 240px;
+  width: 275px;
   flex-shrink: 0;
   position: sticky;
   top: 90px; /* just below the fixed site navbar (~70px) */
@@ -104,7 +108,9 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: border-color 0.15s, color 0.15s;
+  transition:
+    border-color 0.15s,
+    color 0.15s;
   margin-left: auto;
 }
 
@@ -129,7 +135,12 @@
   content: "";
   position: absolute;
   inset: 0;
-  background: linear-gradient(145deg, rgba(255, 255, 255, 0.02) 0%, rgba(255, 255, 255, 0.01) 35%, rgba(255, 255, 255, 0) 65%);
+  background: linear-gradient(
+    145deg,
+    rgba(255, 255, 255, 0.02) 0%,
+    rgba(255, 255, 255, 0.01) 35%,
+    rgba(255, 255, 255, 0) 65%
+  );
   pointer-events: none;
   border-radius: inherit;
   z-index: 0;
@@ -162,22 +173,34 @@
 /* ── Tablet (1025px–767px): sidebar gone, tracker stays two-column ── */
 @media (max-width: 1024px) {
   /* topBar is visible and sticky at top:0 (~66px tall) */
-  .goalListColumn { width: 220px; top: 80px; }
-  .trackerLayout { gap: 1.25rem; }
+  .goalListColumn {
+    width: 220px;
+    top: 80px;
+  }
+  .trackerLayout {
+    gap: 1.25rem;
+  }
 }
 
 /* ── Mobile: stack vertically ─────────────────────────────────────── */
 @media (max-width: 767px) {
-  .trackerLayout { flex-direction: column; gap: 1rem; }
+  .trackerLayout {
+    flex-direction: column;
+    gap: 1rem;
+  }
 
   .goalListColumn {
     width: 100%;
     position: static; /* no sticky when stacked */
   }
 
-  .goalListCardInner { padding: 0.875rem 1rem; }
+  .goalListCardInner {
+    padding: 0.875rem 1rem;
+  }
 }
 
 @media (max-width: 480px) {
-  .goalListCardInner { padding: 0.75rem; }
+  .goalListCardInner {
+    padding: 0.75rem;
+  }
 }
