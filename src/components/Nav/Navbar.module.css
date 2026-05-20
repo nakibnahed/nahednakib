@@ -407,6 +407,8 @@
     justify-content: flex-start;
     z-index: 9999;
     display: none;
+    overflow-y: auto;
+    overscroll-behavior: contain;
   }
 
   @keyframes slideInFromTop {
