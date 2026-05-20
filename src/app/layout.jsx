@@ -150,7 +150,7 @@ export default function RootLayout({ children }) {
             <NotificationProviderBoundary>
               <Navbar />
               <div className="mainContainer">
-                {children}
+                <div className="contentArea">{children}</div>
                 <Footer />
               </div>
               <ToastContainer />
