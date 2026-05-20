@@ -234,15 +234,15 @@ export default function LoginPage() {
 
       if (profileError) {
         console.error("Error fetching profile:", profileError);
-        router.push(next || "/users/profile");
+        router.push(next || "/users/dashboard");
       } else if (profile?.role === "admin") {
         router.push(next || "/admin/");
       } else {
-        router.push(next || "/users/profile");
+        router.push(next || "/users/dashboard");
       }
     } catch (err) {
       console.error("Error checking user role:", err);
-      router.push(resolveSafeNextPath(nextPath) || "/users/profile");
+      router.push(resolveSafeNextPath(nextPath) || "/users/dashboard");
     }
     setLoadingMode(null);
   }
@@ -252,7 +252,7 @@ export default function LoginPage() {
     setLoadingMode("google");
     try {
       const supabase = createClient();
-      const safeNext = resolveSafeNextPath(nextPath) || "/users/profile";
+      const safeNext = resolveSafeNextPath(nextPath) || "/users/dashboard";
       const redirectTo = `${getSiteUrl()}/auth/callback?next=${encodeURIComponent(safeNext)}`;
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",

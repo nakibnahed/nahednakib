@@ -15,8 +15,8 @@ export default function AuthCallbackPage() {
       try {
         const { createClient } = await import("@/lib/supabase/client");
         const supabase = createClient();
-        const next = searchParams.get("next") || "/users/profile";
-        const safeNext = next.startsWith("/") && !next.startsWith("//") ? next : "/users/profile";
+        const next = searchParams.get("next") || "/users/dashboard";
+        const safeNext = next.startsWith("/") && !next.startsWith("//") ? next : "/users/dashboard";
 
         // Covers email link and OAuth callback variants.
         await supabase.auth.getSession();

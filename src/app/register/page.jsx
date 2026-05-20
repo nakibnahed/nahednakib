@@ -129,7 +129,7 @@ export default function RegisterPage() {
 
       showAppToast("Signed in successfully.", "success");
 
-      const safeNextPath = resolveSafeNextPath(nextPath) || "/users/profile";
+      const safeNextPath = resolveSafeNextPath(nextPath) || "/users/dashboard";
       try {
         const { data: profile } = await supabase
           .from("profiles")
@@ -158,7 +158,7 @@ export default function RegisterPage() {
     try {
       const { createClient } = await import("@/lib/supabase/client");
       const supabase = createClient();
-      const safeNextPath = resolveSafeNextPath(nextPath) || "/users/profile";
+      const safeNextPath = resolveSafeNextPath(nextPath) || "/users/dashboard";
       const redirectTo = `${getSiteUrl()}/auth/callback?next=${encodeURIComponent(safeNextPath)}`;
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
