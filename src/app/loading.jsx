@@ -1,7 +1,9 @@
 export default function Loading() {
   return (
-    <div className="progressBarWrapper">
-      <div className="progressBar" />
+    <div style={{ flex: 1 }}>
+      <div className="progressBarWrapper">
+        <div className="progressBar" />
+      </div>
     </div>
   );
 }
