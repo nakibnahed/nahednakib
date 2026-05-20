@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
+import { useAuthSession } from "@/context/AuthSessionContext";
 import styles from "./Login.module.css";
 import {
   getSiteUrl,
@@ -70,6 +71,13 @@ export default function LoginPage() {
   const reset = searchParams.get("reset");
   const nextPath = searchParams.get("next");
   const router = useRouter();
+  const { isAuthenticated, initialized } = useAuthSession();
+
+  useEffect(() => {
+    if (initialized && isAuthenticated) {
+      router.replace("/");
+    }
+  }, [initialized, isAuthenticated, router]);
 
   const notify = useCallback((fb) => {
     setFeedback(fb);

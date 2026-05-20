@@ -4,7 +4,7 @@
   text-align: left;
   max-width: 900px;
   margin: 0 auto;
-  padding: 0 0 64px;
+  padding: 24px 0 64px;
   width: 100%;
 }
 
@@ -23,67 +23,45 @@
   color: var(--text-dark);
 }
 
-/* ── Sticky header ────────────────────────────────────────── */
+/* ── Page header ──────────────────────────────────────────── */
 .header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  padding: 18px 0 20px;
-  margin-bottom: 8px;
-  border-bottom: 1px solid var(--card-border);
-  position: sticky;
-  top: 0;
-  z-index: 5;
-  background: color-mix(in srgb, var(--background-main) 94%, transparent);
-  backdrop-filter: blur(12px);
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid
+    color-mix(in srgb, var(--card-border) 85%, transparent);
 }
 
-.logo {
+.headerTitleRow {
   display: flex;
   align-items: center;
   gap: 12px;
+  margin-bottom: 10px;
 }
 
-.logoDot {
-  width: 38px;
-  height: 38px;
-  border-radius: 10px;
-  background: color-mix(in srgb, var(--primary-color) 12%, transparent);
+.headerIcon {
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--primary-color, #ee681a);
+  width: 44px;
+  height: 44px;
   flex-shrink: 0;
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--primary-color) 14%, transparent);
+  border: 1px solid color-mix(in srgb, var(--primary-color) 28%, transparent);
+  color: var(--primary-color);
 }
 
-.logoText {
-  font-size: 1.05rem;
-  font-weight: 600;
-  font-family: var(--font-heading);
-  background: var(--gradient-typography-secondery);
+.headerTitle {
+  margin: 0;
+  font-size: clamp(1.6rem, 3.5vw, 2rem);
+  font-weight: 900;
+  letter-spacing: -0.03em;
+  line-height: 1.15;
+  font-family: var(--font-heading, inherit);
+  background: var(--gradient-typography-primary);
   background-clip: text;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-}
-
-.logoSub {
-  font-size: 12px;
-  color: var(--text-muted);
-  margin-top: 2px;
-}
-
-.liveBadge {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 6px 14px;
-  border-radius: 999px;
-  font-size: 12px;
-  color: var(--primary-color);
-  border: 1px solid color-mix(in srgb, var(--primary-color) 35%, transparent);
-  background: color-mix(in srgb, var(--primary-color) 12%, transparent);
-  white-space: nowrap;
 }
 
 .liveDot {
@@ -91,6 +69,7 @@
   height: 6px;
   border-radius: 50%;
   background: rgb(6, 171, 6);
+  flex-shrink: 0;
   animation: pulse 2s ease-in-out infinite;
 }
 
@@ -134,66 +113,33 @@
   z-index: 0;
 }
 
-/* ── Stat cards ───────────────────────────────────────────── */
+/* ── Stat chips (inline under title) ─────────────────────── */
 .stats {
   display: flex;
-  gap: 12px;
-  margin-bottom: 28px;
+  gap: 8px;
+  margin-top: 15px;
   flex-wrap: wrap;
 }
 
-.statCard {
-  flex: 1;
-  min-width: 100px;
-  padding: 20px 22px;
-  background: color-mix(in srgb, var(--background-main) 80%, transparent 15%);
+.statChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 16px;
+  border-radius: 999px;
   border: 1px solid var(--card-border);
-  border-radius: 24px;
-  position: relative;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
-  backdrop-filter: blur(16px) saturate(160%);
-  -webkit-backdrop-filter: blur(16px) saturate(160%);
-  opacity: 0.98;
+  background: color-mix(in srgb, var(--background-main) 80%, transparent 15%);
+  color: var(--text-muted);
+  font-size: 13px;
 }
 
-.statCard::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    145deg,
-    rgba(255, 255, 255, 0.02) 0%,
-    rgba(255, 255, 255, 0.01) 35%,
-    rgba(255, 255, 255, 0) 65%
-  );
-  pointer-events: none;
-  border-radius: inherit;
-  z-index: 0;
-}
-
-.statCard > * {
-  position: relative;
-  z-index: 1;
-}
-
-.statNum {
-  font-size: 1.8rem;
+.statChipNum {
   font-weight: 700;
-  font-family: var(--font-heading);
-  color: var(--heading-color);
-}
-
-.statNumAccent {
   color: var(--primary-color);
 }
 
-.statLabel {
-  font-size: 11px;
-  color: var(--text-muted);
-  margin-top: 4px;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  font-weight: 600;
+.statChipLabel {
+  opacity: 0.8;
 }
 
 /* ── Tabs ─────────────────────────────────────────────────── */
@@ -230,7 +176,8 @@
 
 .tabActive {
   background: var(--card-bg);
-  color: var(--card-text);
+  color: var(--text-muted);
+
   font-weight: 600;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25);
 }
@@ -339,7 +286,8 @@
   transform: translateY(-2px);
 }
 
-.studentCardPast {}
+.studentCardPast {
+}
 
 .cardTimePast {
   display: inline-flex;
@@ -1129,7 +1077,6 @@
   opacity: 0.6;
   cursor: not-allowed;
 }
-
 
 /* ── Loading ──────────────────────────────────────────────── */
 .loadingWrap {

@@ -626,18 +626,26 @@ export default function ConversationPracticePage() {
   return (
     <div className={styles.page} dir="ltr" lang="en">
       <header className={styles.header}>
-        <div className={styles.logo}>
-          <div className={styles.logoDot}><MessageCircle size={22} /></div>
-          <div>
-            <div className={styles.logoText}>Conversation Practice</div>
-            <div className={styles.logoSub}>
-              Find a classmate to practice with
+        <div className={styles.headerLeft}>
+          <div className={styles.headerTitleRow}>
+            <div className={styles.headerIcon}>
+              <MessageCircle size={22} strokeWidth={1.8} />
+            </div>
+            <h1 className={styles.headerTitle}>Conversation Practice</h1>
+          </div>
+          <div className={styles.stats}>
+            <div className={styles.statChip}>
+              <span className={styles.liveDot} />
+              <FiUsers size={13} />
+              <span className={styles.statChipNum}>{students.length}</span>
+              <span className={styles.statChipLabel}>available</span>
+            </div>
+            <div className={styles.statChip}>
+              <FiMail size={13} />
+              <span className={styles.statChipNum}>{pendingCount}</span>
+              <span className={styles.statChipLabel}>pending requests</span>
             </div>
           </div>
-        </div>
-        <div className={styles.liveBadge}>
-          <span className={styles.liveDot} />
-          <span>{availableCount} available</span>
         </div>
       </header>
 
@@ -658,21 +666,6 @@ export default function ConversationPracticePage() {
           then refresh. Details: {dbError}
         </div>
       )}
-
-      <div className={styles.stats}>
-        <div className={styles.statCard}>
-          <div className={`${styles.statNum} ${styles.statNumAccent}`}>
-            {students.length}
-          </div>
-          <div className={styles.statLabel}>Available students</div>
-        </div>
-        <div className={styles.statCard}>
-          <div className={`${styles.statNum} ${styles.statNumAccent}`}>
-            {pendingCount}
-          </div>
-          <div className={styles.statLabel}>Requests</div>
-        </div>
-      </div>
 
       <div className={styles.tabs} role="tablist">
         <button

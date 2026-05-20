@@ -1,6 +1,7 @@
 "use client";
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { useAuthSession } from "@/context/AuthSessionContext";
 import styles from "../login/Login.module.css";
 import {
   getPasswordChecks,
@@ -50,6 +51,13 @@ export default function RegisterPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [feedback, setFeedback] = useState(null);
   const [loadingMode, setLoadingMode] = useState(null);
+  const { isAuthenticated, initialized } = useAuthSession();
+
+  useEffect(() => {
+    if (initialized && isAuthenticated) {
+      router.replace("/");
+    }
+  }, [initialized, isAuthenticated, router]);
 
   const notify = useCallback((fb) => {
     setFeedback(fb);
