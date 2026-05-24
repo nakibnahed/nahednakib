@@ -33,7 +33,10 @@ export default async function Portfolio() {
   try {
     const supabase = await createClient();
 
-    const { data: portfolios, error } = await supabase
+    const { data: { user } } = await supabase.auth.getUser();
+    const isLoggedIn = !!user;
+
+    let query = supabase
       .from("portfolios")
       .select(
         `
@@ -47,6 +50,13 @@ export default async function Portfolio() {
         slug
         `,
       )
+      .eq("publish_status", "published");
+
+    if (!isLoggedIn) {
+      query = query.eq("visibility", "public");
+    }
+
+    const { data: portfolios, error } = await query
       .order("display_order", { ascending: true, nullsFirst: false })
       .order("created_at", { ascending: false });
 

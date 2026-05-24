@@ -145,6 +145,7 @@ export default function PortfolioListPage() {
                 <th>Title</th>
                 <th>Date</th>
                 <th>Category</th>
+                <th>Status</th>
                 <th>Image</th>
                 <th>Actions</th>
               </tr>
@@ -157,6 +158,28 @@ export default function PortfolioListPage() {
                   </td>
                   <td data-label="Date">{portfolio.date}</td>
                   <td data-label="Category">{portfolio.category}</td>
+                  <td data-label="Status">
+                    <div className={styles.statusCell}>
+                      <span
+                        className={`${styles.statusBadge} ${
+                          portfolio.publish_status === "draft"
+                            ? styles.badgeDraft
+                            : styles.badgePublished
+                        }`}
+                      >
+                        {portfolio.publish_status === "draft" ? "Draft" : "Published"}
+                      </span>
+                      <span
+                        className={`${styles.visibilityBadge} ${
+                          portfolio.visibility === "registered"
+                            ? styles.visibilityRegistered
+                            : styles.visibilityPublic
+                        }`}
+                      >
+                        {portfolio.visibility === "registered" ? "Registered" : "Public"}
+                      </span>
+                    </div>
+                  </td>
                   <td data-label="Image">
                     {portfolio.image ? (
                       <Image

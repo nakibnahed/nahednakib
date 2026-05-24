@@ -166,6 +166,7 @@ export default function BlogListPage() {
                 <th>Title</th>
                 <th>Date</th>
                 <th>Category</th>
+                <th>Status</th>
                 <th>Image</th>
                 <th>Actions</th>
               </tr>
@@ -178,6 +179,28 @@ export default function BlogListPage() {
                   </td>
                   <td data-label="Date">{blog.date}</td>
                   <td data-label="Category">{blog.categoryName}</td>
+                  <td data-label="Status">
+                    <div className={styles.statusCell}>
+                      <span
+                        className={`${styles.statusBadge} ${
+                          blog.publish_status === "draft"
+                            ? styles.badgeDraft
+                            : styles.badgePublished
+                        }`}
+                      >
+                        {blog.publish_status === "draft" ? "Draft" : "Published"}
+                      </span>
+                      <span
+                        className={`${styles.visibilityBadge} ${
+                          blog.visibility === "registered"
+                            ? styles.visibilityRegistered
+                            : styles.visibilityPublic
+                        }`}
+                      >
+                        {blog.visibility === "registered" ? "Registered" : "Public"}
+                      </span>
+                    </div>
+                  </td>
                   <td data-label="Image">
                     {blog.image ? (
                       <Image

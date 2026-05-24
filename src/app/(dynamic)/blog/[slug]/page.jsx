@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import styles from "./page.module.css";
 import NewsletterPopup from "@/components/NewsletterPopup/NewsletterPopup";
@@ -11,7 +12,7 @@ import {
   TableOfContentsMobile,
 } from "@/components/TableOfContents/TableOfContents";
 import { extractHeadings } from "@/lib/blog/headings";
-import { supabase } from "@/services/supabaseClient";
+import { createClient } from "@/lib/supabase/server";
 import { calculateReadTime, formatReadTime } from "@/lib/utils/readTime";
 import {
   MAIN_AUTHOR_AVATAR,
@@ -30,6 +31,8 @@ import {
  * rely on PostgREST embedding `authors:author_id` (requires FK + schema cache).
  */
 async function loadBlogAndAuthor(slug) {
+  const supabase = await createClient();
+
   let { data: blog, error } = await supabase
     .from("blogs")
     .select("*")
@@ -37,7 +40,7 @@ async function loadBlogAndAuthor(slug) {
     .maybeSingle();
 
   if (error) {
-    return { blog: null, author: null, error };
+    return { blog: null, author: null, error, supabase };
   }
 
   if (!blog && slug) {
@@ -48,7 +51,7 @@ async function loadBlogAndAuthor(slug) {
       .maybeSingle();
     blog = second.data;
     if (second.error) {
-      return { blog: null, author: null, error: second.error };
+      return { blog: null, author: null, error: second.error, supabase };
     }
   }
 
@@ -64,7 +67,7 @@ async function loadBlogAndAuthor(slug) {
     }
   }
 
-  return { blog, author, error: null };
+  return { blog, author, error: null, supabase };
 }
 
 function formatSupabaseError(err) {
@@ -93,7 +96,7 @@ export async function generateMetadata({ params }) {
 
 export default async function Post({ params }) {
   const { slug } = await params;
-  const { blog, author, error } = await loadBlogAndAuthor(slug);
+  const { blog, author, error, supabase } = await loadBlogAndAuthor(slug);
 
   if (error) {
     console.error("Database error:", formatSupabaseError(error));
@@ -110,16 +113,13 @@ export default async function Post({ params }) {
     );
   }
 
-  if (!blog) {
-    return (
-      <div className={styles.container}>
-        <h1>Blog Post Not Found</h1>
-        <p>The blog post you're looking for doesn't exist or has been moved.</p>
-        <Link href="/blog" className={styles.breadcrumbLink}>
-          ← Back to Blog
-        </Link>
-      </div>
-    );
+  if (!blog) notFound();
+
+  if (blog.publish_status === "draft") notFound();
+
+  if (blog.visibility === "registered") {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) notFound();
   }
 
   const authorName = author?.name?.trim() || MAIN_AUTHOR_NAME;

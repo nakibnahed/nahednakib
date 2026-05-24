@@ -7,12 +7,14 @@ import Image from "next/image";
 import {
   AlignLeft,
   ArrowLeft,
+  Calendar,
   FileText,
   ImageIcon,
   Layers,
   Link2,
   Search,
   Settings,
+  Trash2,
   Upload,
 } from "lucide-react";
 import admin from "@/components/Admin/adminPage.module.css";
@@ -59,6 +61,9 @@ export default function EditPortfolioPage() {
     meta_title: "",
     meta_description: "",
     display_order: "",
+    publish_status: "published",
+    visibility: "public",
+    created_at: "",
   });
 
   const [loading, setLoading] = useState(true);
@@ -66,6 +71,9 @@ export default function EditPortfolioPage() {
   const [errorMsg, setErrorMsg] = useState(null);
   const [uploading, setUploading] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [showDeleteProjectConfirm, setShowDeleteProjectConfirm] = useState(false);
+  const [editingStatus, setEditingStatus] = useState(false);
+  const [editingVisibility, setEditingVisibility] = useState(false);
   const [rowId, setRowId] = useState(null);
   const fileInputRef = useRef(null);
 
@@ -116,6 +124,9 @@ export default function EditPortfolioPage() {
           meta_description: data.meta_description || "",
           display_order:
             data.display_order != null ? String(data.display_order) : "",
+          publish_status: data.publish_status || "published",
+          visibility: data.visibility || "public",
+          created_at: data.created_at || "",
         });
       }
       setLoading(false);
@@ -211,6 +222,42 @@ export default function EditPortfolioPage() {
     setShowDeleteConfirm(false);
   }
 
+  async function confirmDeleteProject() {
+    if (!rowId) return;
+    setSaving(true);
+
+    try {
+      if (formData.image) {
+        const isSupabaseImage =
+          formData.image.includes("supabase.co") &&
+          formData.image.includes("portfolio-images");
+        if (isSupabaseImage) {
+          const urlParts = formData.image.split("/");
+          const fileName = urlParts[urlParts.length - 1];
+          await supabase.storage.from("portfolio-images").remove([fileName]);
+        }
+      }
+
+      const { error } = await supabase
+        .from("portfolios")
+        .delete()
+        .eq("id", rowId);
+
+      if (error) {
+        showAppToast(error.message || "Could not delete project.", "error");
+        setSaving(false);
+      } else {
+        showAppToast("Project deleted.", "success");
+        router.push("/admin/portfolio");
+      }
+    } catch (err) {
+      showAppToast("Error: " + err.message, "error");
+      setSaving(false);
+    }
+
+    setShowDeleteProjectConfirm(false);
+  }
+
   async function handleSubmit(e) {
     e.preventDefault();
     if (!rowId) {
@@ -244,6 +291,8 @@ export default function EditPortfolioPage() {
           formData.display_order !== ""
             ? parseInt(formData.display_order, 10)
             : null,
+        publish_status: formData.publish_status,
+        visibility: formData.visibility,
       })
       .eq("id", rowId);
 
@@ -423,6 +472,146 @@ export default function EditPortfolioPage() {
 
             {/* ════════════ SIDEBAR ════════════ */}
             <div className={s.sidebar}>
+
+              {/* Publish */}
+              <div className={s.card}>
+                <div className={s.cardHead}>
+                  <span className={s.cardIcon} aria-hidden>
+                    <Calendar size={14} strokeWidth={2} />
+                  </span>
+                  <p className={s.cardTitle}>Publish</p>
+                </div>
+                <div className={s.cardBody}>
+                  {/* Status row */}
+                  <div className={s.publishRow}>
+                    <span className={s.publishLabel}>Status</span>
+                    {editingStatus ? (
+                      <div className={s.publishInline}>
+                        <select
+                          name="publish_status"
+                          value={formData.publish_status}
+                          onChange={handleChange}
+                          className={`${admin.fieldInput} ${admin.fieldSelect} ${s.publishSelect}`}
+                          autoFocus
+                        >
+                          <option value="published">Published</option>
+                          <option value="draft">Draft</option>
+                        </select>
+                        <button
+                          type="button"
+                          className={s.publishCancel}
+                          onClick={() => setEditingStatus(false)}
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    ) : (
+                      <div className={s.publishValue}>
+                        <span
+                          className={`${s.publishBadge} ${
+                            formData.publish_status === "published"
+                              ? s.badgePublished
+                              : s.badgeDraft
+                          }`}
+                        >
+                          {formData.publish_status === "published"
+                            ? "Published"
+                            : "Draft"}
+                        </span>
+                        <button
+                          type="button"
+                          className={s.publishEdit}
+                          onClick={() => setEditingStatus(true)}
+                        >
+                          Edit
+                        </button>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Visibility row */}
+                  <div className={s.publishRow}>
+                    <span className={s.publishLabel}>Visibility</span>
+                    {editingVisibility ? (
+                      <div className={s.publishInline}>
+                        <select
+                          name="visibility"
+                          value={formData.visibility}
+                          onChange={handleChange}
+                          className={`${admin.fieldInput} ${admin.fieldSelect} ${s.publishSelect}`}
+                          autoFocus
+                        >
+                          <option value="public">Public</option>
+                          <option value="registered">Registered only</option>
+                        </select>
+                        <button
+                          type="button"
+                          className={s.publishCancel}
+                          onClick={() => setEditingVisibility(false)}
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    ) : (
+                      <div className={s.publishValue}>
+                        <span className={s.publishBadge}>
+                          {formData.visibility === "public"
+                            ? "Public"
+                            : "Registered only"}
+                        </span>
+                        <button
+                          type="button"
+                          className={s.publishEdit}
+                          onClick={() => setEditingVisibility(true)}
+                        >
+                          Edit
+                        </button>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Published on row */}
+                  <div className={s.publishRow}>
+                    <span className={s.publishLabel}>Published on</span>
+                    <span className={s.publishDate}>
+                      {formData.created_at
+                        ? new Date(formData.created_at).toLocaleString(
+                            "en-US",
+                            {
+                              month: "short",
+                              day: "numeric",
+                              year: "numeric",
+                              hour: "2-digit",
+                              minute: "2-digit",
+                            },
+                          )
+                        : "—"}
+                    </span>
+                  </div>
+
+                  <div className={s.publishDivider} />
+
+                  {/* Actions */}
+                  <div className={s.publishActions}>
+                    <button
+                      type="button"
+                      onClick={() => setShowDeleteProjectConfirm(true)}
+                      disabled={saving || uploading}
+                      className={admin.btnDanger}
+                    >
+                      <Trash2 size={13} strokeWidth={2} />
+                      Move to Trash
+                    </button>
+                    <button
+                      type="submit"
+                      disabled={saving || uploading}
+                      className={`${admin.btnPrimary} ${s.publishSaveBtn}`}
+                    >
+                      {saving ? "Saving…" : "Update"}
+                    </button>
+                  </div>
+                </div>
+              </div>
 
               {/* Cover image */}
               <div className={s.card}>
@@ -693,16 +882,6 @@ export default function EditPortfolioPage() {
 
           </div>
 
-          {/* ── Sticky save ── */}
-          <div className={s.actions}>
-            <button
-              type="submit"
-              disabled={saving || uploading}
-              className={admin.btnPrimary}
-            >
-              {saving ? "Saving…" : "Save changes"}
-            </button>
-          </div>
         </form>
 
         <ConfirmationModal
@@ -712,6 +891,16 @@ export default function EditPortfolioPage() {
           title="Delete Image"
           message="Are you sure you want to delete this image? This action cannot be undone and the image will be permanently removed from storage."
           confirmText="Delete"
+          cancelText="Cancel"
+          type="danger"
+        />
+        <ConfirmationModal
+          isOpen={showDeleteProjectConfirm}
+          onClose={() => setShowDeleteProjectConfirm(false)}
+          onConfirm={confirmDeleteProject}
+          title="Delete Project"
+          message="Are you sure you want to permanently delete this project? The cover image and all data will be removed and cannot be recovered."
+          confirmText="Delete project"
           cancelText="Cancel"
           type="danger"
         />
