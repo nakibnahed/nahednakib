@@ -6,7 +6,11 @@
   --background-main: #0a0a0a;
 
   /* Form fields — follows --background-main (dark / .light) */
-  --form-control-bg: color-mix(in srgb, var(--background-main) 80%, transparent 15%);
+  --form-control-bg: color-mix(
+    in srgb,
+    var(--background-main) 80%,
+    transparent 15%
+  );
   --form-control-bg-focus: color-mix(
     in srgb,
     var(--form-control-bg) 88%,
@@ -76,55 +80,67 @@
   --button-radius: 10px;
   --button-shadow: 0 2px 8px rgba(238, 104, 26, 0.08);
   --button-border-color: transparent;
+
+  --grid-line-color: rgba(255, 255, 255, 0.12);
+
+  /* Compatibility Aliases for dynamic content/engagement pages */
+  --card-background: var(--card-bg);
+  --card-background-hover: var(--card-bg-hover);
+  --card-background-alt: #161616;
+  --input-background: var(--form-control-bg);
+  --input-border: var(--card-border);
+  --text-color: var(--text-dark);
+  --text-tertiary: var(--text-muted);
+  --primary-color-hover: #ff8c42;
 }
 
 .light {
-  --background-main: #fff;
-  --form-control-bg: color-mix(in srgb, var(--background-main) 80%, transparent 15%);
+  --background-main: #f8fafc; /* Beautiful premium cool off-white page background */
+  --background-dark: #f1f5f9; /* Section/footer background */
+  --form-control-bg: #ffffff;
   --form-control-bg-focus: color-mix(
     in srgb,
     var(--form-control-bg) 88%,
     var(--primary-color) 12%
   );
-  --background-dark: #f6f8fa;
   --text-light: #11181c;
   --text-muted: #6b7280;
   --text-dark: #11181c;
   --text-main: var(--text-dark);
   --text-secondary: #6b7280;
 
-  --gradient-typography-primary: linear-gradient(to bottom, #11181c, #11181c);
-  --gradient-typography-secondery: linear-gradient(to bottom, #11181c, #11181c);
+  --gradient-typography-primary: linear-gradient(to bottom, #11181c, #2d3748);
+  --gradient-typography-secondery: linear-gradient(to bottom, #11181c, #2d3748);
 
   --home-bg-image: none;
 
   --logo-gradient: linear-gradient(90deg, #11181c 0%, #11181c 100%);
 
-  --navbar-bg: #fff;
   --navbar-link: linear-gradient(to bottom, #ee681a, #11181c);
   --navbar-tooltip-bg: linear-gradient(to bottom, #ee681a, #11181c);
 
   /* Card */
-  --card-bg: #fff;
-  --card-bg-hover: #f6f8fa;
+  --card-bg: #ffffff; /* Crisp white card backgrounds that pop! */
+  --card-bg-hover: #f8fafc;
   --card-text: #11181c;
   --card-border: #e5e7eb;
   --card-border-radius: 24px;
-  --card-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  --card-shadow:
+    0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
 
   /* Headings */
   --heading-color: #11181c;
-  --heading-gradient: linear-gradient(to bottom, #11181c, #11181c);
+  --heading-gradient: linear-gradient(to bottom, #11181c, #2d3748);
 
   --gradient-typography-post-banner-title: linear-gradient(
     to bottom,
-    #ddd,
-    #555
+    #11181c,
+    #2d3748
   );
 
   /* Navbar/Footer */
-  --navbar-bg: #fff;
-  --footer-bg: #fff;
+  --navbar-bg: #ffffff;
+  --footer-bg: #ffffff;
 
   /* Button */
   --button-bg: #11181c;
@@ -133,8 +149,25 @@
   --button-text: #fff;
   --button-text-no-activ: #11181c;
   --button-radius: 0.75rem;
-  --button-shadow: 0 2px 8px rgba(99, 102, 241, 0.08);
+  --button-shadow: 0 2px 8px rgba(17, 24, 28, 0.08);
   --button-border-color: #11181c;
+
+  --grid-line-color: rgba(
+    0,
+    0,
+    0,
+    0.08
+  ); /* Beautiful subtle gridlines for GridBackground */
+
+  /* Compatibility Aliases for dynamic content/engagement pages in light mode */
+  --card-background: var(--card-bg);
+  --card-background-hover: var(--card-bg-hover);
+  --card-background-alt: #f1f5f9;
+  --input-background: #ffffff;
+  --input-border: var(--card-border);
+  --text-color: var(--text-dark);
+  --text-tertiary: var(--text-muted);
+  --primary-color-hover: #ff8c42;
 }
 
 @media (max-width: 600px) {

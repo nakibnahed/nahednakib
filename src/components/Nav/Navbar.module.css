@@ -174,7 +174,7 @@
 }
 
 .dashboardIconOnly:hover {
-  background: rgba(255, 255, 255, 0.1);
+  background: color-mix(in srgb, var(--text-dark) 8%, transparent);
   transform: translateY(-1px);
 }
 
@@ -224,7 +224,7 @@
 }
 
 .chartIcon:hover {
-  background: rgba(255, 255, 255, 0.1);
+  background: color-mix(in srgb, var(--text-dark) 8%, transparent);
   transform: translateY(-1px);
 }
 
@@ -353,7 +353,7 @@
     height: 44px;
     padding: 0;
     margin: 0;
-    background: rgba(255, 255, 255, 0.05);
+    background: color-mix(in srgb, var(--text-dark) 5%, transparent);
     border: none;
     border-radius: 12px;
     color: var(--text-dark);
@@ -369,7 +369,7 @@
   .userMobileIcon:hover,
   .menuIcon:hover,
   .chartMobileIcon:hover {
-    background: rgba(255, 255, 255, 0.1);
+    background: color-mix(in srgb, var(--text-dark) 10%, transparent);
     transform: translateY(-1px);
   }
 

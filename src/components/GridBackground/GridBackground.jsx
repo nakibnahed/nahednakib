@@ -26,8 +26,8 @@ export default function GridBackground() {
           gradientUnits="userSpaceOnUse"
         >
           <stop stopColor="transparent" />
-          <stop offset="0.1" stopColor="#fff" stopOpacity="0.12" />
-          <stop offset="0.9" stopColor="#fff" stopOpacity="0.12" />
+          <stop offset="0.1" stopColor="var(--grid-line-color)" />
+          <stop offset="0.9" stopColor="var(--grid-line-color)" />
           <stop offset="1" stopColor="transparent" />
         </linearGradient>
         <linearGradient
@@ -39,8 +39,8 @@ export default function GridBackground() {
           gradientUnits="userSpaceOnUse"
         >
           <stop stopColor="transparent" />
-          <stop offset="0.1" stopColor="#fff" stopOpacity="0.12" />
-          <stop offset="0.9" stopColor="#fff" stopOpacity="0.12" />
+          <stop offset="0.1" stopColor="var(--grid-line-color)" />
+          <stop offset="0.9" stopColor="var(--grid-line-color)" />
           <stop offset="1" stopColor="transparent" />
         </linearGradient>
         {/* Vertical fades */}
@@ -53,8 +53,8 @@ export default function GridBackground() {
           gradientUnits="userSpaceOnUse"
         >
           <stop stopColor="transparent" />
-          <stop offset="0.1" stopColor="#fff" stopOpacity="0.12" />
-          <stop offset="0.9" stopColor="#fff" stopOpacity="0.12" />
+          <stop offset="0.1" stopColor="var(--grid-line-color)" />
+          <stop offset="0.9" stopColor="var(--grid-line-color)" />
           <stop offset="1" stopColor="transparent" />
         </linearGradient>
         <linearGradient
@@ -66,8 +66,8 @@ export default function GridBackground() {
           gradientUnits="userSpaceOnUse"
         >
           <stop stopColor="transparent" />
-          <stop offset="0.1" stopColor="#fff" stopOpacity="0.12" />
-          <stop offset="0.9" stopColor="#fff" stopOpacity="0.12" />
+          <stop offset="0.1" stopColor="var(--grid-line-color)" />
+          <stop offset="0.9" stopColor="var(--grid-line-color)" />
           <stop offset="1" stopColor="transparent" />
         </linearGradient>
       </defs>

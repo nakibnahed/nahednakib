@@ -1,12 +1,14 @@
 .container {
-  border: 0.1px solid #1a1a1a;
-  background: #1a1a1a;
+  border: 1px solid var(--card-border);
+  background: var(--card-bg);
   border-radius: 12px;
   padding: 20px;
   transition: 0.2s ease-in;
   height: 100%;
+  color: var(--card-text, inherit);
+  box-shadow: var(--card-shadow);
 }
 .container:hover {
   transform: scale(1.01);
-  background: #1e1e1e;
+  background: var(--card-bg-hover);
 }
