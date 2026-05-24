@@ -6,6 +6,47 @@ This file provides guidance to Claude Code (claude.ai/code) and other AI assista
 
 - **No Git Commits or Pushes**: Never perform `git commit` or `git push` actions. All commits and pushes are strictly reserved for the user to perform.
 
+- **Mobile-First Responsiveness — Mandatory on Every Edit**: Every change to UI, layout, or styling — no matter how small — MUST be fully responsive and deliver best-in-class UX/UI on mobile. This is non-negotiable and applies automatically without the user needing to ask. The user should never have to remind you about responsive design.
+
+  **Breakpoints to always handle:**
+  - Mobile: `max-width: 480px`
+  - Tablet: `max-width: 768px`
+  - Desktop: `min-width: 769px`
+
+  **Rules that always apply:**
+  1. **Touch targets** — buttons, links, and interactive elements must be at least `44px × 44px` on mobile.
+  2. **No horizontal overflow** — never let content overflow the viewport width. Use `overflow-x: hidden` on containers if needed, but prefer fixing the root cause.
+  3. **Readable text** — minimum `16px` body text on mobile to prevent browser zoom. Never shrink headings below `14px`.
+  4. **Stacked layouts** — multi-column grids/flex rows must collapse to a single column on mobile (`flex-direction: column` or `grid-template-columns: 1fr`).
+  5. **Padding & spacing** — reduce large desktop padding (`48px+`) to comfortable mobile values (`16px–24px`) inside `@media (max-width: 768px)`.
+  6. **Images & media** — always `max-width: 100%` and appropriate `aspect-ratio` so they don't overflow.
+  7. **Forms & inputs** — full-width (`width: 100%`) on mobile; avoid side-by-side fields that become too narrow.
+  8. **Navigation & modals** — drawers, dropdowns, and modals must be usable on a 375px screen without pinch-zoom.
+  9. **Admin pages** — the `/admin` section must also be responsive; tables should horizontally scroll or reflow to cards on small screens.
+  10. **No fixed widths** — avoid `width: 600px` or similar fixed pixel widths on elements that live inside page flow; use `max-width` with `width: 100%` instead.
+
+  **How to add mobile overrides in a CSS Module:**
+  ```css
+  /* Always append responsive overrides at the bottom of the .module.css file */
+
+  /* ── Mobile ──────────────────────────────────────────────────── */
+  @media (max-width: 768px) {
+    .grid {
+      grid-template-columns: 1fr;
+      gap: 16px;
+    }
+    .container {
+      padding: 16px;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .title {
+      font-size: 1.25rem;
+    }
+  }
+  ```
+
 ## Commands
 
 ```bash
