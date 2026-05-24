@@ -1,0 +1,256 @@
+/* ── Portfolio edit — 2-column editorial layout ────────────── */
+
+.editGrid {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: 20px;
+  align-items: start;
+  margin-top: clamp(4px, 1vw, 8px);
+}
+
+/* ── Main column (title, description, html blocks) ─────────── */
+
+.main {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-width: 0;
+}
+
+/* ── Sidebar (image, settings, links, categories, seo) ─────── */
+
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  position: sticky;
+  top: 24px;
+}
+
+/* ── Card chrome ────────────────────────────────────────────── */
+
+.card {
+  border-radius: 16px;
+  border: 1px solid var(--card-border);
+  background: var(--card-bg);
+  overflow: hidden;
+}
+
+.cardHead {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 11px 16px;
+  border-bottom: 1px solid color-mix(in srgb, var(--card-border) 80%, transparent);
+}
+
+.cardIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 7px;
+  color: var(--primary-color);
+  background: color-mix(in srgb, var(--primary-color) 12%, transparent);
+  flex-shrink: 0;
+}
+
+.cardTitle {
+  margin: 0;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+.cardBody {
+  padding: clamp(14px, 1.8vw, 20px);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* zero out the margin-block that adminPage.formField adds when not inside formStack */
+.cardBody [class*="formField"] {
+  margin-block: 0;
+}
+
+/* ── Image preview ──────────────────────────────────────────── */
+
+.imgPreview {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid var(--card-border);
+  background: color-mix(in srgb, var(--background-main) 85%, #000 15%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.imgPreview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.imgEmpty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+  padding: 24px 16px;
+  color: var(--text-muted);
+  font-size: 0.8125rem;
+  text-align: center;
+}
+
+/* ── Settings row: Status + Display order ───────────────────── */
+
+.settingsRow {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 12px;
+  align-items: end;
+}
+
+.orderWrap {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.orderInput {
+  width: 72px;
+  padding: 10px 10px;
+  border-radius: 10px;
+  border: 1px solid var(--card-border);
+  background: var(--form-control-bg);
+  color: var(--text-primary);
+  font-size: 1rem;
+  font-weight: 700;
+  text-align: center;
+  outline: none;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+  -moz-appearance: textfield;
+}
+
+.orderInput::-webkit-outer-spin-button,
+.orderInput::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.orderInput:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary-color) 18%, transparent);
+}
+
+.orderInput::placeholder {
+  font-size: 0.8125rem;
+  font-weight: 400;
+  color: var(--text-secondary);
+}
+
+/* ── Links row inside sidebar card ─────────────────────────── */
+
+.linksStack {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* ── HTML content blocks in main ───────────────────────────── */
+
+.htmlStack {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+/* ── Sticky form actions ────────────────────────────────────── */
+
+.actions {
+  position: sticky;
+  bottom: 0;
+  z-index: 20;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 12px;
+  margin-top: 24px;
+  padding-top: 18px;
+  padding-bottom: 4px;
+  border-top: 1px solid color-mix(in srgb, var(--card-border) 70%, transparent);
+  background: linear-gradient(
+    180deg,
+    transparent 0%,
+    color-mix(in srgb, var(--background-main) 94%, #000 6%) 28%
+  );
+  backdrop-filter: blur(10px) saturate(140%);
+  -webkit-backdrop-filter: blur(10px) saturate(140%);
+}
+
+/* ── Responsive ─────────────────────────────────────────────── */
+
+@media (max-width: 1100px) {
+  .editGrid {
+    grid-template-columns: 1fr 290px;
+  }
+}
+
+@media (max-width: 900px) {
+  .editGrid {
+    grid-template-columns: 1fr;
+  }
+  .sidebar {
+    position: static;
+  }
+  /* On tablet/mobile, put sidebar above the html blocks but below title+desc */
+  .sidebar {
+    order: 0;
+  }
+}
+
+@media (max-width: 768px) {
+  .editGrid {
+    gap: 14px;
+  }
+  .settingsRow {
+    grid-template-columns: 1fr 1fr;
+  }
+  .orderInput {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .settingsRow {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ── Light mode ─────────────────────────────────────────────── */
+
+:global(.light) .card {
+  background: #ffffff;
+  border-color: var(--card-border);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 4px 14px rgba(0, 0, 0, 0.04);
+}
+
+:global(.light) .imgPreview {
+  background: #f1f5f9;
+  border-color: var(--card-border);
+}
+
+:global(.light) .actions {
+  background: linear-gradient(180deg, transparent 0%, rgba(248, 250, 252, 0.95) 28%);
+}

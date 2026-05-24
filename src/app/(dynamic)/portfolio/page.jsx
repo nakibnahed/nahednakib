@@ -47,6 +47,7 @@ export default async function Portfolio() {
         slug
         `,
       )
+      .order("display_order", { ascending: true, nullsFirst: false })
       .order("created_at", { ascending: false });
 
     if (error) {

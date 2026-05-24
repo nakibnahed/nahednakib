@@ -11,10 +11,13 @@ import {
   ImageIcon,
   Layers,
   Link2,
+  ListOrdered,
   Search,
+  Settings,
 } from "lucide-react";
 import admin from "@/components/Admin/adminPage.module.css";
 import be from "../../../blogs/BlogEditor.module.css";
+import s from "./page.module.css";
 import AdminFormSkeleton from "@/components/Skeletons/AdminFormSkeleton";
 import { supabase } from "@/services/supabaseClient";
 import ConfirmationModal from "@/components/ConfirmationModal/ConfirmationModal";
@@ -55,6 +58,7 @@ export default function EditPortfolioPage() {
     seo_keywords: "",
     meta_title: "",
     meta_description: "",
+    display_order: "",
   });
 
   const [loading, setLoading] = useState(true);
@@ -62,7 +66,6 @@ export default function EditPortfolioPage() {
   const [errorMsg, setErrorMsg] = useState(null);
   const [uploading, setUploading] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-  /** DB primary key — set after load; updates must use this, not the URL segment (may be slug). */
   const [rowId, setRowId] = useState(null);
 
   useEffect(() => {
@@ -70,11 +73,7 @@ export default function EditPortfolioPage() {
       setErrorMsg(null);
       setRowId(null);
       const param = String(id || "").trim();
-      if (
-        !param ||
-        /^null$/i.test(param) ||
-        /^undefined$/i.test(param)
-      ) {
+      if (!param || /^null$/i.test(param) || /^undefined$/i.test(param)) {
         setErrorMsg(
           "Invalid project link. Open the project from the portfolio admin list.",
         );
@@ -84,11 +83,7 @@ export default function EditPortfolioPage() {
       }
 
       const { data, error } = isUuid(param)
-        ? await supabase
-            .from("portfolios")
-            .select("*")
-            .eq("id", param)
-            .single()
+        ? await supabase.from("portfolios").select("*").eq("id", param).single()
         : await supabase
             .from("portfolios")
             .select("*")
@@ -118,6 +113,8 @@ export default function EditPortfolioPage() {
           seo_keywords: seoKeywordsToInput(data.seo_keywords),
           meta_title: data.meta_title || "",
           meta_description: data.meta_description || "",
+          display_order:
+            data.display_order != null ? String(data.display_order) : "",
         });
       }
       setLoading(false);
@@ -146,20 +143,18 @@ export default function EditPortfolioPage() {
   async function handleFileChange(e) {
     const file = e.target.files[0];
     if (!file) return;
-
     setUploading(true);
     setErrorMsg(null);
 
     const fileExt = file.name.split(".").pop();
     const fileName = `${Date.now()}.${fileExt}`;
-    const filePath = fileName;
 
     const { error: uploadError } = await supabase.storage
       .from("portfolio-images")
-      .upload(filePath, file, {
+      .upload(fileName, file, {
         cacheControl: "3600",
         upsert: false,
-        contentType: file.type, // important for fixing 400 error
+        contentType: file.type,
       });
 
     if (uploadError) {
@@ -171,7 +166,7 @@ export default function EditPortfolioPage() {
 
     const { data } = supabase.storage
       .from("portfolio-images")
-      .getPublicUrl(filePath);
+      .getPublicUrl(fileName);
 
     setFormData((prev) => ({ ...prev, image: data.publicUrl }));
     showAppToast("Image uploaded.", "success");
@@ -184,31 +179,22 @@ export default function EditPortfolioPage() {
 
   async function confirmDeleteImage() {
     if (!formData.image) return;
-
     setUploading(true);
     setErrorMsg(null);
 
     try {
-      // Check if the image is from Supabase storage
       const isSupabaseImage =
         formData.image.includes("supabase.co") &&
         formData.image.includes("portfolio-images");
 
       if (isSupabaseImage) {
-        // Extract filename from URL
         const urlParts = formData.image.split("/");
         const fileName = urlParts[urlParts.length - 1];
-
-        // Delete from storage
         const { error: deleteError } = await supabase.storage
           .from("portfolio-images")
           .remove([fileName]);
-
         if (deleteError) {
-          console.log(
-            "Storage deletion failed, but continuing with form update:",
-            deleteError.message
-          );
+          console.log("Storage deletion failed:", deleteError.message);
         }
       }
 
@@ -253,6 +239,10 @@ export default function EditPortfolioPage() {
         seo_keywords: seoKeywordsFromInput(formData.seo_keywords),
         meta_title: formData.meta_title.trim() || null,
         meta_description: formData.meta_description.trim() || null,
+        display_order:
+          formData.display_order !== ""
+            ? parseInt(formData.display_order, 10)
+            : null,
       })
       .eq("id", rowId);
 
@@ -266,13 +256,13 @@ export default function EditPortfolioPage() {
     setSaving(false);
   }
 
-  if (loading) {
-    return <AdminFormSkeleton />;
-  }
+  if (loading) return <AdminFormSkeleton />;
 
   return (
     <div className={admin.page}>
       <div className={be.pageRoot}>
+
+        {/* ── Header ── */}
         <header className={be.hero}>
           <div className={be.heroBack}>
             <Link href="/admin/portfolio" className={admin.backNav}>
@@ -296,447 +286,409 @@ export default function EditPortfolioPage() {
           </div>
         )}
 
-        <form
-          onSubmit={handleSubmit}
-          className={`${admin.formStack} ${be.formFlow}`}
-        >
-          <section
-            className={be.section}
-            aria-labelledby="edit-portfolio-section-basics"
-          >
-            <div className={be.sectionHead}>
-              <div className={be.sectionIcon} aria-hidden>
-                <FileText size={20} strokeWidth={1.75} />
-              </div>
-              <div className={be.sectionHeadText}>
-                <p className={be.sectionKicker}>Basics</p>
-                <h2
-                  id="edit-portfolio-section-basics"
-                  className={be.sectionTitle}
-                >
-                  Title
-                </h2>
-                <p className={be.sectionLead}>
-                  The project name shown on cards and detail pages.
-                </p>
-              </div>
-            </div>
-            <div className={admin.formField}>
-              <label className={admin.fieldLabel} htmlFor="edit-portfolio-title">
-                Title
-              </label>
-              <input
-                id="edit-portfolio-title"
-                name="title"
-                value={formData.title}
-                onChange={handleChange}
-                required
-                className={admin.fieldInput}
-              />
-            </div>
-          </section>
+        <form onSubmit={handleSubmit}>
+          <div className={s.editGrid}>
 
-          <section
-            className={be.section}
-            aria-labelledby="edit-portfolio-section-media"
-          >
-            <div className={be.sectionHead}>
-              <div className={be.sectionIcon} aria-hidden>
-                <ImageIcon size={20} strokeWidth={1.75} />
-              </div>
-              <div className={be.sectionHeadText}>
-                <p className={be.sectionKicker}>Media</p>
-                <h2
-                  id="edit-portfolio-section-media"
-                  className={be.sectionTitle}
-                >
-                  Cover image
-                </h2>
-                <p className={be.sectionLead}>
-                  Replace or remove the hero image for this project.
-                </p>
-              </div>
-            </div>
-            <div className={be.mediaPreview}>
-              {formData.image ? (
-                <div className={be.previewFrame}>
-                  <Image
-                    src={formData.image}
-                    alt={formData.title ? `Cover: ${formData.title}` : "Portfolio cover"}
-                    width={320}
-                    height={320}
-                    style={{ maxWidth: "100%", height: "auto" }}
-                  />
+            {/* ════════════ MAIN column ════════════ */}
+            <div className={s.main}>
+
+              {/* Title */}
+              <div className={s.card}>
+                <div className={s.cardHead}>
+                  <span className={s.cardIcon} aria-hidden>
+                    <FileText size={14} strokeWidth={2} />
+                  </span>
+                  <p className={s.cardTitle}>Title</p>
                 </div>
-              ) : (
-                <div className={be.emptyMedia}>No image uploaded yet.</div>
-              )}
-              <div className={admin.formField} style={{ flex: "1 1 220px" }}>
-                <label
-                  className={admin.fieldLabel}
-                  htmlFor="edit-portfolio-upload"
-                >
-                  Upload or replace
-                </label>
-                <input
-                  id="edit-portfolio-upload"
-                  type="file"
-                  accept="image/*"
-                  onChange={handleFileChange}
-                  className={`${admin.fieldInput} ${be.fileInput}`}
-                  disabled={uploading}
-                />
-                {uploading && (
-                  <p className={admin.fieldHelp}>Uploading image…</p>
-                )}
-                {formData.image && (
-                  <button
-                    type="button"
-                    onClick={handleDeleteImage}
-                    disabled={uploading}
-                    className={admin.btnDanger}
-                  >
-                    {uploading ? "Deleting…" : "Remove cover image"}
-                  </button>
-                )}
-              </div>
-            </div>
-          </section>
-
-          <section
-            className={be.section}
-            aria-labelledby="edit-portfolio-section-taxonomy"
-          >
-            <div className={be.sectionHead}>
-              <div className={be.sectionIcon} aria-hidden>
-                <Layers size={20} strokeWidth={1.75} />
-              </div>
-              <div className={be.sectionHeadText}>
-                <p className={be.sectionKicker}>Classification</p>
-                <h2
-                  id="edit-portfolio-section-taxonomy"
-                  className={be.sectionTitle}
-                >
-                  Categories
-                </h2>
-                <p className={be.sectionLead}>
-                  One or more labels for filtering and related projects.
-                </p>
-              </div>
-            </div>
-            <div className={admin.formField}>
-              <span className={admin.fieldLabel}>Categories</span>
-              <div className={admin.checkboxGrid}>
-                {CATEGORY_OPTIONS.map((cat) => (
-                  <label key={cat} className={admin.checkboxLabel}>
+                <div className={s.cardBody}>
+                  <div className={admin.formField}>
+                    <label className={admin.fieldLabel} htmlFor="ep-title">
+                      Project title
+                    </label>
                     <input
-                      type="checkbox"
-                      value={cat}
-                      checked={formData.category
-                        .split(",")
-                        .map((c) => c.trim())
-                        .includes(cat)}
-                      onChange={handleCategoryChange}
+                      id="ep-title"
+                      name="title"
+                      value={formData.title}
+                      onChange={handleChange}
+                      required
+                      className={admin.fieldInput}
+                      placeholder="e.g. E-commerce Redesign"
                     />
-                    {cat}
-                  </label>
-                ))}
+                  </div>
+                </div>
               </div>
-            </div>
-          </section>
 
-          <section
-            className={be.section}
-            aria-labelledby="edit-portfolio-section-story"
-          >
-            <div className={be.sectionHead}>
-              <div className={be.sectionIcon} aria-hidden>
-                <AlignLeft size={20} strokeWidth={1.75} />
+              {/* Description */}
+              <div className={s.card}>
+                <div className={s.cardHead}>
+                  <span className={s.cardIcon} aria-hidden>
+                    <FileText size={14} strokeWidth={2} />
+                  </span>
+                  <p className={s.cardTitle}>Summary</p>
+                </div>
+                <div className={s.cardBody}>
+                  <div className={admin.formField}>
+                    <label className={admin.fieldLabel} htmlFor="ep-description">
+                      Short description
+                    </label>
+                    <textarea
+                      id="ep-description"
+                      name="description"
+                      value={formData.description}
+                      onChange={handleChange}
+                      className={admin.fieldTextarea}
+                      placeholder="One or two sentences shown on the portfolio card."
+                    />
+                  </div>
+                </div>
               </div>
-              <div className={be.sectionHeadText}>
-                <p className={be.sectionKicker}>Story</p>
-                <h2
-                  id="edit-portfolio-section-story"
-                  className={be.sectionTitle}
-                >
-                  Description &amp; HTML blocks
-                </h2>
-                <p className={be.sectionLead}>
-                  Short summary plus rich HTML sections for the project page.
-                </p>
-              </div>
-            </div>
-            <div className={admin.formField}>
-              <label
-                className={admin.fieldLabel}
-                htmlFor="edit-portfolio-description"
-              >
-                Description
-              </label>
-              <textarea
-                id="edit-portfolio-description"
-                name="description"
-                value={formData.description}
-                onChange={handleChange}
-                className={admin.fieldTextarea}
-              />
-            </div>
-            <div className={admin.formField}>
-              <label
-                className={admin.fieldLabel}
-                htmlFor="edit-portfolio-overview"
-              >
-                Project overview (HTML)
-              </label>
-              <textarea
-                id="edit-portfolio-overview"
-                name="overview"
-                value={formData.overview}
-                onChange={handleChange}
-                className={`${admin.fieldTextarea} ${be.htmlTextarea}`}
-              />
-            </div>
-            <div className={admin.formField}>
-              <label
-                className={admin.fieldLabel}
-                htmlFor="edit-portfolio-problem"
-              >
-                Problem statement (HTML)
-              </label>
-              <textarea
-                id="edit-portfolio-problem"
-                name="problem_statement"
-                value={formData.problem_statement}
-                onChange={handleChange}
-                className={`${admin.fieldTextarea} ${be.htmlTextarea}`}
-              />
-            </div>
-            <div className={admin.formField}>
-              <label
-                className={admin.fieldLabel}
-                htmlFor="edit-portfolio-challenges"
-              >
-                Challenges &amp; solutions (HTML)
-              </label>
-              <textarea
-                id="edit-portfolio-challenges"
-                name="challenges"
-                value={formData.challenges}
-                onChange={handleChange}
-                className={`${admin.fieldTextarea} ${be.htmlTextarea}`}
-              />
-            </div>
-            <div className={admin.formField}>
-              <label
-                className={admin.fieldLabel}
-                htmlFor="edit-portfolio-achievements"
-              >
-                Achievements (HTML)
-              </label>
-              <textarea
-                id="edit-portfolio-achievements"
-                name="achievements"
-                value={formData.achievements}
-                onChange={handleChange}
-                className={`${admin.fieldTextarea} ${be.htmlTextarea}`}
-              />
-            </div>
-            <div className={admin.formField}>
-              <label
-                className={admin.fieldLabel}
-                htmlFor="edit-portfolio-key-features"
-              >
-                Key features (HTML)
-              </label>
-              <textarea
-                id="edit-portfolio-key-features"
-                name="key_features"
-                value={formData.key_features}
-                onChange={handleChange}
-                className={`${admin.fieldTextarea} ${be.htmlTextarea}`}
-              />
-            </div>
-          </section>
 
-          <section
-            className={be.section}
-            aria-labelledby="edit-portfolio-section-links"
-          >
-            <div className={be.sectionHead}>
-              <div className={be.sectionIcon} aria-hidden>
-                <Link2 size={20} strokeWidth={1.75} />
+              {/* HTML Content blocks */}
+              <div className={s.card}>
+                <div className={s.cardHead}>
+                  <span className={s.cardIcon} aria-hidden>
+                    <AlignLeft size={14} strokeWidth={2} />
+                  </span>
+                  <p className={s.cardTitle}>Content blocks (HTML)</p>
+                </div>
+                <div className={s.cardBody}>
+                  <div className={s.htmlStack}>
+                    <div className={admin.formField}>
+                      <label className={admin.fieldLabel} htmlFor="ep-overview">
+                        Project overview
+                      </label>
+                      <textarea
+                        id="ep-overview"
+                        name="overview"
+                        value={formData.overview}
+                        onChange={handleChange}
+                        className={`${admin.fieldTextarea} ${be.htmlTextarea}`}
+                      />
+                    </div>
+                    <div className={admin.formField}>
+                      <label className={admin.fieldLabel} htmlFor="ep-problem">
+                        Problem statement
+                      </label>
+                      <textarea
+                        id="ep-problem"
+                        name="problem_statement"
+                        value={formData.problem_statement}
+                        onChange={handleChange}
+                        className={`${admin.fieldTextarea} ${be.htmlTextarea}`}
+                      />
+                    </div>
+                    <div className={admin.formField}>
+                      <label className={admin.fieldLabel} htmlFor="ep-challenges">
+                        Challenges &amp; solutions
+                      </label>
+                      <textarea
+                        id="ep-challenges"
+                        name="challenges"
+                        value={formData.challenges}
+                        onChange={handleChange}
+                        className={`${admin.fieldTextarea} ${be.htmlTextarea}`}
+                      />
+                    </div>
+                    <div className={admin.formField}>
+                      <label className={admin.fieldLabel} htmlFor="ep-achievements">
+                        Achievements
+                      </label>
+                      <textarea
+                        id="ep-achievements"
+                        name="achievements"
+                        value={formData.achievements}
+                        onChange={handleChange}
+                        className={`${admin.fieldTextarea} ${be.htmlTextarea}`}
+                      />
+                    </div>
+                    <div className={admin.formField}>
+                      <label className={admin.fieldLabel} htmlFor="ep-features">
+                        Key features
+                      </label>
+                      <textarea
+                        id="ep-features"
+                        name="key_features"
+                        value={formData.key_features}
+                        onChange={handleChange}
+                        className={`${admin.fieldTextarea} ${be.htmlTextarea}`}
+                      />
+                    </div>
+                  </div>
+                </div>
               </div>
-              <div className={be.sectionHeadText}>
-                <p className={be.sectionKicker}>Links &amp; status</p>
-                <h2
-                  id="edit-portfolio-section-links"
-                  className={be.sectionTitle}
-                >
-                  URLs, status &amp; stack
-                </h2>
-                <p className={be.sectionLead}>
-                  Live demo, repository, delivery status, and technologies.
-                </p>
-              </div>
+
             </div>
-            <div className={be.grid2}>
-              <div className={admin.formField}>
-                <label
-                  className={admin.fieldLabel}
-                  htmlFor="edit-portfolio-live-url"
-                >
-                  Live website URL
-                </label>
-                <input
-                  id="edit-portfolio-live-url"
-                  name="live_url"
-                  value={formData.live_url}
-                  onChange={handleChange}
-                  className={admin.fieldInput}
+            {/* ════════════ end MAIN ════════════ */}
+
+            {/* ════════════ SIDEBAR ════════════ */}
+            <div className={s.sidebar}>
+
+              {/* Cover image */}
+              <div className={s.card}>
+                <div className={s.cardHead}>
+                  <span className={s.cardIcon} aria-hidden>
+                    <ImageIcon size={14} strokeWidth={2} />
+                  </span>
+                  <p className={s.cardTitle}>Cover image</p>
+                </div>
+                <div className={s.cardBody}>
+                  <div className={s.imgPreview}>
+                    {formData.image ? (
+                      <Image
+                        src={formData.image}
+                        alt={formData.title ? `Cover: ${formData.title}` : "Portfolio cover"}
+                        width={640}
+                        height={360}
+                        style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                      />
+                    ) : (
+                      <div className={s.imgEmpty}>
+                        <ImageIcon size={24} strokeWidth={1.5} />
+                        <span>No image uploaded</span>
+                      </div>
+                    )}
+                  </div>
+                  <div className={admin.formField}>
+                    <label className={admin.fieldLabel} htmlFor="ep-upload">
+                      Upload or replace
+                    </label>
+                    <input
+                      id="ep-upload"
+                      type="file"
+                      accept="image/*"
+                      onChange={handleFileChange}
+                      className={`${admin.fieldInput} ${be.fileInput}`}
+                      disabled={uploading}
+                    />
+                    {uploading && (
+                      <p className={admin.fieldHelp}>Uploading image…</p>
+                    )}
+                  </div>
+                  {formData.image && (
+                    <button
+                      type="button"
+                      onClick={handleDeleteImage}
+                      disabled={uploading}
+                      className={admin.btnDanger}
+                    >
+                      {uploading ? "Deleting…" : "Remove cover image"}
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              {/* Settings: Status + Display order + Technologies */}
+              <div className={s.card}>
+                <div className={s.cardHead}>
+                  <span className={s.cardIcon} aria-hidden>
+                    <Settings size={14} strokeWidth={2} />
+                  </span>
+                  <p className={s.cardTitle}>Settings</p>
+                </div>
+                <div className={s.cardBody}>
+                  <div className={s.settingsRow}>
+                    <div className={admin.formField}>
+                      <label className={admin.fieldLabel} htmlFor="ep-status">
+                        Status
+                      </label>
+                      <select
+                        id="ep-status"
+                        name="status"
+                        value={formData.status}
+                        onChange={handleChange}
+                        className={`${admin.fieldInput} ${admin.fieldSelect}`}
+                      >
+                        <option value="Completed">Completed</option>
+                        <option value="In Progress">In Progress</option>
+                        <option value="Paused">Paused</option>
+                        <option value="Planned">Planned</option>
+                      </select>
+                    </div>
+                    <div className={s.orderWrap}>
+                      <label
+                        className={admin.fieldLabel}
+                        htmlFor="ep-display-order"
+                      >
+                        Order
+                      </label>
+                      <input
+                        id="ep-display-order"
+                        name="display_order"
+                        type="number"
+                        min="1"
+                        value={formData.display_order}
+                        onChange={handleChange}
+                        className={s.orderInput}
+                        placeholder="—"
+                        aria-label="Display order"
+                      />
+                    </div>
+                  </div>
+                  <div className={admin.formField}>
+                    <label className={admin.fieldLabel} htmlFor="ep-technologies">
+                      Technologies
+                    </label>
+                    <input
+                      id="ep-technologies"
+                      name="technologies"
+                      value={formData.technologies}
+                      onChange={handleChange}
+                      className={admin.fieldInput}
+                      placeholder="React, Next.js, Supabase…"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Links */}
+              <div className={s.card}>
+                <div className={s.cardHead}>
+                  <span className={s.cardIcon} aria-hidden>
+                    <Link2 size={14} strokeWidth={2} />
+                  </span>
+                  <p className={s.cardTitle}>Links</p>
+                </div>
+                <div className={s.cardBody}>
+                  <div className={s.linksStack}>
+                    <div className={admin.formField}>
+                      <label className={admin.fieldLabel} htmlFor="ep-live-url">
+                        Live website URL
+                      </label>
+                      <input
+                        id="ep-live-url"
+                        name="live_url"
+                        value={formData.live_url}
+                        onChange={handleChange}
+                        className={admin.fieldInput}
+                        placeholder="https://…"
+                      />
+                    </div>
+                    <div className={admin.formField}>
+                      <label className={admin.fieldLabel} htmlFor="ep-repo-url">
+                        Repo URL (optional)
+                      </label>
+                      <input
+                        id="ep-repo-url"
+                        name="repo_url"
+                        value={formData.repo_url}
+                        onChange={handleChange}
+                        className={admin.fieldInput}
+                        placeholder="https://github.com/…"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Categories */}
+              <div className={s.card}>
+                <div className={s.cardHead}>
+                  <span className={s.cardIcon} aria-hidden>
+                    <Layers size={14} strokeWidth={2} />
+                  </span>
+                  <p className={s.cardTitle}>Categories</p>
+                </div>
+                <div className={s.cardBody}>
+                  <div className={admin.formField}>
+                    <div className={admin.checkboxGrid}>
+                      {CATEGORY_OPTIONS.map((cat) => (
+                        <label key={cat} className={admin.checkboxLabel}>
+                          <input
+                            type="checkbox"
+                            value={cat}
+                            checked={formData.category
+                              .split(",")
+                              .map((c) => c.trim())
+                              .includes(cat)}
+                            onChange={handleCategoryChange}
+                          />
+                          {cat}
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* SEO */}
+              <div className={s.card}>
+                <div className={s.cardHead}>
+                  <span className={s.cardIcon} aria-hidden>
+                    <Search size={14} strokeWidth={2} />
+                  </span>
+                  <p className={s.cardTitle}>SEO (optional)</p>
+                </div>
+                <div className={s.cardBody}>
+                  <div className={admin.formField}>
+                    <label className={admin.fieldLabel} htmlFor="ep-focus-kw">
+                      Focus keyword
+                    </label>
+                    <input
+                      id="ep-focus-kw"
+                      name="focus_keyword"
+                      value={formData.focus_keyword}
+                      onChange={handleChange}
+                      className={admin.fieldInput}
+                    />
+                  </div>
+                  <div className={admin.formField}>
+                    <label className={admin.fieldLabel} htmlFor="ep-seo-kw">
+                      Supporting keywords
+                    </label>
+                    <input
+                      id="ep-seo-kw"
+                      name="seo_keywords"
+                      value={formData.seo_keywords}
+                      onChange={handleChange}
+                      className={admin.fieldInput}
+                      placeholder="Comma-separated"
+                    />
+                  </div>
+                  <div className={admin.formField}>
+                    <label className={admin.fieldLabel} htmlFor="ep-meta-title">
+                      Meta title override
+                    </label>
+                    <input
+                      id="ep-meta-title"
+                      name="meta_title"
+                      value={formData.meta_title}
+                      onChange={handleChange}
+                      className={admin.fieldInput}
+                    />
+                  </div>
+                  <div className={admin.formField}>
+                    <label className={admin.fieldLabel} htmlFor="ep-meta-desc">
+                      Meta description override
+                    </label>
+                    <textarea
+                      id="ep-meta-desc"
+                      name="meta_description"
+                      value={formData.meta_description}
+                      onChange={handleChange}
+                      className={admin.fieldTextarea}
+                      rows={3}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Display order hint */}
+              <p className={admin.fieldHelp} style={{ paddingInline: "4px" }}>
+                <ListOrdered
+                  size={12}
+                  strokeWidth={2}
+                  style={{ display: "inline", marginRight: 4, verticalAlign: "middle" }}
                 />
-              </div>
-              <div className={admin.formField}>
-                <label
-                  className={admin.fieldLabel}
-                  htmlFor="edit-portfolio-repo-url"
-                >
-                  Repo URL (optional)
-                </label>
-                <input
-                  id="edit-portfolio-repo-url"
-                  name="repo_url"
-                  value={formData.repo_url}
-                  onChange={handleChange}
-                  className={admin.fieldInput}
-                />
-              </div>
-              <div className={admin.formField}>
-                <label
-                  className={admin.fieldLabel}
-                  htmlFor="edit-portfolio-status"
-                >
-                  Status
-                </label>
-                <select
-                  id="edit-portfolio-status"
-                  name="status"
-                  value={formData.status}
-                  onChange={handleChange}
-                  className={`${admin.fieldInput} ${admin.fieldSelect}`}
-                >
-                  <option value="Completed">Completed</option>
-                  <option value="In Progress">In Progress</option>
-                  <option value="Paused">Paused</option>
-                  <option value="Planned">Planned</option>
-                </select>
-              </div>
-              <div className={admin.formField}>
-                <label
-                  className={admin.fieldLabel}
-                  htmlFor="edit-portfolio-technologies"
-                >
-                  Technologies (comma-separated)
-                </label>
-                <input
-                  id="edit-portfolio-technologies"
-                  name="technologies"
-                  value={formData.technologies}
-                  onChange={handleChange}
-                  className={admin.fieldInput}
-                  placeholder="e.g. React, Next.js, Supabase"
-                />
-              </div>
-            </div>
-          </section>
+                Order: lower = first, blank = sort by date.
+              </p>
 
-          <section
-            className={be.section}
-            aria-labelledby="edit-portfolio-section-seo"
-          >
-            <div className={be.seoSection}>
-              <div className={be.sectionHead}>
-                <div className={be.sectionIcon} aria-hidden>
-                  <Search size={20} strokeWidth={1.75} />
-                </div>
-                <div className={be.sectionHeadText}>
-                  <p className={be.sectionKicker}>SEO</p>
-                  <h2 id="edit-portfolio-section-seo" className={be.sectionTitle}>
-                    Search &amp; metadata (optional)
-                  </h2>
-                  <p className={be.sectionLead}>
-                    Leave blank to auto-generate titles and descriptions from
-                    project fields. Supporting keywords feed structured data only.
-                  </p>
-                </div>
-              </div>
-              <div className={be.seoFields}>
-                <div className={admin.formField}>
-                  <label
-                    className={admin.fieldLabel}
-                    htmlFor="edit-portfolio-focus-kw"
-                  >
-                    Focus keyword
-                  </label>
-                  <input
-                    id="edit-portfolio-focus-kw"
-                    name="focus_keyword"
-                    value={formData.focus_keyword}
-                    onChange={handleChange}
-                    className={admin.fieldInput}
-                  />
-                </div>
-                <div className={admin.formField}>
-                  <label
-                    className={admin.fieldLabel}
-                    htmlFor="edit-portfolio-seo-kw"
-                  >
-                    Supporting keywords
-                  </label>
-                  <input
-                    id="edit-portfolio-seo-kw"
-                    name="seo_keywords"
-                    value={formData.seo_keywords}
-                    onChange={handleChange}
-                    className={admin.fieldInput}
-                    placeholder="Comma-separated"
-                  />
-                </div>
-                <div className={admin.formField}>
-                  <label
-                    className={admin.fieldLabel}
-                    htmlFor="edit-portfolio-meta-title"
-                  >
-                    Meta title override
-                  </label>
-                  <input
-                    id="edit-portfolio-meta-title"
-                    name="meta_title"
-                    value={formData.meta_title}
-                    onChange={handleChange}
-                    className={admin.fieldInput}
-                  />
-                </div>
-                <div className={admin.formField}>
-                  <label
-                    className={admin.fieldLabel}
-                    htmlFor="edit-portfolio-meta-desc"
-                  >
-                    Meta description override
-                  </label>
-                  <textarea
-                    id="edit-portfolio-meta-desc"
-                    name="meta_description"
-                    value={formData.meta_description}
-                    onChange={handleChange}
-                    className={admin.fieldTextarea}
-                    rows={3}
-                  />
-                </div>
-              </div>
             </div>
-          </section>
+            {/* ════════════ end SIDEBAR ════════════ */}
 
-          <div className={be.stickyActions}>
+          </div>
+
+          {/* ── Sticky save ── */}
+          <div className={s.actions}>
             <button
               type="submit"
               disabled={saving || uploading}
