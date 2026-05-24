@@ -141,35 +141,6 @@
   background: var(--form-control-bg-focus);
 }
 
-.passwordWrap {
-  position: relative;
-  width: 100%;
-}
-
-.inputWithToggle {
-  padding-right: 76px;
-  box-sizing: border-box;
-}
-
-.passwordToggle {
-  position: absolute;
-  right: 10px;
-  top: 50%;
-  transform: translateY(-50%);
-  border: none;
-  background: transparent;
-  color: var(--text-muted);
-  font-weight: 600;
-  font-size: 0.78rem;
-  cursor: pointer;
-  padding: 4px 6px;
-  border-radius: 6px;
-}
-
-.passwordToggle:hover {
-  color: var(--text-dark);
-  background: rgba(255, 255, 255, 0.08);
-}
 
 .textarea {
   min-height: 100px;
@@ -218,9 +189,6 @@
 }
 
 /* ── Light mode ──────────────────────────────────────────────── */
-:global(.light) .passwordToggle:hover {
-  background: rgba(0, 0, 0, 0.06);
-}
 
 :global(.light) .tabNav {
   border-bottom-color: var(--card-border);
