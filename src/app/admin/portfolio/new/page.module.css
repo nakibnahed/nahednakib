@@ -1,0 +1,450 @@
+/* ── Portfolio new — 2-column editorial layout ───────────────── */
+
+.editGrid {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: 20px;
+  align-items: start;
+  margin-top: clamp(4px, 1vw, 8px);
+}
+
+/* ── Main column ────────────────────────────────────────────── */
+
+.main {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-width: 0;
+}
+
+/* ── Sidebar ────────────────────────────────────────────────── */
+
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  position: sticky;
+  top: calc(var(--admin-top-offset, 70px) + 16px);
+}
+
+/* ── Card chrome — matches admin formCard pattern ───────────── */
+
+.card {
+  border-radius: 16px;
+  border: 1px solid color-mix(in srgb, var(--card-border) 85%, transparent);
+  background: color-mix(in srgb, var(--background-main) 94%, #000 6%);
+  position: relative;
+}
+
+.card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    145deg,
+    rgba(255, 255, 255, 0.02) 0%,
+    rgba(255, 255, 255, 0.01) 35%,
+    rgba(255, 255, 255, 0) 65%
+  );
+  pointer-events: none;
+  border-radius: inherit;
+  z-index: 0;
+}
+
+.cardHead {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 11px 16px;
+  border-bottom: 1px solid color-mix(in srgb, var(--card-border) 70%, transparent);
+  border-radius: 15px 15px 0 0;
+  position: relative;
+  z-index: 1;
+}
+
+.cardIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 7px;
+  color: var(--primary-color);
+  background: color-mix(in srgb, var(--primary-color) 12%, transparent);
+  flex-shrink: 0;
+}
+
+.cardTitle {
+  margin: 0;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+.cardBody {
+  padding: clamp(14px, 1.8vw, 18px);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  position: relative;
+  z-index: 1;
+}
+
+/* zero out the margin-block that adminPage.formField adds when not inside formStack */
+.cardBody [class*="formField"] {
+  margin-block: 0;
+}
+
+/* ── Image preview — clickable ──────────────────────────────── */
+
+.imgPreview {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--card-border) 80%, transparent);
+  background: color-mix(in srgb, var(--background-main) 80%, #000 20%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  position: relative;
+}
+
+.imgPreview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.imgOverlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  background: rgba(0, 0, 0, 0);
+  color: #ffffff;
+  font-size: 0.8rem;
+  font-weight: 600;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.imgPreview:hover .imgOverlay {
+  opacity: 1;
+  background: rgba(0, 0, 0, 0.48);
+}
+
+.imgEmpty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 28px 16px;
+  color: var(--text-muted);
+  font-size: 0.8125rem;
+  text-align: center;
+  transition: color 0.2s ease;
+}
+
+.imgPreview:hover .imgEmpty {
+  color: var(--text-primary);
+}
+
+/* ── Styled upload button (label acting as button) ──────────── */
+
+.uploadBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  width: 100%;
+  padding: 9px 14px;
+  border-radius: 10px;
+  border: 1px dashed color-mix(in srgb, var(--card-border) 90%, var(--primary-color) 10%);
+  background: color-mix(in srgb, var(--primary-color) 4%, transparent);
+  color: var(--text-muted);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+  user-select: none;
+  transition: color 0.18s ease;
+}
+
+.uploadBtn:hover {
+  border-color: color-mix(in srgb, var(--primary-color) 45%, transparent);
+  color: var(--primary-color);
+  background: color-mix(in srgb, var(--primary-color) 8%, transparent);
+}
+
+/* ── Settings row: Status + Display order ───────────────────── */
+
+.settingsRow {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 12px;
+  align-items: end;
+}
+
+.orderWrap {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.orderInput {
+  width: 68px;
+  padding: 10px 8px;
+  border-radius: 10px;
+  border: 1px solid color-mix(in srgb, var(--card-border) 85%, transparent);
+  background: var(--form-control-bg);
+  color: var(--text-primary);
+  font-size: 1rem;
+  font-weight: 700;
+  text-align: center;
+  outline: none;
+  transition: box-shadow 0.2s ease;
+  -moz-appearance: textfield;
+}
+
+.orderInput::-webkit-outer-spin-button,
+.orderInput::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.orderInput:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary-color) 18%, transparent);
+}
+
+.orderInput::placeholder {
+  font-size: 0.8125rem;
+  font-weight: 400;
+  color: var(--text-secondary);
+}
+
+.orderTooltipWrap {
+  position: relative;
+}
+
+.orderTooltip {
+  position: absolute;
+  bottom: calc(100% + 7px);
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  padding: 4px 9px;
+  border-radius: 6px;
+  background: var(--text-primary);
+  color: var(--background-main);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+
+.orderTooltip::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 4px solid transparent;
+  border-top-color: var(--text-primary);
+}
+
+.orderTooltipWrap:hover .orderTooltip,
+.orderTooltipWrap:focus-within .orderTooltip {
+  opacity: 1;
+}
+
+:global(.light) .orderTooltip {
+  background: #11181c;
+  color: #ffffff;
+}
+
+:global(.light) .orderTooltip::after {
+  border-top-color: #11181c;
+}
+
+/* ── Pill checkboxes for categories ────────────────────────── */
+
+.checkPills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.checkPill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 11px;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--card-border) 85%, transparent);
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+  user-select: none;
+  transition: color 0.15s ease;
+}
+
+.checkPill input[type="checkbox"] {
+  display: none;
+}
+
+.checkPill:hover {
+  border-color: color-mix(in srgb, var(--primary-color) 35%, transparent);
+  color: var(--text-primary);
+}
+
+.checkPillActive {
+  background: color-mix(in srgb, var(--primary-color) 14%, transparent);
+  border-color: color-mix(in srgb, var(--primary-color) 50%, transparent);
+  color: var(--primary-color);
+}
+
+/* ── HTML content blocks ────────────────────────────────────── */
+
+.htmlStack {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+/* ── Publish card rows ──────────────────────────────────────── */
+
+.publishRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-height: 28px;
+}
+
+.publishLabel {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  flex-shrink: 0;
+}
+
+.publishSelect {
+  flex: 1;
+  min-width: 0;
+  padding: 6px 10px;
+  font-size: 0.8125rem;
+}
+
+.publishDivider {
+  height: 1px;
+  background: color-mix(in srgb, var(--card-border) 70%, transparent);
+  margin: 2px 0;
+}
+
+.publishSaveBtn {
+  padding: 9px 18px;
+  font-size: 14px;
+}
+
+/* ── Responsive ─────────────────────────────────────────────── */
+
+@media (max-width: 1100px) {
+  .editGrid {
+    grid-template-columns: 1fr 290px;
+  }
+}
+
+@media (max-width: 900px) {
+  .editGrid {
+    grid-template-columns: 1fr;
+  }
+  .sidebar {
+    position: static;
+  }
+}
+
+@media (max-width: 768px) {
+  .editGrid {
+    gap: 14px;
+  }
+  .settingsRow {
+    grid-template-columns: 1fr 1fr;
+  }
+  .orderInput {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .settingsRow {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ── Light mode ─────────────────────────────────────────────── */
+
+:global(.light) .card {
+  background: #ffffff;
+  border-color: var(--card-border);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05), 0 4px 14px rgba(0, 0, 0, 0.04);
+}
+
+:global(.light) .card::after {
+  background: none;
+}
+
+:global(.light) .cardHead {
+  border-bottom-color: var(--card-border);
+}
+
+:global(.light) .imgPreview {
+  background: #f1f5f9;
+  border-color: var(--card-border);
+}
+
+:global(.light) .imgOverlay {
+  color: #ffffff;
+}
+
+:global(.light) .uploadBtn {
+  border-color: var(--card-border);
+  background: #f8fafc;
+  color: var(--text-muted);
+}
+
+:global(.light) .uploadBtn:hover {
+  border-color: var(--primary-color);
+  color: var(--primary-color);
+  background: color-mix(in srgb, var(--primary-color) 6%, #ffffff);
+}
+
+:global(.light) .checkPill {
+  border-color: var(--card-border);
+  color: var(--text-muted);
+  background: #f8fafc;
+}
+
+:global(.light) .checkPillActive {
+  background: color-mix(in srgb, var(--primary-color) 10%, #ffffff);
+  border-color: color-mix(in srgb, var(--primary-color) 40%, transparent);
+  color: var(--primary-color);
+}
+
+:global(.light) .publishDivider {
+  background: var(--card-border);
+}
