@@ -354,3 +354,25 @@
     padding: 10px 18px 16px;
   }
 }
+
+/* ── Light mode ──────────────────────────────────────────────── */
+:global(.light) .card {
+  background: #ffffff;
+  border-color: var(--card-border);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+:global(.light) .activityCard {
+  background: #ffffff;
+  border-color: var(--card-border);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+:global(.light) .activityItem {
+  background: #f8fafc;
+  border-color: var(--card-border);
+}
+
+:global(.light) .adminBanner {
+  background: color-mix(in srgb, var(--primary-color) 5%, #ffffff);
+}

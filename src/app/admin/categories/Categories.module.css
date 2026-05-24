@@ -292,3 +292,15 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* ── Light mode ──────────────────────────────────────────────── */
+:global(.light) .formContainer,
+:global(.light) .categoryCard {
+  background: #ffffff;
+  border-color: var(--card-border);
+}
+
+:global(.light) .formContainer::after,
+:global(.light) .categoryCard::after {
+  background: none;
+}

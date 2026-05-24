@@ -76,3 +76,20 @@
 .confirmBtn:hover {
   opacity: 0.9;
 }
+
+/* ── Light mode ──────────────────────────────────────────────── */
+:global(.light) .modal {
+  background: #ffffff;
+  border-color: var(--card-border);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.1);
+}
+
+:global(.light) .modal::after {
+  background: none;
+}
+
+:global(.light) .confirmBtn {
+  color: #dc2626;
+  background: rgba(220, 38, 38, 0.08);
+  border-color: rgba(220, 38, 38, 0.3);
+}

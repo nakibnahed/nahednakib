@@ -415,3 +415,32 @@
   .sidebar { padding-top: 56px; }
   .brandRow { margin-bottom: 14px; }
 }
+
+/* ── Light mode ──────────────────────────────────────────────── */
+:global(.light) .menu {
+  background: rgba(0, 0, 0, 0.03);
+  border-color: rgba(0, 0, 0, 0.06);
+}
+
+:global(.light) .tooltip {
+  background: #ffffff;
+  color: #11181c;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
+}
+
+:global(.light) .collapsed .menuLink:hover::after {
+  background: #ffffff;
+  color: #11181c;
+  border-color: var(--card-border);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
+}
+
+:global(.light) .menuItem.logoutItem:hover .menuItemContent {
+  color: #dc2626;
+  background: rgba(220, 38, 38, 0.08);
+}
+
+:global(.light) .userCard {
+  background: #f1f5f9;
+  border-color: var(--card-border);
+}

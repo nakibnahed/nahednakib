@@ -1103,6 +1103,45 @@
   .itemRemoveBtn { flex: 1; }
 }
 
+/* ── Light mode overrides ──────────────────────────────────── */
+:global(.light) .avatar {
+  background: #e5e7eb;
+}
+
+:global(.light) .menuItem:hover {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+:global(.light) .likedItem {
+  background: var(--card-bg);
+  color: var(--card-text);
+  border: 1px solid var(--card-border);
+}
+
+:global(.light) .avatarPlaceholder {
+  background: #f1f5f9;
+}
+
+:global(.light) .fileInfo {
+  background: #f1f5f9;
+}
+
+:global(.light) .saveButton:disabled {
+  background: #9ca3af;
+}
+
+:global(.light) .error {
+  background: rgba(239, 68, 68, 0.1);
+  color: #dc2626;
+  border-color: rgba(239, 68, 68, 0.3);
+}
+
+:global(.light) .success {
+  background: rgba(34, 197, 94, 0.1);
+  color: #16a34a;
+  border-color: rgba(34, 197, 94, 0.3);
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
   .profileContent {

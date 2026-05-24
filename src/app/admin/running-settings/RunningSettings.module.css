@@ -207,3 +207,18 @@
     justify-content: space-between;
   }
 }
+
+/* ── Light mode overrides ──────────────────────────────────── */
+:global(.light) .container {
+  background: #ffffff;
+  border-color: var(--card-border);
+}
+
+:global(.light) .container::after {
+  background: none;
+}
+
+:global(.light) .settingsCard {
+  background: #f8fafc;
+  border-color: var(--card-border);
+}

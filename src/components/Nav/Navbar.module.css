@@ -708,3 +708,8 @@
     display: none;
   }
 }
+
+/* ── Light mode ──────────────────────────────────────────────── */
+:global(.light) .userAvatar {
+  background: #e5e7eb;
+}

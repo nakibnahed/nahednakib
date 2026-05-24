@@ -92,6 +92,9 @@
   --text-color: var(--text-dark);
   --text-tertiary: var(--text-muted);
   --primary-color-hover: #ff8c42;
+
+  /* text-primary — semantic alias used as fallback in many components */
+  --text-primary: #f3f4f6;
 }
 
 .light {
@@ -168,6 +171,9 @@
   --text-color: var(--text-dark);
   --text-tertiary: var(--text-muted);
   --primary-color-hover: #ff8c42;
+
+  /* text-primary — light mode override */
+  --text-primary: #11181c;
 }
 
 @media (max-width: 600px) {

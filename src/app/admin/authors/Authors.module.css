@@ -821,3 +821,96 @@
     width: 100%;
   }
 }
+
+/* ── Light mode overrides ──────────────────────────────────── */
+:global(.light) .avatarPanel {
+  background: #f8fafc;
+}
+
+:global(.light) .avatarImage {
+  background: #e5e7eb;
+}
+
+:global(.light) .avatarPlaceholder {
+  background: #f1f5f9;
+}
+
+:global(.light) .removeButton,
+:global(.light) .modalGhost {
+  background: rgba(0, 0, 0, 0.05);
+  border-color: var(--card-border);
+  color: var(--text-dark);
+}
+
+:global(.light) .removeButton:hover,
+:global(.light) .modalGhost:hover {
+  background: rgba(0, 0, 0, 0.08);
+}
+
+:global(.light) .fileInfo {
+  background: #f1f5f9;
+}
+
+:global(.light) .secondaryButton {
+  background: rgba(0, 0, 0, 0.05);
+  border-color: var(--card-border);
+  color: var(--text-dark);
+}
+
+:global(.light) .secondaryButton:hover:not(:disabled) {
+  background: rgba(0, 0, 0, 0.08);
+}
+
+:global(.light) .deleteSection {
+  background: #f8fafc;
+}
+
+:global(.light) .errorBanner {
+  color: #dc2626;
+  background: rgba(220, 38, 38, 0.08);
+  border-color: rgba(220, 38, 38, 0.25);
+}
+
+:global(.light) .dangerButton {
+  color: #dc2626;
+  background: rgba(220, 38, 38, 0.08);
+  border-color: rgba(220, 38, 38, 0.3);
+}
+
+:global(.light) .dangerButton:hover:not(:disabled) {
+  background: rgba(220, 38, 38, 0.14);
+}
+
+:global(.light) .deletePhotoButton {
+  color: #dc2626;
+}
+
+:global(.light) .deleteSection {
+  background: #fff8f8;
+  border-color: rgba(220, 38, 38, 0.15);
+}
+
+:global(.light) .formSection,
+:global(.light) .recentSection {
+  background: #ffffff;
+  border-color: var(--card-border);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+:global(.light) .formSection::after,
+:global(.light) .recentSection::after,
+:global(.light) .authorItem::after {
+  background: none;
+}
+
+:global(.light) .authorItem {
+  background: #ffffff;
+  border-color: var(--card-border);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+}
+
+:global(.light) .modal {
+  background: #ffffff;
+  border-color: var(--card-border);
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.12);
+}

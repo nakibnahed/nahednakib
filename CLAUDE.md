@@ -107,6 +107,58 @@ Security headers (CSP, X-Frame-Options, etc.) are set in two places that must st
 
 Pure CSS Modules — each component has a co-located `.module.css` file. No CSS-in-JS or utility frameworks. Global styles are in `src/app/globals.css`. Fonts are Unbounded and Montserrat loaded via `next/font/google` with CSS variables `--font-unbounded` and `--font-montserrat`.
 
+### Dark & Light Theme — Mandatory Rules
+
+The site uses `next-themes` which applies `class="light"` on `<html>` for light mode. Dark mode is the default (`:root`). **Every new component or page MUST support both modes.**
+
+**CSS variables to always use (never hardcode colors):**
+
+| Variable | Dark value | Light value | Use for |
+|---|---|---|---|
+| `--background-main` | `#0a0a0a` | `#f8fafc` | Page/shell backgrounds |
+| `--card-bg` | `#1a1a1a` | `#ffffff` | Card backgrounds |
+| `--card-border` | `#232329` | `#e5e7eb` | Borders |
+| `--card-text` | `#f3f4f6` | `#11181c` | Card text |
+| `--text-primary` | `#f3f4f6` | `#11181c` | Headings, titles |
+| `--text-dark` | `#aaaaaa` | `#11181c` | Body text |
+| `--text-muted` | `#aaaaaa` | `#6b7280` | Secondary/muted text |
+| `--text-secondary` | `#71717a` | `#6b7280` | Labels, captions |
+| `--form-control-bg` | semi-transparent dark | `#ffffff` | Input backgrounds |
+| `--button-bg` | orange gradient | `#11181c` | Primary buttons |
+| `--button-text` | `#222` | `#ffffff` | Primary button text |
+
+**Patterns that break light mode — always fix:**
+
+1. **Glassmorphism backgrounds** — `rgba(255, 255, 255, 0.05–0.15)` are invisible in light. Replace with `color-mix(in srgb, var(--card-border) 40%, transparent)` or a solid CSS variable.
+2. **Hardcoded white text** — `color: #fff` or `color: white` outside of buttons/badges. Use `var(--text-primary)` or `var(--card-text)` instead.
+3. **Hardcoded light-gray text** — `color: #ddd`, `#eee`, `#ccc`. Use `var(--text-muted)`.
+4. **Dark mix backgrounds** — `color-mix(in srgb, #000 20%+, ...)` creates gray blobs in light mode. Anything above ~10% black needs a `:global(.light)` override.
+5. **Sheen pseudo-elements** — `rgba(255, 255, 255, 0.02)` gradient overlays on `::after`. Add `:global(.light) .element::after { background: none; }`.
+6. **Pink/pastel error text** — `color: #fecaca` or `#fca5a5` (invisible in light). Use `#dc2626` in light mode.
+7. **Sidebar nav menus** — both admin and user sidebars use `color-mix(in srgb, #000 22%, transparent)` for `.menu`. Always add `:global(.light) .menu { background: color-mix(in srgb, var(--card-border) 40%, transparent); }`.
+8. **Tooltips** — `.tooltip { background: var(--text-primary) }` flips to black-on-black in light. Always add `:global(.light) .tooltip { background: #ffffff; color: #11181c; }`.
+9. **Layout shells & sidebars** — `color-mix(in srgb, var(--background-main) 92%, #000 8%)` is a common sidebar background that produces a visible gray in light mode. Always override: `:global(.light) .sidebarWrap { background: #ffffff; border-right-color: var(--card-border); }`.
+10. **Semi-transparent cards** — `background: color-mix(in srgb, var(--background-main) 80%, transparent 15%)` creates washed-out gray cards in light mode. Override with `background: #ffffff` and a subtle box-shadow.
+
+**How to add light mode overrides in a CSS Module:**
+
+```css
+/* Always append at the bottom of the .module.css file */
+
+/* ── Light mode ──────────────────────────────────────────────── */
+:global(.light) .card {
+  background: #ffffff;
+  border-color: var(--card-border);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+:global(.light) .title {
+  color: var(--text-primary);
+}
+```
+
+**Do NOT use** `.light .selector` (without `:global()`) — CSS Modules will scope it and the override will not apply.**Do NOT use** `@media (prefers-color-scheme: dark)` for theming — the app uses class-based theming, not OS preference.
+
 ### Admin CMS
 
 The admin section (`/admin`) is a full CMS for managing:

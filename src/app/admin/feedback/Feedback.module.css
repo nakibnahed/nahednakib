@@ -507,3 +507,26 @@
   .viewBtn,
   .deleteBtn { flex: 1; }
 }
+
+/* ── Light mode overrides ──────────────────────────────────── */
+:global(.light) .exportMenu {
+  background: #ffffff;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+  border-color: var(--card-border);
+}
+
+:global(.light) .card {
+  background: #ffffff;
+  border-color: var(--card-border);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+:global(.light) .card::after {
+  background: none;
+}
+
+:global(.light) .modal {
+  background: #ffffff;
+  border-color: var(--card-border);
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.12);
+}

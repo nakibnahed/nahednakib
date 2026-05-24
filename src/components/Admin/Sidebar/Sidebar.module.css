@@ -322,3 +322,25 @@
     margin-bottom: 18px;
   }
 }
+
+/* ── Light mode ──────────────────────────────────────────────── */
+:global(.light) .menu {
+  background: rgba(0, 0, 0, 0.03);
+  border-color: rgba(0, 0, 0, 0.06);
+}
+
+:global(.light) .tooltip {
+  background: #ffffff;
+  color: #11181c;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
+}
+
+:global(.light) .menuItem.logoutItem:hover .menuItemContent {
+  color: #dc2626;
+  background: rgba(220, 38, 38, 0.08);
+}
+
+:global(.light) .adminInfo {
+  background: #f1f5f9;
+  border-color: var(--card-border);
+}

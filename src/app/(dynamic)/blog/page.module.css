@@ -293,6 +293,31 @@
   font-weight: 500;
 }
 
+/* ── Light mode overrides ──────────────────────────────────── */
+:global(.light) .icon {
+  color: var(--text-muted);
+}
+
+:global(.light) .card {
+  background: #ffffff;
+  border-color: var(--card-border);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+:global(.light) .card::before {
+  background: none;
+}
+
+:global(.light) .categoryHeader {
+  background: #ffffff;
+  border-color: var(--card-border);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+:global(.light) .categoryHeader::before {
+  background: none;
+}
+
 /* Loading and Empty States */
 .loading,
 .emptyState {

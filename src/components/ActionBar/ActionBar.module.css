@@ -122,3 +122,22 @@
     display: none;
   }
 }
+
+/* ── Light mode ──────────────────────────────────────────────── */
+:global(.light) .actionBarWrapper .actionBtn:hover,
+:global(.light) .actionBarWrapper .actionBtn:focus {
+  color: var(--primary-color);
+}
+
+:global(.light) .actionBarWrapper .actionBtn:hover svg,
+:global(.light) .actionBarWrapper .actionBtn:focus svg {
+  color: var(--primary-color);
+}
+
+:global(.light) .actionBarWrapper .actionBtn.active {
+  color: var(--primary-color);
+}
+
+:global(.light) .actionBarWrapper .actionBtn.active svg {
+  color: var(--primary-color);
+}

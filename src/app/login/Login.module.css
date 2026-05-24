@@ -429,3 +429,56 @@
   cursor: not-allowed;
 }
 
+/* ── Light mode overrides ──────────────────────────────────── */
+:global(.light) .container {
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(0, 0, 0, 0.04);
+}
+
+:global(.light) .secondaryButton {
+  color: var(--text-dark);
+  border-color: var(--card-border);
+}
+
+:global(.light) .passwordToggle:hover {
+  background: rgba(0, 0, 0, 0.06);
+}
+
+:global(.light) .rule {
+  background: #f1f5f9;
+  color: var(--text-muted);
+  border: 1px solid var(--card-border);
+}
+
+:global(.light) .ruleOk {
+  background: rgba(22, 163, 74, 0.1);
+  color: #16a34a;
+  border: 1px solid rgba(22, 163, 74, 0.2);
+}
+
+:global(.light) .errorBox {
+  border-color: rgba(220, 38, 38, 0.3);
+  background: rgba(220, 38, 38, 0.08);
+  color: #dc2626;
+}
+
+:global(.light) .successBox {
+  border-color: rgba(22, 163, 74, 0.3);
+  background: rgba(22, 163, 74, 0.08);
+  color: #16a34a;
+}
+
+:global(.light) .error {
+  color: #dc2626;
+}
+
+:global(.light) .googleButton {
+  background: #ffffff;
+  border-color: var(--card-border);
+  color: #111827;
+}
+
+:global(.light) .googleButton:hover {
+  background: #f9fafb;
+  border-color: #d1d5db;
+}
+

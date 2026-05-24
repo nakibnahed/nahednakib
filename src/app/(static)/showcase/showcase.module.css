@@ -907,6 +907,43 @@
   }
 }
 
+/* ── Light mode overrides ──────────────────────────────────── */
+:global(.light) .codeContent pre {
+  color: #374151;
+}
+
+:global(.light) .particle {
+  box-shadow: 0 0 6px rgba(0, 0, 0, 0.15);
+}
+
+:global(.light) .progressFill::after {
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.5), transparent);
+}
+
+:global(.light) .skillModal {
+  background: rgba(0, 0, 0, 0.5);
+}
+
+:global(.light) .skillCard,
+:global(.light) .timelineContent,
+:global(.light) .certificationCard,
+:global(.light) .demoCard {
+  background: #ffffff;
+  border-color: var(--card-border);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+:global(.light) .skillCard::before,
+:global(.light) .certificationCard::before,
+:global(.light) .demoCard::before {
+  background: none;
+}
+
+:global(.light) .codePreview {
+  background: #f1f5f9;
+  border-color: var(--card-border);
+}
+
 @media (max-width: 480px) {
   .hero {
     padding: 0 1rem;

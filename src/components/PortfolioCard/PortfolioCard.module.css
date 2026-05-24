@@ -191,6 +191,56 @@
   opacity: 1;
 }
 
+/* ── Light mode overrides ──────────────────────────────────── */
+:global(.light) .card {
+  background: #ffffff;
+  border-color: var(--card-border);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08), inset 0 1px 0 rgba(0, 0, 0, 0.04);
+}
+
+:global(.light) .card:hover {
+  border-color: var(--card-border);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.1), 0 4px 12px rgba(0, 0, 0, 0.06);
+}
+
+:global(.light) .glassBackground {
+  background: linear-gradient(135deg, rgba(0, 0, 0, 0.02) 0%, rgba(0, 0, 0, 0.01) 100%);
+}
+
+:global(.light) .stat {
+  background: rgba(0, 0, 0, 0.05);
+  color: var(--text-dark);
+  border-color: rgba(0, 0, 0, 0.08);
+}
+
+:global(.light) .stat:hover {
+  background: rgba(0, 0, 0, 0.08);
+}
+
+:global(.light) .stat svg {
+  color: var(--text-muted);
+}
+
+:global(.light) .title {
+  color: #11181c;
+}
+
+:global(.light) .card:hover .title {
+  color: #11181c;
+}
+
+:global(.light) .date {
+  color: var(--text-muted);
+}
+
+:global(.light) .description {
+  color: var(--text-dark);
+}
+
+:global(.light) .card:hover .description {
+  color: var(--text-dark);
+}
+
 /* Responsive design */
 @media (max-width: 768px) {
   .card {

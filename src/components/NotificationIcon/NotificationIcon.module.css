@@ -176,3 +176,18 @@
 
   /* Mobile popup container styles removed - now using React Portal */
 }
+
+/* ── Light mode ──────────────────────────────────────────────── */
+:global(.light) .iconButton:hover {
+  background: rgba(0, 0, 0, 0.06);
+}
+
+@media (max-width: 768px) {
+  :global(.light) .iconButton {
+    background: rgba(0, 0, 0, 0.04);
+  }
+
+  :global(.light) .iconButton:hover {
+    background: rgba(0, 0, 0, 0.08);
+  }
+}

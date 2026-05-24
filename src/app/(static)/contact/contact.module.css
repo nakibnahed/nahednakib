@@ -216,3 +216,18 @@
     padding: 20px;
   }
 }
+
+/* ── Light mode ──────────────────────────────────────────────── */
+:global(.light) .passwordToggle:hover {
+  background: rgba(0, 0, 0, 0.06);
+}
+
+:global(.light) .tabNav {
+  border-bottom-color: var(--card-border);
+}
+
+:global(.light) .contactCard {
+  background: #ffffff;
+  border-color: var(--card-border);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}

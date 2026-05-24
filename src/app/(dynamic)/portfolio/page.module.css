@@ -186,6 +186,22 @@
   font-size: 14px;
 }
 
+/* ── Light mode overrides ──────────────────────────────────── */
+:global(.light) .icon,
+:global(.light) .favIcon {
+  color: var(--text-muted);
+}
+
+:global(.light) .card {
+  background: #ffffff;
+  border-color: var(--card-border);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+:global(.light) .card::before {
+  background: none;
+}
+
 /* ✅ Responsive Design */
 @media (max-width: 1024px) {
   .gridContainer {

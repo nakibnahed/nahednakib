@@ -2358,3 +2358,58 @@
     text-align: center;
   }
 }
+
+/* ── Light mode overrides ──────────────────────────────────── */
+:global(.light) .calendarContainer {
+  background: #ffffff;
+  border-color: var(--card-border);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+:global(.light) .modalContent {
+  background: #ffffff;
+  border-color: var(--card-border);
+}
+
+:global(.light) .weekColumn,
+:global(.light) .weekColumnHeader,
+:global(.light) .headerRow {
+  background: #f8fafc;
+}
+
+:global(.light) .weekHeader {
+  background: #f8fafc;
+  border-color: var(--card-border);
+}
+
+:global(.light) .dayCell:hover {
+  background: rgba(0, 0, 0, 0.04);
+}
+
+:global(.light) .dayCell.otherMonth {
+  background: color-mix(in srgb, var(--background-main) 90%, transparent 10%);
+}
+
+:global(.light) .trainingSection {
+  background: rgba(0, 0, 0, 0.02);
+}
+
+:global(.light) .intervalItem {
+  background: rgba(0, 0, 0, 0.02);
+}
+
+:global(.light) .intervalReps {
+  background: rgba(0, 0, 0, 0.04);
+}
+
+:global(.light) .activityStat {
+  background: rgba(0, 0, 0, 0.02);
+}
+
+:global(.light) .modalStat {
+  background: rgba(0, 0, 0, 0.03);
+}
+
+:global(.light) .modal {
+  background: rgba(0, 0, 0, 0.5);
+}

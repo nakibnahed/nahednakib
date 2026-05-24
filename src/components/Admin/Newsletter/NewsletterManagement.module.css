@@ -388,3 +388,20 @@
     margin: 10px;
   }
 }
+
+/* ── Light mode overrides ──────────────────────────────────── */
+:global(.light) .searchInput,
+:global(.light) .statusFilter {
+  background-color: var(--form-control-bg);
+}
+
+:global(.light) .exportMenu {
+  background: #ffffff;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+  border-color: var(--card-border);
+}
+
+:global(.light) .tableContainer {
+  background: #ffffff;
+  border-color: var(--card-border);
+}

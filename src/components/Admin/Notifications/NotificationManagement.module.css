@@ -626,6 +626,48 @@
   opacity: 0.9;
 }
 
+/* ── Light mode overrides ──────────────────────────────────── */
+:global(.light) .notificationItem {
+  background: #ffffff;
+  border-color: var(--card-border);
+}
+
+:global(.light) .recipientCard {
+  background: #ffffff;
+  border-color: var(--card-border);
+}
+
+:global(.light) .typeBadge {
+  background: rgba(0, 0, 0, 0.05);
+  color: var(--text-muted);
+  border-color: rgba(0, 0, 0, 0.08);
+}
+
+:global(.light) .userPicker {
+  background: rgba(0, 0, 0, 0.02);
+}
+
+:global(.light) .userGrid {
+  scrollbar-color: rgba(0, 0, 0, 0.15) transparent;
+}
+
+:global(.light) .userGrid::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.15);
+}
+
+:global(.light) .userItem:hover {
+  background: rgba(0, 0, 0, 0.04);
+}
+
+:global(.light) .userSearchClear:hover,
+:global(.light) .chipRemove:hover {
+  color: var(--text-dark);
+}
+
+:global(.light) .recipientAvatar {
+  border-color: var(--background-main);
+}
+
 /* ── Mobile ────────────────────────────────────────────── */
 
 @media (max-width: 768px) {

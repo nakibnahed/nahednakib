@@ -507,6 +507,38 @@
   padding: 120px 20px 40px;
 }
 
+/* ── Light mode overrides ──────────────────────────────────── */
+:global(.light) .filterBar {
+  background: #ffffff;
+  border-color: var(--card-border);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+:global(.light) .filterBar::after,
+:global(.light) .empty::after {
+  background: none;
+}
+
+:global(.light) .list {
+  background: #ffffff;
+  border-color: var(--card-border);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+:global(.light) .empty {
+  background: #ffffff;
+  border-color: var(--card-border);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+:global(.light) .header {
+  background: rgba(248, 250, 252, 0.95);
+}
+
+:global(.light) .errorLine {
+  color: #dc2626;
+}
+
 @media (max-width: 768px) {
   .header {
     top: 64px;

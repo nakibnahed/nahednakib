@@ -202,3 +202,14 @@
     opacity: 1;
   }
 }
+
+/* ── Light mode ──────────────────────────────────────────────── */
+:global(.light) .sidebarWrap {
+  background: #ffffff;
+  border-right-color: var(--card-border);
+}
+
+:global(.light) .topBar {
+  background: #ffffff;
+  border-bottom-color: var(--card-border);
+}

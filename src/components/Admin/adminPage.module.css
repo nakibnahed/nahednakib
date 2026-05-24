@@ -523,3 +523,48 @@
   font-size: 14px;
   line-height: 1.5;
 }
+
+/* ── Light mode ──────────────────────────────────────────────── */
+:global(.light) .statCard {
+  background: #ffffff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+:global(.light) .tableShell {
+  background: #ffffff;
+  border-color: var(--card-border);
+}
+
+:global(.light) .dataTable th {
+  background: #f8fafc;
+}
+
+:global(.light) .formCard {
+  background: #ffffff;
+  border-color: var(--card-border);
+}
+
+:global(.light) .formCard::after {
+  background: none;
+}
+
+:global(.light) .formErrorBanner {
+  color: #dc2626;
+  background: rgba(220, 38, 38, 0.08);
+  border-color: rgba(220, 38, 38, 0.3);
+}
+
+:global(.light) .btnDanger {
+  color: #dc2626;
+  background: rgba(220, 38, 38, 0.08);
+  border-color: rgba(220, 38, 38, 0.3);
+}
+
+:global(.light) .btnDanger:hover:not(:disabled) {
+  background: rgba(220, 38, 38, 0.15);
+}
+
+:global(.light) .editorFallback {
+  background: #f8fafc;
+  border-color: var(--card-border);
+}

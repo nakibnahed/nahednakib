@@ -58,3 +58,15 @@
   margin-bottom: 12px;
   gap: 6px;
 }
+
+/* ── Light mode ──────────────────────────────────────────────── */
+:global(.light) .icon,
+:global(.light) .likesIcon,
+:global(.light) .favIcon,
+:global(.light) .commentsIcon {
+  color: var(--text-muted);
+}
+
+:global(.light) .iconText {
+  color: var(--text-muted);
+}
