@@ -343,9 +343,6 @@
   font-size: 16px;
   font-family: inherit;
   outline: none;
-  transition:
-    border-color 0.2s ease,
-    background 0.2s ease;
 }
 
 .fieldInput:focus,
@@ -404,9 +401,7 @@
   border-radius: 999px;
   border: 1px solid color-mix(in srgb, var(--card-border) 70%, transparent);
   background: color-mix(in srgb, var(--background-main) 88%, transparent);
-  transition:
-    border-color 0.2s ease,
-    color 0.2s ease;
+  transition: color 0.2s ease;
 }
 
 .backNav:hover {
@@ -459,7 +454,6 @@
   font-weight: 600;
   font-family: inherit;
   cursor: pointer;
-  transition: background 0.2s ease;
 }
 
 .btnDanger:hover:not(:disabled) {

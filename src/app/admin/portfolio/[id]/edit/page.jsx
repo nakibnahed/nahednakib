@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
@@ -11,9 +11,9 @@ import {
   ImageIcon,
   Layers,
   Link2,
-  ListOrdered,
   Search,
   Settings,
+  Upload,
 } from "lucide-react";
 import admin from "@/components/Admin/adminPage.module.css";
 import be from "../../../blogs/BlogEditor.module.css";
@@ -67,6 +67,7 @@ export default function EditPortfolioPage() {
   const [uploading, setUploading] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [rowId, setRowId] = useState(null);
+  const fileInputRef = useRef(null);
 
   useEffect(() => {
     async function fetchPortfolio() {
@@ -432,38 +433,48 @@ export default function EditPortfolioPage() {
                   <p className={s.cardTitle}>Cover image</p>
                 </div>
                 <div className={s.cardBody}>
-                  <div className={s.imgPreview}>
+                  <div
+                    className={s.imgPreview}
+                    onClick={() => !uploading && fileInputRef.current?.click()}
+                    role="button"
+                    tabIndex={0}
+                    onKeyDown={(e) => e.key === "Enter" && !uploading && fileInputRef.current?.click()}
+                    aria-label="Click to upload cover image"
+                  >
                     {formData.image ? (
-                      <Image
-                        src={formData.image}
-                        alt={formData.title ? `Cover: ${formData.title}` : "Portfolio cover"}
-                        width={640}
-                        height={360}
-                        style={{ width: "100%", height: "100%", objectFit: "cover" }}
-                      />
+                      <>
+                        <Image
+                          src={formData.image}
+                          alt={formData.title ? `Cover: ${formData.title}` : "Portfolio cover"}
+                          width={640}
+                          height={360}
+                          style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                        />
+                        <div className={s.imgOverlay}>
+                          <Upload size={18} strokeWidth={2} />
+                          <span>Change image</span>
+                        </div>
+                      </>
                     ) : (
                       <div className={s.imgEmpty}>
-                        <ImageIcon size={24} strokeWidth={1.5} />
-                        <span>No image uploaded</span>
+                        <Upload size={22} strokeWidth={1.5} />
+                        <span>Click to upload</span>
                       </div>
                     )}
                   </div>
-                  <div className={admin.formField}>
-                    <label className={admin.fieldLabel} htmlFor="ep-upload">
-                      Upload or replace
-                    </label>
-                    <input
-                      id="ep-upload"
-                      type="file"
-                      accept="image/*"
-                      onChange={handleFileChange}
-                      className={`${admin.fieldInput} ${be.fileInput}`}
-                      disabled={uploading}
-                    />
-                    {uploading && (
-                      <p className={admin.fieldHelp}>Uploading image…</p>
-                    )}
-                  </div>
+                  <input
+                    ref={fileInputRef}
+                    id="ep-upload"
+                    type="file"
+                    accept="image/*"
+                    onChange={handleFileChange}
+                    disabled={uploading}
+                    style={{ display: "none" }}
+                  />
+                  <label htmlFor="ep-upload" className={s.uploadBtn}>
+                    <Upload size={13} strokeWidth={2} />
+                    {uploading ? "Uploading…" : "Choose file"}
+                  </label>
                   {formData.image && (
                     <button
                       type="button"
@@ -511,17 +522,20 @@ export default function EditPortfolioPage() {
                       >
                         Order
                       </label>
-                      <input
-                        id="ep-display-order"
-                        name="display_order"
-                        type="number"
-                        min="1"
-                        value={formData.display_order}
-                        onChange={handleChange}
-                        className={s.orderInput}
-                        placeholder="—"
-                        aria-label="Display order"
-                      />
+                      <div className={s.orderTooltipWrap}>
+                        <input
+                          id="ep-display-order"
+                          name="display_order"
+                          type="number"
+                          min="1"
+                          value={formData.display_order}
+                          onChange={handleChange}
+                          className={s.orderInput}
+                          placeholder="—"
+                          aria-label="Display order"
+                        />
+                        <span className={s.orderTooltip}>1 = first, blank = by date</span>
+                      </div>
                     </div>
                   </div>
                   <div className={admin.formField}>
@@ -549,7 +563,6 @@ export default function EditPortfolioPage() {
                   <p className={s.cardTitle}>Links</p>
                 </div>
                 <div className={s.cardBody}>
-                  <div className={s.linksStack}>
                     <div className={admin.formField}>
                       <label className={admin.fieldLabel} htmlFor="ep-live-url">
                         Live website URL
@@ -576,7 +589,6 @@ export default function EditPortfolioPage() {
                         placeholder="https://github.com/…"
                       />
                     </div>
-                  </div>
                 </div>
               </div>
 
@@ -589,23 +601,27 @@ export default function EditPortfolioPage() {
                   <p className={s.cardTitle}>Categories</p>
                 </div>
                 <div className={s.cardBody}>
-                  <div className={admin.formField}>
-                    <div className={admin.checkboxGrid}>
-                      {CATEGORY_OPTIONS.map((cat) => (
-                        <label key={cat} className={admin.checkboxLabel}>
+                  <div className={s.checkPills}>
+                    {CATEGORY_OPTIONS.map((cat) => {
+                      const checked = formData.category
+                        .split(",")
+                        .map((c) => c.trim())
+                        .includes(cat);
+                      return (
+                        <label
+                          key={cat}
+                          className={`${s.checkPill} ${checked ? s.checkPillActive : ""}`}
+                        >
                           <input
                             type="checkbox"
                             value={cat}
-                            checked={formData.category
-                              .split(",")
-                              .map((c) => c.trim())
-                              .includes(cat)}
+                            checked={checked}
                             onChange={handleCategoryChange}
                           />
                           {cat}
                         </label>
-                      ))}
-                    </div>
+                      );
+                    })}
                   </div>
                 </div>
               </div>
@@ -671,16 +687,6 @@ export default function EditPortfolioPage() {
                   </div>
                 </div>
               </div>
-
-              {/* Display order hint */}
-              <p className={admin.fieldHelp} style={{ paddingInline: "4px" }}>
-                <ListOrdered
-                  size={12}
-                  strokeWidth={2}
-                  style={{ display: "inline", marginRight: 4, verticalAlign: "middle" }}
-                />
-                Order: lower = first, blank = sort by date.
-              </p>
 
             </div>
             {/* ════════════ end SIDEBAR ════════════ */}
