@@ -73,7 +73,7 @@ export const metadata = {
     description: siteDefaults.description,
     images: [
       {
-        url: "/images/share.png",
+        url: "/images/share.png?v=2",
         width: 1200,
         height: 630,
         alt: `${siteDefaults.authorName} — Web Developer & Distance Runner`,
@@ -84,7 +84,7 @@ export const metadata = {
     card: "summary",
     title: siteDefaults.shortTitle,
     description: siteDefaults.description,
-    images: ["/images/share.png"],
+    images: ["/images/share.png?v=2"],
     creator: siteDefaults.twitterCreator,
     site: siteDefaults.twitterSite,
   },
