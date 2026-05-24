@@ -93,6 +93,9 @@
   padding: clamp(20px, 3vw, 36px) clamp(16px, 3vw, 40px)
     clamp(32px, 4vw, 56px);
   min-height: min(70vh, 800px);
+  /* Override globals `main { overflow-x: clip }` — clip on <main> prevents sticky
+     from using the viewport as its scroll container in production builds. */
+  overflow: visible;
 }
 
 .drawerClose {
