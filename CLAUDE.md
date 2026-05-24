@@ -1,6 +1,10 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+This file provides guidance to Claude Code (claude.ai/code) and other AI assistants when working with code in this repository.
+
+## Guidelines
+
+- **No Git Commits or Pushes**: Never perform `git commit` or `git push` actions. All commits and pushes are strictly reserved for the user to perform.
 
 ## Commands
 
