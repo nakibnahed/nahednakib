@@ -18,7 +18,7 @@ import admin from "@/components/Admin/adminPage.module.css";
 import be from "../BlogEditor.module.css";
 import s from "./page.module.css";
 import { supabase } from "@/services/supabaseClient";
-import RichEditor from "@/components/admin/RichEditor/RichEditor";
+import RichEditor from "@/components/Admin/RichEditor/RichEditor";
 import { slugify, generateUniqueSlug } from "@/lib/utils/slugify";
 import ConfirmationModal from "@/components/ConfirmationModal/ConfirmationModal";
 import { showAppToast } from "@/lib/showAppToast";

@@ -26,6 +26,7 @@ import ConfirmationModal from "@/components/ConfirmationModal/ConfirmationModal"
 import { showAppToast } from "@/lib/showAppToast";
 import { seoKeywordsFromInput, seoKeywordsToInput } from "@/lib/seo/auto";
 import { isUuid } from "@/lib/utils/isUuid";
+import RichEditor from "@/components/Admin/RichEditor/RichEditor";
 
 const CATEGORY_OPTIONS = [
   "Web Development",
@@ -404,63 +405,48 @@ export default function EditPortfolioPage() {
                 <div className={s.cardBody}>
                   <div className={s.htmlStack}>
                     <div className={admin.formField}>
-                      <label className={admin.fieldLabel} htmlFor="ep-overview">
+                      <label className={admin.fieldLabel}>
                         Project overview
                       </label>
-                      <textarea
-                        id="ep-overview"
-                        name="overview"
-                        value={formData.overview}
-                        onChange={handleChange}
-                        className={`${admin.fieldTextarea} ${be.htmlTextarea}`}
+                      <RichEditor
+                        content={formData.overview}
+                        onChange={(val) => setFormData((prev) => ({ ...prev, overview: val }))}
                       />
                     </div>
                     <div className={admin.formField}>
-                      <label className={admin.fieldLabel} htmlFor="ep-problem">
+                      <label className={admin.fieldLabel}>
                         Problem statement
                       </label>
-                      <textarea
-                        id="ep-problem"
-                        name="problem_statement"
-                        value={formData.problem_statement}
-                        onChange={handleChange}
-                        className={`${admin.fieldTextarea} ${be.htmlTextarea}`}
+                      <RichEditor
+                        content={formData.problem_statement}
+                        onChange={(val) => setFormData((prev) => ({ ...prev, problem_statement: val }))}
                       />
                     </div>
                     <div className={admin.formField}>
-                      <label className={admin.fieldLabel} htmlFor="ep-challenges">
+                      <label className={admin.fieldLabel}>
                         Challenges &amp; solutions
                       </label>
-                      <textarea
-                        id="ep-challenges"
-                        name="challenges"
-                        value={formData.challenges}
-                        onChange={handleChange}
-                        className={`${admin.fieldTextarea} ${be.htmlTextarea}`}
+                      <RichEditor
+                        content={formData.challenges}
+                        onChange={(val) => setFormData((prev) => ({ ...prev, challenges: val }))}
                       />
                     </div>
                     <div className={admin.formField}>
-                      <label className={admin.fieldLabel} htmlFor="ep-achievements">
+                      <label className={admin.fieldLabel}>
                         Achievements
                       </label>
-                      <textarea
-                        id="ep-achievements"
-                        name="achievements"
-                        value={formData.achievements}
-                        onChange={handleChange}
-                        className={`${admin.fieldTextarea} ${be.htmlTextarea}`}
+                      <RichEditor
+                        content={formData.achievements}
+                        onChange={(val) => setFormData((prev) => ({ ...prev, achievements: val }))}
                       />
                     </div>
                     <div className={admin.formField}>
-                      <label className={admin.fieldLabel} htmlFor="ep-features">
+                      <label className={admin.fieldLabel}>
                         Key features
                       </label>
-                      <textarea
-                        id="ep-features"
-                        name="key_features"
-                        value={formData.key_features}
-                        onChange={handleChange}
-                        className={`${admin.fieldTextarea} ${be.htmlTextarea}`}
+                      <RichEditor
+                        content={formData.key_features}
+                        onChange={(val) => setFormData((prev) => ({ ...prev, key_features: val }))}
                       />
                     </div>
                   </div>

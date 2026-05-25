@@ -23,6 +23,7 @@ import ConfirmationModal from "@/components/ConfirmationModal/ConfirmationModal"
 import { showAppToast } from "@/lib/showAppToast";
 import { seoKeywordsFromInput } from "@/lib/seo/auto";
 import { generateUniqueSlug } from "@/lib/utils/slugify";
+import RichEditor from "@/components/Admin/RichEditor/RichEditor";
 
 const CATEGORY_OPTIONS = [
   "Web Development",
@@ -330,63 +331,48 @@ export default function NewPortfolioPage() {
                 <div className={s.cardBody}>
                   <div className={s.htmlStack}>
                     <div className={admin.formField}>
-                      <label className={admin.fieldLabel} htmlFor="np-overview">
+                      <label className={admin.fieldLabel}>
                         Project overview
                       </label>
-                      <textarea
-                        id="np-overview"
-                        name="overview"
-                        value={formData.overview}
-                        onChange={handleChange}
-                        className={`${admin.fieldTextarea} ${be.htmlTextarea}`}
+                      <RichEditor
+                        content={formData.overview}
+                        onChange={(val) => setFormData((prev) => ({ ...prev, overview: val }))}
                       />
                     </div>
                     <div className={admin.formField}>
-                      <label className={admin.fieldLabel} htmlFor="np-problem">
+                      <label className={admin.fieldLabel}>
                         Problem statement
                       </label>
-                      <textarea
-                        id="np-problem"
-                        name="problem_statement"
-                        value={formData.problem_statement}
-                        onChange={handleChange}
-                        className={`${admin.fieldTextarea} ${be.htmlTextarea}`}
+                      <RichEditor
+                        content={formData.problem_statement}
+                        onChange={(val) => setFormData((prev) => ({ ...prev, problem_statement: val }))}
                       />
                     </div>
                     <div className={admin.formField}>
-                      <label className={admin.fieldLabel} htmlFor="np-challenges">
+                      <label className={admin.fieldLabel}>
                         Challenges &amp; solutions
                       </label>
-                      <textarea
-                        id="np-challenges"
-                        name="challenges"
-                        value={formData.challenges}
-                        onChange={handleChange}
-                        className={`${admin.fieldTextarea} ${be.htmlTextarea}`}
+                      <RichEditor
+                        content={formData.challenges}
+                        onChange={(val) => setFormData((prev) => ({ ...prev, challenges: val }))}
                       />
                     </div>
                     <div className={admin.formField}>
-                      <label className={admin.fieldLabel} htmlFor="np-achievements">
+                      <label className={admin.fieldLabel}>
                         Achievements
                       </label>
-                      <textarea
-                        id="np-achievements"
-                        name="achievements"
-                        value={formData.achievements}
-                        onChange={handleChange}
-                        className={`${admin.fieldTextarea} ${be.htmlTextarea}`}
+                      <RichEditor
+                        content={formData.achievements}
+                        onChange={(val) => setFormData((prev) => ({ ...prev, achievements: val }))}
                       />
                     </div>
                     <div className={admin.formField}>
-                      <label className={admin.fieldLabel} htmlFor="np-features">
+                      <label className={admin.fieldLabel}>
                         Key features
                       </label>
-                      <textarea
-                        id="np-features"
-                        name="key_features"
-                        value={formData.key_features}
-                        onChange={handleChange}
-                        className={`${admin.fieldTextarea} ${be.htmlTextarea}`}
+                      <RichEditor
+                        content={formData.key_features}
+                        onChange={(val) => setFormData((prev) => ({ ...prev, key_features: val }))}
                       />
                     </div>
                   </div>
