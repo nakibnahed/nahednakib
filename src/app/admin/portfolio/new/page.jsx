@@ -214,21 +214,23 @@ export default function NewPortfolioPage() {
       showAppToast(error.message || "Could not create portfolio item.", "error");
     } else {
       showAppToast("Portfolio created successfully.", "success");
-      try {
-        await fetch("/api/admin/notifications", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            title: "New Portfolio Project! 🚀",
-            message: `Check out our latest project: \"${formData.title}\"`,
-            type: "new_portfolio_post",
-            recipient_type: "all_users",
-            related_content_type: "portfolio",
-            related_content_id: createdPortfolio?.id || null,
-          }),
-        });
-      } catch (error) {
-        console.error("Error sending portfolio notification:", error);
+      if (formData.publish_status === "published") {
+        try {
+          await fetch("/api/admin/notifications", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              title: "New Portfolio Project! 🚀",
+              message: `Check out our latest project: \"${formData.title}\"`,
+              type: "new_portfolio_post",
+              recipient_type: "all_users",
+              related_content_type: "portfolio",
+              related_content_id: createdPortfolio?.id || null,
+            }),
+          });
+        } catch (error) {
+          console.error("Error sending portfolio notification:", error);
+        }
       }
       router.push("/admin/portfolio");
     }

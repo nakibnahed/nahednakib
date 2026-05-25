@@ -246,6 +246,7 @@ export default function NewBlogPage() {
       showAppToast(error.message || "Could not create blog post.", "error");
     } else {
       showAppToast("Blog post created successfully.", "success");
+      if (formData.publish_status === "published") {
       try {
         const response = await fetch("/api/admin/notifications", {
           method: "POST",
@@ -265,21 +266,24 @@ export default function NewBlogPage() {
       } catch (error) {
         console.error("Error sending blog notification:", error);
       }
-      try {
-        await fetch("/api/newsletter/broadcast", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            blog: {
-              id: createdBlog?.id,
-              title: formData.title,
-              slug: uniqueSlug,
-              description: formData.description,
-            },
-          }),
-        });
-      } catch (error) {
-        console.error("Error sending newsletter broadcast:", error);
+      }
+      if (formData.publish_status === "published") {
+        try {
+          await fetch("/api/newsletter/broadcast", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              blog: {
+                id: createdBlog?.id,
+                title: formData.title,
+                slug: uniqueSlug,
+                description: formData.description,
+              },
+            }),
+          });
+        } catch (error) {
+          console.error("Error sending newsletter broadcast:", error);
+        }
       }
       router.push("/admin/blogs");
     }
