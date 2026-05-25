@@ -341,14 +341,7 @@ export default function EditBlogPage() {
               Back to blogs
             </Link>
           </div>
-          <div className={be.heroMeta}>
-            <p className={admin.eyebrow}>Content</p>
-            <span className={be.metaChip}>Editing</span>
-          </div>
           <h1 className={admin.pageTitle}>Edit blog post</h1>
-          <p className={admin.lead}>
-            Update the article, cover image, taxonomy, and SEO fields.
-          </p>
         </header>
 
         {errorMsg && (

@@ -9,44 +9,23 @@
   margin: 0;
 }
 
-/* Single column: back → meta row → title → lead (no cramped side-by-side grid) */
+/* Compact header: back link + title only */
 .hero {
-  margin-bottom: clamp(18px, 2.5vw, 26px);
-  padding-bottom: clamp(18px, 2.5vw, 24px);
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+  margin-bottom: clamp(14px, 2vw, 20px);
+  padding-bottom: clamp(12px, 1.5vw, 16px);
   border-bottom: 1px solid color-mix(in srgb, var(--card-border) 85%, transparent);
 }
 
 .heroBack {
-  margin-bottom: clamp(14px, 2vw, 18px);
+  flex-shrink: 0;
 }
 
-.heroMeta {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.5rem 0.875rem;
-  margin-bottom: 0.5rem;
-}
-
-.heroMeta > p {
-  margin-bottom: 0;
-}
-
-.metaChip {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
+.hero h1 {
   margin: 0;
-  padding: 0.3rem 0.7rem;
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: color-mix(in srgb, var(--primary-color) 92%, #fff 8%);
-  background: color-mix(in srgb, var(--primary-color) 14%, transparent);
-  border: 1px solid color-mix(in srgb, var(--primary-color) 28%, transparent);
-  border-radius: 999px;
-  line-height: 1.2;
+  font-size: clamp(1rem, 2vw, 1.25rem);
 }
 
 /* Form body: no extra “card in a card” — sections provide structure */

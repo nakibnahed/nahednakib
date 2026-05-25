@@ -321,14 +321,7 @@ export default function EditPortfolioPage() {
               Back to portfolio
             </Link>
           </div>
-          <div className={be.heroMeta}>
-            <p className={admin.eyebrow}>Showcase</p>
-            <span className={be.metaChip}>Editing</span>
-          </div>
           <h1 className={admin.pageTitle}>Edit portfolio project</h1>
-          <p className={admin.lead}>
-            Update copy, media, links, status, and SEO for this project.
-          </p>
         </header>
 
         {errorMsg && (

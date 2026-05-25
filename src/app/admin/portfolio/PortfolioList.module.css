@@ -1,41 +1,67 @@
-/* New container for button and search input */
 .controlsRow {
   display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 1rem;
+  align-items: center;
+  gap: 10px;
   flex-wrap: wrap;
-  margin-bottom: 20px;
+  margin-bottom: clamp(16px, 2vw, 22px);
+  padding: clamp(10px, 1.5vw, 14px) clamp(14px, 2vw, 18px);
+  border-radius: 18px;
+  border: 1px solid color-mix(in srgb, var(--card-border) 82%, transparent);
+  background: color-mix(in srgb, var(--background-main) 94%, #080808 6%);
+  box-shadow:
+    0 1px 0 color-mix(in srgb, #fff 3%, transparent) inset,
+    0 18px 40px -28px rgba(0, 0, 0, 0.4);
 }
 
-/* Make search input take available space but limit max-width */
 .controlsRow .searchInput {
-  flex: 1 1 250px;
-  max-width: 400px;
-  order: 1;
+  flex: 1 1 160px;
+  min-width: 0;
+  max-width: none;
 }
 
-/* Keep button size but push it right */
 .controlsRow .newButton {
   flex-shrink: 0;
-  order: 2;
 }
 
-/* Mobile: stack vertically */
+.toolbarStat {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 11px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--primary-color);
+  background: color-mix(in srgb, var(--primary-color) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--primary-color) 25%, transparent);
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.toolbarStat strong {
+  font-weight: 700;
+  font-size: 13px;
+  line-height: 1;
+}
+
+.toolbarStat svg {
+  width: 13px;
+  height: 13px;
+  flex-shrink: 0;
+}
+
+/* Mobile: stack all items */
 @media (max-width: 600px) {
   .controlsRow {
-    flex-direction: column;
-    align-items: stretch;
+    gap: 8px;
   }
   .controlsRow .searchInput,
-  .controlsRow .newButton {
-    order: initial;
+  .controlsRow .newButton,
+  .toolbarStat {
     width: 100%;
     max-width: none;
-    margin-bottom: 10px;
-  }
-  .controlsRow .newButton {
-    margin-bottom: 0;
+    flex-basis: 100%;
+    justify-content: center;
   }
 }
 
@@ -83,13 +109,10 @@
   font-weight: 700;
   cursor: pointer;
   box-shadow: var(--button-shadow);
-  transition:
-    opacity 0.2s,
-    transform 0.15s;
+  transition: opacity 0.2s;
 }
 .newButton:hover {
   opacity: 0.9;
-  transform: translateY(-1px);
 }
 
 /* Shared styles for Edit and Delete buttons */
@@ -115,8 +138,7 @@
 }
 
 .actionButton:hover {
-  background: #e0f2fe;
-  transform: translateY(-1px);
+  background: color-mix(in srgb, var(--primary-color) 22%, transparent);
 }
 
 .deleteButton {
@@ -126,8 +148,7 @@
 }
 
 .deleteButton:hover {
-  background: #fecaca;
-  transform: translateY(-1px);
+  background: rgba(239, 68, 68, 0.2);
 }
 
 .actions {
@@ -137,33 +158,16 @@
   align-items: center;
 }
 
-/* Dark mode adjustments */
-@media (prefers-color-scheme: dark) {
-  .actionButton {
-    background: rgba(3, 105, 161, 0.2);
-    color: #7dd3fc;
-  }
-
-  .actionButton:hover {
-    background: rgba(3, 105, 161, 0.3);
-  }
-
-  .deleteButton {
-    background: rgba(220, 38, 38, 0.2);
-    color: #fca5a5;
-  }
-
-  .deleteButton:hover {
-    background: rgba(220, 38, 38, 0.3);
-  }
-}
 
 /* Table container scroll */
 .tableContainer {
   overflow-x: auto;
-  border-radius: 16px;
-  background: color-mix(in srgb, var(--background-main) 94%, #000 6%);
-  border: 1px solid color-mix(in srgb, var(--card-border) 85%, transparent);
+  border-radius: 18px;
+  background: color-mix(in srgb, var(--background-main) 94%, #080808 6%);
+  border: 1px solid color-mix(in srgb, var(--card-border) 82%, transparent);
+  box-shadow:
+    0 1px 0 color-mix(in srgb, #fff 3%, transparent) inset,
+    0 24px 48px -32px rgba(0, 0, 0, 0.45);
 }
 
 /* Table styles */
@@ -173,7 +177,15 @@
   min-width: 600px;
   border-radius: 12px;
   overflow: hidden;
+  table-layout: fixed;
 }
+
+.table th:nth-child(1) { width: 24%; }
+.table th:nth-child(2) { width: 13%; }
+.table th:nth-child(3) { width: 14%; }
+.table th:nth-child(4) { width: 16%; }
+.table th:nth-child(5) { width: 18%; }
+.table th:nth-child(6) { width: 15%; }
 
 .table th,
 .table td {
@@ -183,8 +195,9 @@
     color-mix(in srgb, var(--card-border) 70%, transparent);
   text-align: center;
   background-color: transparent;
-  color: var(--card-text, #e4e4e7);
+  color: var(--text-dark);
   vertical-align: middle;
+  font-family: var(--font-main);
 }
 
 /* First row header corners */
@@ -208,16 +221,25 @@
 .table thead tr th {
   background: color-mix(in srgb, #fff 4%, transparent);
   font-weight: 700;
-  font-size: 11px;
-  letter-spacing: 0.08em;
+  font-size: 10px;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: var(--text-secondary, #a1a1aa);
+  color: var(--text-secondary);
   font-family: var(--font-heading), sans-serif;
 }
 
-.table tbody tr:hover td {
-  background: color-mix(in srgb, var(--primary-color) 6%, transparent);
+.table td h4 {
+  margin: 0;
+  font-family: var(--font-main);
+  font-size: 14px;
+  font-weight: 600;
+  background: none;
+  -webkit-text-fill-color: var(--text-dark);
+  color: var(--text-dark);
+  word-break: break-word;
+  overflow-wrap: break-word;
 }
+
 
 .table tbody tr:last-child td {
   border-bottom: none;
@@ -246,7 +268,7 @@
   .table tr {
     margin-bottom: 2rem;
     display: block;
-    border-bottom: 2px solid #292929;
+    border-bottom: 2px solid var(--card-border);
     border-radius: 26px;
   }
   .table td {
@@ -258,8 +280,8 @@
     position: relative;
     font-size: 14px;
     background-color: var(--background-main);
-
-    color: var(--card-text);
+    color: var(--text-dark);
+    font-family: var(--font-main);
   }
   .table td:last-child {
     border-bottom: 0;
@@ -271,6 +293,8 @@
     letter-spacing: 0.05em;
     text-align: left;
     flex-basis: 50%;
+    color: var(--text-secondary);
+    font-family: var(--font-heading), sans-serif;
   }
   .table td img {
     max-width: 80px;
@@ -351,14 +375,35 @@
 }
 
 /* ── Light mode overrides ──────────────────────────────────── */
+:global(.light) .controlsRow {
+  background: #ffffff;
+  border-color: var(--card-border);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+}
+
+:global(.light) .toolbarStat {
+  background: color-mix(in srgb, var(--primary-color) 10%, #ffffff);
+  border-color: color-mix(in srgb, var(--primary-color) 30%, transparent);
+}
+
 :global(.light) .searchInput,
 :global(.light) .formSelector {
   background-color: var(--form-control-bg);
 }
 
+:global(.light) .actionButton {
+  background: color-mix(in srgb, var(--primary-color) 10%, #ffffff);
+  color: var(--primary-color);
+}
+
+:global(.light) .actionButton:hover {
+  background: color-mix(in srgb, var(--primary-color) 18%, #ffffff);
+}
+
 :global(.light) .tableContainer {
   background: #ffffff;
   border-color: var(--card-border);
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.06), 0 4px 16px rgba(0, 0, 0, 0.04);
 }
 
 :global(.light) .deleteButton {

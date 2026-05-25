@@ -247,14 +247,7 @@ export default function NewPortfolioPage() {
               Back to portfolio
             </Link>
           </div>
-          <div className={be.heroMeta}>
-            <p className={admin.eyebrow}>Showcase</p>
-            <span className={be.metaChip}>New project</span>
-          </div>
           <h1 className={admin.pageTitle}>New portfolio project</h1>
-          <p className={admin.lead}>
-            Add a project card with imagery, story, links, and SEO.
-          </p>
         </header>
 
         {errorMsg && (

@@ -298,15 +298,7 @@ export default function NewBlogPage() {
               Back to blogs
             </Link>
           </div>
-          <div className={be.heroMeta}>
-            <p className={admin.eyebrow}>Content</p>
-            <span className={be.metaChip}>New draft</span>
-          </div>
           <h1 className={admin.pageTitle}>New blog post</h1>
-          <p className={admin.lead}>
-            Draft a new article, set taxonomy and SEO, then manage it from the
-            blog list.
-          </p>
         </header>
 
         {errorMsg && (

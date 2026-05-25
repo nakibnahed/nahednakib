@@ -9,7 +9,7 @@ import Image from "next/image";
 import { supabase } from "@/services/supabaseClient";
 import ConfirmationModal from "@/components/ConfirmationModal/ConfirmationModal";
 import { showAppToast } from "@/lib/showAppToast";
-import { Edit, Trash2, Briefcase, ListFilter } from "lucide-react";
+import { Edit, Trash2, Briefcase } from "lucide-react";
 
 export default function PortfolioListPage() {
   const [portfolios, setPortfolios] = useState([]);
@@ -90,48 +90,28 @@ export default function PortfolioListPage() {
   return (
     <div className={`${admin.page} ${styles.mainContainer}`}>
       <header className={admin.pageHeader}>
-        <p className={admin.eyebrow}>Showcase</p>
         <h1 className={admin.pageTitle}>Portfolio</h1>
-        <p className={admin.lead}>
-          Manage projects, imagery, and metadata for your portfolio pages.
-        </p>
+        <p className={admin.pageSubtitle}>Add and manage projects — upload cover images, set links, status, and SEO metadata.</p>
       </header>
 
-      <section className={admin.statsSection} aria-label="Summary">
-        <div className={admin.statsGrid}>
-          <div className={admin.statCard}>
-            <Briefcase size={24} aria-hidden />
-            <div>
-              <h3>{listStats.total}</h3>
-              <p>Projects</p>
-            </div>
-          </div>
-          <div className={admin.statCard}>
-            <ListFilter size={24} aria-hidden />
-            <div>
-              <h3>{listStats.showing}</h3>
-              <p>Shown</p>
-            </div>
-          </div>
+      <div className={styles.controlsRow}>
+        <div className={styles.toolbarStat}>
+          <Briefcase size={13} aria-hidden />
+          <strong>{listStats.total}</strong>
+          <span>Projects</span>
         </div>
-      </section>
-
-      <section className={admin.filtersSection} aria-label="Search and actions">
-        <div className={styles.controlsRow}>
-          <Link href="/admin/portfolio/new" className={styles.newButton}>
-            Create New Portfolio
-          </Link>
-
-          <input
-            type="text"
-            placeholder="Search by title, category or date..."
-            className={styles.searchInput}
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            autoComplete="off"
-          />
-        </div>
-      </section>
+        <input
+          type="text"
+          placeholder="Search by title, category or date..."
+          className={styles.searchInput}
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          autoComplete="off"
+        />
+        <Link href="/admin/portfolio/new" className={styles.newButton}>
+          Create New Portfolio
+        </Link>
+      </div>
 
       {loading ? (
         <AdminListSkeleton compact />

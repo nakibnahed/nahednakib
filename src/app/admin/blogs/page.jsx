@@ -9,7 +9,7 @@ import Image from "next/image";
 import { supabase } from "@/services/supabaseClient";
 import ConfirmationModal from "@/components/ConfirmationModal/ConfirmationModal";
 import { showAppToast } from "@/lib/showAppToast";
-import { Edit, Trash2, BookOpen, ListFilter } from "lucide-react";
+import { Edit, Trash2, BookOpen } from "lucide-react";
 
 export default function BlogListPage() {
   const [blogs, setBlogs] = useState([]);
@@ -111,48 +111,28 @@ export default function BlogListPage() {
   return (
     <div className={`${admin.page} ${styles.mainContainer}`}>
       <header className={admin.pageHeader}>
-        <p className={admin.eyebrow}>Content</p>
         <h1 className={admin.pageTitle}>Blog posts</h1>
-        <p className={admin.lead}>
-          Create, search, and manage articles linked to categories and authors.
-        </p>
+        <p className={admin.pageSubtitle}>Create, edit, and manage articles — set categories, authors, and SEO before publishing.</p>
       </header>
 
-      <section className={admin.statsSection} aria-label="Summary">
-        <div className={admin.statsGrid}>
-          <div className={admin.statCard}>
-            <BookOpen size={24} aria-hidden />
-            <div>
-              <h3>{listStats.total}</h3>
-              <p>Posts</p>
-            </div>
-          </div>
-          <div className={admin.statCard}>
-            <ListFilter size={24} aria-hidden />
-            <div>
-              <h3>{listStats.showing}</h3>
-              <p>Shown</p>
-            </div>
-          </div>
+      <div className={styles.controlsRow}>
+        <div className={styles.toolbarStat}>
+          <BookOpen size={13} aria-hidden />
+          <strong>{listStats.total}</strong>
+          <span>Posts</span>
         </div>
-      </section>
-
-      <section className={admin.filtersSection} aria-label="Search and actions">
-        <div className={styles.controlsRow}>
-          <Link href="/admin/blogs/new" className={styles.newButton}>
-            Create New Blog
-          </Link>
-
-          <input
-            type="text"
-            placeholder="Search by title, category or date..."
-            className={styles.searchInput}
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            autoComplete="off"
-          />
-        </div>
-      </section>
+        <input
+          type="text"
+          placeholder="Search by title, category or date..."
+          className={styles.searchInput}
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          autoComplete="off"
+        />
+        <Link href="/admin/blogs/new" className={styles.newButton}>
+          Create New Blog
+        </Link>
+      </div>
 
       {loading ? (
         <AdminListSkeleton compact />
