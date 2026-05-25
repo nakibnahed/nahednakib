@@ -1,0 +1,466 @@
+/* ── Wrapper ─────────────────────────────────────────────────────────────── */
+.wrapper {
+  position: relative; /* anchor for floating size picker */
+  border: 1px solid var(--card-border);
+  border-radius: 10px;
+  overflow: visible; /* allow sticky toolbar to escape */
+  background: var(--background-main);
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Toolbar ── Improvement 4: sticky ─────────────────────────────────────── */
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px;
+  padding: 8px 10px;
+  align-items: center;
+
+  /* Sticky below the 70px fixed site navbar on desktop */
+  position: sticky;
+  top: 70px;
+  z-index: 50;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+
+  background: color-mix(in srgb, var(--background-main) 82%, #000 18%);
+  border-bottom: 1px solid var(--card-border);
+  border-radius: 10px 10px 0 0;
+}
+
+/* ── Toolbar buttons ─────────────────────────────────────────────────────── */
+.toolbarBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 32px;
+  height: 32px;
+  padding: 0 7px;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  font-family: var(--font-main);
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+  white-space: nowrap;
+}
+
+.toolbarBtn:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--primary-color) 12%, transparent);
+  color: var(--primary-color);
+  border-color: color-mix(in srgb, var(--primary-color) 30%, transparent);
+}
+
+.toolbarBtn.active {
+  background: color-mix(in srgb, var(--primary-color) 18%, transparent);
+  color: var(--primary-color);
+  border-color: color-mix(in srgb, var(--primary-color) 40%, transparent);
+}
+
+.toolbarBtn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.toolbarBtnLoading {
+  opacity: 0.7;
+}
+
+/* Spinner animation for upload state */
+.spin {
+  animation: richEditorSpin 0.75s linear infinite;
+}
+
+@keyframes richEditorSpin {
+  to { transform: rotate(360deg); }
+}
+
+/* Separator between toolbar groups */
+.separator {
+  display: inline-block;
+  width: 1px;
+  height: 20px;
+  background: var(--card-border);
+  margin: 0 4px;
+  flex-shrink: 0;
+}
+
+/* Inline upload error message */
+.uploadError {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.75rem;
+  color: #f87171;
+  padding: 0 8px;
+  white-space: nowrap;
+}
+
+/* ── Editor area ─────────────────────────────────────────────────────────── */
+.editorArea {
+  flex: 1;
+  min-height: 500px;
+}
+
+.editor {
+  height: 100%;
+}
+
+.editor :global(.ProseMirror) {
+  min-height: 500px;
+  padding: 20px 24px;
+  outline: none;
+  color: var(--text-primary);
+  font-size: 1rem;
+  line-height: 1.75;
+  font-family: var(--font-main);
+}
+
+/* Gap cursor (between block elements) */
+.editor :global(.ProseMirror .ProseMirror-gapcursor:after) {
+  border-top: 1px solid var(--primary-color);
+}
+
+/* Drop cursor */
+.editor :global(.ProseMirror .ProseMirror-dropcursor) {
+  color: var(--primary-color);
+}
+
+/* ── Placeholder ─────────────────────────────────────────────────────────── */
+.editor :global(.ProseMirror p.is-editor-empty:first-child::before) {
+  content: attr(data-placeholder);
+  color: var(--text-muted);
+  pointer-events: none;
+  float: left;
+  height: 0;
+}
+
+/* ── Headings ────────────────────────────────────────────────────────────── */
+.editor :global(.ProseMirror h2) {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 1.5rem 0 0.75rem;
+  line-height: 1.3;
+  background: none;
+  -webkit-text-fill-color: var(--text-primary);
+}
+
+.editor :global(.ProseMirror h3) {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 1.25rem 0 0.6rem;
+  line-height: 1.35;
+  background: none;
+  -webkit-text-fill-color: var(--text-primary);
+}
+
+.editor :global(.ProseMirror h4) {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 1rem 0 0.5rem;
+  line-height: 1.4;
+  background: none;
+  -webkit-text-fill-color: var(--text-primary);
+}
+
+/* ── Paragraph ───────────────────────────────────────────────────────────── */
+.editor :global(.ProseMirror p) {
+  margin: 0 0 0.9rem;
+  color: var(--text-dark);
+}
+
+/* ── Lists ───────────────────────────────────────────────────────────────── */
+.editor :global(.ProseMirror ul),
+.editor :global(.ProseMirror ol) {
+  padding-left: 1.5rem;
+  margin: 0.75rem 0;
+  color: var(--text-dark);
+}
+
+.editor :global(.ProseMirror li) {
+  margin: 0.3rem 0;
+  color: var(--text-dark);
+}
+
+/* ── Blockquote ──────────────────────────────────────────────────────────── */
+.editor :global(.ProseMirror blockquote) {
+  border-left: 3px solid var(--primary-color);
+  padding: 8px 16px;
+  margin: 1rem 0;
+  background: color-mix(in srgb, var(--primary-color) 6%, transparent);
+  border-radius: 0 6px 6px 0;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+/* ── Inline code ─────────────────────────────────────────────────────────── */
+.editor :global(.ProseMirror code) {
+  background: color-mix(in srgb, var(--card-border) 60%, transparent);
+  border-radius: 4px;
+  padding: 2px 6px;
+  font-size: 0.875em;
+  color: #e0a060;
+  font-family: "Courier New", Courier, monospace;
+}
+
+/* ── Code block ──────────────────────────────────────────────────────────── */
+.editor :global(.ProseMirror pre) {
+  background: #111;
+  border: 1px solid var(--card-border);
+  border-radius: 8px;
+  padding: 14px 18px;
+  margin: 1rem 0;
+  overflow-x: auto;
+}
+
+.editor :global(.ProseMirror pre code) {
+  background: none;
+  padding: 0;
+  border-radius: 0;
+  color: #e0a060;
+  font-size: 0.875rem;
+}
+
+/* ── Horizontal rule ─────────────────────────────────────────────────────── */
+.editor :global(.ProseMirror hr) {
+  border: none;
+  border-top: 1px solid var(--card-border);
+  margin: 1.5rem 0;
+}
+
+/* ── Images ── Improvement 2: size variants ──────────────────────────────── */
+.editor :global(.ProseMirror img) {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+  display: block;
+  margin: 1rem auto;
+  cursor: pointer;
+}
+
+/* data-size attribute controls width */
+.editor :global(.ProseMirror img[data-size="small"])  { width: 25%; }
+.editor :global(.ProseMirror img[data-size="medium"]) { width: 50%; }
+.editor :global(.ProseMirror img[data-size="large"])  { width: 75%; }
+.editor :global(.ProseMirror img[data-size="full"])   { width: 100%; }
+
+/* data-align attribute controls horizontal position */
+.editor :global(.ProseMirror img[data-align="left"])   { margin-left: 0;    margin-right: auto; }
+.editor :global(.ProseMirror img[data-align="center"]) { margin-left: auto; margin-right: auto; }
+.editor :global(.ProseMirror img[data-align="right"])  { margin-left: auto; margin-right: 0; }
+
+/* ── Links ───────────────────────────────────────────────────────────────── */
+.editor :global(.ProseMirror a) {
+  color: var(--primary-color);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+/* ── Underline (mark) ────────────────────────────────────────────────────── */
+.editor :global(.ProseMirror u) {
+  text-decoration: underline;
+}
+
+/* ── Text alignment ──────────────────────────────────────────────────────── */
+.editor :global(.ProseMirror [style*="text-align: center"]) { text-align: center; }
+.editor :global(.ProseMirror [style*="text-align: right"])  { text-align: right; }
+.editor :global(.ProseMirror [style*="text-align: left"])   { text-align: left; }
+
+/* ── Selection ───────────────────────────────────────────────────────────── */
+.editor :global(.ProseMirror ::selection) {
+  background: color-mix(in srgb, var(--primary-color) 30%, transparent);
+}
+
+/* ── Floating image size picker ── Improvement 2 ─────────────────────────── */
+.sizePicker {
+  position: absolute;
+  z-index: 60;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 8px;
+  background: color-mix(in srgb, var(--background-main) 90%, #000 10%);
+  border: 1px solid var(--card-border);
+  border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.sizePickerLabel {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  margin-right: 2px;
+  white-space: nowrap;
+}
+
+.sizePickerDivider {
+  display: inline-block;
+  width: 1px;
+  height: 18px;
+  background: var(--card-border);
+  margin: 0 6px;
+  flex-shrink: 0;
+}
+
+.sizePickerBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 28px;
+  height: 26px;
+  padding: 0 6px;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 5px;
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+
+.sizePickerBtn:hover {
+  background: color-mix(in srgb, var(--primary-color) 14%, transparent);
+  color: var(--primary-color);
+  border-color: color-mix(in srgb, var(--primary-color) 35%, transparent);
+}
+
+.sizePickerBtnActive {
+  background: color-mix(in srgb, var(--primary-color) 20%, transparent);
+  color: var(--primary-color);
+  border-color: color-mix(in srgb, var(--primary-color) 45%, transparent);
+}
+
+/* ── Light mode ──────────────────────────────────────────────────────────── */
+:global(.light) .wrapper {
+  background: #ffffff;
+  border-color: var(--card-border);
+}
+
+:global(.light) .toolbar {
+  background: color-mix(in srgb, #f1f5f9 82%, transparent 18%);
+  border-bottom-color: var(--card-border);
+}
+
+:global(.light) .toolbarBtn {
+  color: #6b7280;
+}
+
+:global(.light) .toolbarBtn:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--primary-color) 10%, transparent);
+  color: var(--primary-color);
+}
+
+:global(.light) .toolbarBtn.active {
+  background: color-mix(in srgb, var(--primary-color) 15%, transparent);
+  color: var(--primary-color);
+}
+
+:global(.light) .separator {
+  background: var(--card-border);
+}
+
+:global(.light) .uploadError {
+  color: #dc2626;
+}
+
+:global(.light) .editor :global(.ProseMirror) {
+  color: #11181c;
+}
+
+:global(.light) .editor :global(.ProseMirror h2),
+:global(.light) .editor :global(.ProseMirror h3),
+:global(.light) .editor :global(.ProseMirror h4) {
+  color: #11181c;
+  -webkit-text-fill-color: #11181c;
+}
+
+:global(.light) .editor :global(.ProseMirror p),
+:global(.light) .editor :global(.ProseMirror li) {
+  color: #374151;
+}
+
+:global(.light) .editor :global(.ProseMirror blockquote) {
+  color: #6b7280;
+  background: color-mix(in srgb, var(--primary-color) 5%, transparent);
+}
+
+:global(.light) .editor :global(.ProseMirror code) {
+  background: #f3f4f6;
+  color: #c0570a;
+}
+
+:global(.light) .editor :global(.ProseMirror pre) {
+  background: #f3f4f6;
+  border-color: var(--card-border);
+}
+
+:global(.light) .editor :global(.ProseMirror pre code) {
+  color: #c0570a;
+}
+
+:global(.light) .editor :global(.ProseMirror hr) {
+  border-top-color: var(--card-border);
+}
+
+:global(.light) .sizePicker {
+  background: #ffffff;
+  border-color: var(--card-border);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+}
+
+:global(.light) .sizePickerBtn {
+  color: #6b7280;
+}
+
+:global(.light) .sizePickerBtnActive {
+  background: color-mix(in srgb, var(--primary-color) 15%, transparent);
+  color: var(--primary-color);
+}
+
+/* ── Mobile ──────────────────────────────────────────────────────────────── */
+@media (max-width: 1024px) {
+  .toolbar {
+    /* On mobile, admin shows a ~66px topBar; clear it */
+    top: 66px;
+  }
+}
+
+@media (max-width: 768px) {
+  .toolbarBtn {
+    min-width: 34px;
+    height: 34px;
+    padding: 0 6px;
+  }
+
+  .editor :global(.ProseMirror) {
+    padding: 16px;
+    font-size: 1rem;
+  }
+
+  .editor :global(.ProseMirror h2) { font-size: 1.25rem; }
+  .editor :global(.ProseMirror h3) { font-size: 1.05rem; }
+  .editor :global(.ProseMirror h4) { font-size: 0.95rem; }
+
+  /* Stack image size picker labels narrower */
+  .sizePickerLabel { display: none; }
+}
+
+@media (max-width: 480px) {
+  .toolbar {
+    padding: 6px 8px;
+    gap: 1px;
+  }
+
+  .toolbarBtn {
+    min-width: 36px;
+    height: 36px;
+    padding: 0 5px;
+  }
+}

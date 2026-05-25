@@ -161,8 +161,29 @@
   max-width: 100%;
   height: auto;
   border-radius: 16px;
-  margin: 1.5rem 0;
+  margin: 1.5rem auto;
+  display: block;
   box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
+/* Honour the data-size attribute set in the rich editor */
+.prose img[data-size="small"]  { width: 25%; }
+.prose img[data-size="medium"] { width: 50%; }
+.prose img[data-size="large"]  { width: 75%; }
+.prose img[data-size="full"]   { width: 100%; }
+
+/* Honour the data-align attribute set in the rich editor */
+.prose img[data-align="left"]   { margin-left: 0;    margin-right: auto; }
+.prose img[data-align="center"] { margin-left: auto; margin-right: auto; }
+.prose img[data-align="right"]  { margin-left: auto; margin-right: 0; }
+
+/* On small screens collapse all sizes to full width */
+@media (max-width: 600px) {
+  .prose img[data-size="small"],
+  .prose img[data-size="medium"],
+  .prose img[data-size="large"] {
+    width: 100%;
+  }
 }
 
 .prose blockquote {

@@ -18,7 +18,7 @@ import admin from "@/components/Admin/adminPage.module.css";
 import be from "../BlogEditor.module.css";
 import s from "./page.module.css";
 import { supabase } from "@/services/supabaseClient";
-import { Editor } from "@tinymce/tinymce-react";
+import RichEditor from "@/components/admin/RichEditor/RichEditor";
 import { slugify, generateUniqueSlug } from "@/lib/utils/slugify";
 import ConfirmationModal from "@/components/ConfirmationModal/ConfirmationModal";
 import { showAppToast } from "@/lib/showAppToast";
@@ -397,106 +397,10 @@ export default function NewBlogPage() {
                   <p className={s.cardTitle}>Content (HTML)</p>
                 </div>
                 <div className={s.cardBody}>
-                  {process.env.NEXT_PUBLIC_TINYMCE_API_KEY ? (
-                    <div className={s.editorShell}>
-                      <Editor
-                        apiKey={process.env.NEXT_PUBLIC_TINYMCE_API_KEY}
-                        value={formData.content}
-                        init={{
-                          height: 600,
-                          menubar:
-                            "file edit view insert format tools table help",
-                          image_advtab: true,
-                          image_title: true,
-                          image_description: true,
-                          plugins: [
-                            "advlist", "lists", "autolink", "link", "image",
-                            "charmap", "preview", "anchor", "searchreplace",
-                            "visualblocks", "code", "fullscreen",
-                            "insertdatetime", "media", "table", "help",
-                            "wordcount",
-                          ],
-                          toolbar:
-                            "undo redo | styles | bold italic underline strikethrough | " +
-                            "alignleft aligncenter alignright alignjustify | " +
-                            "bullist numlist outdent indent | blockquote | code | image | link | removeformat | help",
-                          content_style:
-                            "body { background: #181818; color: #fff; font-family:Helvetica,Arial,sans-serif; font-size:16px }",
-                          setup: (editor) => {
-                            editor.on("NodeChange", (e) => {
-                              const el = e.element;
-                              if (el && el.tagName === "IMG") {
-                                const alt = el.getAttribute("alt");
-                                if (!alt || alt.trim() === "") {
-                                  const fallback =
-                                    el.getAttribute("title") ||
-                                    document.querySelector('[name="title"]')
-                                      ?.value ||
-                                    "Blog image";
-                                  el.setAttribute("alt", fallback);
-                                }
-                              }
-                            });
-                          },
-                          images_upload_handler: (blobInfo) =>
-                            new Promise((resolve, reject) => {
-                              (async () => {
-                                try {
-                                  const raw = blobInfo.blob();
-                                  const baseName =
-                                    blobInfo.filename() ||
-                                    `inline-${Date.now()}.png`;
-                                  let file = new File([raw], baseName, {
-                                    type: raw.type || "image/jpeg",
-                                  });
-                                  try {
-                                    file = await optimizeImageFile(file);
-                                  } catch {
-                                    /* keep original */
-                                  }
-                                  const fileExt =
-                                    file.name.split(".").pop() ||
-                                    baseName.split(".").pop() ||
-                                    "jpg";
-                                  const fileName = `${Date.now()}.${fileExt}`;
-                                  const { error } = await supabase.storage
-                                    .from("blog-images")
-                                    .upload(fileName, file, {
-                                      cacheControl: "3600",
-                                      upsert: false,
-                                      contentType: file.type || "image/jpeg",
-                                    });
-                                  if (error) {
-                                    reject("Upload failed: " + error.message);
-                                    return;
-                                  }
-                                  const { data: publicData } = supabase.storage
-                                    .from("blog-images")
-                                    .getPublicUrl(fileName);
-                                  resolve(publicData.publicUrl);
-                                } catch (err) {
-                                  reject(
-                                    "Upload failed: " +
-                                      (err.message || String(err)),
-                                  );
-                                }
-                              })();
-                            }),
-                        }}
-                        onEditorChange={(val) =>
-                          setFormData({ ...formData, content: val })
-                        }
-                      />
-                    </div>
-                  ) : (
-                    <div className={admin.editorFallback}>
-                      <p>
-                        TinyMCE API key not found. Add{" "}
-                        <code>NEXT_PUBLIC_TINYMCE_API_KEY</code> to your
-                        environment.
-                      </p>
-                    </div>
-                  )}
+                  <RichEditor
+                    content={formData.content}
+                    onChange={(val) => setFormData({ ...formData, content: val })}
+                  />
                 </div>
               </div>
 
