@@ -100,7 +100,7 @@
   padding: 6px;
   border-radius: 14px;
   border: 1px solid var(--card-border);
-  background: color-mix(in srgb, var(--background-main) 94%, #000 6%);
+  background: color-mix(in srgb, var(--background-main) 94%, #171717 26%);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
@@ -140,7 +140,7 @@
 .tableContainer {
   overflow-x: auto;
   border-radius: 16px;
-  background: color-mix(in srgb, var(--background-main) 94%, #000 6%);
+  background: color-mix(in srgb, var(--background-main) 94%, #171717 26%);
   border: 1px solid color-mix(in srgb, var(--card-border) 85%, transparent);
 }
 

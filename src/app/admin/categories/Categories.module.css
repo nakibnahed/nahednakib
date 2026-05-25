@@ -47,7 +47,7 @@
   border-radius: 16px;
   padding: 24px;
   margin-bottom: 32px;
-  background: color-mix(in srgb, var(--background-main) 94%, #000 6%);
+  background: color-mix(in srgb, var(--background-main) 94%, #171717 26%);
   position: relative;
   overflow: hidden;
 }
@@ -173,7 +173,7 @@
   border-radius: 16px;
   padding: 20px;
   transition: transform 0.2s ease;
-  background: color-mix(in srgb, var(--background-main) 94%, #000 6%);
+  background: color-mix(in srgb, var(--background-main) 94%, #171717 26%);
   position: relative;
   overflow: hidden;
 }

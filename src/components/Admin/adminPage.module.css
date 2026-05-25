@@ -199,7 +199,7 @@
   overflow-x: auto;
   border-radius: 16px;
   border: 1px solid color-mix(in srgb, var(--card-border) 85%, transparent);
-  background: color-mix(in srgb, var(--background-main) 94%, #000 6%);
+  background: color-mix(in srgb, var(--background-main) 94%, #171717 26%);
 }
 
 .dataTable {
@@ -281,7 +281,7 @@
 .formCard {
   border-radius: 20px;
   border: 1px solid color-mix(in srgb, var(--card-border) 85%, transparent);
-  background: color-mix(in srgb, var(--background-main) 94%, #000 6%);
+  background: color-mix(in srgb, var(--background-main) 94%, #171717 26%);
   padding: clamp(22px, 3vw, 32px);
   position: relative;
   overflow: hidden;

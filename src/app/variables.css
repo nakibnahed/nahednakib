@@ -49,7 +49,7 @@
   --navbar-tooltip-bg: linear-gradient(to bottom, #ddd, #555);
 
   /* Card variables (dark mode defaults) */
-  --card-bg: background: color-mix(in srgb, var(--background-main) 94%, #000 6%);
+  --card-bg: background: color-mix(in srgb, var(--background-main) 94%, #171717 26%);
   --card-bg-hover: #1e1e1e;
   --card-text: #f3f4f6;
   --card-border: #232329;

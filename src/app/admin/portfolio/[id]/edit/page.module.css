@@ -32,7 +32,8 @@
 .card {
   border-radius: 16px;
   border: 1px solid color-mix(in srgb, var(--card-border) 85%, transparent);
-  background: color-mix(in srgb, var(--background-main) 94%, #000 6%);
+  background: color-mix(in srgb, var(--background-main) 94%, #171717 6%);
+  background: color-mix(in srgb, var(--background-main) 94%, #171717 26%);
   position: relative;
 }
 
@@ -56,7 +57,8 @@
   align-items: center;
   gap: 9px;
   padding: 11px 16px;
-  border-bottom: 1px solid color-mix(in srgb, var(--card-border) 70%, transparent);
+  border-bottom: 1px solid
+    color-mix(in srgb, var(--card-border) 70%, transparent);
   border-radius: 15px 15px 0 0;
   position: relative;
   z-index: 1;
@@ -169,7 +171,8 @@
   width: 100%;
   padding: 9px 14px;
   border-radius: 10px;
-  border: 1px dashed color-mix(in srgb, var(--card-border) 90%, var(--primary-color) 10%);
+  border: 1px dashed
+    color-mix(in srgb, var(--card-border) 90%, var(--primary-color) 10%);
   background: color-mix(in srgb, var(--primary-color) 4%, transparent);
   color: var(--text-muted);
   font-size: 0.8125rem;
@@ -224,7 +227,8 @@
 
 .orderInput:focus {
   border-color: var(--primary-color);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary-color) 18%, transparent);
+  box-shadow: 0 0 0 3px
+    color-mix(in srgb, var(--primary-color) 18%, transparent);
 }
 
 .orderInput::placeholder {
@@ -485,7 +489,9 @@
 :global(.light) .card {
   background: #ffffff;
   border-color: var(--card-border);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05), 0 4px 14px rgba(0, 0, 0, 0.04);
+  box-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.05),
+    0 4px 14px rgba(0, 0, 0, 0.04);
 }
 
 :global(.light) .card::after {
