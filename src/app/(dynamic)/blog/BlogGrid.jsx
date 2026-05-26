@@ -2,10 +2,10 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import styles from "./page.module.css";
 import { calculateReadTime, formatReadTime } from "@/lib/utils/readTime";
 import BlogViews from "./BlogViews";
-import BlogStats from "./BlogStats";
 
 export default function BlogGrid({ blogs, categories }) {
   const [selectedCategory, setSelectedCategory] = useState("all");
@@ -15,9 +15,10 @@ export default function BlogGrid({ blogs, categories }) {
       ? blogs
       : blogs.filter((blog) => blog.categories?.slug === selectedCategory);
 
-  const selectedCategoryData = categories.find(
-    (cat) => cat.slug === selectedCategory
+  const categoriesWithPosts = categories.filter((cat) =>
+    blogs.some((blog) => blog.categories?.slug === cat.slug)
   );
+
 
   function formatDate(dateString) {
     const date = new Date(dateString);
@@ -40,7 +41,7 @@ export default function BlogGrid({ blogs, categories }) {
           >
             All Posts
           </button>
-          {categories.map((category) => (
+          {categoriesWithPosts.map((category) => (
             <button
               key={category.id}
               className={`${styles.categoryButton} ${
@@ -55,22 +56,6 @@ export default function BlogGrid({ blogs, categories }) {
         </div>
       </div>
 
-      {selectedCategory !== "all" && selectedCategoryData && (
-        <div className={styles.categoryHeader}>
-          <div
-            className={styles.categoryIndicator}
-            style={{ backgroundColor: selectedCategoryData.color }}
-          />
-          <h2 className={styles.categoryTitle}>
-            {selectedCategoryData.name}
-          </h2>
-          {selectedCategoryData.description && (
-            <p className={styles.categoryDescription}>
-              {selectedCategoryData.description}
-            </p>
-          )}
-        </div>
-      )}
 
       {filteredBlogs.length === 0 ? (
         <div className={styles.emptyState}>
@@ -84,47 +69,60 @@ export default function BlogGrid({ blogs, categories }) {
               href={`/blog/${blog.slug}`}
               className={styles.post}
             >
-              <div
-                className={styles.card}
-                onMouseMove={(e) => {
-                  const rect = e.currentTarget.getBoundingClientRect();
-                  const x = e.clientX - rect.left;
-                  const y = e.clientY - rect.top;
-                  e.currentTarget.style.setProperty("--mouse-x", `${x}px`);
-                  e.currentTarget.style.setProperty("--mouse-y", `${y}px`);
-                }}
-              >
-                <div className={styles.cardGlow} />
-                <div className={styles.cardContent}>
-                  <div className={styles.cardHeader}>
+              <article className={styles.card}>
+                {/* Cover */}
+                <div className={styles.cardCover}>
+                  {blog.image ? (
+                    <Image
+                      src={blog.image}
+                      alt=""
+                      fill
+                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                      className={styles.cardCoverImg}
+                    />
+                  ) : (
+                    <div
+                      className={styles.cardCoverPlaceholder}
+                      aria-hidden="true"
+                    >
+                      <span>cover</span>
+                    </div>
+                  )}
+
+                  {blog.categories && (
+                    <span className={styles.cardStrap}>
+                      <span className={styles.cardStrapDot} />
+                      {blog.categories.name}
+                    </span>
+                  )}
+
+                  <span className={styles.cardViews}>
                     <BlogViews blogId={blog.id} />
-                    <h1 className={styles.title}>{blog.title}</h1>
-                    <p className={styles.date}>{formatDate(blog.created_at)}</p>
-                  </div>
-                  <div className={styles.cardBody}>
-                    <div className={styles.technologies}>
-                      {blog.categories && (
-                        <span className={styles.techTag}>
-                          {blog.categories.name}
-                        </span>
-                      )}
-                      <span className={styles.techTag}>
-                        {formatReadTime(calculateReadTime(blog.content))}
-                      </span>
-                    </div>
-                    <p className={styles.description}>
-                      {blog.description || "Read this amazing blog post..."}
-                    </p>
-                  </div>
-                  <div className={styles.cardFooter}>
-                    <BlogStats blogId={blog.id} />
-                    <div className={styles.readMore}>
-                      <span>Read More</span>
-                      <span className={styles.arrow}>→</span>
-                    </div>
+                  </span>
+                </div>
+
+                {/* Body */}
+                <div className={styles.cardBody}>
+                  <h2 className={styles.cardTitle}>{blog.title}</h2>
+                  <p className={styles.cardDescription}>
+                    {blog.description || "Read this amazing blog post..."}
+                  </p>
+
+                  <div className={styles.cardFoot}>
+                    <span>{formatDate(blog.created_at)}</span>
+                    <span className={styles.cardFootDot} />
+                    <span>
+                      {formatReadTime(calculateReadTime(blog.content))}
+                    </span>
+                    <span className={styles.cardReadMore}>
+                      Read
+                      <svg width="11" height="11" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="square" aria-hidden="true">
+                        <path d="M3 8 H 13 M 9 4 L 13 8 L 9 12" />
+                      </svg>
+                    </span>
                   </div>
                 </div>
-              </div>
+              </article>
             </Link>
           ))}
         </div>
