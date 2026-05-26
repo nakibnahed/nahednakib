@@ -5,6 +5,7 @@ import Link from "next/link";
 import styles from "./page.module.css";
 import { calculateReadTime, formatReadTime } from "@/lib/utils/readTime";
 import BlogViews from "./BlogViews";
+import BlogStats from "./BlogStats";
 
 export default function BlogGrid({ blogs, categories }) {
   const [selectedCategory, setSelectedCategory] = useState("all");
@@ -116,6 +117,7 @@ export default function BlogGrid({ blogs, categories }) {
                     </p>
                   </div>
                   <div className={styles.cardFooter}>
+                    <BlogStats blogId={blog.id} />
                     <div className={styles.readMore}>
                       <span>Read More</span>
                       <span className={styles.arrow}>→</span>

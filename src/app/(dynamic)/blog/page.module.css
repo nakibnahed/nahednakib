@@ -201,6 +201,7 @@
 
 .cardHeader {
   position: relative;
+  padding-right: 52px;
 }
 
 .cardBody {
@@ -221,7 +222,7 @@
 .title {
   font-size: 18px;
   font-weight: bold;
-  margin: 12px 80px 8px 0;
+  margin: 12px 0 8px;
   line-height: 1.4;
 }
 
@@ -236,6 +237,10 @@
   font-size: 15px;
   line-height: 1.6;
   margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 /* Technologies tags styling */
@@ -286,15 +291,43 @@
   opacity: 0.7;
   color: #ddd;
   font-size: 14px;
+  z-index: 10;
 }
 
 .iconText {
   font-size: 12px;
   font-weight: 500;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+/* Engagement stats row in card footer */
+.statsRow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.likesIcon,
+.favIcon,
+.commentsIcon {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  opacity: 0.7;
+  color: #ddd;
+  font-size: 14px;
+  margin-right: 6px;
 }
 
 /* ── Light mode overrides ──────────────────────────────────── */
-:global(.light) .icon {
+:global(.light) .icon,
+:global(.light) .likesIcon,
+:global(.light) .favIcon,
+:global(.light) .commentsIcon {
+  color: var(--text-muted);
+}
+
+:global(.light) .iconText {
   color: var(--text-muted);
 }
 
@@ -435,7 +468,7 @@
 
   .title {
     font-size: 16px !important;
-    margin-right: 80px;
+    margin-right: 0;
   }
 
   .categoryNav {
