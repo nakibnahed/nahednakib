@@ -108,7 +108,6 @@ export default function StartAProjectPage() {
       </div>
 
       <div className={styles.hero}>
-        <p className={styles.eyebrow}>Web Development</p>
         <h1 className={`${styles.title} ${logoFont.className}`}>
           Start a Project
         </h1>

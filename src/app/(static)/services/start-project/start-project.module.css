@@ -1,66 +1,58 @@
 .container {
   max-width: 760px;
   margin: 0 auto;
-  padding: 40px 20px 80px;
+  padding: 28px 20px 48px;
 }
 
 /* ── Back link ── */
 .back {
-  margin-bottom: 32px;
+  margin-bottom: 16px;
 }
 
 .backLink {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  font-size: 0.88rem;
+  gap: 6px;
+  font-size: 0.78rem;
   font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
   color: var(--text-dark);
-  opacity: 0.7;
+  border: 1px solid var(--card-border);
+  border-radius: 50px;
+  padding: 4px 14px;
+  background: color-mix(in srgb, var(--background-main) 85%, transparent 15%);
   text-decoration: none;
-  transition: opacity 0.2s ease, color 0.2s ease;
+  transition: opacity 0.2s ease, color 0.2s ease, border-color 0.2s ease;
 }
 
 .backLink:hover {
   opacity: 1;
   color: var(--primary-color);
+  border-color: var(--primary-color);
 }
 
 /* ── Hero ── */
 .hero {
-  margin-bottom: 2.5rem;
-}
-
-.eyebrow {
-  display: inline-block;
-  font-size: 0.78rem;
-  font-weight: 600;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--text-dark);
-  border: 1px solid var(--card-border);
-  border-radius: 50px;
-  padding: 5px 16px;
-  margin-bottom: 1.2rem;
-  background: color-mix(in srgb, var(--background-main) 85%, transparent 15%);
+  margin-bottom: 1.5rem;
 }
 
 .title {
-  font-size: clamp(2rem, 5vw, 3rem);
+  font-size: clamp(1.75rem, 5vw, 2.75rem);
   font-weight: 900;
   background: var(--gradient-typography-primary);
   background-clip: text;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  margin: 0 0 1rem;
+  margin: 0 0 0.5rem;
   line-height: 1.1;
 }
 
 .subtitle {
-  font-size: 1rem;
+  font-size: 0.95rem;
   color: var(--text-dark);
   opacity: 0.85;
-  line-height: 1.7;
+  line-height: 1.6;
   max-width: 560px;
   margin: 0;
 }
@@ -83,10 +75,10 @@
 }
 
 .section {
-  padding: 32px 36px;
+  padding: 24px 28px;
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 20px;
 }
 
 .sectionTitle {
@@ -107,7 +99,7 @@
 .row {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 20px;
+  gap: 16px;
 }
 
 .field {
@@ -187,11 +179,11 @@
 
 /* ── Form footer ── */
 .formFooter {
-  padding: 24px 36px 32px;
+  padding: 18px 28px 24px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 20px;
+  gap: 16px;
   border-top: 1px solid var(--card-border);
   flex-wrap: wrap;
 }
@@ -232,29 +224,29 @@
 
 /* ── Success state ── */
 .successCard {
-  margin-top: 80px;
+  margin-top: 48px;
   text-align: center;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 20px;
+  gap: 16px;
 }
 
 .successIcon {
-  width: 72px;
-  height: 72px;
+  width: 64px;
+  height: 64px;
   border-radius: 50%;
   background: color-mix(in srgb, var(--primary-color) 12%, transparent);
   border: 2px solid var(--primary-color);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 30px;
+  font-size: 28px;
   color: var(--primary-color);
 }
 
 .successTitle {
-  font-size: clamp(1.8rem, 4vw, 2.5rem);
+  font-size: clamp(1.6rem, 4vw, 2.25rem);
   font-weight: 900;
   background: var(--gradient-typography-primary);
   background-clip: text;
@@ -274,10 +266,10 @@
 
 .successActions {
   display: flex;
-  gap: 16px;
+  gap: 12px;
   flex-wrap: wrap;
   justify-content: center;
-  margin-top: 8px;
+  margin-top: 4px;
 }
 
 .primaryBtn {
@@ -324,18 +316,27 @@
   transform: translateX(4px);
 }
 
-/* ── Responsive ── */
-@media (max-width: 680px) {
+/* ── Tablet ── */
+@media (max-width: 768px) {
   .container {
-    padding: 28px 16px 60px;
+    padding: 20px 16px 36px;
+  }
+
+  .back {
+    margin-bottom: 12px;
+  }
+
+  .hero {
+    margin-bottom: 1.25rem;
   }
 
   .section {
-    padding: 24px 20px;
+    padding: 18px 20px;
+    gap: 16px;
   }
 
   .formFooter {
-    padding: 20px 20px 28px;
+    padding: 14px 20px 20px;
     flex-direction: column;
     align-items: stretch;
   }
@@ -348,8 +349,41 @@
   .row {
     grid-template-columns: 1fr;
   }
+}
 
-  .errorMsg {
-    margin: 0 20px;
+/* ── Mobile ── */
+@media (max-width: 480px) {
+  .container {
+    padding: 14px 12px 28px;
+  }
+
+  .back {
+    margin-bottom: 10px;
+  }
+
+  .hero {
+    margin-bottom: 1rem;
+  }
+
+  .eyebrow {
+    margin-bottom: 0.5rem;
+  }
+
+  .title {
+    margin-bottom: 0.4rem;
+  }
+
+  .section {
+    padding: 14px 14px;
+    gap: 14px;
+  }
+
+  .formFooter {
+    padding: 12px 14px 18px;
+  }
+
+  .successCard {
+    margin-top: 24px;
+    gap: 12px;
   }
 }
