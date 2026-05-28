@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect, useMemo } from "react";
+import Link from "next/link";
 import styles from "./page.module.css";
 
 const STORAGE_KEY      = "ig-analyzer-handled";
@@ -313,6 +314,12 @@ export default function InstagramAnalyzer() {
                 <li>Upload both files here to analyze</li>
               </ol>
             </div>
+            <Link
+              href="/blog/how-to-see-who-doesnt-follow-you-back-on-instagram"
+              className={styles.guideLink}
+            >
+              → New here? Read the full step-by-step guide
+            </Link>
           </div>
 
           <div className={styles.uploadSection}>

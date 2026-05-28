@@ -740,3 +740,33 @@
   grid-column: 1 / -1;
   border-style: dashed;
 }
+
+/* ── Guide link ──────────────────────────────────────────────── */
+.guideLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 24px;
+  padding: 10px 20px;
+  border-radius: 50px;
+  border: 1px solid var(--card-border);
+  background: transparent;
+  color: var(--primary-color);
+  font-family: var(--font-main);
+  font-weight: 700;
+  font-size: 15px;
+  text-decoration: none;
+  transition: opacity 0.3s ease, border-color 0.2s ease;
+}
+
+.guideLink:hover {
+  border-color: var(--primary-color);
+  opacity: 0.9;
+}
+
+@media (max-width: 480px) {
+  .guideLink {
+    font-size: 14px;
+    padding: 10px 16px;
+  }
+}
