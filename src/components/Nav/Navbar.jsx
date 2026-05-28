@@ -218,6 +218,13 @@ export default function Navbar() {
                           <Video size={16} />
                           Meetings
                         </Link>
+                        <Link
+                          href="/instagram-analyzer"
+                          className={styles.dropdownItem}
+                        >
+                          <BarChart size={16} />
+                          Instagram Analyzer
+                        </Link>
                         <Link href="/feedback" className={styles.dropdownItem}>
                           <MessageSquare size={16} />
                           Feedback
@@ -345,6 +352,7 @@ export default function Navbar() {
                     {[
                       { href: "/learning-tracker", Icon: BookOpen, label: "Learning Tracker" },
                       { href: "/conversation-practice", Icon: Video, label: "Meetings" },
+                      { href: "/instagram-analyzer", Icon: BarChart, label: "Instagram Analyzer" },
                       { href: "/contact", Icon: Mail, label: "Contact Us" },
                       { href: "/feedback", Icon: MessageSquare, label: "Feedback" },
                       { href: "/faq", Icon: HelpCircle, label: "FAQ" },
