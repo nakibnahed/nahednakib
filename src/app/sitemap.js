@@ -24,6 +24,11 @@ export default async function sitemap() {
       priority: 0.55,
       changeFrequency: "weekly",
     },
+    {
+      path: "/instagram-analyzer",
+      priority: 0.6,
+      changeFrequency: "monthly",
+    },
   ].map(({ path, priority, changeFrequency }) => ({
     url: `${baseUrl}${path}`,
     lastModified: now,
