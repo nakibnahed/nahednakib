@@ -22,7 +22,7 @@ export function buildBlogPostMetadata({ blog, authorName }) {
     htmlContent: blog.content,
     fallback: "Read this article on Nahed Nakib.",
   });
-  const imageUrl = blog.image || `${baseUrl}/images/share.png`;
+  const imageUrl = blog.image || `${baseUrl}/share.png`;
   const coverAlt = coverImageAltForBlog(blog);
 
   return {
@@ -68,7 +68,7 @@ export function buildArticleJsonLd({
   authorSameAs,
 }) {
   const baseUrl = getSiteUrl();
-  const imageUrl = blog.image || `${baseUrl}/images/share.png`;
+  const imageUrl = blog.image || `${baseUrl}/share.png`;
   const keywords = mergeKeywordSignals(blog.tags, blog.seo_keywords);
   const description =
     blog.meta_description?.trim() ||
@@ -98,7 +98,7 @@ export function buildArticleJsonLd({
       name: siteDefaults.authorName,
       logo: {
         "@type": "ImageObject",
-        url: `${baseUrl}/images/share.png`,
+        url: `${baseUrl}/share.png`,
       },
     },
     ...(keywords.length ? { keywords } : {}),

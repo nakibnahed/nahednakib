@@ -5,7 +5,7 @@ const pageTitle =
 const pageDescription =
   "Free Instagram follower analyzer. Upload your Instagram data export to instantly see who isn't following you back. No login, no tracking — runs 100% in your browser.";
 const pageUrl = `${siteMetadata.url}/instagram-analyzer`;
-const pageImage = `${siteMetadata.url}/images/share.png`;
+const pageImage = `${siteMetadata.url}/instagram-analyzer.png`;
 
 export const metadata = {
   title: pageTitle,
@@ -36,8 +36,8 @@ export const metadata = {
     images: [
       {
         url: pageImage,
-        width: 1200,
-        height: 630,
+        width: 3600,
+        height: 1890,
         alt: "Instagram Follower Analyzer — find who isn't following you back",
         type: "image/png",
       },

@@ -19,7 +19,7 @@ export function buildPortfolioMetadata({ portfolio }) {
     htmlContent: portfolio.overview,
     fallback: "Portfolio project by Nahed Nakib.",
   });
-  const imageUrl = portfolio.image || `${baseUrl}/images/share.png`;
+  const imageUrl = portfolio.image || `${baseUrl}/share.png`;
 
   return {
     title: titleSeg,
@@ -55,7 +55,7 @@ export function buildPortfolioMetadata({ portfolio }) {
 
 export function buildCreativeWorkJsonLd({ portfolio }) {
   const baseUrl = getSiteUrl();
-  const imageUrl = portfolio.image || `${baseUrl}/images/share.png`;
+  const imageUrl = portfolio.image || `${baseUrl}/share.png`;
   const keywords = mergeKeywordSignals(
     portfolio.technologies,
     portfolio.seo_keywords,
