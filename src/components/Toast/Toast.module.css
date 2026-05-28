@@ -14,7 +14,7 @@
   font-family: var(--font-main, "Montserrat", sans-serif);
   line-height: 1.35;
   letter-spacing: 0.01em;
-  color: var(--heading-color, var(--text-light, #f3f4f6));
+  color: var(--text-dark);
   background: color-mix(in srgb, var(--background-main) 80%, transparent 15%);
   border: 1px solid var(--card-border);
   box-shadow:
@@ -96,7 +96,7 @@
 }
 
 .toast.success .message {
-  color: var(--heading-color, var(--text-light, #f3f4f6));
+  color: var(--text-dark);
 }
 
 .toast.success .closeButton {
@@ -124,7 +124,7 @@
 }
 
 .toast.error .message {
-  color: var(--heading-color, var(--text-light, #f3f4f6));
+  color: var(--text-dark);
 }
 
 .toast.error .closeButton {
@@ -209,12 +209,12 @@
   padding-top: 0;
   font-size: 14px;
   font-weight: 600;
-  color: var(--heading-color, var(--text-light, #f3f4f6));
+  color: var(--text-dark);
 }
 
 .toast.info .message,
 .toast.warning .message {
-  color: var(--heading-color, var(--text-light, #f3f4f6));
+  color: var(--text-dark);
 }
 
 .closeButton {

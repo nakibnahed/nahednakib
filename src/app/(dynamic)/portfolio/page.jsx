@@ -29,6 +29,19 @@ export const metadata = {
   },
 };
 
+function projectYear(portfolio) {
+  if (portfolio.project_date) return portfolio.project_date.split("-")[0];
+  return new Date(portfolio.created_at).getFullYear().toString();
+}
+
+function projectMonth(portfolio) {
+  if (portfolio.project_date) {
+    const [year, month] = portfolio.project_date.split("-");
+    return new Date(parseInt(year), parseInt(month) - 1, 1).toLocaleString("en-US", { month: "short" });
+  }
+  return new Date(portfolio.created_at).toLocaleString("en-US", { month: "short" });
+}
+
 export default async function Portfolio() {
   try {
     const supabase = await createClient();
@@ -44,9 +57,10 @@ export default async function Portfolio() {
         title,
         description,
         created_at,
+        project_date,
         category,
-        image,
         technologies,
+        status,
         slug
         `,
       )
@@ -72,10 +86,28 @@ export default async function Portfolio() {
     return (
       <div className="pageMainContainer">
         <div className={styles.container}>
-          <h1 className={styles.pageTitle}>Crafted with Passion</h1>
-          <div className={styles.gridContainer}>
+          <header className={styles.header}>
+            <span className={styles.eyebrow}>My Work</span>
+            <h1 className={styles.pageTitle}>Crafted with Passion</h1>
+          </header>
+          <div className={styles.grid}>
             {portfolios.map((portfolio) => (
-              <PortfolioCard key={portfolio.id} portfolio={portfolio} />
+              <PortfolioCard
+                key={portfolio.id}
+                project={{
+                  slug: portfolio.slug,
+                  title: portfolio.title,
+                  category: portfolio.category,
+                  year: projectYear(portfolio),
+                  month: projectMonth(portfolio),
+                  description: portfolio.description,
+                  tech: (portfolio.technologies || "")
+                    .split(",")
+                    .map((t) => t.trim())
+                    .filter(Boolean),
+                  status: portfolio.status || null,
+                }}
+              />
             ))}
           </div>
         </div>

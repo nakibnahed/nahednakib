@@ -27,6 +27,7 @@ import { showAppToast } from "@/lib/showAppToast";
 import { seoKeywordsFromInput, seoKeywordsToInput } from "@/lib/seo/auto";
 import { isUuid } from "@/lib/utils/isUuid";
 import RichEditor from "@/components/Admin/RichEditor/RichEditor";
+import DateTimePicker from "@/components/DateTimePicker/DateTimePicker";
 
 const CATEGORY_OPTIONS = [
   "Web Development",
@@ -65,6 +66,7 @@ export default function EditPortfolioPage() {
     publish_status: "published",
     visibility: "public",
     created_at: "",
+    project_date: "",
   });
 
   const [loading, setLoading] = useState(true);
@@ -128,6 +130,7 @@ export default function EditPortfolioPage() {
           publish_status: data.publish_status || "published",
           visibility: data.visibility || "public",
           created_at: data.created_at || "",
+          project_date: data.project_date || "",
         });
       }
       setLoading(false);
@@ -294,6 +297,7 @@ export default function EditPortfolioPage() {
             : null,
         publish_status: formData.publish_status,
         visibility: formData.visibility,
+        project_date: formData.project_date || null,
       })
       .eq("id", rowId);
 
@@ -717,6 +721,32 @@ export default function EditPortfolioPage() {
                       onChange={handleChange}
                       className={admin.fieldInput}
                       placeholder="React, Next.js, Supabase…"
+                    />
+                  </div>
+                  <div className={admin.formField}>
+                    <label className={admin.fieldLabel}>
+                      Project date
+                    </label>
+                    <DateTimePicker
+                      mode="date"
+                      placeholder="When did you work on this?"
+                      value={
+                        formData.project_date
+                          ? new Date(formData.project_date + "T12:00:00")
+                          : null
+                      }
+                      onChange={(date) =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          project_date: date
+                            ? [
+                                date.getFullYear(),
+                                String(date.getMonth() + 1).padStart(2, "0"),
+                                String(date.getDate()).padStart(2, "0"),
+                              ].join("-")
+                            : "",
+                        }))
+                      }
                     />
                   </div>
                 </div>

@@ -49,7 +49,11 @@
   --navbar-tooltip-bg: linear-gradient(to bottom, #ddd, #555);
 
   /* Card variables (dark mode defaults) */
-  --card-bg: background: color-mix(in srgb, var(--background-main) 94%, #171717 26%);
+  --card-bg: background: color-mix(
+      in srgb,
+      var(--background-main) 94%,
+      #171717 16%
+    );
   --card-bg-hover: #1e1e1e;
   --card-text: #f3f4f6;
   --card-border: #232329;
@@ -57,7 +61,6 @@
   --card-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
 
   /* Headings */
-  --heading-color: #f3f4f6;
   --heading-gradient: linear-gradient(to bottom, #fff, #bbb);
   --gradient-typography-post-banner-title: linear-gradient(
     to bottom,
@@ -132,7 +135,6 @@
     0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
 
   /* Headings */
-  --heading-color: #11181c;
   --heading-gradient: linear-gradient(to bottom, #11181c, #2d3748);
 
   --gradient-typography-post-banner-title: linear-gradient(

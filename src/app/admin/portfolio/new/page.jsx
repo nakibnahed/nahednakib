@@ -24,6 +24,7 @@ import { showAppToast } from "@/lib/showAppToast";
 import { seoKeywordsFromInput } from "@/lib/seo/auto";
 import { generateUniqueSlug } from "@/lib/utils/slugify";
 import RichEditor from "@/components/Admin/RichEditor/RichEditor";
+import DateTimePicker from "@/components/DateTimePicker/DateTimePicker";
 
 const CATEGORY_OPTIONS = [
   "Web Development",
@@ -59,6 +60,7 @@ export default function NewPortfolioPage() {
     display_order: "",
     publish_status: "published",
     visibility: "public",
+    project_date: "",
   });
 
   const [loading, setLoading] = useState(false);
@@ -204,6 +206,7 @@ export default function NewPortfolioPage() {
               : null,
           publish_status: formData.publish_status,
           visibility: formData.visibility,
+          project_date: formData.project_date || null,
         },
       ])
       .select("id")
@@ -563,6 +566,32 @@ export default function NewPortfolioPage() {
                       onChange={handleChange}
                       className={admin.fieldInput}
                       placeholder="React, Next.js, Supabase…"
+                    />
+                  </div>
+                  <div className={admin.formField}>
+                    <label className={admin.fieldLabel}>
+                      Project date
+                    </label>
+                    <DateTimePicker
+                      mode="date"
+                      placeholder="When did you work on this?"
+                      value={
+                        formData.project_date
+                          ? new Date(formData.project_date + "T12:00:00")
+                          : null
+                      }
+                      onChange={(date) =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          project_date: date
+                            ? [
+                                date.getFullYear(),
+                                String(date.getMonth() + 1).padStart(2, "0"),
+                                String(date.getDate()).padStart(2, "0"),
+                              ].join("-")
+                            : "",
+                        }))
+                      }
                     />
                   </div>
                 </div>

@@ -1,0 +1,649 @@
+"use client";
+
+import { useState, useRef, useEffect } from "react";
+import { createPortal } from "react-dom";
+import { FiCalendar, FiClock } from "react-icons/fi";
+import styles from "./DateTimePicker.module.css";
+
+const DAYS = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
+const MONTHS = [
+  "January", "February", "March", "April", "May", "June",
+  "July", "August", "September", "October", "November", "December",
+];
+
+function getDaysInMonth(year, month) {
+  return new Date(year, month + 1, 0).getDate();
+}
+function getFirstDayOfMonth(year, month) {
+  return new Date(year, month, 1).getDay();
+}
+function isSameDay(a, b) {
+  return (
+    a.getFullYear() === b.getFullYear() &&
+    a.getMonth() === b.getMonth() &&
+    a.getDate() === b.getDate()
+  );
+}
+function formatDateOnly(d) {
+  return d.toLocaleDateString("en-GB", {
+    weekday: "short",
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  });
+}
+function formatDateTime(d) {
+  const day = d.toLocaleDateString("en-GB", {
+    weekday: "short",
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  });
+  const time = d.toLocaleTimeString("en-GB", {
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  });
+  return `${day} · ${time}`;
+}
+function pad(n) {
+  return String(n).padStart(2, "0");
+}
+function yearRangeFor(y) {
+  return Math.floor(y / 20) * 20;
+}
+
+const DRUM_ITEM_HEIGHT = 36;
+const DRUM_HEIGHT = 140;
+const DRUM_CENTER_OFFSET = (DRUM_HEIGHT - DRUM_ITEM_HEIGHT) / 2;
+const HOURS_24 = Array.from({ length: 24 }, (_, i) => i);
+const MINUTES_60 = Array.from({ length: 60 }, (_, i) => i);
+
+export default function DateTimePicker({
+  value,
+  onChange,
+  placeholder = "Select date & time",
+  minDate,
+  maxDate,
+  mode = "datetime",
+}) {
+  const today = new Date();
+  const [open, setOpen] = useState(false);
+  const [view, setView] = useState("calendar"); // "calendar" | "time"
+  const [calView, setCalView] = useState("days"); // "days" | "months" | "years"
+
+  const [cursor, setCursor] = useState(value ?? today);
+  const [selected, setSelected] = useState(value ?? null);
+  const [hour, setHour] = useState(value ? value.getHours() : today.getHours());
+  const [minute, setMinute] = useState(value ? value.getMinutes() : 0);
+  const [hourOffset, setHourOffset] = useState(
+    (value ? value.getHours() : today.getHours()) * DRUM_ITEM_HEIGHT,
+  );
+  const [minuteOffset, setMinuteOffset] = useState(
+    (value ? value.getMinutes() : 0) * DRUM_ITEM_HEIGHT,
+  );
+  const [yearRangeStart, setYearRangeStart] = useState(() =>
+    yearRangeFor((value ?? today).getFullYear())
+  );
+
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+
+  const ref = useRef(null);
+  const panelRef = useRef(null);
+  const dragRef = useRef(null);
+  const momentumRef = useRef(null);
+  const hourWheelSnapRef = useRef(null);
+  const minuteWheelSnapRef = useRef(null);
+
+  useEffect(() => {
+    const handler = (e) => {
+      const inTrigger = ref.current?.contains(e.target);
+      const inPanel = panelRef.current?.contains(e.target);
+      if (!inTrigger && !inPanel) setOpen(false);
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
+
+  useEffect(() => {
+    if (!open) return;
+    const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
+    document.documentElement.style.overflow = "hidden";
+    document.body.style.overflow = "hidden";
+    document.body.style.paddingRight = `${scrollbarWidth}px`;
+    return () => {
+      document.documentElement.style.overflow = "";
+      document.body.style.overflow = "";
+      document.body.style.paddingRight = "";
+    };
+  }, [open]);
+
+  function commit(day, h, m) {
+    const resolvedHour = h ?? hour;
+    const resolvedMinute = m ?? minute;
+    const result = new Date(day);
+    result.setHours(resolvedHour, resolvedMinute, 0, 0);
+    setSelected(result);
+    onChange?.(result);
+  }
+
+  function handleDayClick(day) {
+    setSelected(day);
+    if (mode === "date") {
+      commit(day, 12, 0);
+      setOpen(false);
+    } else {
+      commit(day);
+      setView("time");
+    }
+  }
+
+  function handleTimeConfirm() {
+    if (selected) commit(selected);
+    setOpen(false);
+  }
+
+  function stopMomentum() {
+    if (momentumRef.current) {
+      cancelAnimationFrame(momentumRef.current);
+      momentumRef.current = null;
+    }
+  }
+
+  function clampOffset(offset, maxIndex) {
+    const max = maxIndex * DRUM_ITEM_HEIGHT;
+    if (offset < 0) return 0;
+    if (offset > max) return max;
+    return offset;
+  }
+
+  function applyOffset(type, nextOffset) {
+    if (type === "hour") {
+      const clamped = clampOffset(nextOffset, 23);
+      setHourOffset(clamped);
+      setHour(Math.round(clamped / DRUM_ITEM_HEIGHT));
+      return;
+    }
+    const clamped = clampOffset(nextOffset, 59);
+    setMinuteOffset(clamped);
+    setMinute(Math.round(clamped / DRUM_ITEM_HEIGHT));
+  }
+
+  function snapDrum(type, currentOffset) {
+    const maxIndex = type === "hour" ? 23 : 59;
+    const clamped = clampOffset(currentOffset, maxIndex);
+    const snapped = Math.round(clamped / DRUM_ITEM_HEIGHT) * DRUM_ITEM_HEIGHT;
+    applyOffset(type, snapped);
+  }
+
+  function startMomentum(type, initialVelocity, startOffset) {
+    stopMomentum();
+    let v = initialVelocity;
+    let offset = startOffset;
+
+    const step = () => {
+      offset += v * 16;
+      applyOffset(type, offset);
+      offset = type === "hour" ? clampOffset(offset, 23) : clampOffset(offset, 59);
+      v *= 0.95;
+
+      const hitEdge =
+        offset <= 0 ||
+        offset >= (type === "hour" ? 23 : 59) * DRUM_ITEM_HEIGHT;
+      if (Math.abs(v) < 0.02 || hitEdge) {
+        snapDrum(type, offset);
+        momentumRef.current = null;
+        return;
+      }
+      momentumRef.current = requestAnimationFrame(step);
+    };
+
+    momentumRef.current = requestAnimationFrame(step);
+  }
+
+  function startDrag(type, clientY) {
+    stopMomentum();
+    dragRef.current = {
+      type,
+      startY: clientY,
+      startOffset: type === "hour" ? hourOffset : minuteOffset,
+      lastY: clientY,
+      lastTime: performance.now(),
+      velocity: 0,
+    };
+  }
+
+  useEffect(() => {
+    const onMouseMove = (e) => {
+      if (!dragRef.current) return;
+      const drag = dragRef.current;
+      const now = performance.now();
+      const deltaY = e.clientY - drag.startY;
+      const nextOffset = drag.startOffset - deltaY;
+      applyOffset(drag.type, nextOffset);
+
+      const dt = Math.max(now - drag.lastTime, 1);
+      drag.velocity = -(e.clientY - drag.lastY) / dt;
+      drag.lastY = e.clientY;
+      drag.lastTime = now;
+    };
+
+    const onMouseUp = () => {
+      if (!dragRef.current) return;
+      const drag = dragRef.current;
+      const currentOffset = drag.type === "hour" ? hourOffset : minuteOffset;
+      const velocity = drag.velocity;
+      dragRef.current = null;
+      if (Math.abs(velocity) > 0.08) {
+        startMomentum(drag.type, velocity, currentOffset);
+      } else {
+        snapDrum(drag.type, currentOffset);
+      }
+    };
+
+    const onTouchMove = (e) => {
+      if (!dragRef.current || !e.touches?.[0]) return;
+      e.preventDefault();
+      const touch = e.touches[0];
+      const drag = dragRef.current;
+      const now = performance.now();
+      const deltaY = touch.clientY - drag.startY;
+      const nextOffset = drag.startOffset - deltaY;
+      applyOffset(drag.type, nextOffset);
+
+      const dt = Math.max(now - drag.lastTime, 1);
+      drag.velocity = -(touch.clientY - drag.lastY) / dt;
+      drag.lastY = touch.clientY;
+      drag.lastTime = now;
+    };
+
+    const onTouchEnd = () => {
+      if (!dragRef.current) return;
+      const drag = dragRef.current;
+      const currentOffset = drag.type === "hour" ? hourOffset : minuteOffset;
+      const velocity = drag.velocity;
+      dragRef.current = null;
+      if (Math.abs(velocity) > 0.08) {
+        startMomentum(drag.type, velocity, currentOffset);
+      } else {
+        snapDrum(drag.type, currentOffset);
+      }
+    };
+
+    window.addEventListener("mousemove", onMouseMove);
+    window.addEventListener("mouseup", onMouseUp);
+    window.addEventListener("touchmove", onTouchMove, { passive: false });
+    window.addEventListener("touchend", onTouchEnd);
+    return () => {
+      window.removeEventListener("mousemove", onMouseMove);
+      window.removeEventListener("mouseup", onMouseUp);
+      window.removeEventListener("touchmove", onTouchMove);
+      window.removeEventListener("touchend", onTouchEnd);
+    };
+  }, [hourOffset, minuteOffset]);
+
+  useEffect(() => {
+    return () => stopMomentum();
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      if (hourWheelSnapRef.current) clearTimeout(hourWheelSnapRef.current);
+      if (minuteWheelSnapRef.current) clearTimeout(minuteWheelSnapRef.current);
+    };
+  }, []);
+
+  const year = cursor.getFullYear();
+  const month = cursor.getMonth();
+  const daysInMonth = getDaysInMonth(year, month);
+  const firstDay = getFirstDayOfMonth(year, month);
+
+  function isDayDisabled(d) {
+    if (minDate) {
+      const minDay = new Date(minDate.getFullYear(), minDate.getMonth(), minDate.getDate());
+      const thisDay = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+      if (thisDay < minDay) return true;
+    }
+    if (maxDate && d > maxDate) return true;
+    return false;
+  }
+
+  const cells = [];
+  for (let i = 0; i < firstDay; i++) cells.push(null);
+  for (let d = 1; d <= daysInMonth; d++) cells.push(new Date(year, month, d));
+
+  const displayText = selected
+    ? mode === "date"
+      ? formatDateOnly(selected)
+      : formatDateTime(selected)
+    : placeholder;
+
+  function handleNavPrev() {
+    if (calView === "days") setCursor(new Date(year, month - 1, 1));
+    else if (calView === "months") setCursor(new Date(year - 1, month, 1));
+    else setYearRangeStart((s) => s - 20);
+  }
+
+  function handleNavNext() {
+    if (calView === "days") setCursor(new Date(year, month + 1, 1));
+    else if (calView === "months") setCursor(new Date(year + 1, month, 1));
+    else setYearRangeStart((s) => s + 20);
+  }
+
+  return (
+    <div className={styles.root} ref={ref}>
+      <div className={`${styles.triggerWrap} ${open ? styles.triggerActive : ""}`}>
+        <button
+          type="button"
+          className={styles.trigger}
+          onClick={() => {
+            setOpen((o) => !o);
+            setView("calendar");
+            setCalView("days");
+          }}
+        >
+          <FiCalendar size={16} />
+          <span className={styles.triggerText}>{displayText}</span>
+        </button>
+        {selected && (
+          <button
+            type="button"
+            className={styles.clearBtn}
+            onClick={(e) => {
+              e.stopPropagation();
+              setSelected(null);
+              onChange?.(null);
+            }}
+          >
+            ×
+          </button>
+        )}
+      </div>
+
+      {open && mounted && createPortal(
+        <>
+          <div className={styles.backdrop} onClick={() => setOpen(false)} />
+          <div className={styles.panel} ref={panelRef}>
+            {mode === "datetime" && (
+              <div className={styles.tabs}>
+                <button
+                  type="button"
+                  className={`${styles.tabBtn} ${view === "calendar" ? styles.tabActive : ""}`}
+                  onClick={() => setView("calendar")}
+                >
+                  <FiCalendar size={14} />
+                  Date
+                </button>
+                <button
+                  type="button"
+                  className={`${styles.tabBtn} ${view === "time" ? styles.tabActive : ""}`}
+                  onClick={() => setView("time")}
+                >
+                  <FiClock size={14} />
+                  Time
+                </button>
+              </div>
+            )}
+
+            {/* ── Calendar view ── */}
+            {(view === "calendar" || mode === "date") && (
+              <div className={styles.calendar}>
+                {/* ── Unified nav bar ── */}
+                <div className={styles.nav}>
+                  <button type="button" className={styles.navBtn} onClick={handleNavPrev}>
+                    ‹
+                  </button>
+
+                  {calView === "days" && (
+                    <div className={styles.navLabel}>
+                      <button
+                        type="button"
+                        className={styles.navChipBtn}
+                        onClick={() => setCalView("months")}
+                        title="Pick month"
+                      >
+                        {MONTHS[month]}
+                        <span className={styles.navChipArrow}>▾</span>
+                      </button>
+                      <button
+                        type="button"
+                        className={styles.navChipBtn}
+                        onClick={() => {
+                          setYearRangeStart(yearRangeFor(year));
+                          setCalView("years");
+                        }}
+                        title="Pick year"
+                      >
+                        {year}
+                        <span className={styles.navChipArrow}>▾</span>
+                      </button>
+                    </div>
+                  )}
+
+                  {calView === "months" && (
+                    <button
+                      type="button"
+                      className={styles.navChipBtn}
+                      onClick={() => {
+                        setYearRangeStart(yearRangeFor(year));
+                        setCalView("years");
+                      }}
+                      title="Pick year"
+                    >
+                      {year}
+                      <span className={styles.navChipArrow}>▾</span>
+                    </button>
+                  )}
+
+                  {calView === "years" && (
+                    <span className={styles.navRangeLabel}>
+                      {yearRangeStart} – {yearRangeStart + 19}
+                    </span>
+                  )}
+
+                  <button type="button" className={styles.navBtn} onClick={handleNavNext}>
+                    ›
+                  </button>
+                </div>
+
+                {/* ── Back breadcrumb for month/year views ── */}
+                {(calView === "months" || calView === "years") && (
+                  <button
+                    type="button"
+                    className={styles.backBtn}
+                    onClick={() => setCalView(calView === "years" ? "months" : "days")}
+                  >
+                    ← Back
+                  </button>
+                )}
+
+                {/* ── Days grid ── */}
+                {calView === "days" && (
+                  <>
+                    <div className={styles.gridHead}>
+                      {DAYS.map((d) => <span key={d}>{d}</span>)}
+                    </div>
+                    <div className={styles.grid}>
+                      {cells.map((d, i) => {
+                        if (!d) return <span key={i} />;
+                        const isToday = isSameDay(d, today);
+                        const isSelected = selected && isSameDay(d, selected);
+                        const disabled = isDayDisabled(d);
+                        return (
+                          <button
+                            key={i}
+                            type="button"
+                            disabled={disabled}
+                            className={[
+                              styles.day,
+                              isToday ? styles.dayToday : "",
+                              isSelected ? styles.daySelected : "",
+                              disabled ? styles.dayDisabled : "",
+                            ].filter(Boolean).join(" ")}
+                            onClick={() => handleDayClick(d)}
+                          >
+                            {d.getDate()}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </>
+                )}
+
+                {/* ── Months grid ── */}
+                {calView === "months" && (
+                  <div className={styles.monthGrid}>
+                    {MONTHS.map((m, i) => {
+                      const isCurrentMonth = i === today.getMonth() && year === today.getFullYear();
+                      const isSelected = i === month;
+                      return (
+                        <button
+                          key={m}
+                          type="button"
+                          className={[
+                            styles.monthBtn,
+                            isCurrentMonth ? styles.monthToday : "",
+                            isSelected ? styles.monthSelected : "",
+                          ].filter(Boolean).join(" ")}
+                          onClick={() => {
+                            setCursor(new Date(year, i, 1));
+                            setCalView("days");
+                          }}
+                        >
+                          {m.slice(0, 3)}
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+
+                {/* ── Years grid ── */}
+                {calView === "years" && (
+                  <div className={styles.yearGrid}>
+                    {Array.from({ length: 20 }, (_, i) => yearRangeStart + i).map((y) => {
+                      const isCurrentYear = y === today.getFullYear();
+                      const isSelected = y === year;
+                      return (
+                        <button
+                          key={y}
+                          type="button"
+                          className={[
+                            styles.yearBtn,
+                            isCurrentYear ? styles.yearToday : "",
+                            isSelected ? styles.yearSelected : "",
+                          ].filter(Boolean).join(" ")}
+                          onClick={() => {
+                            setCursor(new Date(y, month, 1));
+                            setCalView("months");
+                          }}
+                        >
+                          {y}
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* ── Time view (datetime mode only) ── */}
+            {mode === "datetime" && view === "time" && (
+              <div className={styles.time}>
+                <div className={styles.timeDisplay}>
+                  {pad(hour)}:{pad(minute)}
+                </div>
+
+                <div className={styles.timeRow}>
+                  <span className={styles.timeLabel}>Hour</span>
+                  <span className={styles.timeLabel}>Minute</span>
+                </div>
+
+                <div className={styles.timeRow}>
+                  <div
+                    className={styles.drum}
+                    onMouseDown={(e) => startDrag("hour", e.clientY)}
+                    onTouchStart={(e) => {
+                      if (e.touches?.[0]) startDrag("hour", e.touches[0].clientY);
+                    }}
+                    onWheel={(e) => {
+                      e.preventDefault();
+                      stopMomentum();
+                      applyOffset("hour", hourOffset + e.deltaY * 0.5);
+                      if (hourWheelSnapRef.current) clearTimeout(hourWheelSnapRef.current);
+                      hourWheelSnapRef.current = setTimeout(
+                        () => snapDrum("hour", hourOffset + e.deltaY * 0.5),
+                        70,
+                      );
+                    }}
+                  >
+                    <div className={styles.drumSelector} />
+                    <div className={styles.drumFadeTop} />
+                    <div className={styles.drumFadeBot} />
+                    <div
+                      className={styles.drumList}
+                      style={{ transform: `translateY(${DRUM_CENTER_OFFSET - hourOffset}px)` }}
+                    >
+                      {HOURS_24.map((h) => (
+                        <div
+                          key={h}
+                          className={`${styles.drumItem} ${h === hour ? styles.drumActive : ""}`}
+                        >
+                          {pad(h)}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div
+                    className={styles.drum}
+                    onMouseDown={(e) => startDrag("minute", e.clientY)}
+                    onTouchStart={(e) => {
+                      if (e.touches?.[0]) startDrag("minute", e.touches[0].clientY);
+                    }}
+                    onWheel={(e) => {
+                      e.preventDefault();
+                      stopMomentum();
+                      applyOffset("minute", minuteOffset + e.deltaY * 0.5);
+                      if (minuteWheelSnapRef.current) clearTimeout(minuteWheelSnapRef.current);
+                      minuteWheelSnapRef.current = setTimeout(
+                        () => snapDrum("minute", minuteOffset + e.deltaY * 0.5),
+                        70,
+                      );
+                    }}
+                  >
+                    <div className={styles.drumSelector} />
+                    <div className={styles.drumFadeTop} />
+                    <div className={styles.drumFadeBot} />
+                    <div
+                      className={styles.drumList}
+                      style={{ transform: `translateY(${DRUM_CENTER_OFFSET - minuteOffset}px)` }}
+                    >
+                      {MINUTES_60.map((m) => (
+                        <div
+                          key={m}
+                          className={`${styles.drumItem} ${m === minute ? styles.drumActive : ""}`}
+                        >
+                          {pad(m)}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  className={styles.confirm}
+                  onClick={handleTimeConfirm}
+                >
+                  Confirm ✓
+                </button>
+              </div>
+            )}
+          </div>
+        </>,
+        document.body
+      )}
+    </div>
+  );
+}

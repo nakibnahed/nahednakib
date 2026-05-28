@@ -17,7 +17,7 @@ import {
 } from "react-icons/fi";
 import { MessageCircle } from "lucide-react";
 import ConfirmationModal from "@/components/ConfirmationModal/ConfirmationModal";
-import DateTimePicker from "./DateTimePicker";
+import DateTimePicker from "@/components/DateTimePicker/DateTimePicker";
 import { supabase } from "@/services/supabaseClient";
 import { normalizeSuggestedTimeDisplay } from "@/utils/practiceSuggestedTime";
 import { withTimeout } from "@/utils/withTimeout";

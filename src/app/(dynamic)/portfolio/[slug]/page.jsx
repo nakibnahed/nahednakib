@@ -418,7 +418,9 @@ export default async function PortfolioPage({ params }) {
             <div className={styles.heroStatDivider} />
             <div className={styles.heroStat}>
               <span className={styles.heroStatVal}>
-                {portfolio.created_at
+                {portfolio.project_date
+                  ? portfolio.project_date.split("-")[0]
+                  : portfolio.created_at
                   ? new Date(portfolio.created_at).getFullYear()
                   : "—"}
               </span>
@@ -559,7 +561,7 @@ export default async function PortfolioPage({ params }) {
                       <div>
                         <p className={styles.infoKey}>Date</p>
                         <p className={styles.infoVal}>
-                          {formatDate(portfolio.created_at)}
+                          {formatDate(portfolio.project_date || portfolio.created_at)}
                         </p>
                       </div>
                     </li>

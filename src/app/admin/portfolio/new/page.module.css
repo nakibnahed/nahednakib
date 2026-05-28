@@ -23,8 +23,6 @@
   display: flex;
   flex-direction: column;
   gap: 12px;
-  position: sticky;
-  top: calc(var(--admin-top-offset, 70px) + 16px);
 }
 
 /* ── Card chrome — matches admin formCard pattern ───────────── */
@@ -372,9 +370,6 @@
 @media (max-width: 900px) {
   .editGrid {
     grid-template-columns: 1fr;
-  }
-  .sidebar {
-    position: static;
   }
 }
 

@@ -7,14 +7,11 @@
 }
 
 /* ── Trigger ──────────────────────────────────────────────── */
-/* .triggerWrap is the styled div that holds the border/ring.
-   Two sibling <button>s live inside it — this avoids the
-   invalid-HTML "button inside button" nesting error.          */
 .triggerWrap {
   display: flex;
   align-items: center;
   width: 100%;
-  background: color-mix(in srgb, var(--background-main) 80%, transparent 15%);
+  background: var(--card-bg);
   border: 1px solid var(--card-border);
   border-radius: 8px;
   color: var(--text-light);
@@ -29,7 +26,6 @@
   color: var(--card-text);
 }
 
-/* inner button: calendar icon + selected text */
 .trigger {
   flex: 1;
   display: flex;
@@ -53,7 +49,6 @@
 
 .triggerText {
   color: var(--text-dark);
-
   flex: 1;
   text-align: left;
   white-space: nowrap;
@@ -94,15 +89,30 @@
   left: 50%;
   transform: translate(-50%, -50%);
   z-index: 300;
-  background: color-mix(in srgb, var(--background-main) 80%, transparent 15%);
-  backdrop-filter: blur(24px) saturate(180%);
-  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  background: color-mix(in srgb, var(--background-main) 100%, transparent 5%);
+  backdrop-filter: blur(16px) saturate(160%);
+  -webkit-backdrop-filter: blur(16px) saturate(160%);
   border: 1px solid var(--card-border);
   border-radius: 20px;
   width: 300px;
-  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.65);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
   overflow: hidden;
   animation: panelIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.panel::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    145deg,
+    rgba(255, 255, 255, 0.02) 0%,
+    rgba(255, 255, 255, 0.01) 35%,
+    rgba(255, 255, 255, 0) 65%
+  );
+  pointer-events: none;
+  border-radius: inherit;
+  z-index: 0;
 }
 
 @keyframes panelIn {
@@ -154,21 +164,69 @@
 /* ── Calendar ─────────────────────────────────────────────── */
 .calendar {
   padding: 16px;
+  min-height: 290px;
 }
 
+/* ── Nav bar ─────────────────────────────────────────────── */
 .nav {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 14px;
+  margin-bottom: 10px;
 }
 
-.navMonth {
+/* Label row: month chip + year chip */
+.navLabel {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* Clickable month / year chips */
+.navChipBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  background: none;
+  border: none;
+  padding: 5px 8px;
+  border-radius: 8px;
   font-size: 13px;
   font-weight: 700;
   font-family: var(--font-heading);
   color: var(--text-dark);
   letter-spacing: 0.01em;
+  cursor: pointer;
+  transition:
+    background 0.15s,
+    color 0.15s;
+  line-height: 1;
+}
+
+.navChipBtn:hover {
+  background: color-mix(in srgb, var(--primary-color) 14%, transparent);
+  color: var(--primary-color);
+}
+
+.navChipArrow {
+  font-size: 9px;
+  opacity: 0.55;
+  margin-top: 1px;
+  transition: opacity 0.15s;
+}
+
+.navChipBtn:hover .navChipArrow {
+  opacity: 1;
+}
+
+/* Year range label in year view */
+.navRangeLabel {
+  font-size: 13px;
+  font-weight: 700;
+  font-family: var(--font-heading);
+  color: var(--text-dark);
+  letter-spacing: 0.01em;
+  user-select: none;
 }
 
 .navBtn {
@@ -178,12 +236,13 @@
   cursor: pointer;
   font-size: 20px;
   line-height: 1;
-  width: 30px;
-  height: 30px;
+  width: 32px;
+  height: 32px;
   border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
   transition:
     background 0.15s,
     color 0.15s;
@@ -194,6 +253,28 @@
   color: var(--card-text);
 }
 
+/* ── Back breadcrumb ─────────────────────────────────────── */
+.backBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 11px;
+  font-weight: 500;
+  font-family: var(--font-main);
+  cursor: pointer;
+  padding: 0 2px 8px;
+  transition: color 0.15s;
+  letter-spacing: 0.02em;
+}
+
+.backBtn:hover {
+  color: var(--primary-color);
+}
+
+/* ── Days grid ───────────────────────────────────────────── */
 .gridHead {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
@@ -246,13 +327,95 @@
 
 .daySelected {
   background: var(--primary-color) !important;
-  color: #fff !important;
+  color: var(--button-text) !important;
   font-weight: 700;
 }
 
 .dayDisabled {
   opacity: 0.22;
   cursor: not-allowed;
+}
+
+/* ── Month grid (3 × 4) ──────────────────────────────────── */
+.monthGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+  padding: 4px 0 2px;
+}
+
+.monthBtn {
+  padding: 11px 4px;
+  border-radius: 10px;
+  border: none;
+  background: none;
+  color: var(--text-dark);
+  font-size: 13px;
+  font-weight: 500;
+  font-family: var(--font-main);
+  cursor: pointer;
+  text-align: center;
+  transition:
+    background 0.12s,
+    color 0.12s;
+}
+
+.monthBtn:hover:not(.monthSelected) {
+  background: var(--card-bg-hover);
+  color: var(--card-text);
+}
+
+.monthToday {
+  color: var(--primary-color);
+  font-weight: 700;
+  background: color-mix(in srgb, var(--primary-color) 10%, transparent);
+}
+
+.monthSelected {
+  background: var(--primary-color) !important;
+  color: var(--button-text) !important;
+  font-weight: 700;
+}
+
+/* ── Year grid (4 × 5) ───────────────────────────────────── */
+.yearGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 5px;
+  padding: 4px 0 2px;
+}
+
+.yearBtn {
+  padding: 10px 2px;
+  border-radius: 10px;
+  border: none;
+  background: none;
+  color: var(--text-dark);
+  font-size: 12px;
+  font-weight: 500;
+  font-family: var(--font-main);
+  cursor: pointer;
+  text-align: center;
+  transition:
+    background 0.12s,
+    color 0.12s;
+}
+
+.yearBtn:hover:not(.yearSelected) {
+  background: var(--card-bg-hover);
+  color: var(--card-text);
+}
+
+.yearToday {
+  color: var(--primary-color);
+  font-weight: 700;
+  background: color-mix(in srgb, var(--primary-color) 10%, transparent);
+}
+
+.yearSelected {
+  background: var(--primary-color) !important;
+  color: var(--button-text) !important;
+  font-weight: 700;
 }
 
 /* ── Time view ────────────────────────────────────────────── */
@@ -299,7 +462,7 @@
   overflow: hidden;
   border: 1px solid var(--card-border);
   border-radius: 12px;
-  background: color-mix(in srgb, var(--background-main) 60%, transparent);
+  background: var(--card-bg);
   user-select: none;
   cursor: ns-resize;
   touch-action: none;
@@ -398,4 +561,62 @@
 
 .confirm:active {
   transform: scale(0.98);
+}
+
+/* ── Light mode ───────────────────────────────────────────── */
+:global(.light) .triggerWrap {
+  background: var(--card-bg);
+  border-color: var(--card-border);
+}
+
+:global(.light) .panel {
+  background: var(--card-bg);
+  border-color: var(--card-border);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.1);
+}
+
+:global(.light) .panel::after {
+  background: none;
+}
+
+:global(.light) .drum {
+  background: var(--background-main);
+}
+
+:global(.light) .drumFadeTop {
+  background: linear-gradient(
+    to bottom,
+    var(--background-main) 0%,
+    transparent 100%
+  );
+}
+
+:global(.light) .drumFadeBot {
+  background: linear-gradient(
+    to top,
+    var(--background-main) 0%,
+    transparent 100%
+  );
+}
+
+:global(.light) .navChipBtn {
+  color: var(--text-dark);
+}
+
+:global(.light) .monthBtn,
+:global(.light) .yearBtn {
+  color: var(--text-dark);
+}
+
+/* ── Mobile ──────────────────────────────────────────────── */
+@media (max-width: 480px) {
+  .panel {
+    width: calc(100vw - 32px);
+    max-width: 340px;
+  }
+
+  .trigger {
+    font-size: 15px;
+    padding: 10px 12px;
+  }
 }
