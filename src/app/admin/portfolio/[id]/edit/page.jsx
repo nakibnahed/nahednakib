@@ -222,6 +222,10 @@ export default function EditPortfolioPage() {
         }
       }
 
+      if (rowId) {
+        await supabase.from("portfolios").update({ image: "" }).eq("id", rowId);
+      }
+
       setFormData((prev) => ({ ...prev, image: "" }));
       showAppToast("Cover image removed.", "success");
     } catch (error) {
