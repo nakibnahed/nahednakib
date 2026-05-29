@@ -184,7 +184,7 @@ export default function NewBlogPage() {
     if (formData.imageFile) {
       let uploadFile = formData.imageFile;
       try {
-        uploadFile = await optimizeImageFile(formData.imageFile);
+        uploadFile = await optimizeImageFile(formData.imageFile, { maxSizeMB: 0.3, maxWidthOrHeight: 1200 });
       } catch {
         uploadFile = formData.imageFile;
       }

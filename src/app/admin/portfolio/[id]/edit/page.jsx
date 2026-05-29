@@ -28,6 +28,7 @@ import { seoKeywordsFromInput, seoKeywordsToInput } from "@/lib/seo/auto";
 import { isUuid } from "@/lib/utils/isUuid";
 import RichEditor from "@/components/Admin/RichEditor/RichEditor";
 import DateTimePicker from "@/components/DateTimePicker/DateTimePicker";
+import { optimizeImageFile } from "@/lib/images/optimizeImage";
 
 const CATEGORY_OPTIONS = [
   "Web Development",
@@ -162,15 +163,22 @@ export default function EditPortfolioPage() {
     setUploading(true);
     setErrorMsg(null);
 
-    const fileExt = file.name.split(".").pop();
+    let uploadFile = file;
+    try {
+      uploadFile = await optimizeImageFile(file, { maxSizeMB: 0.3, maxWidthOrHeight: 1200 });
+    } catch {
+      uploadFile = file;
+    }
+
+    const fileExt = (uploadFile.name || file.name).split(".").pop();
     const fileName = `${Date.now()}.${fileExt}`;
 
     const { error: uploadError } = await supabase.storage
       .from("portfolio-images")
-      .upload(fileName, file, {
+      .upload(fileName, uploadFile, {
         cacheControl: "3600",
         upsert: false,
-        contentType: file.type,
+        contentType: uploadFile.type || file.type,
       });
 
     if (uploadError) {

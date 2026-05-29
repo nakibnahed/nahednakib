@@ -8,6 +8,7 @@ import { Upload, X, User, Trash2, UserPlus, ArrowLeft } from "lucide-react";
 import { supabase } from "@/services/supabaseClient";
 import { avatarsBucketPathFromPublicUrl } from "@/lib/storage/avatarPublicUrl";
 import { showAppToast } from "@/lib/showAppToast";
+import { optimizeImageFile } from "@/lib/images/optimizeImage";
 import admin from "@/components/Admin/adminPage.module.css";
 import styles from "../Authors.module.css";
 
@@ -38,12 +39,18 @@ export default function NewAuthorPage() {
   const [createPreviewUrl, setCreatePreviewUrl] = useState("");
 
   async function uploadAuthorAvatar(file, pathPrefix) {
+    let uploadFile = file;
+    try {
+      uploadFile = await optimizeImageFile(file, { maxSizeMB: 0.3, maxWidthOrHeight: 800 });
+    } catch {
+      uploadFile = file;
+    }
     const ext =
-      file.name.split(".").pop()?.replace(/[^a-zA-Z0-9]/g, "") || "jpg";
+      (uploadFile.name || file.name).split(".").pop()?.replace(/[^a-zA-Z0-9]/g, "") || "jpg";
     const path = `${pathPrefix}-${Date.now()}.${ext}`;
     const { error: uploadError } = await supabase.storage
       .from("avatars")
-      .upload(path, file);
+      .upload(path, uploadFile);
 
     if (uploadError) {
       console.error("Author avatar upload:", uploadError);

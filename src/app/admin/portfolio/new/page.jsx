@@ -25,6 +25,7 @@ import { seoKeywordsFromInput } from "@/lib/seo/auto";
 import { generateUniqueSlug } from "@/lib/utils/slugify";
 import RichEditor from "@/components/Admin/RichEditor/RichEditor";
 import DateTimePicker from "@/components/DateTimePicker/DateTimePicker";
+import { optimizeImageFile } from "@/lib/images/optimizeImage";
 
 const CATEGORY_OPTIONS = [
   "Web Development",
@@ -119,15 +120,22 @@ export default function NewPortfolioPage() {
 
     if (formData.imageFile) {
       try {
-        const fileExt = formData.imageFile.name.split(".").pop();
+        let uploadFile = formData.imageFile;
+        try {
+          uploadFile = await optimizeImageFile(formData.imageFile, { maxSizeMB: 0.3, maxWidthOrHeight: 1200 });
+        } catch {
+          uploadFile = formData.imageFile;
+        }
+
+        const fileExt = (uploadFile.name || formData.imageFile.name).split(".").pop();
         const fileName = `${Date.now()}.${fileExt}`;
 
         const { error: uploadError } = await supabase.storage
           .from("portfolio-images")
-          .upload(fileName, formData.imageFile, {
+          .upload(fileName, uploadFile, {
             cacheControl: "3600",
             upsert: false,
-            contentType: formData.imageFile.type,
+            contentType: uploadFile.type || formData.imageFile.type,
           });
 
         if (uploadError) {

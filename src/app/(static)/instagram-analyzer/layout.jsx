@@ -36,8 +36,8 @@ export const metadata = {
     images: [
       {
         url: pageImage,
-        width: 3600,
-        height: 1890,
+        width: 1200,
+        height: 630,
         alt: "Instagram Follower Analyzer — find who isn't following you back",
         type: "image/png",
       },

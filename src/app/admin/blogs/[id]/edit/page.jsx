@@ -187,7 +187,7 @@ export default function EditBlogPage() {
 
     let uploadFile = file;
     try {
-      uploadFile = await optimizeImageFile(file);
+      uploadFile = await optimizeImageFile(file, { maxSizeMB: 0.3, maxWidthOrHeight: 1200 });
     } catch {
       uploadFile = file;
     }
