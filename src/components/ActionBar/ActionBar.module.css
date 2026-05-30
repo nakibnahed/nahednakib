@@ -1,143 +1,125 @@
+/* ─── BASE BAR ───────────────────────────────────────────────── */
 .actionBar {
   display: flex;
-  gap: 6px;
-  margin: 0;
-  padding: 0;
-  align-items: flex-start;
-  justify-content: flex-start;
+  width: 100%;
 }
 
 .actionBtn {
+  flex: 1;
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 4px;
-  padding: 2px 6px;
+  justify-content: center;
+  gap: 6px;
+  min-height: 64px;
+  padding: 12px 6px;
   background: transparent;
   border: none;
-  border-radius: 3px;
-  color: var(--text-dark);
+  border-right: 1px solid var(--card-border);
+  color: var(--text-muted);
   cursor: pointer;
-  transition: all 0.2s ease;
-  font-size: 13px;
-  font-weight: 300;
-  white-space: nowrap;
+  transition: background 0.18s, color 0.18s;
+  position: relative;
+  overflow: hidden;
 }
 
-.actionBtn svg {
-  color: var(--text-dark);
-  transition: all 0.2s ease;
+.actionBtn:last-child {
+  border-right: none;
+}
+
+.actionBtn::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(238, 104, 26, 0.07);
+  opacity: 0;
+  transition: opacity 0.18s;
+}
+
+.actionBtn:hover::before,
+.actionBtn:focus-visible::before {
+  opacity: 1;
 }
 
 .actionBtn:hover,
-.actionBtn:focus {
+.actionBtn:focus-visible {
   color: var(--primary-color);
-  background: transparent;
+  outline: none;
 }
 
-.actionBtn:hover svg,
-.actionBtn:focus svg {
-  color: var(--primary-color);
-}
-
-.actionBtn:active {
-  transform: scale(0.95);
+.actionBtn:active .btnIcon {
+  transform: scale(0.84);
 }
 
 .actionBtn.active {
   color: var(--primary-color);
-  background: transparent;
-}
-
-.actionBtn.active svg {
-  color: var(--primary-color);
 }
 
 .actionBtn:disabled {
-  opacity: 0.6;
+  opacity: 0.4;
   cursor: not-allowed;
-  transform: none;
 }
 
-/* Action Bar in Hero Layout */
+/* ─── ICON ───────────────────────────────────────────────────── */
+.btnIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.15s;
+  flex-shrink: 0;
+}
+
+/* ─── LABEL ──────────────────────────────────────────────────── */
+.btnLabel {
+  font-size: 0.58rem;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  line-height: 1;
+  color: inherit;
+}
+
+/* ─── LEGACY HERO WRAPPER CONTEXT ────────────────────────────── */
 .actionBarWrapper .actionBar {
   justify-content: center;
   gap: 1rem;
-  margin: 0;
   padding: 0.75rem 1.5rem;
   background: var(--card-background);
   border-radius: 3rem;
   backdrop-filter: blur(10px);
-  border: 1px solid var(--border-subtle);
+  border: 1px solid var(--card-border);
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  flex-direction: row;
+  width: auto;
 }
 
 .actionBarWrapper .actionBtn {
-  background: transparent;
-  border: none;
+  flex: unset;
+  flex-direction: row;
+  min-height: unset;
   padding: 0.5rem 0.75rem;
+  border-right: none;
   border-radius: 1.5rem;
-  transition: all 0.2s ease;
+  gap: 6px;
+}
+
+.actionBarWrapper .btnLabel {
   font-size: 0.875rem;
   font-weight: 400;
-  color: var(--text-dark);
-  min-width: auto;
-}
-
-.actionBarWrapper .actionBtn svg {
-  color: var(--text-dark);
-}
-
-.actionBarWrapper .actionBtn:hover,
-.actionBarWrapper .actionBtn:focus {
-  color: white;
-  background: transparent;
-}
-
-.actionBarWrapper .actionBtn:hover svg,
-.actionBarWrapper .actionBtn:focus svg {
-  color: white;
-}
-
-.actionBarWrapper .actionBtn.active {
-  color: white;
-  background: transparent;
-}
-
-.actionBarWrapper .actionBtn.active svg {
-  color: white;
-}
-
-@media (max-width: 768px) {
-  .actionBar {
-    gap: 4px;
-  }
-
-  .actionBtn {
-    padding: 2px 4px;
-    font-size: 12px;
-    gap: 3px;
-  }
-
-  .actionBtn span {
-    display: none;
-  }
+  text-transform: none;
+  letter-spacing: 0;
 }
 
 /* ── Light mode ──────────────────────────────────────────────── */
-:global(.light) .actionBarWrapper .actionBtn:hover,
-:global(.light) .actionBarWrapper .actionBtn:focus {
-  color: var(--primary-color);
+:global(.light) .actionBtn::before {
+  background: rgba(238, 104, 26, 0.08);
 }
 
-:global(.light) .actionBarWrapper .actionBtn:hover svg,
-:global(.light) .actionBarWrapper .actionBtn:focus svg {
+:global(.light) .actionBarWrapper .actionBtn:hover,
+:global(.light) .actionBarWrapper .actionBtn:focus-visible {
   color: var(--primary-color);
 }
 
 :global(.light) .actionBarWrapper .actionBtn.active {
-  color: var(--primary-color);
-}
-
-:global(.light) .actionBarWrapper .actionBtn.active svg {
   color: var(--primary-color);
 }

@@ -16,10 +16,7 @@ export default function ActionBar({ title, contentType, contentId }) {
 
   const handleShare = () => {
     if (typeof window !== "undefined" && navigator.share) {
-      navigator.share({
-        title,
-        url: window.location.href,
-      });
+      navigator.share({ title, url: window.location.href });
     } else if (typeof window !== "undefined") {
       navigator.clipboard.writeText(window.location.href);
       showAppToast("Link copied to clipboard.", "success");
@@ -27,64 +24,60 @@ export default function ActionBar({ title, contentType, contentId }) {
   };
 
   const scrollToComments = () => {
-    const commentsSection = document.getElementById("comments-section");
-    if (commentsSection) {
-      commentsSection.scrollIntoView({ behavior: "smooth" });
-    }
+    const el = document.getElementById("comments-section");
+    if (el) el.scrollIntoView({ behavior: "smooth" });
   };
 
   return (
     <div className={styles.actionBar}>
       <button
-        className={`${styles.actionBtn} ${
-          engagement.likes.userLiked ? styles.active : ""
-        }`}
+        className={`${styles.actionBtn} ${engagement.likes.userLiked ? styles.active : ""}`}
         onClick={actions.toggleLike}
         disabled={engagement.likes.loading}
-        title="Like"
-        style={{
-          color: engagement.likes.userLiked
-            ? "var(--primary-color)"
-            : "inherit",
-        }}
+        aria-label="Like"
       >
-        {engagement.likes.userLiked ? (
-          <FaThumbsUp size={16} style={{ fill: "var(--primary-color)" }} />
-        ) : (
-          <FaRegThumbsUp size={16} />
-        )}
+        <span className={styles.btnIcon}>
+          {engagement.likes.userLiked
+            ? <FaThumbsUp size={17} />
+            : <FaRegThumbsUp size={17} />}
+        </span>
+        <span className={styles.btnLabel}>Like</span>
       </button>
 
       <button
-        className={`${styles.actionBtn} ${
-          engagement.favorites.userFavorited ? styles.active : ""
-        }`}
+        className={`${styles.actionBtn} ${engagement.favorites.userFavorited ? styles.active : ""}`}
         onClick={actions.toggleFavorite}
         disabled={engagement.favorites.loading}
-        title="Favorite"
-        style={{
-          color: engagement.favorites.userFavorited
-            ? "var(--primary-color)"
-            : "inherit",
-        }}
+        aria-label="Favorite"
       >
-        {engagement.favorites.userFavorited ? (
-          <FaHeart size={16} style={{ fill: "var(--primary-color)" }} />
-        ) : (
-          <FaRegHeart size={16} />
-        )}
+        <span className={styles.btnIcon}>
+          {engagement.favorites.userFavorited
+            ? <FaHeart size={17} />
+            : <FaRegHeart size={17} />}
+        </span>
+        <span className={styles.btnLabel}>Save</span>
       </button>
 
       <button
         className={styles.actionBtn}
-        title="Comments"
         onClick={scrollToComments}
+        aria-label="Jump to comments"
       >
-        <FaComment size={16} />
+        <span className={styles.btnIcon}>
+          <FaComment size={17} />
+        </span>
+        <span className={styles.btnLabel}>Comment</span>
       </button>
 
-      <button className={styles.actionBtn} title="Share" onClick={handleShare}>
-        <FiShare2 size={16} />
+      <button
+        className={styles.actionBtn}
+        onClick={handleShare}
+        aria-label="Share"
+      >
+        <span className={styles.btnIcon}>
+          <FiShare2 size={17} />
+        </span>
+        <span className={styles.btnLabel}>Share</span>
       </button>
     </div>
   );

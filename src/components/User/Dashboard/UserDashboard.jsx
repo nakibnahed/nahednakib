@@ -339,16 +339,14 @@ export default function UserDashboard({ user, profileData }) {
 
   return (
     <div className={be.pageRoot}>
-      <header className={be.hero}>
-        <div className={be.heroMeta}>
-          <span className={be.metaChip} style={{ display: "inline-flex", alignItems: "center", gap: "4px" }}>
-            {profileData?.role === "admin" ? (
-              <><ShieldCheck size={12} /> Administrator</>
-            ) : (
-              <><User size={12} /> Member</>
-            )}
-          </span>
-        </div>
+      <header className={admin.pageHeader}>
+        <span className={styles.heroChip}>
+          {profileData?.role === "admin" ? (
+            <><ShieldCheck size={12} /> Administrator</>
+          ) : (
+            <><User size={12} /> Member</>
+          )}
+        </span>
         <h1 className={admin.pageTitle}>
           Welcome back, {getUserDisplayName()}!
         </h1>

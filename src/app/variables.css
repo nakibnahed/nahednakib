@@ -55,7 +55,7 @@
       #171717 16%
     );
   --card-bg-hover: #1e1e1e;
-  --card-text: #f3f4f6;
+  --card-text: #aaa;
   --card-border: #232329;
   --card-border-radius: 24px;
   --card-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
