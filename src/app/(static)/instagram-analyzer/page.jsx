@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
+import { unzip, strFromU8 } from "fflate";
 import styles from "./page.module.css";
 
 const STORAGE_KEY      = "ig-analyzer-handled";
@@ -28,6 +29,8 @@ export default function InstagramAnalyzer() {
   const [handled, setHandled]             = useState(() => loadSet(STORAGE_KEY));
   const [kept, setKept]                   = useState(() => loadSet(KEPT_KEY));
   const [notFound, setNotFound]           = useState(() => loadSet(NOT_FOUND_KEY));
+  const [zipBusy, setZipBusy]             = useState(false);
+  const [zipStatus, setZipStatus]         = useState("");
   const [searchQuery, setSearchQuery]     = useState("");
   const [showHandled, setShowHandled]     = useState(false);
   const [showKept, setShowKept]           = useState(true);
@@ -47,13 +50,105 @@ export default function InstagramAnalyzer() {
     try { localStorage.setItem(NOT_FOUND_KEY, JSON.stringify([...notFound])); } catch (e) {}
   }, [notFound]);
 
-  const handleFileUpload = (event, type) => {
+  const handleNotFoundUpload = async (event) => {
     const file = event.target.files[0];
-    if (file) {
-      if (type === "followers") setFollowersFile(file);
-      else if (type === "following") setFollowingFile(file);
-      else if (type === "notfound") setNotFoundFile(file);
-      setError("");
+    if (!file) return;
+    setNotFoundFile(file);
+    setError("");
+    try {
+      const nfResult = await parseInstagramData(file);
+      const uploaded = nfResult.usernames.map(normalize).filter(Boolean);
+      if (uploaded.length > 0) {
+        setNotFound((prev) => new Set([...prev, ...uploaded]));
+      }
+    } catch (e) {
+      setError(
+        "Couldn't read that not-found file. Make sure it's the file you previously saved from this tool."
+      );
+    }
+  };
+
+  const handleZipUpload = async (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+    setError("");
+    setZipStatus("");
+    setZipBusy(true);
+
+    try {
+      const buffer = new Uint8Array(await file.arrayBuffer());
+
+      // Only decompress the small follower/following JSON files, never media.
+      const entries = await new Promise((resolve, reject) => {
+        unzip(
+          buffer,
+          {
+            filter: (f) =>
+              /\.json$/i.test(f.name) && /(followers|following)/i.test(f.name),
+          },
+          (err, data) => (err ? reject(err) : resolve(data))
+        );
+      });
+
+      const followerEntries = [];
+      let followingText = null;
+
+      for (const path in entries) {
+        const base = path.split("/").pop().toLowerCase();
+        if (base.startsWith("following")) {
+          followingText = strFromU8(entries[path]);
+        } else if (base.startsWith("followers")) {
+          followerEntries.push(strFromU8(entries[path]));
+        }
+      }
+
+      if (followerEntries.length === 0 || !followingText) {
+        setError(
+          "Couldn't find the followers and following files inside that ZIP. Make sure you requested your data in JSON format and uploaded the original ZIP Instagram sent you, then try again."
+        );
+        return;
+      }
+
+      // Followers can be split across followers_1.json, followers_2.json, etc.
+      let mergedFollowers = [];
+      for (const text of followerEntries) {
+        const parsed = JSON.parse(text);
+        if (Array.isArray(parsed)) {
+          mergedFollowers.push(...parsed);
+        } else if (Array.isArray(parsed.relationships_followers)) {
+          mergedFollowers.push(...parsed.relationships_followers);
+        } else {
+          for (const key in parsed) {
+            if (Array.isArray(parsed[key])) {
+              mergedFollowers.push(...parsed[key]);
+              break;
+            }
+          }
+        }
+      }
+
+      const followersBlob = new File(
+        [JSON.stringify(mergedFollowers)],
+        "followers.json",
+        { type: "application/json" }
+      );
+      const followingBlob = new File([followingText], "following.json", {
+        type: "application/json",
+      });
+
+      setFollowersFile(followersBlob);
+      setFollowingFile(followingBlob);
+      setZipStatus("Files found in your ZIP — analyzing…");
+
+      await compareFollowers(followersBlob, followingBlob);
+    } catch (err) {
+      setError(
+        "Couldn't read that ZIP file. Make sure it's the unedited ZIP Instagram sent you (in JSON format) and try again."
+      );
+    } finally {
+      setZipBusy(false);
+      const zi = document.getElementById("zip-input");
+      if (zi) zi.value = "";
     }
   };
 
@@ -125,8 +220,8 @@ export default function InstagramAnalyzer() {
     });
   };
 
-  const compareFollowers = async () => {
-    if (!followersFile || !followingFile) {
+  const compareFollowers = async (fFile = followersFile, gFile = followingFile) => {
+    if (!fFile || !gFile) {
       setError("Please upload both the followers and following files");
       return;
     }
@@ -134,8 +229,8 @@ export default function InstagramAnalyzer() {
     setError("");
     try {
       const [followersResult, followingResult] = await Promise.all([
-        parseInstagramData(followersFile),
-        parseInstagramData(followingFile),
+        parseInstagramData(fFile),
+        parseInstagramData(gFile),
       ]);
       const followers = followersResult.usernames;
       const following = followingResult.usernames;
@@ -238,16 +333,6 @@ export default function InstagramAnalyzer() {
     URL.revokeObjectURL(url);
   };
 
-  const copyRemaining = async () => {
-    const remaining = results.filter((u) => {
-      const n = normalize(u);
-      return !handled.has(n) && !kept.has(n) && !notFound.has(n);
-    });
-    try {
-      await navigator.clipboard.writeText(remaining.map((u) => "@" + u).join("\n"));
-    } catch (e) {}
-  };
-
   const resetAnalysis = () => {
     setFollowersFile(null);
     setFollowingFile(null);
@@ -261,12 +346,11 @@ export default function InstagramAnalyzer() {
     setKept(new Set());
     setNotFound(new Set());
     setNotFoundFile(null);
-    const fi = document.getElementById("followers-input");
-    const gi = document.getElementById("following-input");
+    setZipStatus("");
     const nfi = document.getElementById("notfound-input");
-    if (fi) fi.value = "";
-    if (gi) gi.value = "";
+    const zi = document.getElementById("zip-input");
     if (nfi) nfi.value = "";
+    if (zi) zi.value = "";
   };
 
   const filteredResults = useMemo(() => {
@@ -289,6 +373,7 @@ export default function InstagramAnalyzer() {
     [results, handled, kept, notFound]
   );
 
+  const handledCount  = useMemo(() => results.filter((u) => handled.has(normalize(u))).length,  [results, handled]);
   const keptCount     = useMemo(() => results.filter((u) => kept.has(normalize(u))).length,     [results, kept]);
   const notFoundCount = useMemo(() => results.filter((u) => notFound.has(normalize(u))).length, [results, notFound]);
 
@@ -303,15 +388,57 @@ export default function InstagramAnalyzer() {
           <div className={styles.header}>
             <h1 className={styles.title}>Instagram Follower Analyzer</h1>
             <p className={styles.description}>
-              Upload your followers and following files to find out who isn&apos;t following you back.
+              Drop your Instagram data ZIP to find out who isn&apos;t following you back.
             </p>
             <div className={styles.instructions}>
-              <h3>How to get your Instagram data:</h3>
-              <ol>
-                <li>Instagram Settings → Your activity → Download your information</li>
-                <li>Request your data and download the ZIP file</li>
-                <li>Extract the ZIP and find the JSON files for followers and following</li>
-                <li>Upload both files here to analyze</li>
+              <h3 className={styles.instructionsTitle}>
+                How to get your Instagram data
+              </h3>
+              <ol className={styles.steps}>
+                <li className={styles.step}>
+                  <span className={styles.stepNum}>1</span>
+                  <div className={styles.stepText}>
+                    <strong>Open &ldquo;Download your information&rdquo;</strong>
+                    <p>
+                      In the Instagram app, tap your profile, open the menu
+                      (☰), then go to <em>Your activity → Download your
+                      information</em>.
+                    </p>
+                  </div>
+                </li>
+                <li className={styles.step}>
+                  <span className={styles.stepNum}>2</span>
+                  <div className={styles.stepText}>
+                    <strong>Request your data in JSON format</strong>
+                    <p>
+                      Choose <em>Some of your information</em>, select{" "}
+                      <em>Followers and following</em>, then set the format to{" "}
+                      <strong>JSON</strong> and submit the request.
+                    </p>
+                  </div>
+                </li>
+                <li className={styles.step}>
+                  <span className={styles.stepNum}>3</span>
+                  <div className={styles.stepText}>
+                    <strong>Download the ZIP from Instagram</strong>
+                    <p>
+                      Instagram emails you a download link once it&apos;s ready
+                      (usually a few minutes to a few hours). Open it and save
+                      the ZIP file to your device.
+                    </p>
+                  </div>
+                </li>
+                <li className={styles.step}>
+                  <span className={styles.stepNum}>4</span>
+                  <div className={styles.stepText}>
+                    <strong>Drop the ZIP below</strong>
+                    <p>
+                      Upload it here — we&apos;ll automatically find your
+                      followers and following files and run the analysis. No
+                      need to unzip anything yourself.
+                    </p>
+                  </div>
+                </li>
               </ol>
             </div>
             <Link
@@ -322,161 +449,170 @@ export default function InstagramAnalyzer() {
             </Link>
           </div>
 
-          <div className={styles.uploadSection}>
-            <div className={styles.uploadCard}>
-              <h3 className={styles.cardTitle}>Upload Followers Data</h3>
-              <p className={styles.cardDescription}>
-                Upload the JSON file containing your followers list from your Instagram data export.
-              </p>
-              <input
-                id="followers-input"
-                type="file"
-                accept=".json"
-                onChange={(e) => handleFileUpload(e, "followers")}
-                className={styles.fileInput}
-              />
-              <label htmlFor="followers-input" className={styles.fileButton}>
-                {followersFile ? followersFile.name : "Choose Followers File"}
-              </label>
-            </div>
+          <div className={styles.zipCard}>
+            <h3 className={styles.cardTitle}>Upload your Instagram ZIP</h3>
+            <p className={styles.cardDescription}>
+              Just drop the ZIP file you downloaded from Instagram — we&apos;ll
+              find the followers and following files for you automatically and
+              start the analysis. Nothing is uploaded to a server; everything
+              runs in your browser.
+            </p>
+            <input
+              id="zip-input"
+              type="file"
+              accept=".zip"
+              onChange={handleZipUpload}
+              disabled={zipBusy || isProcessing}
+              className={styles.fileInput}
+            />
+            <label
+              htmlFor="zip-input"
+              className={`${styles.fileButton} ${
+                zipBusy ? styles.fileButtonBusy : ""
+              }`}
+            >
+              {zipBusy ? "Reading ZIP…" : "Choose ZIP File"}
+            </label>
+            {zipStatus && <p className={styles.zipStatus}>{zipStatus}</p>}
+          </div>
 
-            <div className={styles.uploadCard}>
-              <h3 className={styles.cardTitle}>Upload Following Data</h3>
+          <details className={styles.optionalDetails}>
+            <summary className={styles.optionalSummary}>
+              Returning user? Restore your saved &ldquo;not-found&rdquo; list
+              (optional)
+            </summary>
+            <div className={styles.optionalBody}>
               <p className={styles.cardDescription}>
-                Upload the JSON file containing your following list from your Instagram data export.
+                As you review your results, you can mark accounts as
+                <strong> &ldquo;not found&rdquo;</strong> — for example, profiles
+                that were deleted, deactivated, or you simply couldn&apos;t
+                locate. Those stay hidden so you don&apos;t keep re-checking
+                them, and you can export them as a small JSON file to keep for
+                next time.
               </p>
-              <input
-                id="following-input"
-                type="file"
-                accept=".json"
-                onChange={(e) => handleFileUpload(e, "following")}
-                className={styles.fileInput}
-              />
-              <label htmlFor="following-input" className={styles.fileButton}>
-                {followingFile ? followingFile.name : "Choose Following File"}
-              </label>
-            </div>
-
-            <div className={`${styles.uploadCard} ${styles.optionalCard}`}>
-              <h3 className={styles.cardTitle}>Not-Found Accounts (Optional)</h3>
               <p className={styles.cardDescription}>
-                If you saved a not-found file before, upload it to auto-hide those accounts.
+                If you saved that file on a previous visit, upload it
+                <strong> before</strong> dropping your ZIP and those accounts
+                will be hidden automatically in your new results.
               </p>
               <input
                 id="notfound-input"
                 type="file"
                 accept=".json"
-                onChange={(e) => handleFileUpload(e, "notfound")}
+                onChange={handleNotFoundUpload}
                 className={styles.fileInput}
               />
               <label htmlFor="notfound-input" className={styles.fileButton}>
-                {notFoundFile ? notFoundFile.name : "Choose Not-Found File (optional)"}
+                {notFoundFile ? notFoundFile.name : "Choose Not-Found File"}
               </label>
             </div>
-          </div>
+          </details>
 
           {error && <div className={styles.errorMessage}>{error}</div>}
 
-          <div className={styles.actions}>
-            <button
-              onClick={compareFollowers}
-              disabled={isProcessing || !followersFile || !followingFile}
-              className={`${styles.button} ${styles.primaryButton}`}
-            >
-              {isProcessing ? "Analyzing..." : "Analyze Followers"}
-            </button>
-
-            {(followersFile || followingFile) && (
+          {notFoundFile && (
+            <div className={styles.actions}>
               <button
                 onClick={resetAnalysis}
                 className={`${styles.button} ${styles.secondaryButton}`}
               >
                 Reset
               </button>
-            )}
-          </div>
+            </div>
+          )}
         </>
       )}
 
       {results.length > 0 && (
         <div className={styles.resultsSection}>
+
+          {/* ── Header ── */}
           <div className={styles.resultsHeader}>
-            <div>
-              <h2 className={styles.resultsTitle}>
-                Accounts Not Following You Back ({results.length})
-              </h2>
-              <div className={styles.badgeRow}>
-                {keptCount > 0 && (
-                  <span className={styles.keptBadge}>♥ {keptCount} kept</span>
-                )}
-                {notFoundCount > 0 && (
-                  <span
-                    className={styles.notFoundBadge}
-                    onClick={() => setShowNotFound((v) => !v)}
-                    title="Click to show/hide not-found accounts"
-                  >
-                    ? {notFoundCount} not found {showNotFound ? "" : "(hidden)"}
-                  </span>
-                )}
-              </div>
+            <div className={styles.resultsTitleWrap}>
+              <h2 className={styles.resultsTitle}>{results.length} not following you back</h2>
+              <p className={styles.resultsSubtitle}>
+                Review each account — mark unfollowed, keep, or skip.
+              </p>
             </div>
-            <button
-              onClick={resetAnalysis}
-              className={`${styles.button} ${styles.primaryButton} ${styles.resetBtn}`}
-            >
-              New Analysis
+            <button onClick={resetAnalysis} className={styles.newAnalysisBtn}>
+              ↺ New Analysis
             </button>
           </div>
 
+          {/* ── Progress ── */}
           <div className={styles.progressWrap}>
             <div className={styles.progressText}>
-              <span>Decided {decidedCount} of {results.length}</span>
-              <span>{progress}%</span>
+              <span>{decidedCount} of {results.length} reviewed</span>
+              <span className={styles.progressPct}>{progress}%</span>
             </div>
             <div className={styles.progressBar}>
               <div className={styles.progressFill} style={{ width: `${progress}%` }} />
             </div>
           </div>
 
-          <div className={styles.controlsBar}>
+          {/* ── Save not-found prompt ── */}
+          {notFoundCount > 0 && (
+            <div className={styles.notFoundSaveBar}>
+              <div className={styles.notFoundSaveLeft}>
+                <span className={styles.notFoundSaveIcon}>⊘</span>
+                <div>
+                  <p className={styles.notFoundSaveTitle}>Save your not-found list</p>
+                  <p className={styles.notFoundSaveDesc}>
+                    You marked {notFoundCount} account{notFoundCount !== 1 ? "s" : ""} as deleted or deactivated.
+                    Download this file and upload it before your next analysis — those accounts will be hidden automatically.
+                  </p>
+                </div>
+              </div>
+              <button onClick={downloadNotFound} className={styles.notFoundSaveBtn}>
+                ↓ Download list
+              </button>
+            </div>
+          )}
+
+          {/* ── Controls ── */}
+          <div className={styles.controlsRow}>
             <input
               type="text"
-              placeholder="Search by username..."
+              placeholder="Search username…"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className={styles.searchInput}
             />
-            <button
-              onClick={() => setShowHandled((v) => !v)}
-              className={`${styles.filterChip} ${showHandled ? styles.filterChipUnfollow : ""}`}
-            >
-              ✕ Handled
-            </button>
-            <button
-              onClick={() => setShowKept((v) => !v)}
-              className={`${styles.filterChip} ${showKept ? styles.filterChipKeep : ""}`}
-            >
-              ♥ Kept
-            </button>
-            <button
-              onClick={() => setShowNotFound((v) => !v)}
-              className={`${styles.filterChip} ${showNotFound ? styles.filterChipGone : ""}`}
-            >
-              ⊘ Not found
-            </button>
-            <button onClick={copyRemaining} className={styles.miniButton}>
-              Copy Remaining
-            </button>
-            {notFoundCount > 0 && (
-              <button onClick={downloadNotFound} className={styles.miniButton}>
-                Download not-found
+            <div className={styles.filterChips}>
+              <button
+                onClick={() => setShowHandled((v) => !v)}
+                className={`${styles.filterChip} ${showHandled ? styles.filterChipUnfollow : ""}`}
+              >
+                ✕ Unfollowed{handledCount > 0 ? ` (${handledCount})` : ""}
               </button>
-            )}
+              <button
+                onClick={() => setShowKept((v) => !v)}
+                className={`${styles.filterChip} ${showKept ? styles.filterChipKeep : ""}`}
+              >
+                ♥ Keeping{keptCount > 0 ? ` (${keptCount})` : ""}
+              </button>
+              <button
+                onClick={() => setShowNotFound((v) => !v)}
+                className={`${styles.filterChip} ${showNotFound ? styles.filterChipGone : ""}`}
+              >
+                ⊘ Not found{notFoundCount > 0 ? ` (${notFoundCount})` : ""}
+              </button>
+            </div>
           </div>
 
+          {/* ── Legend ── */}
+          <div className={styles.actionLegend}>
+            <span className={styles.legendItem}><span className={styles.legendDot} data-color="red">✕</span>Unfollowed</span>
+            <span className={styles.legendSep}>·</span>
+            <span className={styles.legendItem}><span className={styles.legendDot} data-color="green">♥</span>Keeping</span>
+            <span className={styles.legendSep}>·</span>
+            <span className={styles.legendItem}><span className={styles.legendDot} data-color="amber">⊘</span>Not found / deleted</span>
+          </div>
+
+          {/* ── List ── */}
           <div className={styles.resultsList}>
             {filteredResults.length === 0 ? (
-              <div className={styles.emptyState}>No results match your search.</div>
+              <div className={styles.emptyState}>No accounts match your filters.</div>
             ) : (
               filteredResults.map((username) => {
                 const isHandled  = handled.has(normalize(username));
@@ -497,7 +633,7 @@ export default function InstagramAnalyzer() {
                         <button
                           onClick={() => toggleHandled(username)}
                           className={`${styles.actionChip} ${isHandled ? styles.chipUnfollowActive : ""}`}
-                          title="Mark as unfollowed"
+                          title="Unfollowed"
                         >
                           ✕
                         </button>
@@ -511,7 +647,7 @@ export default function InstagramAnalyzer() {
                         <button
                           onClick={() => toggleNotFound(username)}
                           className={`${styles.actionChip} ${isNotFound ? styles.chipGoneActive : ""}`}
-                          title="Account deleted or deactivated"
+                          title="Not found / deleted"
                         >
                           ⊘
                         </button>
@@ -522,14 +658,14 @@ export default function InstagramAnalyzer() {
                         rel="noopener noreferrer"
                         className={styles.usernameLink}
                       >
-                        <span className={styles.usernameIcon}>@</span>
+                        <span className={styles.usernameAt}>@</span>
                         <span className={styles.username}>{username}</span>
-                        <span className={styles.externalLink}>↗</span>
+                        <span className={styles.externalArrow}>↗</span>
                       </a>
                       <button
                         onClick={(e) => copyProfileUrl(e, username)}
                         className={styles.copyBtn}
-                        title="Copy link to open in browser"
+                        title="Copy profile URL"
                       >
                         {copiedUser === username ? "✓" : "⎘"}
                       </button>
