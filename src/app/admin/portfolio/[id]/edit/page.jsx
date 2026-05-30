@@ -48,6 +48,7 @@ export default function EditPortfolioPage() {
   const [formData, setFormData] = useState({
     title: "",
     image: "",
+    image_alt: "",
     category: "",
     description: "",
     overview: "",
@@ -111,6 +112,7 @@ export default function EditPortfolioPage() {
         setFormData({
           title: data.title || "",
           image: data.image || "",
+          image_alt: data.image_alt || "",
           category: data.category || "",
           description: data.description || "",
           overview: data.overview || "",
@@ -288,6 +290,7 @@ export default function EditPortfolioPage() {
       .update({
         title: formData.title,
         image: formData.image,
+        image_alt: formData.image_alt.trim() || null,
         category: formData.category,
         description: formData.description,
         overview: formData.overview,
@@ -659,6 +662,19 @@ export default function EditPortfolioPage() {
                     <Upload size={13} strokeWidth={2} />
                     {uploading ? "Uploading…" : "Choose file"}
                   </label>
+                  <div className={admin.formField}>
+                    <label className={admin.fieldLabel} htmlFor="ep-cover-alt">
+                      Alt text
+                    </label>
+                    <input
+                      id="ep-cover-alt"
+                      name="image_alt"
+                      value={formData.image_alt}
+                      onChange={handleChange}
+                      className={admin.fieldInput}
+                      placeholder={formData.title || "Describe the image for SEO"}
+                    />
+                  </div>
                   {formData.image && (
                     <button
                       type="button"

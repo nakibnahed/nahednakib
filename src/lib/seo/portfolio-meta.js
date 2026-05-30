@@ -5,6 +5,13 @@ import {
   mergeKeywordSignals,
 } from "@/lib/seo/auto";
 
+/** Non-empty alt for cover / OG: custom alt or project title. */
+export function coverImageAltForPortfolio(portfolio) {
+  const custom = typeof portfolio.image_alt === "string" ? portfolio.image_alt.trim() : "";
+  const title = typeof portfolio.title === "string" ? portfolio.title.trim() : "";
+  return custom || title || "Portfolio project";
+}
+
 export function buildPortfolioMetadata({ portfolio }) {
   const baseUrl = getSiteUrl();
   const canonical = `${baseUrl}/portfolio/${portfolio.slug || portfolio.id}`;
@@ -19,7 +26,17 @@ export function buildPortfolioMetadata({ portfolio }) {
     htmlContent: portfolio.overview,
     fallback: "Portfolio project by Nahed Nakib.",
   });
-  const imageUrl = portfolio.image || `${baseUrl}/share.png`;
+  // Ensure the OG image is always an absolute URL unique to this project.
+  // Using ?project=slug on the fallback prevents Google from conflating pages
+  // that have no custom cover image (they'd otherwise all resolve to share.png).
+  let imageUrl = portfolio.image || "";
+  if (imageUrl && !imageUrl.startsWith("http")) {
+    imageUrl = `${baseUrl}${imageUrl.startsWith("/") ? "" : "/"}${imageUrl}`;
+  }
+  if (!imageUrl) {
+    const slug = encodeURIComponent(portfolio.slug || portfolio.id || "");
+    imageUrl = `${baseUrl}/share.png?project=${slug}`;
+  }
 
   return {
     title: titleSeg,
@@ -38,7 +55,7 @@ export function buildPortfolioMetadata({ portfolio }) {
           url: imageUrl,
           width: 1200,
           height: 630,
-          alt: portfolio.title?.trim() || "Portfolio project",
+          alt: coverImageAltForPortfolio(portfolio),
         },
       ],
     },
@@ -55,7 +72,14 @@ export function buildPortfolioMetadata({ portfolio }) {
 
 export function buildCreativeWorkJsonLd({ portfolio }) {
   const baseUrl = getSiteUrl();
-  const imageUrl = portfolio.image || `${baseUrl}/share.png`;
+  let imageUrl = portfolio.image || "";
+  if (imageUrl && !imageUrl.startsWith("http")) {
+    imageUrl = `${baseUrl}${imageUrl.startsWith("/") ? "" : "/"}${imageUrl}`;
+  }
+  if (!imageUrl) {
+    const slug = encodeURIComponent(portfolio.slug || portfolio.id || "");
+    imageUrl = `${baseUrl}/share.png?project=${slug}`;
+  }
   const keywords = mergeKeywordSignals(
     portfolio.technologies,
     portfolio.seo_keywords,

@@ -43,6 +43,7 @@ export default function NewPortfolioPage() {
   const [formData, setFormData] = useState({
     title: "",
     imageFile: null,
+    image_alt: "",
     category: "",
     description: "",
     overview: "",
@@ -192,6 +193,7 @@ export default function NewPortfolioPage() {
           title: formData.title,
           slug,
           image: imageUrl,
+          image_alt: formData.image_alt.trim() || null,
           date: new Date().toLocaleString(),
           category: formData.category,
           description: formData.description,
@@ -496,6 +498,19 @@ export default function NewPortfolioPage() {
                     <Upload size={13} strokeWidth={2} />
                     Choose file
                   </label>
+                  <div className={admin.formField}>
+                    <label className={admin.fieldLabel} htmlFor="np-cover-alt">
+                      Alt text
+                    </label>
+                    <input
+                      id="np-cover-alt"
+                      name="image_alt"
+                      value={formData.image_alt}
+                      onChange={handleChange}
+                      className={admin.fieldInput}
+                      placeholder={formData.title || "Describe the image for SEO"}
+                    />
+                  </div>
                   {formData.imageFile && (
                     <button
                       type="button"
