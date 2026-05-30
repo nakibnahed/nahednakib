@@ -600,15 +600,6 @@ export default function InstagramAnalyzer() {
             </div>
           </div>
 
-          {/* ── Legend ── */}
-          <div className={styles.actionLegend}>
-            <span className={styles.legendItem}><span className={styles.legendDot} data-color="red">✕</span>Unfollowed</span>
-            <span className={styles.legendSep}>·</span>
-            <span className={styles.legendItem}><span className={styles.legendDot} data-color="green">♥</span>Keeping</span>
-            <span className={styles.legendSep}>·</span>
-            <span className={styles.legendItem}><span className={styles.legendDot} data-color="amber">⊘</span>Not found / deleted</span>
-          </div>
-
           {/* ── List ── */}
           <div className={styles.resultsList}>
             {filteredResults.length === 0 ? (
@@ -629,29 +620,6 @@ export default function InstagramAnalyzer() {
                     ].join(" ")}
                   >
                     <div className={styles.resultContent}>
-                      <div className={styles.actionGroup}>
-                        <button
-                          onClick={() => toggleHandled(username)}
-                          className={`${styles.actionChip} ${isHandled ? styles.chipUnfollowActive : ""}`}
-                          title="Unfollowed"
-                        >
-                          ✕
-                        </button>
-                        <button
-                          onClick={() => toggleKept(username)}
-                          className={`${styles.actionChip} ${isKept ? styles.chipKeepActive : ""}`}
-                          title="Keep following"
-                        >
-                          ♥
-                        </button>
-                        <button
-                          onClick={() => toggleNotFound(username)}
-                          className={`${styles.actionChip} ${isNotFound ? styles.chipGoneActive : ""}`}
-                          title="Not found / deleted"
-                        >
-                          ⊘
-                        </button>
-                      </div>
                       <a
                         href={`https://www.instagram.com/${username}/`}
                         target="_blank"
@@ -662,13 +630,32 @@ export default function InstagramAnalyzer() {
                         <span className={styles.username}>{username}</span>
                         <span className={styles.externalArrow}>↗</span>
                       </a>
-                      <button
-                        onClick={(e) => copyProfileUrl(e, username)}
-                        className={styles.copyBtn}
-                        title="Copy profile URL"
-                      >
-                        {copiedUser === username ? "✓" : "⎘"}
-                      </button>
+                      <div className={styles.actionGroup}>
+                        <button
+                          onClick={() => toggleHandled(username)}
+                          className={`${styles.actionChip} ${isHandled ? styles.chipUnfollowActive : ""}`}
+                          title="Mark as unfollowed"
+                        >
+                          <span className={styles.chipIcon}>✕</span>
+                          <span className={styles.chipLabel}>Unfollow</span>
+                        </button>
+                        <button
+                          onClick={() => toggleKept(username)}
+                          className={`${styles.actionChip} ${isKept ? styles.chipKeepActive : ""}`}
+                          title="Keep following"
+                        >
+                          <span className={styles.chipIcon}>♥</span>
+                          <span className={styles.chipLabel}>Keep</span>
+                        </button>
+                        <button
+                          onClick={() => toggleNotFound(username)}
+                          className={`${styles.actionChip} ${isNotFound ? styles.chipGoneActive : ""}`}
+                          title="Account deleted or deactivated"
+                        >
+                          <span className={styles.chipIcon}>⊘</span>
+                          <span className={styles.chipLabel}>Gone</span>
+                        </button>
+                      </div>
                     </div>
                   </div>
                 );

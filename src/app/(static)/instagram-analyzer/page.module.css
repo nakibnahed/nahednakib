@@ -570,13 +570,13 @@
 .resultsList {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 10px;
+  gap: 8px;
 }
 
 .resultItem {
   border-radius: 10px;
   background: color-mix(in srgb, var(--background-main, #121212) 80%, transparent);
-  border: 1px solid var(--card-border, rgba(255, 255, 255, 0.14));
+  border: 1px solid var(--card-border, rgba(255, 255, 255, 0.12));
   font-family: var(--font-main);
   overflow: hidden;
   transition: border-color 0.15s ease;
@@ -585,56 +585,16 @@
 .resultContent {
   display: flex;
   align-items: center;
-  padding: 12px 14px;
-  gap: 12px;
+  justify-content: space-between;
+  padding: 10px 12px;
+  gap: 10px;
 }
-
-/* ── Action group ────────────────────────────────────────────── */
-.actionGroup {
-  display: inline-flex;
-  align-items: center;
-  gap: 2px;
-  background: color-mix(in srgb, var(--card-border) 35%, transparent);
-  border: 1px solid var(--card-border);
-  border-radius: 9px;
-  padding: 3px;
-  flex-shrink: 0;
-}
-
-.actionChip {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 30px;
-  height: 30px;
-  border-radius: 6px;
-  border: none;
-  background: transparent;
-  color: var(--text-muted);
-  font-size: 13px;
-  cursor: pointer;
-  transition: background 0.15s ease, color 0.15s ease;
-  padding: 0;
-  line-height: 1;
-}
-
-.actionChip:hover {
-  background: color-mix(in srgb, var(--card-border) 70%, transparent);
-  color: var(--text-dark);
-}
-
-.chipUnfollowActive { background: rgba(239, 68, 68, 0.18);  color: #ef4444; }
-.chipUnfollowActive:hover { background: rgba(239, 68, 68, 0.28); color: #ef4444; }
-.chipKeepActive     { background: rgba(34, 197, 94, 0.18);  color: #22c55e; }
-.chipKeepActive:hover { background: rgba(34, 197, 94, 0.28);  color: #22c55e; }
-.chipGoneActive     { background: rgba(245, 158, 11, 0.18); color: #f59e0b; }
-.chipGoneActive:hover { background: rgba(245, 158, 11, 0.28); color: #f59e0b; }
 
 /* ── Username link ───────────────────────────────────────────── */
 .usernameLink {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 5px;
   flex: 1;
   min-width: 0;
   text-decoration: none;
@@ -643,15 +603,15 @@
 
 .usernameAt {
   color: var(--text-muted);
-  font-size: 14px;
-  font-weight: 700;
+  font-size: 13px;
+  font-weight: 600;
   flex-shrink: 0;
 }
 
 .username {
   font-weight: 600;
   color: var(--text-dark);
-  font-size: 15px;
+  font-size: 14px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -659,44 +619,96 @@
 
 .externalArrow {
   color: var(--primary-color);
-  font-size: 13px;
-  opacity: 0.6;
+  font-size: 12px;
+  opacity: 0.5;
   flex-shrink: 0;
+  transition: opacity 0.15s ease;
 }
 
-/* ── Copy button ─────────────────────────────────────────────── */
-.copyBtn {
+.usernameLink:hover .externalArrow {
+  opacity: 1;
+}
+
+/* ── Action group — labeled pill buttons ─────────────────────── */
+.actionGroup {
   display: inline-flex;
   align-items: center;
-  justify-content: center;
-  width: 30px;
-  height: 30px;
+  gap: 4px;
   flex-shrink: 0;
-  border: 1px solid var(--card-border);
-  border-radius: 7px;
-  background: transparent;
-  color: var(--text-muted);
-  font-size: 15px;
-  cursor: pointer;
-  transition: color 0.2s ease, border-color 0.2s ease;
-  padding: 0;
 }
 
-.copyBtn:hover {
-  color: var(--primary-color);
-  border-color: var(--primary-color);
+.actionChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 10px;
+  border-radius: 50px;
+  border: 1px solid var(--card-border);
+  background: transparent;
+  color: var(--text-muted);
+  font-family: var(--font-main);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+  white-space: nowrap;
+  min-height: 30px;
+}
+
+.chipIcon {
+  font-size: 11px;
+  line-height: 1;
+}
+
+.chipLabel {
+  font-size: 12px;
+}
+
+.actionChip:hover {
+  background: color-mix(in srgb, var(--card-border) 60%, transparent);
+  color: var(--text-dark);
+  border-color: var(--text-muted);
+}
+
+.chipUnfollowActive {
+  background: rgba(239, 68, 68, 0.12);
+  border-color: rgba(239, 68, 68, 0.4);
+  color: #ef4444;
+}
+.chipUnfollowActive:hover {
+  background: rgba(239, 68, 68, 0.2);
+  color: #ef4444;
+}
+
+.chipKeepActive {
+  background: rgba(34, 197, 94, 0.12);
+  border-color: rgba(34, 197, 94, 0.4);
+  color: #22c55e;
+}
+.chipKeepActive:hover {
+  background: rgba(34, 197, 94, 0.2);
+  color: #22c55e;
+}
+
+.chipGoneActive {
+  background: rgba(245, 158, 11, 0.12);
+  border-color: rgba(245, 158, 11, 0.4);
+  color: #f59e0b;
+}
+.chipGoneActive:hover {
+  background: rgba(245, 158, 11, 0.2);
+  color: #f59e0b;
 }
 
 /* ── Item state variants ─────────────────────────────────────── */
-.handledItem { opacity: 0.45; }
+.handledItem { opacity: 0.4; }
 .handledItem .username { text-decoration: line-through; }
 
 .keptItem {
-  border-color: rgba(34, 197, 94, 0.4) !important;
-  background: color-mix(in srgb, rgba(34, 197, 94, 0.04) 100%, transparent);
+  border-color: rgba(34, 197, 94, 0.35) !important;
 }
 
-.notFoundItem { opacity: 0.4; }
+.notFoundItem { opacity: 0.35; }
 .notFoundItem .username { text-decoration: line-through; font-style: italic; }
 
 /* ── Empty state ─────────────────────────────────────────────── */
@@ -706,7 +718,7 @@
   color: var(--text-muted);
   font-family: var(--font-main);
   font-size: 15px;
-  padding: 40px 20px;
+  padding: 48px 20px;
 }
 
 /* ── Responsive ──────────────────────────────────────────────── */
@@ -729,6 +741,24 @@
   .resultsTitle { font-size: 22px; }
   .notFoundSaveBar { flex-direction: column; align-items: flex-start; gap: 12px; }
   .notFoundSaveBtn { width: 100%; justify-content: center; }
+
+  /* On mobile stack username above actions */
+  .resultContent {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 12px;
+  }
+
+  .actionGroup {
+    width: 100%;
+  }
+
+  .actionChip {
+    flex: 1;
+    justify-content: center;
+    min-height: 36px;
+  }
 }
 
 @media (max-width: 480px) {
@@ -742,6 +772,10 @@
   .resultsTitle { font-size: 20px; }
   .filterChips { gap: 6px; }
   .filterChip { font-size: 12px; padding: 6px 11px; }
+
+  .chipLabel { display: none; }
+  .chipIcon { font-size: 13px; }
+  .actionChip { padding: 6px 10px; }
 }
 
 /* ── Light mode ──────────────────────────────────────────────── */
@@ -767,12 +801,18 @@
 }
 
 :global(.light) .keptItem {
-  background: rgba(34, 197, 94, 0.04);
+  border-color: rgba(34, 197, 94, 0.35) !important;
 }
 
-:global(.light) .actionGroup {
-  background: #f1f5f9;
+:global(.light) .actionChip {
   border-color: var(--card-border);
+  color: #6b7280;
+}
+
+:global(.light) .actionChip:hover {
+  background: #f1f5f9;
+  color: #11181c;
+  border-color: #9ca3af;
 }
 
 :global(.light) .notFoundSaveBar {
