@@ -267,7 +267,7 @@ export default async function Post({ params }) {
               : formatReadTime(calculateReadTime(blog.content))}
           </span>
         </div>
-        <ActionBar title={blog.title} contentType="blog" contentId={blog.id} />
+        <ActionBar title={blog.title} contentType="blog" contentId={blog.id} variant="inline" />
       </section>
       <div className={styles.featuredImageWrapper}>
         <Image

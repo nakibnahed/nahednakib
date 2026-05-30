@@ -79,6 +79,67 @@
   color: inherit;
 }
 
+/* ─── INLINE VARIANT (blog page — original look) ─────────────── */
+.inlineBar {
+  display: flex;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  align-items: flex-start;
+  justify-content: flex-start;
+}
+
+.inlineBtn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 6px;
+  background: transparent;
+  border: none;
+  border-radius: 3px;
+  color: var(--text-dark);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 13px;
+  font-weight: 300;
+  white-space: nowrap;
+}
+
+.inlineBtn .btnIcon svg {
+  color: var(--text-dark);
+  transition: all 0.2s ease;
+}
+
+.inlineBtn:hover,
+.inlineBtn:focus {
+  color: var(--primary-color);
+  background: transparent;
+}
+
+.inlineBtn:hover .btnIcon svg,
+.inlineBtn:focus .btnIcon svg {
+  color: var(--primary-color);
+}
+
+.inlineBtn:active {
+  transform: scale(0.95);
+}
+
+.inlineBtn.active {
+  color: var(--primary-color);
+  background: transparent;
+}
+
+.inlineBtn.active .btnIcon svg {
+  color: var(--primary-color);
+}
+
+.inlineBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
 /* ─── LEGACY HERO WRAPPER CONTEXT ────────────────────────────── */
 .actionBarWrapper .actionBar {
   justify-content: center;

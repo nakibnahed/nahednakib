@@ -11,7 +11,7 @@ import { useEngagement } from "@/hooks/useEngagement";
 import { showAppToast } from "@/lib/showAppToast";
 import styles from "./ActionBar.module.css";
 
-export default function ActionBar({ title, contentType, contentId }) {
+export default function ActionBar({ title, contentType, contentId, variant = "segment" }) {
   const { engagement, actions } = useEngagement(contentType, contentId);
 
   const handleShare = () => {
@@ -28,56 +28,60 @@ export default function ActionBar({ title, contentType, contentId }) {
     if (el) el.scrollIntoView({ behavior: "smooth" });
   };
 
+  const isInline = variant === "inline";
+  const barClass = isInline ? styles.inlineBar : styles.actionBar;
+  const btnBase = isInline ? styles.inlineBtn : styles.actionBtn;
+
   return (
-    <div className={styles.actionBar}>
+    <div className={barClass}>
       <button
-        className={`${styles.actionBtn} ${engagement.likes.userLiked ? styles.active : ""}`}
+        className={`${btnBase} ${engagement.likes.userLiked ? styles.active : ""}`}
         onClick={actions.toggleLike}
         disabled={engagement.likes.loading}
         aria-label="Like"
       >
         <span className={styles.btnIcon}>
           {engagement.likes.userLiked
-            ? <FaThumbsUp size={17} />
-            : <FaRegThumbsUp size={17} />}
+            ? <FaThumbsUp size={isInline ? 15 : 17} />
+            : <FaRegThumbsUp size={isInline ? 15 : 17} />}
         </span>
-        <span className={styles.btnLabel}>Like</span>
+        {!isInline && <span className={styles.btnLabel}>Like</span>}
       </button>
 
       <button
-        className={`${styles.actionBtn} ${engagement.favorites.userFavorited ? styles.active : ""}`}
+        className={`${btnBase} ${engagement.favorites.userFavorited ? styles.active : ""}`}
         onClick={actions.toggleFavorite}
         disabled={engagement.favorites.loading}
         aria-label="Favorite"
       >
         <span className={styles.btnIcon}>
           {engagement.favorites.userFavorited
-            ? <FaHeart size={17} />
-            : <FaRegHeart size={17} />}
+            ? <FaHeart size={isInline ? 15 : 17} />
+            : <FaRegHeart size={isInline ? 15 : 17} />}
         </span>
-        <span className={styles.btnLabel}>Save</span>
+        {!isInline && <span className={styles.btnLabel}>Save</span>}
       </button>
 
       <button
-        className={styles.actionBtn}
+        className={btnBase}
         onClick={scrollToComments}
         aria-label="Jump to comments"
       >
         <span className={styles.btnIcon}>
-          <FaComment size={17} />
+          <FaComment size={isInline ? 15 : 17} />
         </span>
-        <span className={styles.btnLabel}>Comment</span>
+        {!isInline && <span className={styles.btnLabel}>Comment</span>}
       </button>
 
       <button
-        className={styles.actionBtn}
+        className={btnBase}
         onClick={handleShare}
         aria-label="Share"
       >
         <span className={styles.btnIcon}>
-          <FiShare2 size={17} />
+          <FiShare2 size={isInline ? 15 : 17} />
         </span>
-        <span className={styles.btnLabel}>Share</span>
+        {!isInline && <span className={styles.btnLabel}>Share</span>}
       </button>
     </div>
   );
