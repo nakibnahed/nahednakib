@@ -138,9 +138,7 @@ export default function InstagramAnalyzer() {
 
       setFollowersFile(followersBlob);
       setFollowingFile(followingBlob);
-      setZipStatus("Files found in your ZIP — analyzing…");
-
-      await compareFollowers(followersBlob, followingBlob);
+      setZipStatus("ZIP loaded — click \"Start Analysis\" to continue.");
     } catch (err) {
       setError(
         "Couldn't read that ZIP file. Make sure it's the unedited ZIP Instagram sent you (in JSON format) and try again."
@@ -431,11 +429,12 @@ export default function InstagramAnalyzer() {
                 <li className={styles.step}>
                   <span className={styles.stepNum}>4</span>
                   <div className={styles.stepText}>
-                    <strong>Drop the ZIP below</strong>
+                    <strong>Drop the ZIP below &amp; start analysis</strong>
                     <p>
                       Upload it here — we&apos;ll automatically find your
-                      followers and following files and run the analysis. No
-                      need to unzip anything yourself.
+                      followers and following files. Then click{" "}
+                      <strong>Start Analysis</strong> when you&apos;re ready.
+                      No need to unzip anything yourself.
                     </p>
                   </div>
                 </li>
@@ -453,9 +452,9 @@ export default function InstagramAnalyzer() {
             <h3 className={styles.cardTitle}>Upload your Instagram ZIP</h3>
             <p className={styles.cardDescription}>
               Just drop the ZIP file you downloaded from Instagram — we&apos;ll
-              find the followers and following files for you automatically and
-              start the analysis. Nothing is uploaded to a server; everything
-              runs in your browser.
+              find the followers and following files for you automatically.
+              Then click <strong>Start Analysis</strong> when you&apos;re ready.
+              Nothing is uploaded to a server; everything runs in your browser.
             </p>
             <input
               id="zip-input"
@@ -508,10 +507,15 @@ export default function InstagramAnalyzer() {
             </div>
           </details>
 
-          {error && <div className={styles.errorMessage}>{error}</div>}
-
-          {notFoundFile && (
-            <div className={styles.actions}>
+          {followersFile && followingFile && (
+            <div className={styles.startAnalysisWrap}>
+              <button
+                onClick={() => compareFollowers()}
+                disabled={isProcessing}
+                className={`${styles.button} ${styles.primaryButton} ${styles.startAnalysisBtn}`}
+              >
+                {isProcessing ? "Analyzing…" : "Start Analysis"}
+              </button>
               <button
                 onClick={resetAnalysis}
                 className={`${styles.button} ${styles.secondaryButton}`}
@@ -520,6 +524,8 @@ export default function InstagramAnalyzer() {
               </button>
             </div>
           )}
+
+          {error && <div className={styles.errorMessage}>{error}</div>}
         </>
       )}
 
