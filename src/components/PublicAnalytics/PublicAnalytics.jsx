@@ -196,7 +196,8 @@ export default function PublicAnalytics() {
         padding: window.innerWidth < 768 ? 8 : 12,
         callbacks: {
           title: function (context) {
-            return `${context[0].label} 2024`;
+            const year = chartYears?.[context[0].dataIndex];
+            return year ? `${context[0].label} ${year}` : context[0].label;
           },
           label: function (context) {
             return `Views: ${context.parsed.y.toLocaleString()}`;
@@ -260,14 +261,16 @@ export default function PublicAnalytics() {
     },
   };
 
-  // Simple chart data showing growth over time
-  const chartLabels = ["Q1", "Q2", "Q3", "Q4"];
-  const chartData = [
-    Math.floor(analytics.totals.views * 0.15),
-    Math.floor(analytics.totals.views * 0.35),
-    Math.floor(analytics.totals.views * 0.65),
-    analytics.totals.views,
-  ];
+  // Real monthly page-view series from the API (last 6 months).
+  // Falls back to a single all-time point if the series is unavailable.
+  const trafficSeries = analytics.trafficSeries || {
+    labels: ["All time"],
+    years: [new Date().getFullYear()],
+    views: [analytics.totals.views],
+  };
+  const chartLabels = trafficSeries.labels;
+  const chartData = trafficSeries.views;
+  const chartYears = trafficSeries.years;
 
   const engagementData = {
     labels: chartLabels,
